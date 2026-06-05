@@ -1,0 +1,6 @@
+{
+  "name": "APEX UTILITY",
+  "description": "Ultra-premium client-side utility suite featuring a high-fidelity PDF document optimizer, interactive WebP image converter, and JSON beautifier with pristine SEO schemas.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
