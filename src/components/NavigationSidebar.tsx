@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { LayoutGrid, FileText, Image as ImageIcon, FileImage, Braces, Globe, Terminal, ShieldCheck, Settings, Search, Layers, Monitor, Trash2, Plus, Check } from 'lucide-react';
+import { LayoutGrid, FileText, Image as ImageIcon, FileImage, Braces, Globe, Terminal, ShieldCheck, Settings, Search, Layers, Monitor, Trash2, Plus, Check, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ActiveTab } from '../types';
 import { useLanguage } from '../context/LanguageContext';
@@ -8,12 +8,14 @@ import { usePresets } from '../context/PresetContext';
 interface NavigationSidebarProps {
   activeTab: ActiveTab;
   onTabChange: (tab: ActiveTab) => void;
+  isMobileOpen?: boolean;
+  onClose?: () => void;
   theme: 'crimson' | 'cobalt' | 'auto';
   onThemeChange: (theme: 'crimson' | 'cobalt' | 'auto') => void;
   onSearchClick: () => void;
 }
 
-export default function NavigationSidebar({ activeTab, onTabChange, theme, onThemeChange, onSearchClick }: NavigationSidebarProps) {
+export default function NavigationSidebar({ activeTab, onTabChange, isMobileOpen, onClose, theme, onThemeChange, onSearchClick }: NavigationSidebarProps) {
   const [showSettings, setShowSettings] = useState(false);
   const { language, setLanguage, t } = useLanguage();
   const { presets, activePresetId, loadPreset, saveNewPreset, deletePreset } = usePresets();
@@ -30,7 +32,7 @@ export default function NavigationSidebar({ activeTab, onTabChange, theme, onThe
   ];
 
   return (
-    <aside className="fixed top-0 left-0 h-screen w-64 border-r border-brand-border/30 bg-[#060608]/90 backdrop-blur-md p-6 flex flex-col justify-between z-40 transition-colors duration-500">
+    <aside className={`fixed top-0 left-0 h-screen w-64 border-r border-brand-border/30 bg-[#060608]/98 backdrop-blur-md p-6 flex flex-col justify-between z-40 transition-all duration-300 lg:translate-x-0 ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'}`}>
       <div>
         {/* Master Branding Logo Plate with settings gear */}
         <div className="flex items-center justify-between pb-6 mb-6 border-b border-brand-border/35">
@@ -45,13 +47,24 @@ export default function NavigationSidebar({ activeTab, onTabChange, theme, onThe
             </div>
           </div>
 
-          <button
-            onClick={() => setShowSettings(!showSettings)}
-            className="p-1.5 rounded bg-zinc-900/60 border border-zinc-800 hover:border-brand/40 text-zinc-400 hover:text-brand transition-all cursor-pointer"
-            title="Configure System Aesthetics & Language"
-          >
-            <Settings className={`w-4 h-4 transition-transform duration-700 ${showSettings ? 'rotate-90 text-brand' : ''}`} />
-          </button>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              onClick={() => setShowSettings(!showSettings)}
+              className="p-1.5 rounded bg-zinc-900/60 border border-zinc-800 hover:border-brand/40 text-zinc-400 hover:text-brand transition-all cursor-pointer"
+              title="Configure System Aesthetics & Language"
+            >
+              <Settings className={`w-4 h-4 transition-transform duration-700 ${showSettings ? 'rotate-90 text-brand' : ''}`} />
+            </button>
+            {onClose && (
+              <button
+                onClick={onClose}
+                className="lg:hidden p-1.5 rounded bg-zinc-900/60 border border-zinc-800 hover:border-brand/40 text-zinc-400 hover:text-brand transition-all cursor-pointer"
+                title="Close drawer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Global Technical Command Search Trigger */}

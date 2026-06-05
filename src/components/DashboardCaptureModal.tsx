@@ -22,6 +22,7 @@ export default function DashboardCaptureModal({
 }: DashboardCaptureModalProps) {
   // Capture preferences
   const [selectedSection, setSelectedSection] = useState<string>('full');
+  const [activeMobileTab, setActiveMobileTab] = useState<'settings' | 'preview'>('settings');
   const [scale, setScale] = useState<number>(2); // Default is 2x for high resolution
   const [includeHeader, setIncludeHeader] = useState<boolean>(true);
   const [customSubject, setCustomSubject] = useState<string>("System Workspace Snapshot");
@@ -61,6 +62,7 @@ export default function DashboardCaptureModal({
     setCompiledSrc(null);
     setImageMeta(null);
     setCompilingStep("Initializing sandbox capture environment...");
+    setActiveMobileTab('preview');
 
     try {
       // Small pause to let state paint properly
@@ -238,7 +240,7 @@ export default function DashboardCaptureModal({
           className="relative max-w-4xl w-full max-h-[90vh] overflow-hidden rounded-2xl border border-zinc-800/80 bg-[#09090d] shadow-[0_25px_60px_rgba(0,0,0,0.8)] flex flex-col z-10"
         >
           {/* Header Bar */}
-          <div className="flex items-center justify-between px-6 py-4.5 border-b border-zinc-900 bg-zinc-950/60">
+          <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4.5 border-b border-zinc-900 bg-zinc-950/60">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded bg-brand/10 border border-brand/20 text-brand">
                 <Camera className="w-5 h-5 text-brand" />
@@ -256,9 +258,42 @@ export default function DashboardCaptureModal({
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-6 grid grid-cols-1 md:grid-cols-12 gap-6 min-h-0">
+          {/* Mobile Tab Swappable Bar (Hidden on Desktop) */}
+          <div className="flex lg:hidden border-b border-zinc-900 bg-zinc-950/40 p-2 gap-1.5 px-4 sm:px-6">
+            <button
+              type="button"
+              onClick={() => setActiveMobileTab('settings')}
+              className={`flex-1 py-2 px-3 rounded-lg font-heading text-[11px] uppercase font-bold tracking-wider flex items-center justify-center gap-2 border transition-all cursor-pointer ${
+                activeMobileTab === 'settings'
+                  ? 'bg-brand/10 border-brand/40 text-white shadow-[0_0_10px_rgba(245,158,11,0.05)]'
+                  : 'bg-[#050508]/10 border-transparent text-zinc-400 hover:text-zinc-200'
+              }`}
+            >
+              <Sliders className="w-3.5 h-3.5" />
+              <span>1. Config Settings</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveMobileTab('preview')}
+              className={`flex-1 py-2 px-3 rounded-lg font-heading text-[11px] uppercase font-bold tracking-wider flex items-center justify-center gap-2 border transition-all cursor-pointer relative ${
+                activeMobileTab === 'preview'
+                  ? 'bg-brand/10 border-brand/40 text-white shadow-[0_0_10px_rgba(245,158,11,0.05)]'
+                  : 'bg-[#050508]/10 border-transparent text-zinc-400 hover:text-zinc-200'
+              }`}
+            >
+              <ImageIcon className="w-3.5 h-3.5" />
+              <span>2. Snapshot View</span>
+              {isCompiling ? (
+                <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-amber-500 animate-ping" />
+              ) : compiledSrc ? (
+                <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#10b981]" />
+              ) : null}
+            </button>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 min-h-0">
             {/* Left Controls Column */}
-            <div className="md:col-span-12 lg:col-span-5 space-y-5">
+            <div className={`lg:col-span-5 space-y-4 sm:space-y-5 ${activeMobileTab === 'settings' ? 'block' : 'hidden lg:block'}`}>
               <div className="bg-zinc-950 p-4 rounded-xl border border-zinc-900/80 space-y-4">
                 <div className="flex items-center gap-2 pb-2 border-b border-zinc-900">
                   <Sliders className="w-4 h-4 text-brand" />
@@ -293,7 +328,7 @@ export default function DashboardCaptureModal({
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="font-heading text-[11px] font-bold uppercase tracking-wider">{sec.label}</div>
-                            <div className="text-[9px] text-[#8e9cae] leading-snug font-sans mt-0.5">{sec.desc}</div>
+                            <div className="text-[9px] text-[#8e9cae] leading-snug font-sans mt-0.5 hidden sm:block">{sec.desc}</div>
                           </div>
                         </button>
                       );
@@ -415,7 +450,7 @@ export default function DashboardCaptureModal({
             </div>
 
             {/* Right Output/Preview Column */}
-            <div className="md:col-span-12 lg:col-span-7 flex flex-col justify-between h-full bg-[#040407] rounded-xl border border-zinc-900 p-4.5 min-h-[320px] md:min-h-0">
+            <div className={`lg:col-span-7 flex flex-col justify-between h-full bg-[#040407] rounded-xl border border-zinc-900 p-4 sm:p-4.5 min-h-[320px] lg:min-h-0 ${activeMobileTab === 'preview' ? 'flex' : 'hidden lg:flex'}`}>
               <div className="flex-1 flex flex-col justify-center min-h-0">
                 {isCompiling ? (
                   /* Loading visual */
