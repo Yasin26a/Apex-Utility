@@ -213,3 +213,55 @@ body {
   line-height: 1.5;
   margin-bottom: 1.25rem;
 }
+
+/* 3D Color-Shifting Animation for Premium Branding */
+@keyframes colorShift3D {
+  0% {
+    color: #f43f5e; /* Rose 500 */
+    text-shadow: 
+      0.5px 0.5px 0px #9f1239, 
+      1px 1px 0px #4c0519, 
+      1.5px 1.5px 0px #000000,
+      0px 0px 12px rgba(244, 63, 94, 0.5);
+  }
+  25% {
+    color: #f59e0b; /* Amber 500 */
+    text-shadow: 
+      0.5px 0.5px 0px #b45309, 
+      1px 1px 0px #78350f, 
+      1.5px 1.5px 0px #000000,
+      0px 0px 12px rgba(245, 158, 11, 0.5);
+  }
+  50% {
+    color: #10b981; /* Emerald 500 */
+    text-shadow: 
+      0.5px 0.5px 0px #047857, 
+      1px 1px 0px #064e3b, 
+      1.5px 1.5px 0px #000000,
+      0px 0px 12px rgba(16, 185, 129, 0.5);
+  }
+  75% {
+    color: #3b82f6; /* Blue 500 */
+    text-shadow: 
+      0.5px 0.5px 0px #1d4ed8, 
+      1px 1px 0px #1e3a8a, 
+      1.5px 1.5px 0px #000000,
+      0px 0px 12px rgba(59, 130, 246, 0.5);
+  }
+  100% {
+    color: #ec4899; /* Pink 500 */
+    text-shadow: 
+      0.5px 0.5px 0px #be185d, 
+      1px 1px 0px #831843, 
+      1.5px 1.5px 0px #000000,
+      0px 0px 12px rgba(236, 72, 153, 0.5);
+  }
+}
+
+.color-shift-text-3d {
+  display: inline-block;
+  animation: colorShift3D 8s ease-in-out infinite alternate;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+}
+

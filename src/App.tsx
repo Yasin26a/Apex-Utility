@@ -10,6 +10,7 @@ import JSONBeautifier from './components/JSONBeautifier';
 import SEOInspect from './components/SEOInspect';
 import ImageToPDF from './components/ImageToPDF';
 import PDFJoiner from './components/PDFJoiner';
+import AIWriter from './components/AIWriter';
 import useSEOTags from './hooks/useSEOTags';
 import CommandBar from './components/CommandBar';
 
@@ -87,6 +88,8 @@ export default function App() {
         return <SEOInspect />;
       case 'image-to-pdf':
         return <ImageToPDF />;
+      case 'ai-writer':
+        return <AIWriter />;
       default:
         return <Dashboard onTabChange={setActiveTab} />;
     }
@@ -107,12 +110,13 @@ export default function App() {
       {/* Mobile Sticky Top Header (Visible only on screens < 1024px) */}
       <div className="lg:hidden w-full bg-[#060608]/90 backdrop-blur-md border-b border-brand-border/30 px-4 sm:px-6 py-4 flex items-center justify-between sticky top-0 z-30 transition-all duration-500">
         <div className="flex items-center gap-3">
-          <div className="relative flex items-center justify-center w-8.5 h-8.5 rounded-lg bg-gradient-to-br from-brand/80 to-[#0e0c0c] border border-brand/30 shadow-[0_0_10px_var(--theme-glow)]">
-            <span className="font-heading font-bold text-white tracking-widest text-sm">A</span>
+          <div className="relative flex items-center justify-center w-8.5 h-8.5 rounded-lg bg-gradient-to-br from-brand/80 to-[#0e0c0c] border border-brand/30 shadow-[0_0_10px_var(--theme-glow)] shrink-0">
+            <span className="font-heading font-bold text-white tracking-widest text-base">A</span>
           </div>
-          <div>
-            <h1 className="font-heading font-black text-brand tracking-wider text-xs uppercase">APEX UTILITY</h1>
-            <p className="font-mono text-[8px] text-[#94a3b8] uppercase tracking-widest">v2.6 mobile</p>
+          <div className="flex items-center">
+            <h1 className="font-heading font-black text-lg sm:text-xl tracking-wider uppercase color-shift-text-3d select-none">
+              APEX UTILITY
+            </h1>
           </div>
         </div>
         <button
@@ -129,10 +133,10 @@ export default function App() {
         {isMobileSidebarOpen && (
           <motion.div
             initial={{ opacity: 0 }}
-            animate={{ opacity: 0.5 }}
+            animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setIsMobileSidebarOpen(false)}
-            className="fixed inset-0 bg-black z-30 lg:hidden cursor-pointer"
+            className="fixed inset-0 bg-black/80 backdrop-blur-md z-30 lg:hidden cursor-pointer"
           />
         )}
       </AnimatePresence>

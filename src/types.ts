@@ -1,4 +1,4 @@
-export type ActiveTab = 'dashboard' | 'compress-pdf' | 'webp-converter' | 'json-beautifier' | 'sitemap-seo' | 'image-to-pdf' | 'join-pdf';
+export type ActiveTab = 'dashboard' | 'compress-pdf' | 'webp-converter' | 'json-beautifier' | 'sitemap-seo' | 'image-to-pdf' | 'join-pdf' | 'ai-writer';
 
 export interface PDFFileState {
   name: string;
@@ -15,7 +15,7 @@ export interface PDFFileState {
 export interface WebPConverterState {
   file: File | null;
   previewUrl: string | null;
-  outputFormat: 'jpg' | 'png';
+  outputFormat: 'jpg' | 'png' | 'gif';
   quality: number; // 1 to 100
   isProcessing: boolean;
   downloadUrl: string | null;

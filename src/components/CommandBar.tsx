@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Search, Command, FileText, Image as ImageIcon, FileImage, Braces, Globe, LayoutGrid, Palette, ArrowRight, CornerDownLeft, Layers } from 'lucide-react';
+import { Search, Command, FileText, Image as ImageIcon, FileImage, Braces, Globe, LayoutGrid, Palette, ArrowRight, CornerDownLeft, Layers, Sparkles } from 'lucide-react';
 import { ActiveTab } from '../types';
 
 interface CommandBarProps {
@@ -116,6 +116,19 @@ export default function CommandBar({ isOpen, onClose, onSelectTab, theme, onThem
       keywords: ['seo', 'crawler', 'sitemap', 'robots', 'xml', 'inspect', 'priority', 'indexing', 'audit'],
       action: () => {
         onSelectTab('sitemap-seo');
+        onClose();
+      },
+      shortcut: '↵'
+    },
+    {
+      id: 'ai-writer',
+      category: 'Tools',
+      title: 'Apex AI Writer & Copywriter',
+      description: 'Draft, format, and edit publications, emails, and markdown documents using Google Gemini AI',
+      icon: Sparkles,
+      keywords: ['ai', 'writer', 'copywriter', 'draft', 'author', 'article', 'email', 'markdown', 'gemini', 'tone'],
+      action: () => {
+        onSelectTab('ai-writer');
         onClose();
       },
       shortcut: '↵'

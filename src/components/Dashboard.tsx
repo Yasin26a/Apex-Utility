@@ -237,7 +237,7 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
           {/* COLUMN A: Media Production Engine */}
           <div className="space-y-4">
             <div className="flex items-center gap-2 pl-2">
@@ -388,6 +388,37 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
 
               <div className="flex items-center justify-between text-xs text-brand font-bold group-hover:text-brand transition-all duration-500 mt-4 pt-2 border-t border-brand-border/10">
                 <span>Boot Formatting Terminal</span>
+                <ArrowRight className="w-4 h-4" />
+              </div>
+            </ThreeDTiltCard>
+          </div>
+
+          {/* COLUMN F: AI Content Writer Engine */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 pl-2">
+              <Sparkles className="w-4.5 h-4.5 text-brand transition-colors duration-500" />
+              <h3 className="font-heading text-xs uppercase font-bold text-[#f8fafc] tracking-widest">AI Copywriting</h3>
+            </div>
+
+            <ThreeDTiltCard onClick={() => onTabChange('ai-writer')} className="h-72">
+              <div className="space-y-4">
+                <div className="w-12 h-12 rounded-lg bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+                  <Sparkles className="w-6 h-6 text-indigo-400 animate-pulse" />
+                </div>
+                <div>
+                  <h4 className="font-heading text-sm font-bold text-white">Apex AI Content Writer</h4>
+                  <p className="font-sans text-xs text-zinc-400 mt-1 max-w-xs leading-relaxed">
+                    Draft publications, articles, formal emails, or markdown instantly and refine their structure using Gemini.
+                  </p>
+                </div>
+                <div className="border-t border-zinc-900 pt-3">
+                  <p className="font-mono text-[9px] text-[#94a3b8] uppercase tracking-wider mb-1">Target Capability</p>
+                  <p className="font-sans text-[11px] text-zinc-500 italic">"ai copywriter and professional editor"</p>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between text-xs text-brand font-bold group-hover:text-brand transition-all duration-500 mt-4 pt-2 border-t border-brand-border/10">
+                <span>Boot Writing Forge</span>
                 <ArrowRight className="w-4 h-4" />
               </div>
             </ThreeDTiltCard>

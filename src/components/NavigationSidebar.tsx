@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { LayoutGrid, FileText, Image as ImageIcon, FileImage, Braces, Globe, Terminal, ShieldCheck, Settings, Search, Layers, Monitor, Trash2, Plus, Check, X } from 'lucide-react';
+import React, { useState } from 'react';
+import { LayoutGrid, FileText, Image as ImageIcon, FileImage, Braces, Globe, Terminal, ShieldCheck, Settings, Search, Layers, Monitor, Trash2, Plus, Check, X, Sparkles, Download, Upload } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ActiveTab } from '../types';
 import { useLanguage } from '../context/LanguageContext';
@@ -20,6 +20,119 @@ export default function NavigationSidebar({ activeTab, onTabChange, isMobileOpen
   const { language, setLanguage, t } = useLanguage();
   const { presets, activePresetId, loadPreset, saveNewPreset, deletePreset } = usePresets();
   const [newPresetName, setNewPresetName] = useState('');
+  const [backupStatus, setBackupStatus] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  const handleExportBackup = () => {
+    try {
+      const keysToBackup = [
+        'apex_custom_presets',
+        'apex_recent_ops',
+        'apex_active_settings',
+        'apex_active_preset_id',
+        'apex_language',
+        'apex_theme_mode',
+        'apex_theme'
+      ];
+      
+      const backupData: Record<string, string | null> = {};
+      keysToBackup.forEach((key) => {
+        backupData[key] = localStorage.getItem(key);
+      });
+      
+      const payload = {
+        app: 'APEX UTILITY',
+        version: '2.0.0',
+        exportedAt: new Date().toISOString(),
+        data: backupData
+      };
+      
+      const jsonString = JSON.stringify(payload, null, 2);
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `apex_utility_backup_${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      setBackupStatus({ message: 'Backup exported successfully!', type: 'success' });
+      setTimeout(() => setBackupStatus(null), 4000);
+    } catch (error) {
+      console.error('Error exporting backup:', error);
+      setBackupStatus({ message: 'Export failed!', type: 'error' });
+      setTimeout(() => setBackupStatus(null), 4000);
+    }
+  };
+
+  const handleImportBackup = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const parsed = JSON.parse(e.target?.result as string);
+        
+        if (!parsed || typeof parsed !== 'object') {
+          throw new Error('Invalid JSON format');
+        }
+        
+        const sourceData = parsed.data || parsed;
+        if (typeof sourceData !== 'object' || sourceData === null) {
+          throw new Error('Data payload missing or invalid');
+        }
+
+        const keysToImport = [
+          'apex_custom_presets',
+          'apex_recent_ops',
+          'apex_active_settings',
+          'apex_active_preset_id',
+          'apex_language',
+          'apex_theme_mode',
+          'apex_theme'
+        ];
+
+        let importCount = 0;
+        keysToImport.forEach((key) => {
+          if (key in sourceData) {
+            const value = sourceData[key];
+            if (value === null) {
+              localStorage.removeItem(key);
+            } else if (typeof value === 'string') {
+              localStorage.setItem(key, value);
+              importCount++;
+            } else {
+              localStorage.setItem(key, JSON.stringify(value));
+              importCount++;
+            }
+          }
+        });
+
+        if (importCount === 0) {
+          throw new Error('No valid APEX database keys found.');
+        }
+
+        setBackupStatus({ message: 'State imported! Re-initializing...', type: 'success' });
+        setTimeout(() => {
+          window.location.reload();
+        }, 1200);
+
+      } catch (err: any) {
+        console.error('Import backup failure:', err);
+        setBackupStatus({ 
+          message: err.message || 'Invalid config file format.', 
+          type: 'error' 
+        });
+        setTimeout(() => setBackupStatus(null), 5000);
+      }
+    };
+    
+    reader.readAsText(file);
+    event.target.value = '';
+  };
 
   const menuItems = [
     { id: 'dashboard' as ActiveTab, label: t.navigation.dashboard, icon: LayoutGrid, description: t.navigation.dashboardDesc },
@@ -29,10 +142,11 @@ export default function NavigationSidebar({ activeTab, onTabChange, isMobileOpen
     { id: 'webp-converter' as ActiveTab, label: t.navigation.webpConverter, icon: ImageIcon, description: t.navigation.webpConverterDesc },
     { id: 'json-beautifier' as ActiveTab, label: t.navigation.jsonBeautifier, icon: Braces, description: t.navigation.jsonBeautifierDesc },
     { id: 'sitemap-seo' as ActiveTab, label: t.navigation.sitemapSeo, icon: Globe, description: t.navigation.sitemapSeoDesc },
+    { id: 'ai-writer' as ActiveTab, label: t.navigation.aiWriter, icon: Sparkles, description: t.navigation.aiWriterDesc },
   ];
 
   return (
-    <aside className={`fixed top-0 left-0 h-screen w-64 border-r border-brand-border/30 bg-[#060608]/98 backdrop-blur-md p-6 flex flex-col justify-between z-40 transition-all duration-300 lg:translate-x-0 ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+    <aside className={`fixed top-0 h-screen w-64 bg-[#060608]/98 backdrop-blur-md p-6 flex flex-col justify-between z-40 transition-transform duration-300 right-0 left-auto border-l border-brand-border/30 lg:left-0 lg:right-auto lg:border-r lg:border-l-0 ${isMobileOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}`}>
       <div>
         {/* Master Branding Logo Plate with settings gear */}
         <div className="flex items-center justify-between pb-6 mb-6 border-b border-brand-border/35">
@@ -41,9 +155,10 @@ export default function NavigationSidebar({ activeTab, onTabChange, isMobileOpen
               <span className="font-heading font-bold text-white tracking-widest text-lg">A</span>
               <div className="absolute inset-0 bg-white/10 rounded-lg animate-pulse" />
             </div>
-            <div>
-              <h1 className="font-heading font-black text-brand tracking-wider text-sm uppercase transition-colors duration-500">APEX UTILITY</h1>
-              <p className="font-mono text-[9px] text-[#94a3b8] uppercase tracking-widest">Utility System v2.6</p>
+            <div className="flex items-center">
+              <h1 className="font-heading font-black text-base tracking-wider uppercase color-shift-text-3d select-none">
+                APEX UTILITY
+              </h1>
             </div>
           </div>
 
@@ -242,6 +357,49 @@ export default function NavigationSidebar({ activeTab, onTabChange, isMobileOpen
                         <Plus className="w-3.5 h-3.5" />
                       </button>
                     </div>
+                  </div>
+
+                  {/* Backup & Recovery Hub */}
+                  <div className="pt-2 border-t border-brand-border/20 space-y-1.5 align-left">
+                    <label className="block text-[8px] uppercase tracking-widest text-[#94a3b8]/70 font-mono">
+                      System Backup Hub
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={handleExportBackup}
+                        className="py-1.5 px-2 bg-zinc-950 border border-zinc-900 hover:border-brand/40 text-[#94a3b8] hover:text-white rounded flex items-center justify-center gap-1.5 font-sans text-[10px] font-medium transition-all cursor-pointer hover:bg-brand/5"
+                        title="Export all custom presets, recent files, and setup to an external JSON configuration backup."
+                      >
+                        <Download className="w-3.5 h-3.5 text-zinc-500" />
+                        <span>Export Backup</span>
+                      </button>
+                      
+                      <label
+                        htmlFor="apex-backup-upload"
+                        className="py-1.5 px-2 bg-zinc-950 border border-zinc-900 hover:border-brand/40 text-[#94a3b8] hover:text-white rounded flex items-center justify-center gap-1.5 font-sans text-[10px] font-medium transition-all cursor-pointer select-none text-center hover:bg-brand/5"
+                        title="Import custom presets, recent history, and setup from an external JSON file."
+                      >
+                        <Upload className="w-3.5 h-3.5 text-zinc-500" />
+                        <span className="truncate">Import Backup</span>
+                      </label>
+                      <input
+                        id="apex-backup-upload"
+                        type="file"
+                        accept=".json"
+                        onChange={handleImportBackup}
+                        className="hidden"
+                      />
+                    </div>
+                    {backupStatus && (
+                      <div className={`text-[9.5px] font-mono py-1 px-1.5 rounded border text-center transition-all ${
+                        backupStatus.type === 'success'
+                          ? 'bg-emerald-950/20 border-emerald-500/30 text-emerald-400'
+                          : 'bg-red-950/20 border-red-500/30 text-red-400'
+                      }`}>
+                        {backupStatus.message}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

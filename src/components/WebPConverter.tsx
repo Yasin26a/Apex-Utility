@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Upload, Download, RefreshCw, AlertCircle, Sparkles, Image as ImageIcon, Sliders, CheckCircle, HelpCircle, ChevronDown, Cpu, Loader2, Zap } from 'lucide-react';
+import { Upload, Download, RefreshCw, AlertCircle, Sparkles, Image as ImageIcon, Sliders, CheckCircle, HelpCircle, ChevronDown, Cpu, Loader2, Zap, Clock } from 'lucide-react';
 import { WebPConverterState } from '../types';
 import { addRecentOperation } from '../utils/recentOperations';
 import { usePresets } from '../context/PresetContext';
+import { GIFEncoder, quantize, applyPalette } from 'gifenc';
 
 export default function WebPConverter() {
   const { activeSettings, updateActiveSettings } = usePresets();
@@ -22,11 +23,16 @@ export default function WebPConverter() {
   const [isAutoCompress, setIsAutoCompress] = useState(false);
   const [targetSizeKb, setTargetSizeKb] = useState<number>(500);
 
+  // Custom frame rate animation states for WebP-to-GIF pipeline
+  const [useCustomFps, setUseCustomFps] = useState(false);
+  const [customFps, setCustomFps] = useState(15);
+  const [frameCountLoaded, setFrameCountLoaded] = useState<number | null>(null);
+
   // Sync state with active settings when preset changes
   useEffect(() => {
     setState((prev) => ({
       ...prev,
-      outputFormat: activeSettings.webpFormat,
+      outputFormat: (activeSettings.webpFormat as any) || 'jpg',
       quality: activeSettings.webpQuality,
     }));
     setIsAutoCompress(activeSettings.webpAutoCompress);
@@ -132,12 +138,34 @@ export default function WebPConverter() {
     }
   };
 
+  const checkFrameCount = async (file: File) => {
+    const ImageDecoderClass = (window as any).ImageDecoder;
+    if (ImageDecoderClass) {
+      try {
+        const decoder = new ImageDecoderClass({
+          data: await file.arrayBuffer(),
+          type: 'image/webp'
+        });
+        await decoder.tracks.ready;
+        setFrameCountLoaded(decoder.tracks.selectedTrack.frameCount);
+      } catch (e) {
+        console.error("Frame count detection failed:", e);
+        setFrameCountLoaded(1);
+      }
+    } else {
+      setFrameCountLoaded(1);
+    }
+  };
+
   const loadWebPImage = (file: File) => {
     // Validate WebP format
     if (!file.name.toLowerCase().endsWith('.webp') && file.type !== 'image/webp') {
       alert('APEX Media Lab expects valid .webp files as initial vector inputs.');
       return;
     }
+
+    setFrameCountLoaded(null);
+    checkFrameCount(file);
 
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -160,10 +188,148 @@ export default function WebPConverter() {
     reader.readAsDataURL(file);
   };
 
-  const performConversion = () => {
+  const performConversion = async () => {
     if (!state.previewUrl || !state.file) return;
 
     setState((prev) => ({ ...prev, isProcessing: true }));
+
+    if (state.outputFormat === 'gif') {
+      const ImageDecoderClass = (window as any).ImageDecoder;
+      if (ImageDecoderClass) {
+        try {
+          const arrayBuffer = await state.file.arrayBuffer();
+          const decoder = new ImageDecoderClass({
+            data: arrayBuffer,
+            type: 'image/webp'
+          });
+          await decoder.tracks.ready;
+          const track = decoder.tracks.selectedTrack;
+          const frameCount = track.frameCount;
+          
+          if (frameCount > 0) {
+            const encoder = new GIFEncoder();
+            let width = 0;
+            let height = 0;
+            
+            for (let i = 0; i < frameCount; i++) {
+              const result = await decoder.decode({ frameIndex: i });
+              const videoFrame = result.image;
+              
+              if (i === 0) {
+                width = videoFrame.codedWidth || videoFrame.displayWidth;
+                height = videoFrame.codedHeight || videoFrame.displayHeight;
+              }
+              
+              const offscreen = document.createElement('canvas');
+              offscreen.width = width;
+              offscreen.height = height;
+              const oCtx = offscreen.getContext('2d');
+              if (oCtx) {
+                oCtx.drawImage(videoFrame, 0, 0, width, height);
+                const imgData = oCtx.getImageData(0, 0, width, height);
+                
+                const palette = quantize(imgData.data, 256);
+                const index = applyPalette(imgData.data, palette, 'rgb565');
+                
+                let delay = 100;
+                if (useCustomFps) {
+                  delay = 1000 / customFps;
+                } else {
+                  const origMs = videoFrame.duration ? videoFrame.duration / 1000 : 100;
+                  delay = origMs > 0 ? origMs : 100;
+                }
+                
+                encoder.writeFrame(index, width, height, {
+                  palette,
+                  delay: Math.max(10, Math.round(delay))
+                });
+              }
+              videoFrame.close();
+            }
+            
+            encoder.finish();
+            const bytes = encoder.bytes();
+            const blob = new Blob([bytes], { type: 'image/gif' });
+            const dataUrl = URL.createObjectURL(blob);
+            const finishedSizeStr = formatBytes(blob.size);
+            
+            if (state.file) {
+              addRecentOperation(
+                state.file.name,
+                'WebP Conversion',
+                state.originalSizeStr,
+                finishedSizeStr,
+                `APEX_Animated_${state.file.name.replace(/\.webp$/i, '.gif')}`,
+                dataUrl
+              );
+            }
+            
+            setState((prev) => ({
+              ...prev,
+              isProcessing: false,
+              downloadUrl: dataUrl,
+              convertedSizeStr: finishedSizeStr,
+            }));
+            return;
+          }
+        } catch (error) {
+          console.error('Framed WebP extraction failed, using fallback:', error);
+        }
+      }
+      
+      // Fallback to static image-based GIF generation
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.naturalWidth;
+          canvas.height = img.naturalHeight;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) throw new Error('Unassigned Canvas context');
+          
+          ctx.drawImage(img, 0, 0);
+          const imgData = ctx.getImageData(0, 0, img.naturalWidth, img.naturalHeight);
+          
+          const encoder = new GIFEncoder();
+          const palette = quantize(imgData.data, 256);
+          const index = applyPalette(imgData.data, palette, 'rgb565');
+          
+          encoder.writeFrame(index, img.naturalWidth, img.naturalHeight, {
+            palette,
+            delay: 100
+          });
+          encoder.finish();
+          
+          const bytes = encoder.bytes();
+          const blob = new Blob([bytes], { type: 'image/gif' });
+          const dataUrl = URL.createObjectURL(blob);
+          const finishedSizeStr = formatBytes(blob.size);
+          
+          if (state.file) {
+            addRecentOperation(
+              state.file.name,
+              'WebP Conversion',
+              state.originalSizeStr,
+              finishedSizeStr,
+              `APEX_Static_${state.file.name.replace(/\.webp$/i, '.gif')}`,
+              dataUrl
+            );
+          }
+          
+          setState((prev) => ({
+            ...prev,
+            isProcessing: false,
+            downloadUrl: dataUrl,
+            convertedSizeStr: finishedSizeStr,
+          }));
+        } catch (error) {
+          console.error('Fallback static GIF creation failed:', error);
+          setState((prev) => ({ ...prev, isProcessing: false }));
+        }
+      };
+      img.src = state.previewUrl as string;
+      return;
+    }
 
     // Set a tiny simulation delay for authentic client-side mechanics
     setTimeout(() => {
@@ -228,6 +394,9 @@ export default function WebPConverter() {
       convertedSizeStr: '',
     });
     setIsAutoCompress(false);
+    setFrameCountLoaded(null);
+    setUseCustomFps(false);
+    setCustomFps(15);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -440,7 +609,7 @@ export default function WebPConverter() {
             {/* Target output selector */}
             <div className="space-y-2">
               <label id="lbl-target-output" className="font-heading text-[11px] uppercase tracking-wider text-zinc-400 font-bold">Target Output</label>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-3 gap-2">
                 <button
                   id="btn-webp-format-jpg"
                   onClick={() => {
@@ -448,7 +617,7 @@ export default function WebPConverter() {
                     updateActiveSettings({ webpFormat: 'jpg' });
                   }}
                   disabled={!!state.downloadUrl}
-                  className={`py-2 px-3 rounded text-center font-mono text-xs font-bold border transition-all cursor-pointer ${
+                  className={`py-2 px-1.5 rounded text-center font-mono text-[10px] font-bold border transition-all cursor-pointer shrink-0 ${
                     state.outputFormat === 'jpg'
                       ? 'bg-orange-500/10 border-orange-500 text-orange-400 shadow-[0_0_10px_rgba(249,115,22,0.1)]'
                       : 'border-zinc-800 text-zinc-500 hover:border-zinc-700 hover:text-zinc-300'
@@ -464,142 +633,267 @@ export default function WebPConverter() {
                     updateActiveSettings({ webpFormat: 'png', webpAutoCompress: false });
                   }}
                   disabled={!!state.downloadUrl}
-                  className={`py-2 px-3 rounded text-center font-mono text-xs font-bold border transition-all cursor-pointer ${
+                  className={`py-2 px-1.5 rounded text-center font-mono text-[10px] font-bold border transition-all cursor-pointer shrink-0 ${
                     state.outputFormat === 'png'
                       ? 'bg-orange-500/10 border-orange-500 text-orange-400 shadow-[0_0_10px_rgba(249,115,22,0.1)]'
                       : 'border-zinc-800 text-zinc-500 hover:border-zinc-700 hover:text-zinc-300'
                   }`}
                 >
-                  PNG Form (Lossless)
+                  PNG Lossless
+                </button>
+                <button
+                  id="btn-webp-format-gif"
+                  onClick={() => {
+                    setState(prev => ({ ...prev, outputFormat: 'gif' }));
+                    setIsAutoCompress(false);
+                    updateActiveSettings({ webpFormat: 'gif' as any, webpAutoCompress: false });
+                  }}
+                  disabled={!!state.downloadUrl}
+                  className={`py-2 px-1.5 rounded text-center font-mono text-[10px] font-bold border transition-all cursor-pointer shrink-0 ${
+                    state.outputFormat === 'gif'
+                      ? 'bg-orange-500/10 border-orange-500 text-orange-400 shadow-[0_0_10px_rgba(249,115,22,0.1)]'
+                      : 'border-zinc-800 text-zinc-500 hover:border-zinc-700 hover:text-zinc-300'
+                  }`}
+                >
+                  Animation/GIF
                 </button>
               </div>
             </div>
 
-            {/* Auto-Compress Agent Toggle Card */}
-            <div id="webp-auto-compress-widget" className="bg-zinc-950/60 p-4 rounded-xl border border-zinc-900/80 space-y-3.5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Zap className={`w-3.5 h-3.5 transition-colors ${isAutoCompress ? 'text-orange-400 animate-pulse' : 'text-zinc-500'}`} />
-                  <div>
-                    <span className="block text-[10px] font-heading font-black uppercase tracking-wider text-zinc-300">
-                      Auto-Compress Target
-                    </span>
-                    <span className="block text-[8px] font-mono text-zinc-500">
-                      Smart slider calibration
-                    </span>
+            {/* Auto-Compress Agent Toggle Card - ONLY FOR JPG */}
+            {state.outputFormat === 'jpg' && (
+              <div id="webp-auto-compress-widget" className="bg-zinc-950/60 p-4 rounded-xl border border-zinc-900/80 space-y-3.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Zap className={`w-3.5 h-3.5 transition-colors ${isAutoCompress ? 'text-orange-400 animate-pulse' : 'text-zinc-500'}`} />
+                    <div>
+                      <span className="block text-[10px] font-heading font-black uppercase tracking-wider text-zinc-300">
+                        Auto-Compress Target
+                      </span>
+                      <span className="block text-[8px] font-mono text-zinc-500">
+                        Smart slider calibration
+                      </span>
+                    </div>
+                  </div>
+
+                  <button
+                    id="btn-auto-compress-toggle"
+                    type="button"
+                    onClick={handleToggleAutoCompress}
+                    className={`w-9 h-5 rounded-full p-0.5 transition-colors cursor-pointer flex items-center ${
+                      isAutoCompress ? 'bg-orange-500' : 'bg-zinc-800'
+                    }`}
+                    aria-label="Toggle Auto-Compress option"
+                  >
+                    <motion.div
+                      layout
+                      className="w-4 h-4 rounded-full bg-black shadow-md border border-neutral-800/40"
+                      animate={{ x: isAutoCompress ? 16 : 0 }}
+                      transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                    />
+                  </button>
+                </div>
+
+                <AnimatePresence>
+                  {isAutoCompress && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="space-y-3 border-t border-zinc-900/60 pt-3 overflow-hidden"
+                    >
+                      <label id="lbl-target-size-preset" className="block text-[9px] font-mono uppercase tracking-wider text-zinc-500">
+                        Target File Size Limit
+                      </label>
+
+                      <div className="grid grid-cols-4 gap-1.5">
+                        {[
+                          { label: '<150K', value: 150 },
+                          { label: '<300K', value: 300 },
+                          { label: '<500K', value: 500 },
+                          { label: '<1M', value: 1000 }
+                        ].map((preset) => (
+                          <button
+                            key={preset.value}
+                            id={`preset-size-${preset.value}`}
+                            type="button"
+                            onClick={() => handleTargetSizeChange(preset.value)}
+                            className={`py-1.5 px-0.5 rounded font-mono text-[9px] font-extrabold uppercase transition-all border cursor-pointer text-center ${
+                              targetSizeKb === preset.value
+                                ? 'bg-orange-500/10 border-orange-500 text-orange-400 font-bold shadow-[0_0_8px_rgba(249,115,22,0.15)]'
+                                : 'bg-zinc-900/40 border-zinc-850 hover:border-zinc-700 text-zinc-500 hover:text-zinc-400'
+                            }`}
+                          >
+                            {preset.label}
+                          </button>
+                        ))}
+                      </div>
+
+                      {isSearchingQuality ? (
+                        <div className="flex items-center gap-1.5 text-[9px] font-mono text-orange-400 animate-pulse bg-orange-500/5 p-2 rounded border border-orange-500/15">
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                          <span>Searching canvas configurations...</span>
+                        </div>
+                      ) : state.previewUrl ? (
+                        <div className="flex items-center gap-1.5 text-[9px] font-mono text-emerald-400 bg-emerald-500/5 p-2 rounded border border-emerald-500/15 animate-fade-in">
+                          <CheckCircle className="w-3 h-3 text-emerald-400" />
+                          <span>Optimized quality target: <strong>{state.quality}%</strong></span>
+                        </div>
+                      ) : (
+                        <div className="text-[9px] font-mono text-zinc-650 leading-normal italic">
+                          Upload WebP file to test caliber calculation.
+                        </div>
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
+
+            {/* Quality Slider - ONLY FOR JPG */}
+            {state.outputFormat === 'jpg' && (
+              <div className="space-y-3">
+                <div className="flex justify-between items-center text-[11px] uppercase tracking-wider font-bold text-zinc-400 font-sans">
+                  <span className="flex items-center gap-1">
+                    <span>Raster Compression Ratio</span>
+                    {isAutoCompress && (
+                      <span className="text-[9px] text-orange-400 font-mono tracking-tight bg-orange-500/10 border border-orange-500/20 px-1 py-0.5 rounded">AUTO</span>
+                    )}
+                  </span>
+                  <span className="font-mono text-orange-400 font-bold text-xs">{state.quality}%</span>
+                </div>
+                <input
+                  id="inp-raster-compression-ratio"
+                  type="range"
+                  min="10"
+                  max="100"
+                  value={state.quality}
+                  onChange={(e) => {
+                    const q = parseInt(e.target.value);
+                    setState(prev => ({ ...prev, quality: q }));
+                    setIsAutoCompress(false);
+                    updateActiveSettings({ webpQuality: q, webpAutoCompress: false });
+                  }}
+                  disabled={!!state.downloadUrl}
+                  className="w-full h-1 bg-zinc-950 rounded-lg appearance-none cursor-pointer accent-orange-500"
+                />
+                <div className="flex justify-between text-[8px] font-mono text-zinc-650">
+                  <span>Compact (Max Compression)</span>
+                  <span>Balanced (Optimal)</span>
+                  <span>HD (No Loss)</span>
+                </div>
+              </div>
+            )}
+
+            {/* Lossless explanation panel - ONLY FOR PNG */}
+            {state.outputFormat === 'png' && (
+              <div className="p-4 bg-zinc-950/60 rounded-xl border border-zinc-900/80">
+                <p className="font-sans text-[10px] text-zinc-500 leading-relaxed italic">
+                  Note: Lossless PNG outputs prioritize high-fidelity pixel depths. Compression parameters are bypassed since PNG implements a standard lossless format.
+                </p>
+              </div>
+            )}
+
+            {/* Frame-rate and details settings - ONLY FOR GIF */}
+            {state.outputFormat === 'gif' && (
+              <div className="space-y-4 bg-zinc-950/60 p-4 rounded-xl border border-zinc-900/80 font-sans">
+                <span className="block text-[10px] font-heading font-black uppercase tracking-wider text-zinc-350">
+                  GIF Frame-rate Controls
+                </span>
+                
+                {/* Frame Rate Speed Modes */}
+                <div className="space-y-2 pt-1 font-sans">
+                  <label className="block text-[9px] font-mono uppercase tracking-wider text-zinc-500">
+                    Speed Pacing Model
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setUseCustomFps(false)}
+                      className={`py-1.5 px-2 rounded font-mono text-[9px] font-extrabold uppercase transition-all border cursor-pointer text-center ${
+                        !useCustomFps
+                          ? 'bg-orange-500/10 border-orange-500 text-orange-400 font-bold shadow-[0_0_8px_rgba(249,115,22,0.15)]'
+                          : 'bg-zinc-900/40 border-zinc-850 hover:border-zinc-700 text-zinc-500'
+                      }`}
+                    >
+                      Auto WebP Pace
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setUseCustomFps(true)}
+                      className={`py-1.5 px-2 rounded font-mono text-[9px] font-extrabold uppercase transition-all border cursor-pointer text-center ${
+                        useCustomFps
+                          ? 'bg-orange-500/10 border-orange-500 text-orange-400 font-bold shadow-[0_0_8px_rgba(249,115,22,0.15)]'
+                          : 'bg-zinc-900/40 border-zinc-850 hover:border-zinc-700 text-zinc-500'
+                      }`}
+                    >
+                      Custom FPS Limit
+                    </button>
                   </div>
                 </div>
 
-                <button
-                  id="btn-auto-compress-toggle"
-                  type="button"
-                  onClick={handleToggleAutoCompress}
-                  className={`w-9 h-5 rounded-full p-0.5 transition-colors cursor-pointer flex items-center ${
-                    isAutoCompress ? 'bg-orange-500' : 'bg-zinc-800'
-                  }`}
-                  aria-label="Toggle Auto-Compress option"
-                >
-                  <motion.div
-                    layout
-                    className="w-4 h-4 rounded-full bg-black shadow-md border border-neutral-800/40"
-                    animate={{ x: isAutoCompress ? 16 : 0 }}
-                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                  />
-                </button>
-              </div>
-
-              <AnimatePresence>
-                {isAutoCompress && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="space-y-3 border-t border-zinc-900/60 pt-3 overflow-hidden"
-                  >
-                    <label id="lbl-target-size-preset" className="block text-[9px] font-mono uppercase tracking-wider text-zinc-500">
-                      Target File Size Limit
-                    </label>
-
-                    <div className="grid grid-cols-4 gap-1.5">
-                      {[
-                        { label: '<150K', value: 150 },
-                        { label: '<300K', value: 300 },
-                        { label: '<500K', value: 500 },
-                        { label: '<1M', value: 1000 }
-                      ].map((preset) => (
-                        <button
-                          key={preset.value}
-                          id={`preset-size-${preset.value}`}
-                          type="button"
-                          onClick={() => handleTargetSizeChange(preset.value)}
-                          className={`py-1.5 px-0.5 rounded font-mono text-[9px] font-extrabold uppercase transition-all border cursor-pointer text-center ${
-                            targetSizeKb === preset.value
-                              ? 'bg-orange-500/10 border-orange-500 text-orange-400 font-bold shadow-[0_0_8px_rgba(249,115,22,0.15)]'
-                              : 'bg-zinc-900/40 border-zinc-850 hover:border-zinc-700 text-zinc-500 hover:text-zinc-400'
-                          }`}
-                        >
-                          {preset.label}
-                        </button>
-                      ))}
+                {/* Custom FPS Slider */}
+                {useCustomFps && (
+                  <div className="space-y-3 pt-1">
+                    <div className="flex justify-between items-center text-[10px] uppercase tracking-wider font-bold text-zinc-400">
+                      <span>Target Frame Rate</span>
+                      <span className="font-mono text-orange-400 font-bold text-xs">
+                        {customFps} FPS
+                      </span>
                     </div>
+                    <input
+                      type="range"
+                      min="1"
+                      max="35"
+                      value={customFps}
+                      onChange={(e) => setCustomFps(parseInt(e.target.value))}
+                      className="w-full h-1 bg-zinc-950 rounded-lg appearance-none cursor-pointer accent-orange-500"
+                    />
+                    <div className="flex justify-between text-[8px] font-mono text-zinc-650">
+                      <span>1 FPS (Slow)</span>
+                      <span>15 FPS_default</span>
+                      <span>35 FPS (Fast)</span>
+                    </div>
+                    <p className="text-[9px] font-mono text-zinc-500 italic mt-1">
+                      Approx. {Math.round(1000 / customFps)}ms interval delay per frame.
+                    </p>
+                  </div>
+                )}
 
-                    {isSearchingQuality ? (
-                      <div className="flex items-center gap-1.5 text-[9px] font-mono text-orange-400 animate-pulse bg-orange-500/5 p-2 rounded border border-orange-500/15">
+                {/* Multi-frame status diagnosis indicator */}
+                <div className="border-t border-zinc-900/60 pt-3 flex flex-col gap-1.5">
+                  <span className="block text-[9px] font-mono uppercase tracking-wider text-zinc-500">
+                    WebP File Analysis
+                  </span>
+                  {state.file ? (
+                    frameCountLoaded === null ? (
+                      <div className="flex items-center gap-1.5 text-[9px] font-mono text-orange-400 bg-orange-500/5 p-2 rounded border border-orange-500/10">
                         <Loader2 className="w-3 h-3 animate-spin" />
-                        <span>Searching canvas configurations...</span>
+                        <span>Analyzing frames of {state.file.name}...</span>
                       </div>
-                    ) : state.previewUrl ? (
-                      <div className="flex items-center gap-1.5 text-[9px] font-mono text-emerald-400 bg-emerald-500/5 p-2 rounded border border-emerald-500/15 animate-fade-in">
-                        <CheckCircle className="w-3 h-3 text-emerald-400" />
-                        <span>Optimized quality target: <strong>{state.quality}%</strong></span>
+                    ) : frameCountLoaded > 1 ? (
+                      <div className="flex items-center gap-1.5 text-[9px] font-mono text-emerald-400 bg-emerald-500/5 p-2 rounded border border-emerald-500/10">
+                        <CheckCircle className="w-3 h-3 text-emerald-400 shrink-0" />
+                        <span>Multi-frame WebP detected ({frameCountLoaded} frames)</span>
                       </div>
                     ) : (
-                      <div className="text-[9px] font-mono text-zinc-650 leading-normal italic">
-                        Upload WebP file to test caliber calculation.
+                      <div className="flex flex-col gap-1 text-[9px] font-mono text-amber-400 bg-amber-500/5 p-2 rounded border border-amber-500/10">
+                        <div className="flex items-center gap-1.5">
+                          <AlertCircle className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                          <span>Static WebP image loaded (1 frame).</span>
+                        </div>
+                        <span className="text-zinc-500 lowercase leading-relaxed">
+                          the exported animation will be a single-frame GIF. Note: upload a multi-frame WebP for speed calibration loops.
+                        </span>
                       </div>
-                    )}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            {/* Quality Slider - relative to JPEG output strictly */}
-            <div className={`space-y-3 transition-all duration-300 ${state.outputFormat === 'png' ? 'opacity-40 pointer-events-none' : ''}`}>
-              <div className="flex justify-between items-center text-[11px] uppercase tracking-wider font-bold text-zinc-400">
-                <span className="flex items-center gap-1">
-                  <span>Raster Compression Ratio</span>
-                  {isAutoCompress && (
-                    <span className="text-[9px] text-orange-400 font-mono tracking-tight bg-orange-500/10 border border-orange-500/20 px-1 py-0.5 rounded">AUTO</span>
+                    )
+                  ) : (
+                    <p className="text-[9px] font-mono text-zinc-650 leading-normal italic">
+                      Please upload a WebP file to begin frame extraction.
+                    </p>
                   )}
-                </span>
-                <span className="font-mono text-orange-400 font-bold text-xs">{state.quality}%</span>
+                </div>
               </div>
-              <input
-                id="inp-raster-compression-ratio"
-                type="range"
-                min="10"
-                max="100"
-                value={state.quality}
-                onChange={(e) => {
-                  const q = parseInt(e.target.value);
-                  setState(prev => ({ ...prev, quality: q }));
-                  setIsAutoCompress(false);
-                  updateActiveSettings({ webpQuality: q, webpAutoCompress: false });
-                }}
-                disabled={!!state.downloadUrl}
-                className="w-full h-1 bg-zinc-950 rounded-lg appearance-none cursor-pointer accent-orange-500"
-              />
-              <div className="flex justify-between text-[8px] font-mono text-zinc-650">
-                <span>Compact (Max Compression)</span>
-                <span>Balanced (Optimal)</span>
-                <span>HD (No Loss)</span>
-              </div>
-            </div>
-
-            {state.outputFormat === 'png' && (
-              <p className="font-sans text-[10px] text-zinc-500 leading-normal italic">
-                Note: Lossless PNG outputs prioritize depth rendering. The compression slider represents lossy JPG parameters strictly.
-              </p>
             )}
           </div>
         </div>

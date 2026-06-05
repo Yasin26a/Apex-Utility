@@ -18,6 +18,8 @@ export interface Translations {
     jsonBeautifierDesc: string;
     sitemapSeo: string;
     sitemapSeoDesc: string;
+    aiWriter: string;
+    aiWriterDesc: string;
   };
   settings: {
     title: string;
@@ -71,6 +73,8 @@ export const translations: Record<Language, Translations> = {
       jsonBeautifierDesc: 'Data Beautifier',
       sitemapSeo: 'SEO Crawler',
       sitemapSeoDesc: 'Sitemap Analyzer',
+      aiWriter: 'AI Writer',
+      aiWriterDesc: 'AI Copywriter Engine',
     },
     settings: {
       title: 'System Aesthetics',
@@ -122,6 +126,8 @@ export const translations: Record<Language, Translations> = {
       jsonBeautifierDesc: 'Embellecedor de Datos',
       sitemapSeo: 'Rastreador SEO',
       sitemapSeoDesc: 'Analizador de Mapas',
+      aiWriter: 'Escritor IA',
+      aiWriterDesc: 'Redactor de Documentos',
     },
     settings: {
       title: 'Estética del Sistema',
@@ -173,6 +179,8 @@ export const translations: Record<Language, Translations> = {
       jsonBeautifierDesc: 'Mise en forme des données',
       sitemapSeo: 'Robot SEO',
       sitemapSeoDesc: 'Analyseur de Plans',
+      aiWriter: 'Rédacteur IA',
+      aiWriterDesc: 'Création de Documents',
     },
     settings: {
       title: 'Esthétique du Système',
@@ -224,6 +232,8 @@ export const translations: Record<Language, Translations> = {
       jsonBeautifierDesc: 'Datenverfeinerer',
       sitemapSeo: 'SEO-Crawler',
       sitemapSeoDesc: 'Sitemap-Analysator',
+      aiWriter: 'KI-Schreiber',
+      aiWriterDesc: 'Dokumenten-Schreiber',
     },
     settings: {
       title: 'System-Ästhetik',
@@ -275,6 +285,8 @@ export const translations: Record<Language, Translations> = {
       jsonBeautifierDesc: 'Formatador de Dados',
       sitemapSeo: 'Rastreador SEO',
       sitemapSeoDesc: 'Analisador de Sitemap',
+      aiWriter: 'Escritor IA',
+      aiWriterDesc: 'Motor de Redação',
     },
     settings: {
       title: 'Estética do Sistema',

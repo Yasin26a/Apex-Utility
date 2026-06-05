@@ -150,6 +150,26 @@ const SEO_METADATA: Record<ActiveTab, SEOHeaderContent> = {
         "priceCurrency": "USD"
       }
     }
+  },
+  'ai-writer': {
+    title: "Apex Professional AI Writer & Copywriter Tool | Gemini Pro Engine",
+    description: "Draft high-fidelity articles, professional business emails, or markdown posts. Modify and refine drafts inline using advanced server-side Gemini AI models.",
+    keywords: "ai copywriter, professional email writer, article summarizer, blog post generator, gemini text editing, content writer online free",
+    ogTitle: "Apex Professional AI Writer & Copywriter Tool | Gemini",
+    ogDescription: "Advanced copywriting workstation. Instantly author, restructure, and fine-tune publications securely.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Apex AI Copywriting Forge",
+      "description": "Author dynamic content documents and modify layouts in real-time utilizing secure Gemini AI algorithms.",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
   }
 };
 
