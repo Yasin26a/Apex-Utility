@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Menu } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -73,8 +73,13 @@ export default function App() {
   // Dynamically inject SEO optimized meta tags targeting long-tail keywords for each active tool route
   useSEOTags(activeTab);
 
-  // Deep linking initial load configuration or routing sync
+  const hasRestored = useRef(false);
+
+  // Deep linking initial load configuration or routing sync on initial mount only
   useEffect(() => {
+    if (hasRestored.current) return;
+    hasRestored.current = true;
+
     const currentSegment = location.pathname.replace(/^\//, '');
     if (!currentSegment || currentSegment === '') {
       try {

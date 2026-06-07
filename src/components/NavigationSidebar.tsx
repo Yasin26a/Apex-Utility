@@ -184,7 +184,7 @@ export default function NavigationSidebar({ activeTab, onTabChange, isMobileOpen
       transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
       className={`fixed top-0 h-screen w-64 bg-[#060608]/98 backdrop-blur-md p-6 flex flex-col justify-between z-40 right-0 left-auto border-l border-brand-border/30 lg:left-0 lg:right-auto lg:border-r lg:border-l-0`}
     >
-      <div>
+      <div className="flex-1 overflow-y-auto scrollbar-thin pr-1 pb-4 min-h-0">
         {/* Master Branding Logo Plate with settings gear */}
         <div className="flex items-center justify-between pb-6 mb-6 border-b border-brand-border/35">
           <div className="flex items-center gap-3">

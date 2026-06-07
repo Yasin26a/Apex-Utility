@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   ShieldCheck, Copy, RefreshCw, Check, Trash2, Cpu, Eye, EyeOff, 
   HelpCircle, ChevronDown, CheckCircle2, AlertTriangle, Sparkles, 
-  Settings, Key, AlertCircle, ListPlus, Sliders, Type
+  Settings, Key, AlertCircle, ListPlus, Sliders, Type, Download, FileDown
 } from 'lucide-react';
 import { addRecentOperation } from '../utils/recentOperations';
 import { usePresets } from '../context/PresetContext';
@@ -135,6 +135,12 @@ export default function PasswordGenerator() {
   const [copied, setCopied] = useState(false);
   const [revealPassword, setRevealPassword] = useState(true); // Toggle text/password input
 
+  // Bulk Export configurations
+  const [bulkCount, setBulkCount] = useState(50);
+  const [bulkGenerating, setBulkGenerating] = useState(false);
+  const [bulkExportSuccess, setBulkExportSuccess] = useState(false);
+  const [bulkPreview, setBulkPreview] = useState<string[]>([]);
+
   // FAQ block state
   const [faqOpen, setFaqOpen] = useState<Record<number, boolean>>({
     0: true,
@@ -161,8 +167,8 @@ export default function PasswordGenerator() {
     }
   };
 
-  // Generate a random password or memorable passphrase
-  const handleGenerate = () => {
+  // Core compile routine to retrieve a password string based on current directives
+  const compilePassword = (): string => {
     let result = '';
 
     if (genMode === 'random') {
@@ -184,8 +190,7 @@ export default function PasswordGenerator() {
       }
 
       if (allowedPool.length === 0) {
-        setPassword('Error: Character pool is empty. Please enable at least one option.');
-        return;
+        return 'Error: Character pool is empty. Please enable at least one option.';
       }
 
       // Safeguard: Ensure at least one checked type is present (if pool allows it after exclusions)
@@ -242,6 +247,12 @@ export default function PasswordGenerator() {
       }
     }
 
+    return result;
+  };
+
+  // Generate a random password or memorable passphrase
+  const handleGenerate = () => {
+    const result = compilePassword();
     setPassword(result);
     setCopied(false);
   };
@@ -251,6 +262,22 @@ export default function PasswordGenerator() {
     handleGenerate();
   }, [
     genMode, length, wordCount, includeUppercase, includeLowercase, 
+    includeNumbers, includeSymbols, customSymbols, excludedChars, 
+    separator, capitalizeWords, addNumber
+  ]);
+
+  // Sync background samples preview for bulk selector feedback
+  useEffect(() => {
+    const samples: string[] = [];
+    for (let i = 0; i < Math.min(3, bulkCount); i++) {
+      const p = compilePassword();
+      if (p && !p.startsWith('Error:')) {
+        samples.push(p);
+      }
+    }
+    setBulkPreview(samples);
+  }, [
+    bulkCount, genMode, length, wordCount, includeUppercase, includeLowercase, 
     includeNumbers, includeSymbols, customSymbols, excludedChars, 
     separator, capitalizeWords, addNumber
   ]);
@@ -366,6 +393,98 @@ export default function PasswordGenerator() {
   const deleteHistoryItem = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     saveHistory(history.filter(h => h.id !== id));
+  };
+
+  // Handle generating high volumes of passwords and downloading the CSV sheet
+  const handleBulkExportCSV = async () => {
+    if (bulkGenerating) return;
+    setBulkGenerating(true);
+    setBulkExportSuccess(false);
+
+    // Satisfy interactive mechanical timing
+    await new Promise((resolve) => setTimeout(resolve, 800));
+
+    try {
+      const firstRow = ['Index', 'Password', 'Type', 'Length', 'Entropy (Bits)', 'Strength'];
+      const dataRows: string[][] = [firstRow];
+
+      for (let i = 1; i <= bulkCount; i++) {
+        const pwd = compilePassword();
+        if (pwd.startsWith('Error:')) {
+          alert('Failed to generate batch. ' + pwd);
+          setBulkGenerating(false);
+          return;
+        }
+
+        let entropy = 0;
+        let strength = 'Weak';
+
+        if (genMode === 'random') {
+          let poolSize = 0;
+          if (includeLowercase) poolSize += 26;
+          if (includeUppercase) poolSize += 26;
+          if (includeNumbers) poolSize += 10;
+          if (includeSymbols) poolSize += customSymbols.length;
+          if (excludedChars.length > 0) {
+            poolSize = Math.max(1, poolSize - excludedChars.length);
+          }
+
+          entropy = Math.round(pwd.length * Math.log2(poolSize || 2));
+          if (entropy >= 110) strength = 'Military-Grade';
+          else if (entropy >= 75) strength = 'Extremely Secure';
+          else if (entropy >= 45) strength = 'Moderate / Safe';
+        } else {
+          let entropyVal = wordCount * Math.log2(MEMORABLE_WORDS.length);
+          if (capitalizeWords) entropyVal += wordCount;
+          if (addNumber) entropyVal += Math.log2(100);
+          entropy = Math.round(entropyVal);
+          if (entropy >= 100) strength = 'Fault-Proof Steel';
+          else if (entropy >= 65) strength = 'Extremely Strong';
+          else strength = 'Moderate';
+        }
+
+        dataRows.push([
+          String(i),
+          pwd,
+          genMode === 'random' ? 'Random String' : 'Memorable Phrasing',
+          String(pwd.length),
+          String(entropy),
+          strength
+        ]);
+      }
+
+      // Convert data grid to RFC 4180 CSV specifications
+      const csvStr = dataRows
+        .map((row) => row.map((field) => `"${field.replace(/"/g, '""')}"`).join(','))
+        .join('\n');
+
+      const blob = new Blob([csvStr], { type: 'text/csv;charset=utf-8;' });
+      const downloadLinkUrl = URL.createObjectURL(blob);
+
+      const triggerAnchor = document.createElement('a');
+      triggerAnchor.href = downloadLinkUrl;
+      triggerAnchor.setAttribute('download', `Apex_Vault_Batch_${bulkCount}_${Date.now()}.csv`);
+      document.body.appendChild(triggerAnchor);
+      triggerAnchor.click();
+      document.body.removeChild(triggerAnchor);
+
+      // Log into sandbox suite operations
+      addRecentOperation(
+        `apex_vault_batch_${bulkCount}_export.csv`,
+        'Shield Vault',
+        `${bulkCount} Keys`,
+        'CSV Sheet',
+        `APEX_CSV_BATCH_${Date.now().toString().slice(-4)}.csv`,
+        downloadLinkUrl
+      );
+
+      setBulkExportSuccess(true);
+      setTimeout(() => setBulkExportSuccess(false), 4000);
+    } catch (err) {
+      console.error('Batch csv generation pipeline failure:', err);
+    } finally {
+      setBulkGenerating(false);
+    }
   };
 
   return (
@@ -696,6 +815,133 @@ export default function PasswordGenerator() {
                 </div>
               </div>
             )}
+          </div>
+
+          {/* Section 3: Bulk Key Compiler & CSV Export */}
+          <div className="beveled-panel p-5 bg-[#07070a]/80 border-brand-border/40 space-y-5">
+            <div className="flex items-center justify-between border-b border-zinc-900 pb-3">
+              <span className="font-heading text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5 select-none">
+                <FileDown className="w-4 h-4 text-brand" />
+                Bulk Key Compiler & Export
+              </span>
+              <span className="text-[9px] text-zinc-500 font-mono tracking-widest uppercase">CSV STREAM MODULE</span>
+            </div>
+
+            <div className="space-y-4">
+              <p className="font-sans text-xs text-zinc-400">
+                Generate high-volume batches of cryptographic keys instantaneously based on your active directives. Extract complete sheets containing entropy calculations, type indicators, and length audits.
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
+                {/* Volume slider control */}
+                <div className="space-y-3.5 bg-zinc-950/30 p-3.5 rounded-xl border border-zinc-900/50">
+                  <div className="flex items-center justify-between font-mono text-xs select-none">
+                    <span className="text-zinc-500 font-medium">Batch Export Volume</span>
+                    <span className="text-brand font-extrabold">{bulkCount} Passwords</span>
+                  </div>
+                  <div className="space-y-1">
+                    <input
+                      type="range"
+                      min="5"
+                      max="1000"
+                      step="5"
+                      id="bulk-pwd-count-slider"
+                      value={bulkCount}
+                      onChange={(e) => setBulkCount(Number(e.target.value))}
+                      className="w-full accent-brand h-1 bg-zinc-950 rounded-lg cursor-pointer border border-zinc-900"
+                    />
+                    <div className="flex justify-between text-[9px] text-zinc-600 font-mono select-none">
+                      <span>5 units</span>
+                      <span>1,000 units</span>
+                    </div>
+                  </div>
+
+                  {/* Fast Select Presets */}
+                  <div className="space-y-1.5 pt-1.5">
+                    <span className="font-mono text-[9px] uppercase tracking-wider text-zinc-500 font-bold block select-none">Fast Select Volumes</span>
+                    <div className="grid grid-cols-4 gap-1.5">
+                      {[10, 50, 100, 500].map((v) => (
+                        <button
+                          key={v}
+                          type="button"
+                          onClick={() => setBulkCount(v)}
+                          className={`py-1.5 rounded border text-[10px] font-mono font-bold transition-all cursor-pointer ${
+                            bulkCount === v
+                              ? 'bg-brand/10 border-brand/40 text-brand'
+                              : 'bg-zinc-950 border-zinc-900 hover:border-zinc-850 text-zinc-500 hover:text-zinc-350'
+                          }`}
+                        >
+                          {v}qty
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Live Output Format Preview */}
+                <div className="space-y-2">
+                  <span className="font-mono text-[9px] uppercase tracking-wider text-zinc-400 font-bold block select-none">
+                    Responsive Output Preview
+                  </span>
+                  
+                  {bulkPreview.length > 0 ? (
+                    <div className="bg-[#030305]/95 border border-zinc-900/80 rounded-xl p-3.5 font-mono text-xs select-none space-y-2">
+                      {bulkPreview.map((pwd, idx) => (
+                        <div key={idx} className="flex items-center gap-2 text-zinc-400 border-b border-zinc-950 pb-1.5 last:border-0 last:pb-0">
+                          <span className="text-zinc-600 text-[10px]">#{idx + 1}</span>
+                          <span className="text-zinc-200 font-medium truncate flex-1 tracking-wide">{pwd}</span>
+                          <span className="text-[10px] text-zinc-600 uppercase tracking-widest">{genMode}</span>
+                        </div>
+                      ))}
+                      <div className="text-[8px] text-zinc-650 text-center uppercase tracking-widest pt-1 border-t border-zinc-900/30">
+                        * Preview updates reactive to options above
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="py-8 bg-zinc-950/40 border border-zinc-900/60 rounded-xl text-center font-mono text-[10px] text-rose-500/80 px-4">
+                      Empty or invalid pool configurations. Enable more directives to display active stream preview.
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Action Button */}
+              <div className="pt-2 flex flex-col sm:flex-row gap-3 items-center justify-between border-t border-zinc-900/40">
+                <p className="font-mono text-[10px] text-zinc-500 leading-normal max-w-sm">
+                  * Generated sheet incorporates RFC compliant CSV format, compatible with standard Password Managers (e.g., Bitwarden, KeePass, 1Password).
+                </p>
+
+                <button
+                  type="button"
+                  onClick={handleBulkExportCSV}
+                  disabled={bulkGenerating || bulkPreview.length === 0}
+                  className={`w-full sm:w-auto px-6 py-3 rounded font-heading font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md select-none border shrink-0 ${
+                    bulkExportSuccess
+                      ? 'bg-emerald-600/10 border-emerald-500/30 text-emerald-400 hover:bg-emerald-600/20'
+                      : 'bg-brand text-zinc-950 border-transparent hover:bg-brand/90 disabled:opacity-40 disabled:cursor-not-allowed'
+                  }`}
+                  id="apex-bulk-export-csv-action"
+                >
+                  {bulkGenerating ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 animate-spin shrink-0" />
+                      <span>Compiling Batch Pool...</span>
+                    </>
+                  ) : bulkExportSuccess ? (
+                    <>
+                      <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                      <span>CSV Stream Exported!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-4 h-4 shrink-0" />
+                      <span>Generate &amp; Export CSV</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+            </div>
           </div>
         </div>
 
