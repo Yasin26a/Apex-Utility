@@ -1,6 +1,6 @@
 {
   "name": "APEX UTILITY",
-  "description": "Ultra-premium client-side utility suite featuring a high-fidelity PDF document optimizer, interactive WebP image converter, and JSON beautifier with pristine SEO schemas.",
-  "requestFramePermissions": [],
+  "description": "Ultra-premium client-side and AI cloud utility suite featuring a secure AI Audio Transcriber, high-fidelity PDF document optimizer, WebP image converter, and local formatting terminals.",
+  "requestFramePermissions": ["camera", "microphone"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

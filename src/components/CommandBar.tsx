@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Search, Command, FileText, Image as ImageIcon, FileImage, Braces, Globe, LayoutGrid, Palette, ArrowRight, CornerDownLeft, Layers, Sparkles } from 'lucide-react';
+import { Search, Command, FileText, Image as ImageIcon, FileImage, Braces, Globe, LayoutGrid, Palette, ArrowRight, CornerDownLeft, Layers, Sparkles, ShieldCheck, QrCode, Scale, FileCode, Sliders, GitPullRequest, Hash, Signature, Gauge, Binary, Regex, ArrowLeftRight, Shrink } from 'lucide-react';
 import { ActiveTab } from '../types';
 
 interface CommandBarProps {
@@ -129,6 +129,188 @@ export default function CommandBar({ isOpen, onClose, onSelectTab, theme, onThem
       keywords: ['ai', 'writer', 'copywriter', 'draft', 'author', 'article', 'email', 'markdown', 'gemini', 'tone'],
       action: () => {
         onSelectTab('ai-writer');
+        onClose();
+      },
+      shortcut: '↵'
+    },
+    {
+      id: 'password-generator',
+      category: 'Tools',
+      title: 'Shield Vault Secure Password Generator',
+      description: 'Generate high-entropy random keys or memorable multi-word passphrases offline',
+      icon: ShieldCheck,
+      keywords: ['password', 'generator', 'passphrase', 'key', 'shield', 'vault', 'security', 'secure', 'entropy', 'copy'],
+      action: () => {
+        onSelectTab('password-generator');
+        onClose();
+      },
+      shortcut: '↵'
+    },
+    {
+      id: 'qr-generator',
+      category: 'Tools',
+      title: 'QR Code & Signal Builder',
+      description: 'Generate high-resolution custom raster and vector QR codes with styling and error restoration options',
+      icon: QrCode,
+      keywords: ['qr', 'code', 'generator', 'wifi', 'email', 'sms', 'link', 'vector', 'svg', 'png', 'builder', 'compile'],
+      action: () => {
+        onSelectTab('qr-generator');
+        onClose();
+      },
+      shortcut: '↵'
+    },
+    {
+      id: 'unit-converter',
+      category: 'Tools',
+      title: 'Unit Converter & Metric Solver',
+      description: 'Convert custom metrics (length, weight, volume, temperature) in real-time with an instant comparison matrix',
+      icon: Scale,
+      keywords: ['unit', 'converter', 'metric', 'solver', 'length', 'weight', 'volume', 'temperature', 'dimensions', 'cm', 'kg', 'fahrenheit', 'celsius', 'calculate'],
+      action: () => {
+        onSelectTab('unit-converter');
+        onClose();
+      },
+      shortcut: '↵'
+    },
+    {
+      id: 'svg-rasterizer',
+      category: 'Tools',
+      title: 'SVG Vector Rasterizer Compiler',
+      description: 'Render or paste raw SVG XML, edit vectors in real-time, scale up to 8x for high-res PNG, JPEG, or WebP downloads',
+      icon: FileCode,
+      keywords: ['svg', 'rasterizer', 'vector', 'convert', 'scale', 'high', 'resolution', 'hq', 'png', 'jpg', 'jpeg', 'webp', 'xml', 'graphics', 'editor'],
+      action: () => {
+        onSelectTab('svg-rasterizer');
+        onClose();
+      },
+      shortcut: '↵'
+    },
+    {
+      id: 'batch-processor',
+      category: 'Tools',
+      title: 'Parallel Batch Processor Core',
+      description: 'Upload multiple files to resize, compress, and reformat images in parallel offline',
+      icon: Sliders,
+      keywords: ['batch', 'processor', 'multi', 'files', 'bulk', 'parallel', 'resize', 'compress', 'format', 'image', 'png', 'jpeg', 'webp', 'optimize'],
+      action: () => {
+        onSelectTab('batch-processor');
+        onClose();
+      },
+      shortcut: '↵'
+    },
+    {
+      id: 'json-diff',
+      category: 'Tools',
+      title: 'JSON Object Diff Checker Engine',
+      description: 'Compare two JSON schemas, detect additions, deletions, slight drifts or value updates side-by-side with color highlights',
+      icon: GitPullRequest,
+      keywords: ['json', 'diff', 'checker', 'compare', 'difference', 'side-by-side', 'match', 'schemas', 'syntax', 'validator', 'format', 'merge'],
+      action: () => {
+        onSelectTab('json-diff');
+        onClose();
+      },
+      shortcut: '↵'
+    },
+    {
+      id: 'secure-hash',
+      category: 'Tools',
+      title: 'Hash Vault (Secure Cryptographic Hashes)',
+      description: 'Generate secure cryptographic MD5, SHA-1, SHA-256, and SHA-512 hashes instantly from input text with copy capabilities',
+      icon: Hash,
+      keywords: ['secure', 'cryptographic', 'hash', 'hashes', 'md5', 'sha1', 'sha256', 'sha512', 'crypto', 'generator', 'encryption', 'vault', 'fingerprint'],
+      action: () => {
+        onSelectTab('secure-hash');
+        onClose();
+      },
+      shortcut: '↵'
+    },
+    {
+      id: 'color-palette',
+      category: 'Tools',
+      title: 'Apex Color Palette Generator & Extractor',
+      description: 'Generate harmonious color schemes, extract brand/dominant colors from images, and compile premium CSS variables & Tailwind themes offline',
+      icon: Palette,
+      keywords: ['color', 'palette', 'extractor', 'brand', 'theme', 'hex', 'css variables', 'harmony', 'analogous', 'monochromatic', 'triadic', 'complementary', 'tailwind'],
+      action: () => {
+        onSelectTab('color-palette');
+        onClose();
+      },
+      shortcut: '↵'
+    },
+    {
+      id: 'digital-signature',
+      category: 'Tools',
+      title: 'Apex Digital Signature Generator & Stylist',
+      description: 'Create, styling-up, paint, sign, and download custom document signature vectors or png files completely offline',
+      icon: Signature,
+      keywords: ['signature', 'sign', 'digital signature', 'autograph', 'draw signature', 'text signature', 'ink', 'document signature', 'offline writer'],
+      action: () => {
+        onSelectTab('digital-signature');
+        onClose();
+      },
+      shortcut: '↵'
+    },
+    {
+      id: 'seo-optimizer',
+      category: 'Tools',
+      title: 'Apex SEO Content Optimizer & Real-time Analyzer',
+      description: 'Analyze text for keyword density, Flesch-Kincaid readability, character count targets, search engine mockups, and AI-powered enhancements',
+      icon: Gauge,
+      keywords: ['seo', 'keyword density', 'readability', 'flesch-kincaid', 'score', 'meta description', 'google preview', 'social preview', 'ai optimizer', 'smart content'],
+      action: () => {
+        onSelectTab('seo-optimizer');
+        onClose();
+      },
+      shortcut: '↵'
+    },
+    {
+      id: 'base64-converter',
+      category: 'Tools',
+      title: 'Apex Base64 Encoder/Decoder & Asset Generator',
+      description: 'Convert text, images, or assets to/from Base64 dynamically with instant web code output templates (html, CSS, js)',
+      icon: Binary,
+      keywords: ['base64', 'encode', 'decode', 'image to base64', 'file to base64', 'binary', 'ascii', 'data uri', 'b64', 'btoa', 'atob', 'img source'],
+      action: () => {
+        onSelectTab('base64-converter');
+        onClose();
+      },
+      shortcut: '↵'
+    },
+    {
+      id: 'regex-tester',
+      category: 'Tools',
+      title: 'Apex Regex Validator & Tester',
+      description: 'Input modern RegEx expressions to validate, test capture groups, and preview matched text indicators in real-time',
+      icon: Regex,
+      keywords: ['regex', 'regular expression', 'regex tester', 'validator', 'pattern', 'test string', 'capture groups', 'match', 'replace', 'greedy', 'lazy'],
+      action: () => {
+        onSelectTab('regex-tester');
+        onClose();
+      },
+      shortcut: '↵'
+    },
+    {
+      id: 'csv-json-converter',
+      category: 'Tools',
+      title: 'Apex CSV & JSON Data Converter',
+      description: 'Convert structured tabular CSV files to JSON schemas and back with instantaneous visual previews, field editing, and file outputs',
+      icon: ArrowLeftRight,
+      keywords: ['csv', 'json', 'converter', 'comma separated', 'parse csv', 'json to csv', 'csv to json', 'excel', 'spreadsheet', 'data conversion'],
+      action: () => {
+        onSelectTab('csv-json-converter');
+        onClose();
+      },
+      shortcut: '↵'
+    },
+    {
+      id: 'image-compressor',
+      category: 'Tools',
+      title: 'Apex Image Compressor Studio',
+      description: 'Reduce image file size or dimensions for JPEG, PNG, and WebP assets with direct side-by-side quality visualizers',
+      icon: Shrink,
+      keywords: ['image compressor', 'compress', 'resize', 'jpeg', 'png', 'webp', 'aspect ratio', 'byte reducer', 'size reduction', 'quality slider', 'quality factor'],
+      action: () => {
+        onSelectTab('image-compressor');
         onClose();
       },
       shortcut: '↵'

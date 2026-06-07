@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import { LayoutGrid, FileText, Image as ImageIcon, FileImage, Braces, Globe, Terminal, ShieldCheck, Settings, Search, Layers, Monitor, Trash2, Plus, Check, X, Sparkles, Download, Upload } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { LayoutGrid, FileText, Image as ImageIcon, FileImage, Braces, Globe, Terminal, ShieldCheck, Settings, Search, Layers, Monitor, Trash2, Plus, Check, X, Sparkles, Download, Upload, QrCode, Scale, FileCode, Sliders, GitPullRequest, Hash, Palette, Signature, Gauge, Binary, Regex, ArrowLeftRight, Shrink, Database, Volume2, Mic, Eye, Video } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ActiveTab } from '../types';
 import { useLanguage } from '../context/LanguageContext';
 import { usePresets } from '../context/PresetContext';
+import BackupRestoreModal from './BackupRestoreModal';
 
 interface NavigationSidebarProps {
   activeTab: ActiveTab;
@@ -17,10 +18,19 @@ interface NavigationSidebarProps {
 
 export default function NavigationSidebar({ activeTab, onTabChange, isMobileOpen, onClose, theme, onThemeChange, onSearchClick }: NavigationSidebarProps) {
   const [showSettings, setShowSettings] = useState(false);
+  const [isBackupModalOpen, setIsBackupModalOpen] = useState(false);
   const { language, setLanguage, t } = useLanguage();
   const { presets, activePresetId, loadPreset, saveNewPreset, deletePreset } = usePresets();
   const [newPresetName, setNewPresetName] = useState('');
   const [backupStatus, setBackupStatus] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const checkIsMobile = () => setIsMobile(window.innerWidth < 1024);
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
 
   const handleExportBackup = () => {
     try {
@@ -31,7 +41,8 @@ export default function NavigationSidebar({ activeTab, onTabChange, isMobileOpen
         'apex_active_preset_id',
         'apex_language',
         'apex_theme_mode',
-        'apex_theme'
+        'apex_theme',
+        'apex_dashboard_layout'
       ];
       
       const backupData: Record<string, string | null> = {};
@@ -92,7 +103,8 @@ export default function NavigationSidebar({ activeTab, onTabChange, isMobileOpen
           'apex_active_preset_id',
           'apex_language',
           'apex_theme_mode',
-          'apex_theme'
+          'apex_theme',
+          'apex_dashboard_layout'
         ];
 
         let importCount = 0;
@@ -143,10 +155,35 @@ export default function NavigationSidebar({ activeTab, onTabChange, isMobileOpen
     { id: 'json-beautifier' as ActiveTab, label: t.navigation.jsonBeautifier, icon: Braces, description: t.navigation.jsonBeautifierDesc },
     { id: 'sitemap-seo' as ActiveTab, label: t.navigation.sitemapSeo, icon: Globe, description: t.navigation.sitemapSeoDesc },
     { id: 'ai-writer' as ActiveTab, label: t.navigation.aiWriter, icon: Sparkles, description: t.navigation.aiWriterDesc },
+    { id: 'password-generator' as ActiveTab, label: t.navigation.passwordGenerator, icon: ShieldCheck, description: t.navigation.passwordGeneratorDesc },
+    { id: 'qr-generator' as ActiveTab, label: t.navigation.qrGenerator, icon: QrCode, description: t.navigation.qrGeneratorDesc },
+    { id: 'unit-converter' as ActiveTab, label: t.navigation.unitConverter, icon: Scale, description: t.navigation.unitConverterDesc },
+    { id: 'svg-rasterizer' as ActiveTab, label: t.navigation.svgRasterizer, icon: FileCode, description: t.navigation.svgRasterizerDesc },
+    { id: 'batch-processor' as ActiveTab, label: t.navigation.batchProcessor, icon: Sliders, description: t.navigation.batchProcessorDesc },
+    { id: 'json-diff' as ActiveTab, label: t.navigation.jsonDiff, icon: GitPullRequest, description: t.navigation.jsonDiffDesc },
+    { id: 'secure-hash' as ActiveTab, label: t.navigation.secureHash, icon: Hash, description: t.navigation.secureHashDesc },
+    { id: 'color-palette' as ActiveTab, label: t.navigation.colorPalette, icon: Palette, description: t.navigation.colorPaletteDesc },
+    { id: 'digital-signature' as ActiveTab, label: t.navigation.digitalSignature, icon: Signature, description: t.navigation.digitalSignatureDesc },
+    { id: 'seo-optimizer' as ActiveTab, label: t.navigation.seoOptimizer, icon: Gauge, description: t.navigation.seoOptimizerDesc },
+    { id: 'base64-converter' as ActiveTab, label: t.navigation.base64Converter, icon: Binary, description: t.navigation.base64ConverterDesc },
+    { id: 'regex-tester' as ActiveTab, label: t.navigation.regexTester, icon: Regex, description: t.navigation.regexTesterDesc },
+    { id: 'csv-json-converter' as ActiveTab, label: t.navigation.csvJsonConverter, icon: ArrowLeftRight, description: t.navigation.csvJsonConverterDesc },
+    { id: 'image-compressor' as ActiveTab, label: t.navigation.imageCompressor, icon: Shrink, description: t.navigation.imageCompressorDesc },
+    { id: 'rich-text-stats' as ActiveTab, label: t.navigation.richTextStats, icon: FileText, description: t.navigation.richTextStatsDesc },
+    { id: 'audio-trimmer' as ActiveTab, label: t.navigation.audioTrimmer, icon: Volume2, description: t.navigation.audioTrimmerDesc },
+    { id: 'ai-transcriber' as ActiveTab, label: t.navigation.aiTranscriber, icon: Mic, description: t.navigation.aiTranscriberDesc },
+    { id: 'pdf-analyst' as ActiveTab, label: t.navigation.pdfAnalyst, icon: FileText, description: t.navigation.pdfAnalystDesc },
+    { id: 'exif-stripper' as ActiveTab, label: t.navigation.exifStripper, icon: Eye, description: t.navigation.exifStripperDesc },
+    { id: 'video-recorder' as ActiveTab, label: t.navigation.videoRecorder, icon: Video, description: t.navigation.videoRecorderDesc },
   ];
 
   return (
-    <aside className={`fixed top-0 h-screen w-64 bg-[#060608]/98 backdrop-blur-md p-6 flex flex-col justify-between z-40 transition-transform duration-300 right-0 left-auto border-l border-brand-border/30 lg:left-0 lg:right-auto lg:border-r lg:border-l-0 ${isMobileOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}`}>
+    <motion.aside
+      initial={isMobile ? { x: '100%' } : false}
+      animate={isMobile ? { x: isMobileOpen ? '0%' : '100%' } : { x: '0%' }}
+      transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+      className={`fixed top-0 h-screen w-64 bg-[#060608]/98 backdrop-blur-md p-6 flex flex-col justify-between z-40 right-0 left-auto border-l border-brand-border/30 lg:left-0 lg:right-auto lg:border-r lg:border-l-0`}
+    >
       <div>
         {/* Master Branding Logo Plate with settings gear */}
         <div className="flex items-center justify-between pb-6 mb-6 border-b border-brand-border/35">
@@ -360,10 +397,21 @@ export default function NavigationSidebar({ activeTab, onTabChange, isMobileOpen
                   </div>
 
                   {/* Backup & Recovery Hub */}
-                  <div className="pt-2 border-t border-brand-border/20 space-y-1.5 align-left">
+                  <div className="pt-2 border-t border-brand-border/20 space-y-2.5 align-left">
                     <label className="block text-[8px] uppercase tracking-widest text-[#94a3b8]/70 font-mono">
                       System Backup Hub
                     </label>
+
+                    <button
+                      type="button"
+                      onClick={() => setIsBackupModalOpen(true)}
+                      className="w-full py-2 bg-gradient-to-r from-emerald-500/10 to-brand/5 hover:from-emerald-500/20 hover:to-brand/15 border border-emerald-500/25 hover:border-emerald-500/50 text-emerald-400 hover:text-emerald-300 font-sans text-[10.5px] font-bold tracking-wider rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-md shadow-emerald-500/5 h-8.5"
+                      title="Launch advanced visual selective backup and restore configuration utility."
+                    >
+                      <Database className="w-3.5 h-3.5" />
+                      <span>Backup & Move Studio</span>
+                    </button>
+
                     <div className="grid grid-cols-2 gap-2">
                       <button
                         type="button"
@@ -372,7 +420,7 @@ export default function NavigationSidebar({ activeTab, onTabChange, isMobileOpen
                         title="Export all custom presets, recent files, and setup to an external JSON configuration backup."
                       >
                         <Download className="w-3.5 h-3.5 text-zinc-500" />
-                        <span>Export Backup</span>
+                        <span>Export</span>
                       </button>
                       
                       <label
@@ -381,7 +429,7 @@ export default function NavigationSidebar({ activeTab, onTabChange, isMobileOpen
                         title="Import custom presets, recent history, and setup from an external JSON file."
                       >
                         <Upload className="w-3.5 h-3.5 text-zinc-500" />
-                        <span className="truncate">Import Backup</span>
+                        <span className="truncate">Import</span>
                       </label>
                       <input
                         id="apex-backup-upload"
@@ -482,6 +530,19 @@ export default function NavigationSidebar({ activeTab, onTabChange, isMobileOpen
           </div>
         </div>
       </div>
-    </aside>
+
+      <BackupRestoreModal
+        isOpen={isBackupModalOpen}
+        onClose={() => setIsBackupModalOpen(false)}
+        onSuccess={(msg) => {
+          setBackupStatus({ message: msg, type: 'success' });
+          setTimeout(() => setBackupStatus(null), 5000);
+        }}
+        onError={(msg) => {
+          setBackupStatus({ message: msg, type: 'error' });
+          setTimeout(() => setBackupStatus(null), 5000);
+        }}
+      />
+    </motion.aside>
   );
 }

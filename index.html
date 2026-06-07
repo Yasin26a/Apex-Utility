@@ -4,6 +4,39 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>My Google AI Studio App</title>
+    <script>
+      (function() {
+        try {
+          var originalFetch = window.fetch;
+          var defineProp = function(obj) {
+            try {
+              var currentFetch = obj.fetch || originalFetch;
+              Object.defineProperty(obj, 'fetch', {
+                get: function() {
+                  return currentFetch;
+                },
+                set: function(val) {
+                  currentFetch = val;
+                },
+                configurable: true,
+                enumerable: true
+              });
+            } catch (e) {
+              // Safe disregard
+            }
+          };
+          defineProp(window);
+          if (typeof Window !== 'undefined' && Window.prototype) {
+            defineProp(Window.prototype);
+          }
+          if (typeof globalThis !== 'undefined') {
+            defineProp(globalThis);
+          }
+        } catch (err) {
+          // Safe disregard
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

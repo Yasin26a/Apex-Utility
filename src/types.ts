@@ -1,4 +1,4 @@
-export type ActiveTab = 'dashboard' | 'compress-pdf' | 'webp-converter' | 'json-beautifier' | 'sitemap-seo' | 'image-to-pdf' | 'join-pdf' | 'ai-writer';
+export type ActiveTab = 'dashboard' | 'compress-pdf' | 'webp-converter' | 'json-beautifier' | 'sitemap-seo' | 'image-to-pdf' | 'join-pdf' | 'ai-writer' | 'password-generator' | 'qr-generator' | 'unit-converter' | 'svg-rasterizer' | 'batch-processor' | 'json-diff' | 'secure-hash' | 'color-palette' | 'digital-signature' | 'seo-optimizer' | 'base64-converter' | 'regex-tester' | 'csv-json-converter' | 'image-compressor' | 'rich-text-stats' | 'audio-trimmer' | 'ai-transcriber' | 'pdf-analyst' | 'exif-stripper' | 'video-recorder';
 
 export interface PDFFileState {
   name: string;

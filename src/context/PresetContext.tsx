@@ -23,6 +23,50 @@ export interface SettingsPreset {
     pdfWatermarkColor: string;
     pdfWatermarkOpacity: number;
     pdfWatermarkPosition: 'center' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+
+    // Password Generator Settings
+    passwordGenMode: 'random' | 'passphrase';
+    passwordLength: number;
+    passwordWordCount: number;
+    passwordIncludeUppercase: boolean;
+    passwordIncludeLowercase: boolean;
+    passwordIncludeNumbers: boolean;
+    passwordIncludeSymbols: boolean;
+    passwordCustomSymbols: string;
+    passwordExcludedChars: string;
+    passwordSeparator: string;
+    passwordCapitalizeWords: boolean;
+    passwordAddNumber: boolean;
+
+    // QR Generator Settings
+    qrMode: 'text' | 'url' | 'wifi' | 'email' | 'sms';
+    qrErrorCorrection: 'L' | 'M' | 'Q' | 'H';
+    qrForeColor: string;
+    qrBgColor: string;
+    qrSize: number;
+    qrWithMargin: boolean;
+    qrWifiSsid: string;
+    qrWifiPass: string;
+    qrWifiSecurity: 'WPA' | 'WEP' | 'nopass';
+    qrEmailTo: string;
+    qrEmailSubject: string;
+    qrEmailBody: string;
+    qrSmsPhone: string;
+    qrSmsMessage: string;
+
+    // Unit Converter Settings
+    converterCategory?: 'length' | 'weight' | 'volume' | 'temperature';
+    converterFromUnit?: string;
+    converterToUnit?: string;
+    converterInputValue?: number;
+
+    // SVG Rasterizer Settings
+    svgInput?: string;
+    svgWidth?: number;
+    svgHeight?: number;
+    svgScale?: number;
+    svgOutputFormat?: 'png' | 'jpg' | 'webp';
+    svgBgColor?: string;
   };
 }
 
@@ -48,6 +92,32 @@ export const defaultPresets: SettingsPreset[] = [
       pdfWatermarkColor: '#2563eb',
       pdfWatermarkOpacity: 0.2,
       pdfWatermarkPosition: 'center',
+      passwordGenMode: 'random',
+      passwordLength: 24,
+      passwordWordCount: 4,
+      passwordIncludeUppercase: true,
+      passwordIncludeLowercase: true,
+      passwordIncludeNumbers: true,
+      passwordIncludeSymbols: true,
+      passwordCustomSymbols: '!@#$%^&*()_+-=[]{}|;:,.<>?',
+      passwordExcludedChars: 'l1Io0O',
+      passwordSeparator: '-',
+      passwordCapitalizeWords: true,
+      passwordAddNumber: true,
+      qrMode: 'url',
+      qrErrorCorrection: 'Q',
+      qrForeColor: '#000000',
+      qrBgColor: '#ffffff',
+      qrSize: 400,
+      qrWithMargin: true,
+      qrWifiSsid: '',
+      qrWifiPass: '',
+      qrWifiSecurity: 'WPA',
+      qrEmailTo: '',
+      qrEmailSubject: '',
+      qrEmailBody: '',
+      qrSmsPhone: '',
+      qrSmsMessage: '',
     },
   },
   {
@@ -70,6 +140,32 @@ export const defaultPresets: SettingsPreset[] = [
       pdfWatermarkColor: '#e11d48',
       pdfWatermarkOpacity: 0.15,
       pdfWatermarkPosition: 'bottom-right',
+      passwordGenMode: 'random',
+      passwordLength: 16,
+      passwordWordCount: 4,
+      passwordIncludeUppercase: true,
+      passwordIncludeLowercase: true,
+      passwordIncludeNumbers: true,
+      passwordIncludeSymbols: false,
+      passwordCustomSymbols: '!@#$%^&*()_+-=[]{}|;:,.<>?',
+      passwordExcludedChars: 'l1Io0O',
+      passwordSeparator: '-',
+      passwordCapitalizeWords: true,
+      passwordAddNumber: true,
+      qrMode: 'text',
+      qrErrorCorrection: 'M',
+      qrForeColor: '#1e3a8a',
+      qrBgColor: '#f8fafc',
+      qrSize: 400,
+      qrWithMargin: true,
+      qrWifiSsid: '',
+      qrWifiPass: '',
+      qrWifiSecurity: 'WPA',
+      qrEmailTo: '',
+      qrEmailSubject: '',
+      qrEmailBody: '',
+      qrSmsPhone: '',
+      qrSmsMessage: '',
     },
   },
   {
@@ -92,6 +188,32 @@ export const defaultPresets: SettingsPreset[] = [
       pdfWatermarkColor: '#6b7280',
       pdfWatermarkOpacity: 0.3,
       pdfWatermarkPosition: 'center',
+      passwordGenMode: 'passphrase',
+      passwordLength: 12,
+      passwordWordCount: 4,
+      passwordIncludeUppercase: true,
+      passwordIncludeLowercase: true,
+      passwordIncludeNumbers: true,
+      passwordIncludeSymbols: true,
+      passwordCustomSymbols: '!@#$%^&*()_+-=[]{}|;:,.<>?',
+      passwordExcludedChars: '',
+      passwordSeparator: '-',
+      passwordCapitalizeWords: true,
+      passwordAddNumber: true,
+      qrMode: 'wifi',
+      qrErrorCorrection: 'H',
+      qrForeColor: '#111827',
+      qrBgColor: '#ffffff',
+      qrSize: 400,
+      qrWithMargin: true,
+      qrWifiSsid: 'APEX_SECURE_WIFI',
+      qrWifiPass: 'EnterpriseStandard99',
+      qrWifiSecurity: 'WPA',
+      qrEmailTo: '',
+      qrEmailSubject: '',
+      qrEmailBody: '',
+      qrSmsPhone: '',
+      qrSmsMessage: '',
     },
   },
 ];
@@ -128,7 +250,7 @@ export const PresetProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     try {
       const savedActive = localStorage.getItem('apex_active_settings');
       if (savedActive) {
-        return JSON.parse(savedActive);
+        return { ...defaultPresets[0].settings, ...JSON.parse(savedActive) };
       }
     } catch {}
 

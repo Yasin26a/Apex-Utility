@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Menu } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { ActiveTab } from './types';
 import NavigationSidebar from './components/NavigationSidebar';
 import Dashboard from './components/Dashboard';
@@ -11,16 +12,91 @@ import SEOInspect from './components/SEOInspect';
 import ImageToPDF from './components/ImageToPDF';
 import PDFJoiner from './components/PDFJoiner';
 import AIWriter from './components/AIWriter';
+import PasswordGenerator from './components/PasswordGenerator';
+import QRCodeGenerator from './components/QRCodeGenerator';
+import UnitConverter from './components/UnitConverter';
+import SVGRasterizer from './components/SVGRasterizer';
+import BatchProcessor from './components/BatchProcessor';
+import JSONDiffChecker from './components/JSONDiffChecker';
+import SecureHashGenerator from './components/SecureHashGenerator';
+import ColorPaletteGenerator from './components/ColorPaletteGenerator';
+import DigitalSignatureGenerator from './components/DigitalSignatureGenerator';
+import SEOOptimizer from './components/SEOOptimizer';
+import Base64Converter from './components/Base64Converter';
+import RegexTester from './components/RegexTester';
+import CSVJSONConverter from './components/CSVJSONConverter';
+import ImageCompressor from './components/ImageCompressor';
+import RichTextStatistics from './components/RichTextStatistics';
+import AudioTrimmer from './components/AudioTrimmer';
+import AIAudioTranscriber from './components/AIAudioTranscriber';
+import PDFAnalyst from './components/PDFAnalyst';
+import ExifMetadataStripper from './components/ExifMetadataStripper';
+import VideoRecorder from './components/VideoRecorder';
 import useSEOTags from './hooks/useSEOTags';
 import CommandBar from './components/CommandBar';
+import { logToolUsage } from './utils/toolAnalytics';
+
+const VALID_TABS: ActiveTab[] = [
+  'dashboard', 'compress-pdf', 'webp-converter', 'json-beautifier', 
+  'sitemap-seo', 'image-to-pdf', 'join-pdf', 'ai-writer', 
+  'password-generator', 'qr-generator', 'unit-converter', 'svg-rasterizer', 'batch-processor', 'json-diff', 'secure-hash', 'color-palette', 'digital-signature', 'seo-optimizer', 'base64-converter', 'regex-tester', 'csv-json-converter', 'image-compressor', 'rich-text-stats', 'audio-trimmer', 'ai-transcriber', 'pdf-analyst', 'exif-stripper', 'video-recorder'
+];
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const getTabFromPath = (path: string): ActiveTab => {
+    const segment = path.replace(/^\//, ''); // trim leading slash
+    if (!segment || segment === 'dashboard') {
+      return 'dashboard';
+    }
+    if (VALID_TABS.includes(segment as ActiveTab)) {
+      return segment as ActiveTab;
+    }
+    return 'dashboard';
+  };
+
+  const activeTab = getTabFromPath(location.pathname);
+
+  const handleTabChange = (tab: ActiveTab) => {
+    if (tab === 'dashboard') {
+      navigate('/');
+    } else {
+      navigate(`/${tab}`);
+    }
+  };
+
   const [isCommandBarOpen, setIsCommandBarOpen] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   
   // Dynamically inject SEO optimized meta tags targeting long-tail keywords for each active tool route
   useSEOTags(activeTab);
+
+  // Deep linking initial load configuration or routing sync
+  useEffect(() => {
+    const currentSegment = location.pathname.replace(/^\//, '');
+    if (!currentSegment || currentSegment === '') {
+      try {
+        const saved = localStorage.getItem('apex_active_tab') as ActiveTab;
+        if (saved && saved !== 'dashboard' && VALID_TABS.includes(saved)) {
+          navigate(`/${saved}`, { replace: true });
+        }
+      } catch {}
+    }
+  }, [location.pathname, navigate]);
+
+  // Sync active tab to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('apex_active_tab', activeTab);
+      if (activeTab && activeTab !== 'dashboard') {
+        logToolUsage(activeTab);
+      }
+    } catch (e) {
+      console.error('Failed to save active tab to localStorage', e);
+    }
+  }, [activeTab]);
 
   const [themeMode, setThemeMode] = useState<'crimson' | 'cobalt' | 'auto'>(() => {
     const saved = localStorage.getItem('apex_theme_mode') || localStorage.getItem('apex_theme');
@@ -75,7 +151,7 @@ export default function App() {
   const renderActiveView = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <Dashboard onTabChange={setActiveTab} />;
+        return <Dashboard onTabChange={handleTabChange} />;
       case 'compress-pdf':
         return <PDFCompressor />;
       case 'join-pdf':
@@ -90,8 +166,48 @@ export default function App() {
         return <ImageToPDF />;
       case 'ai-writer':
         return <AIWriter />;
+      case 'password-generator':
+        return <PasswordGenerator />;
+      case 'qr-generator':
+        return <QRCodeGenerator />;
+      case 'unit-converter':
+        return <UnitConverter />;
+      case 'svg-rasterizer':
+        return <SVGRasterizer />;
+      case 'batch-processor':
+        return <BatchProcessor />;
+      case 'json-diff':
+        return <JSONDiffChecker />;
+      case 'secure-hash':
+        return <SecureHashGenerator />;
+      case 'color-palette':
+        return <ColorPaletteGenerator />;
+      case 'digital-signature':
+        return <DigitalSignatureGenerator />;
+      case 'seo-optimizer':
+        return <SEOOptimizer />;
+      case 'base64-converter':
+        return <Base64Converter />;
+      case 'regex-tester':
+        return <RegexTester />;
+      case 'csv-json-converter':
+        return <CSVJSONConverter />;
+      case 'image-compressor':
+        return <ImageCompressor />;
+      case 'rich-text-stats':
+        return <RichTextStatistics />;
+      case 'audio-trimmer':
+        return <AudioTrimmer />;
+      case 'ai-transcriber':
+        return <AIAudioTranscriber />;
+      case 'pdf-analyst':
+        return <PDFAnalyst />;
+      case 'exif-stripper':
+        return <ExifMetadataStripper />;
+      case 'video-recorder':
+        return <VideoRecorder />;
       default:
-        return <Dashboard onTabChange={setActiveTab} />;
+        return <Dashboard onTabChange={handleTabChange} />;
     }
   };
 
@@ -132,11 +248,12 @@ export default function App() {
       <AnimatePresence>
         {isMobileSidebarOpen && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            initial={{ opacity: 0, backdropFilter: 'blur(0px)', WebkitBackdropFilter: 'blur(0px)' }}
+            animate={{ opacity: 1, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
+            exit={{ opacity: 0, backdropFilter: 'blur(0px)', WebkitBackdropFilter: 'blur(0px)' }}
+            transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
             onClick={() => setIsMobileSidebarOpen(false)}
-            className="fixed inset-0 bg-black/80 backdrop-blur-md z-30 lg:hidden cursor-pointer"
+            className="fixed inset-0 bg-black/75 z-30 lg:hidden cursor-pointer"
           />
         )}
       </AnimatePresence>
@@ -145,7 +262,7 @@ export default function App() {
       <NavigationSidebar 
         activeTab={activeTab} 
         onTabChange={(tab) => {
-          setActiveTab(tab);
+          handleTabChange(tab);
           setIsMobileSidebarOpen(false);
         }} 
         isMobileOpen={isMobileSidebarOpen}
@@ -182,7 +299,7 @@ export default function App() {
       <CommandBar
         isOpen={isCommandBarOpen}
         onClose={() => setIsCommandBarOpen(false)}
-        onSelectTab={setActiveTab}
+        onSelectTab={handleTabChange}
         theme={themeMode}
         onThemeChange={handleThemeChange}
       />

@@ -1,7 +1,7 @@
 export interface RecentOperation {
   id: string;
   name: string;
-  type: 'PDF Compression' | 'WebP Conversion' | 'Image to PDF';
+  type: 'PDF Compression' | 'WebP Conversion' | 'Image to PDF' | 'Shield Vault';
   originalSize: string;
   newSize: string;
   timestamp: string;
@@ -33,7 +33,7 @@ export const getRecentOperations = (): RecentOperation[] => {
 
 export const addRecentOperation = (
   name: string,
-  type: 'PDF Compression' | 'WebP Conversion' | 'Image to PDF',
+  type: 'PDF Compression' | 'WebP Conversion' | 'Image to PDF' | 'Shield Vault',
   originalSize: string,
   newSize: string,
   downloadName: string,

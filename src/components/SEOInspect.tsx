@@ -2,8 +2,156 @@ import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { Globe, Download, Check, Copy, Code, Sparkles, FileText, CheckCircle, ShieldAlert, Cpu } from 'lucide-react';
 
+const SCHEMA_PROFILES = [
+  {
+    id: 'homepage',
+    name: 'Home Portal Schema',
+    description: 'Detailed search-engine structure for the primary APEX UTILITY hub portal.',
+    code: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "APEX UTILITY Forge",
+      "description": "High performance local-first tool suite optimized for developer operations, PDF operations, and image conversions.",
+      "applicationCategory": "UtilityApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
+  {
+    id: 'webp-converter',
+    name: 'WebP Converter Schema',
+    description: 'Structure detailing the interactive WebP to PNG/JPG media engine.',
+    code: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Interactive WebP Converter Engine",
+      "description": "Instantly read WebP vectors and convert to crisp PNG or compressed JPG quality locally.",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
+  {
+    id: 'compress-pdf',
+    name: 'PDF Compressor Schema',
+    description: 'Structured mapping for local document size reduction pipeline.',
+    code: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Smart PDF Compressor Forge",
+      "description": "Compress and structurally shrink document payload sizes without rasterization errors.",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
+  {
+    id: 'image-to-pdf',
+    name: 'Image to PDF Schema',
+    description: 'Structured metadata for compilation of visual assets to PDF.',
+    code: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "JPG/PNG to PDF Converter & Merger",
+      "description": "Merge and compile standard raster image formats into a single high-quality PDF document locally.",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
+  {
+    id: 'join-pdf',
+    name: 'PDF Joiner Schema',
+    description: 'Assembly mapping structures for fine-grained multi-document rendering.',
+    code: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "PDF Joiner & Page Reorder Forge",
+      "description": "Combine several PDF files into a single optimized document with page drag reordering.",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
+  {
+    id: 'json-beautifier',
+    name: 'JSON Beautifier Schema',
+    description: 'Developer workspace metadata tags targeting syntax arrays.',
+    code: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "JSON Parser & Beautifier Engine",
+      "description": "Format unreadable JSON data and debug structural arrays in real-time.",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
+  {
+    id: 'ai-writer',
+    name: 'AI Copywriter Schema',
+    description: 'Structured format mapping for professional content writing suite.',
+    code: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Apex AI Content Writer Engine",
+      "description": "Draft publications, articles, formal emails, or markdown posts instantly utilizing Gemini AI.",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
+  {
+    id: 'sitemap-seo',
+    name: 'SEO Inspector Schema',
+    description: 'Metadata mapping for structural crawl indexes and dynamic priorities.',
+    code: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Dynamic XML Sitemap Generator & SEO Inspector",
+      "description": "Generate dynamic sitemaps and inspect robots.txt files to index routes across search engines.",
+      "applicationCategory": "SEOApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  }
+];
+
 export default function SEOInspect() {
   const [copiedIndex, setCopiedIndex] = useState<string | null>(null);
+  const [activeProfileId, setActiveProfileId] = useState('homepage');
 
   const websiteUrl = 'https://apex-pdf.cloudflare.dev';
   const currentDateISO = '2026-06-05';
@@ -181,6 +329,96 @@ Sitemap: ${websiteUrl}/sitemap.xml`;
               </li>
             </ul>
           </div>
+        </div>
+      </div>
+
+      {/* STRUCTURED DATA JSON-LD SCHEMAS SECTION */}
+      <div className="space-y-4 pt-6 border-t border-zinc-900/60">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 px-1">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <Code className="w-5 h-5 text-rose-500" />
+              <h3 className="font-heading text-sm font-bold text-white uppercase tracking-wider">Generated JSON-LD Schema Markups</h3>
+            </div>
+            <p className="font-sans text-xs text-[#94a3b8]">
+              Inject structured microdata templates to boost search result rich snippets and entity rankings.
+            </p>
+          </div>
+          
+          <div className="flex flex-wrap items-center gap-2.5">
+            <label htmlFor="active-schema-profile" className="sr-only">Select Schema Profile</label>
+            <select
+              id="active-schema-profile"
+              value={activeProfileId}
+              onChange={(e) => setActiveProfileId(e.target.value)}
+              className="py-1 px-3 bg-zinc-950 border border-zinc-900 focus:border-rose-500 text-zinc-300 hover:text-white rounded-lg text-xs font-mono font-bold transition-all cursor-pointer shadow-md select-none focus:outline-none"
+            >
+              {SCHEMA_PROFILES.map((profile) => (
+                <option key={profile.id} value={profile.id}>
+                  {profile.name}
+                </option>
+              ))}
+            </select>
+
+            <button
+              onClick={() => {
+                const profile = SCHEMA_PROFILES.find(p => p.id === activeProfileId);
+                if (profile) {
+                  copyToClipboard(JSON.stringify(profile.code, null, 2), `schema-${profile.id}`);
+                }
+              }}
+              className="px-3.5 py-1.5 text-xs font-mono text-zinc-300 hover:text-white rounded-lg bg-zinc-950 hover:bg-[#16161f] border border-zinc-905 hover:border-zinc-800 flex items-center gap-1.5 cursor-pointer shadow-md transition-all active:scale-95"
+              title="Copy JSON-LD Schema Markup to Clipboard"
+            >
+              {copiedIndex === `schema-${activeProfileId}` ? (
+                <Check className="w-3.5 h-3.5 text-emerald-400" />
+              ) : (
+                <Copy className="w-3.5 h-3.5 text-zinc-500" />
+              )}
+              <span>{copiedIndex === `schema-${activeProfileId}` ? 'Copied' : 'Copy Schema'}</span>
+            </button>
+
+            <button
+              onClick={() => {
+                const profile = SCHEMA_PROFILES.find(p => p.id === activeProfileId);
+                if (profile) {
+                  triggerDownload(JSON.stringify(profile.code, null, 2), `${profile.id}_schema_ld.json`, 'application/json');
+                }
+              }}
+              className="px-3.5 py-1.5 text-xs font-mono text-rose-400 hover:text-rose-300 rounded-lg bg-rose-950/10 hover:bg-rose-950/20 border border-rose-500/20 flex items-center gap-1.5 cursor-pointer shadow-md transition-all active:scale-95"
+              title="Export structured JSON-LD draft schema markups"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Export JSON-LD</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Selected Profile Explanation Badge */}
+        {(() => {
+          const activeProfile = SCHEMA_PROFILES.find(p => p.id === activeProfileId);
+          if (!activeProfile) return null;
+          return (
+            <div className="flex items-start gap-2.5 p-3.5 bg-rose-950/5 border border-rose-950/15 rounded-xl animate-fade-in">
+              <CheckCircle className="w-4 h-4 text-rose-500 mt-0.5 flex-shrink-0" />
+              <div className="space-y-0.5 animate-slide-up">
+                <span className="font-heading text-xs font-bold text-white block uppercase tracking-wide">{activeProfile.name} Parameters</span>
+                <p className="font-sans text-[11px] text-zinc-400 leading-normal">{activeProfile.description}</p>
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* JSON Code Code Block */}
+        <div className="beveled-panel p-5 bg-[#08080c] border-rose-950/10 min-h-[180px] relative max-h-[320px] overflow-auto">
+          <pre className="font-mono text-[11px] text-emerald-400/90 leading-relaxed whitespace-pre">
+            <code>
+              {(() => {
+                const profile = SCHEMA_PROFILES.find(p => p.id === activeProfileId);
+                return profile ? JSON.stringify(profile.code, null, 2) : '';
+              })()}
+            </code>
+          </pre>
         </div>
       </div>
     </div>

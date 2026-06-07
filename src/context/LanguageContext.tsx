@@ -20,6 +20,46 @@ export interface Translations {
     sitemapSeoDesc: string;
     aiWriter: string;
     aiWriterDesc: string;
+    passwordGenerator: string;
+    passwordGeneratorDesc: string;
+    qrGenerator: string;
+    qrGeneratorDesc: string;
+    unitConverter: string;
+    unitConverterDesc: string;
+    svgRasterizer: string;
+    svgRasterizerDesc: string;
+    batchProcessor: string;
+    batchProcessorDesc: string;
+    jsonDiff: string;
+    jsonDiffDesc: string;
+    secureHash: string;
+    secureHashDesc: string;
+    colorPalette: string;
+    colorPaletteDesc: string;
+    digitalSignature: string;
+    digitalSignatureDesc: string;
+    seoOptimizer: string;
+    seoOptimizerDesc: string;
+    base64Converter: string;
+    base64ConverterDesc: string;
+    regexTester: string;
+    regexTesterDesc: string;
+    csvJsonConverter: string;
+    csvJsonConverterDesc: string;
+    imageCompressor: string;
+    imageCompressorDesc: string;
+    richTextStats: string;
+    richTextStatsDesc: string;
+    audioTrimmer: string;
+    audioTrimmerDesc: string;
+    aiTranscriber: string;
+    aiTranscriberDesc: string;
+    pdfAnalyst: string;
+    pdfAnalystDesc: string;
+    exifStripper: string;
+    exifStripperDesc: string;
+    videoRecorder: string;
+    videoRecorderDesc: string;
   };
   settings: {
     title: string;
@@ -75,6 +115,46 @@ export const translations: Record<Language, Translations> = {
       sitemapSeoDesc: 'Sitemap Analyzer',
       aiWriter: 'AI Writer',
       aiWriterDesc: 'AI Copywriter Engine',
+      passwordGenerator: 'Shield Vault',
+      passwordGeneratorDesc: 'Secure Password Generator',
+      qrGenerator: 'QR Signal Builder',
+      qrGeneratorDesc: 'Secure QR Code Compiler',
+      unitConverter: 'Unit Converter',
+      unitConverterDesc: 'Secure Metric Solver & Converter',
+      svgRasterizer: 'SVG Rasterizer',
+      svgRasterizerDesc: 'Convert SVG Vectors to High-Res Images',
+      batchProcessor: 'Batch Processor',
+      batchProcessorDesc: 'Resize & Compress Multiple Files Instantly',
+      jsonDiff: 'JSON Diff Checker',
+      jsonDiffDesc: 'Compare Two JSON Objects Side-By-Side',
+      secureHash: 'Hash Vault',
+      secureHashDesc: 'Generate secure cryptographic MD5, SHA-1, SHA-256, and SHA-512 hashes',
+      colorPalette: 'Color Palette',
+      colorPaletteDesc: 'Generate harmonious color schemes and extract brand colors from any image',
+      digitalSignature: 'Digital Signature',
+      digitalSignatureDesc: 'Create, preview and download custom drawn or text signatures',
+      seoOptimizer: 'SEO Content Optimizer',
+      seoOptimizerDesc: 'Analyze text keyword density, readability, and meta-descriptions in real-time',
+      base64Converter: 'Base64 Encoder/Decoder',
+      base64ConverterDesc: 'Convert files, images, or texts to secure Base64 data with code exports',
+      regexTester: 'Regex Validator & Tester',
+      regexTesterDesc: 'Validate and debug regular expressions with real-time highlighting and group details',
+      csvJsonConverter: 'CSV ⇄ JSON Converter',
+      csvJsonConverterDesc: 'Convert files or text between CSV and JSON formats with live editing previews',
+      imageCompressor: 'Image Compressor',
+      imageCompressorDesc: 'Compress and resize JPEG, PNG, and WebP images with size reduction metrics',
+      richTextStats: 'Rich Text Statistics',
+      richTextStatsDesc: 'Detail character, word, sentence, and readability metrics for custom text inputs in real-time',
+      audioTrimmer: 'Audio Trimmer',
+      audioTrimmerDesc: 'Upload, visualize, preview, and trim audio clips securely with local WAV rendering',
+      aiTranscriber: 'AI Audio Transcriber',
+      aiTranscriberDesc: 'Upload files and leverage Gemini AI to transcribe speech into time-coded SRT or TXT paragraphs',
+      pdfAnalyst: 'AI PDF & Document Q&A',
+      pdfAnalystDesc: 'Upload papers, sheets, or PDF files and converse with them using specialized AI models securely',
+      exifStripper: 'EXIF Metadata Inspector',
+      exifStripperDesc: 'Analyze hidden EXIF headers, GPS track logs, and strip binary metadata to secure image privacy',
+      videoRecorder: 'Screen & Cam Recorder',
+      videoRecorderDesc: 'Record screen feeds, microphone audio inputs, and overlay camera streams in high-definition',
     },
     settings: {
       title: 'System Aesthetics',
@@ -128,6 +208,46 @@ export const translations: Record<Language, Translations> = {
       sitemapSeoDesc: 'Analizador de Mapas',
       aiWriter: 'Escritor IA',
       aiWriterDesc: 'Redactor de Documentos',
+      passwordGenerator: 'Bóveda de Claves',
+      passwordGeneratorDesc: 'Generador Claves Seguras',
+      qrGenerator: 'Generador QR',
+      qrGeneratorDesc: 'Compilador de Códigos QR',
+      unitConverter: 'Convertidor de Unidades',
+      unitConverterDesc: 'Conversor Métrico y Científico Seguro',
+      svgRasterizer: 'Rasterizador SVG',
+      svgRasterizerDesc: 'Fusión de Vector SVG a Imagen de Alta Res',
+      batchProcessor: 'Procesador por Lotes',
+      batchProcessorDesc: 'Optimizar Múltiples Archivos en Paralelo',
+      jsonDiff: 'Comparador JSON',
+      jsonDiffDesc: 'Comparar dos objetos JSON lado a lado',
+      secureHash: 'Bóveda de Hashes',
+      secureHashDesc: 'Generar hashes criptográficos seguros MD5, SHA-1, SHA-256 y SHA-512',
+      colorPalette: 'Paleta de Colores',
+      colorPaletteDesc: 'Generar esquemas de colores armoniosos y extraer colores de marcas de imágenes',
+      digitalSignature: 'Firma Digital',
+      digitalSignatureDesc: 'Crear, previsualizar y descargar firmas dibujadas o tipográficas',
+      seoOptimizer: 'Optimizador de Contenido SEO',
+      seoOptimizerDesc: 'Analizar densidad de palabras clave, legibilidad y meta descripciones en tiempo real',
+      base64Converter: 'Codificador/Decodificador Base64',
+      base64ConverterDesc: 'Convierta archivos, imágenes o textos a Base64 con exportación de código',
+      regexTester: 'Validador y Probador Regex',
+      regexTesterDesc: 'Pruebe y depure patrones de expresiones regulares y grupos de captura en tempo real',
+      csvJsonConverter: 'Conversor CSV ⇄ JSON',
+      csvJsonConverterDesc: 'Convierta archivos o texto entre CSV y JSON con vista previa y descarga',
+      imageCompressor: 'Compresor de Imágenes',
+      imageCompressorDesc: 'Comprima y redimensione imágenes JPEG, PNG y WebP con métricas de reducción',
+      richTextStats: 'Estadísticas de Texto',
+      richTextStatsDesc: 'Analice métricas detalladas de caracteres, palabras, oraciones y legibilidad en tiempo real',
+      audioTrimmer: 'Recortador de Audio',
+      audioTrimmerDesc: 'Suba, visualice, escuche y recorte fragmentos de audio de forma segura con renderizado local WAV',
+      aiTranscriber: 'Transcriptor de Audio IA',
+      aiTranscriberDesc: 'Suba archivos y use la IA de Gemini para transcribir voz a párrafos SRT o TXT estructurados',
+      pdfAnalyst: 'Chat con PDF y Doctos IA',
+      pdfAnalystDesc: 'Suba archivos PDF o documentos y converse con ellos usando modelos de IA avanzados',
+      exifStripper: 'Inspector y Eliminador EXIF',
+      exifStripperDesc: 'Analice cabeceras EXIF ocultas, registros GPS y borre metadatos para proteger la privacidad',
+      videoRecorder: 'Grabadora de Pantalla y Cámara',
+      videoRecorderDesc: 'Grabe pantallas, entradas de micrófono y superponga señales de cámara web en alta definición',
     },
     settings: {
       title: 'Estética del Sistema',
@@ -181,6 +301,46 @@ export const translations: Record<Language, Translations> = {
       sitemapSeoDesc: 'Analyseur de Plans',
       aiWriter: 'Rédacteur IA',
       aiWriterDesc: 'Création de Documents',
+      passwordGenerator: 'Coffre-fort',
+      passwordGeneratorDesc: 'Générateur Mots de Passe',
+      qrGenerator: 'Générateur QR',
+      qrGeneratorDesc: 'Compilateur de Codes QR',
+      unitConverter: 'Convertisseur d\'Unités',
+      unitConverterDesc: 'Convertisseur Métrique Ultra Rapide',
+      svgRasterizer: 'Rastériseur SVG',
+      svgRasterizerDesc: 'Convertir les Vecteurs SVG en Images HD',
+      batchProcessor: 'Processeur en Lot',
+      batchProcessorDesc: 'Optimiser Plusieurs Fichiers en Parallèle',
+      jsonDiff: 'Comparateur JSON',
+      jsonDiffDesc: 'Comparer deux objets JSON côte à côte',
+      secureHash: 'Coffre de Hachage',
+      secureHashDesc: 'Générer des hachages cryptographiques sécurisés MD5, SHA-1, SHA-256 et SHA-512',
+      colorPalette: 'Palette de Couleurs',
+      colorPaletteDesc: 'Générer des schémas de couleurs harmonieux et extraire les couleurs d\'images',
+      digitalSignature: 'Signature Numérique',
+      digitalSignatureDesc: 'Créer, prévisualiser et télécharger des signatures dessinées ou textuelles',
+      seoOptimizer: 'Optimiseur de Contenu SEO',
+      seoOptimizerDesc: 'Analyser la densité des mots-clés, la lisibilité et les méta-descriptions en temps réel',
+      base64Converter: 'Encodeur/Décodeur Base64',
+      base64ConverterDesc: 'Convertir fichiers, images ou textes en Base64 avec exportations de code',
+      regexTester: 'Testeur et Valideur Regex',
+      regexTesterDesc: 'Expérimentez et valisez vos expressions régulières et groupes de capture en temps réel',
+      csvJsonConverter: 'Convertisseur CSV ⇄ JSON',
+      csvJsonConverterDesc: 'Convertir des fichiers ou du texte entre CSV et JSON avec prévisualisation en direct',
+      imageCompressor: 'Compresseur d\'Images',
+      imageCompressorDesc: 'Compressez et redimensionnez des images JPEG, PNG et WebP avec des statistiques de réduction',
+      richTextStats: 'Statistiques de Texte',
+      richTextStatsDesc: 'Analysez en temps réel des statistiques détaillées de caractères, mots, phrases et lisibilité',
+      audioTrimmer: 'Coupeur Audio',
+      audioTrimmerDesc: 'Téléchargez, visualisez, écoutez et découpez des fichiers audio localement au format WAV',
+      aiTranscriber: 'Transcripteur Audio IA',
+      aiTranscriberDesc: 'Téléchargez des fichiers et utilisez l\'IA Gemini pour transcrire en paragraphes SRT ou TXT minutés',
+      pdfAnalyst: 'Chattez avec vos PDF IA',
+      pdfAnalystDesc: 'Téléchargez des fichiers PDF et discutez avec eux en temps réel grâce à l\'IA de Gemini',
+      exifStripper: 'Inspecteur & Nettoyeur EXIF',
+      exifStripperDesc: 'Inspectez les données EXIF masquées, les traces GPS et supprimez les métadatas pour sécuriser vos images',
+      videoRecorder: 'Enregistreur Écran & WebCam',
+      videoRecorderDesc: 'Enregistrez votre écran, capturez le flux microphone et incrustez la webcam en haute définition',
     },
     settings: {
       title: 'Esthétique du Système',
@@ -234,6 +394,46 @@ export const translations: Record<Language, Translations> = {
       sitemapSeoDesc: 'Sitemap-Analysator',
       aiWriter: 'KI-Schreiber',
       aiWriterDesc: 'Dokumenten-Schreiber',
+      passwordGenerator: 'Schlüsseltresor',
+      passwordGeneratorDesc: 'Sicherer Passwortgenerator',
+      qrGenerator: 'QR-Signal-Generator',
+      qrGeneratorDesc: 'Sicherer QR-Code-Compiler',
+      unitConverter: 'Einheiten-Konverter',
+      unitConverterDesc: 'Präziser metrischer Einheitenrechner',
+      svgRasterizer: 'SVG-Rasterisierer',
+      svgRasterizerDesc: 'SVG-Vektoren in hochauflösende Bilder umwandeln',
+      batchProcessor: 'Stapel-Verarbeiter',
+      batchProcessorDesc: 'Mehrere Dateien gleichzeitig verändern und komprimieren',
+      jsonDiff: 'JSON-Vergleicher',
+      jsonDiffDesc: 'Zwei JSON-Objekte nebeneinander vergleichen',
+      secureHash: 'Hash-Tresor',
+      secureHashDesc: 'Erzeugen Sie sichere kryptografische MD5-, SHA-1-, SHA-256- und SHA-512-Hashes',
+      colorPalette: 'Farbpalette',
+      colorPaletteDesc: 'Generieren Sie harmonische Farbschemata und extrahieren Sie Markenfarben aus Bildern',
+      digitalSignature: 'Digitale Signatur',
+      digitalSignatureDesc: 'Erstellen, Vorschauen und Herunterladen von gezeichneten oder getippten Signaturen',
+      seoOptimizer: 'SEO-Content-Optimierer',
+      seoOptimizerDesc: 'Analysieren Sie Keyword-Dichte, Lesbarkeit und Meta-Beschreibungen in Echtzeit',
+      base64Converter: 'Base64-Kodierer/Dekodierer',
+      base64ConverterDesc: 'Dateien, Bilder oder Texte in Base64 umwandeln mit Code-Exporten',
+      regexTester: 'Regex-Tester & Validador',
+      regexTesterDesc: 'Reguläre Ausdrücke in Echtzeit testen, anpassen und Capture-Gruppen analysieren',
+      csvJsonConverter: 'CSV ⇄ JSON Konverter',
+      csvJsonConverterDesc: 'Konvertieren Sie CSV- und JSON-Dateien oder Texte mit Live-Vorschau',
+      imageCompressor: 'Bildkomprimierer',
+      imageCompressorDesc: 'Komprimieren und verkleinern Sie JPEG-, PNG- und WebP-Bilder mit Reduktionsstatistiken',
+      richTextStats: 'Textstatistiken',
+      richTextStatsDesc: 'Analysieren Sie Zeichen-, Wort-, Satz- und Lesbarkeitsmetriken für Texteingaben in Echtzeit',
+      audioTrimmer: 'Audio-Trimmer',
+      audioTrimmerDesc: 'Laden Sie Audiodateien hoch, visualisieren Sie sie, hören Sie sie an und schneiden Sie sie lokal als WAV',
+      aiTranscriber: 'KI-Audio-Sprechtext',
+      aiTranscriberDesc: 'Laden Sie Dateien hoch und nutzen Sie Gemini, um Sprache in zeitcodierte SRT- oder TXT-Blöcke zu transkribieren',
+      pdfAnalyst: 'KI PDF & Dokument Q&A',
+      pdfAnalystDesc: 'Laden Sie PDF-Dateien und Dokumente hoch und und führen Sie intelligente Dialoge mit ihnen',
+      exifStripper: 'EXIF Metadaten Inspektor',
+      exifStripperDesc: 'Analysieren Sie versteckte EXIF Header, GPS-Spuren und entfernen Sie binäre Metadaten für maximalen Datenschutz',
+      videoRecorder: 'Bildschirm & Webcam Recorder',
+      videoRecorderDesc: 'Bildschirme aufnehmen, Mikrofon-Eingänge erfassen und Webcam-Streams in hoher Auflösung überlagern',
     },
     settings: {
       title: 'System-Ästhetik',
@@ -287,6 +487,46 @@ export const translations: Record<Language, Translations> = {
       sitemapSeoDesc: 'Analisador de Sitemap',
       aiWriter: 'Escritor IA',
       aiWriterDesc: 'Motor de Redação',
+      passwordGenerator: 'Cofre de Senhas',
+      passwordGeneratorDesc: 'Gerador de Senhas Seguras',
+      qrGenerator: 'Gerador de QR',
+      qrGeneratorDesc: 'Compilador de Códigos QR',
+      unitConverter: 'Conversor de Unidades',
+      unitConverterDesc: 'Mestre de Conversão Métrica',
+      svgRasterizer: 'Rasterizador SVG',
+      svgRasterizerDesc: 'Converter Vetores SVG para Imagens HD',
+      batchProcessor: 'Processador de Lote',
+      batchProcessorDesc: 'Transformar Várias Imagens em Paralelo',
+      jsonDiff: 'Comparador JSON',
+      jsonDiffDesc: 'Comparar dois objetos JSON lado a lado',
+      secureHash: 'Cofre de Hashes',
+      secureHashDesc: 'Gerar hashes criptográficos seguros MD5, SHA-1, SHA-256 e SHA-512',
+      colorPalette: 'Paleta de Cores',
+      colorPaletteDesc: 'Gerar esquemas de cores harmoniosas e extrair cores de marcas a partir de imagens',
+      digitalSignature: 'Assinatura Digital',
+      digitalSignatureDesc: 'Criar, visualizar e baixar assinaturas desenhadas ou de texto',
+      seoOptimizer: 'Otimizador de Conteúdo SEO',
+      seoOptimizerDesc: 'Analise densidade de palavras-chave, legibilidade e meta-descrições em tempo real',
+      base64Converter: 'Codificador/Decodificador Base64',
+      base64ConverterDesc: 'Converta arquivos, imagens ou textos em Base64 com exportação de código',
+      regexTester: 'Validador e Testador Regex',
+      regexTesterDesc: 'Valide e depure expressões regulares com realce em tempo real e grupos de captura',
+      csvJsonConverter: 'Conversor CSV ⇄ JSON',
+      csvJsonConverterDesc: 'Converta arquivos ou textos entre CSV e JSON com visualizações interativas',
+      imageCompressor: 'Compressor de Imagens',
+      imageCompressorDesc: 'Comprima e redimensione imagens JPEG, PNG e WebP com métricas de redução',
+      richTextStats: 'Estatísticas de Texto',
+      richTextStatsDesc: 'Analise métricas detalhadas de caracteres, palavras, frases e legibilidade em tempo real',
+      audioTrimmer: 'Cortador de Áudio',
+      audioTrimmerDesc: 'Carregue, visualize, ouça e corte arquivos de áudio localmente e baixe como WAV',
+      aiTranscriber: 'Transcrito de Áudio IA',
+      aiTranscriberDesc: 'Faça upload de arquivos e use a IA do Gemini para transcrever fala em formatos SRT ou TXT com tempos marcados',
+      pdfAnalyst: 'Conversar com PDF IA',
+      pdfAnalystDesc: 'Faça upload de PDFs ou documentos e faça perguntas inteligentes para analisar o conteúdo em tempo real',
+      exifStripper: 'Inspector e Removedor de EXIF',
+      exifStripperDesc: 'Analise metadados EXIF ocultos, coordenadas GPS e limpe assinaturas para proteger sua privacidade',
+      videoRecorder: 'Gravador de Tela e Câmera',
+      videoRecorderDesc: 'Grave transmissões de tela de desktop, áudios de microfone e sobreponha streams de webcam em HD',
     },
     settings: {
       title: 'Estética do Sistema',
