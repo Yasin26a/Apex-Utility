@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutGrid, FileText, Image as ImageIcon, FileImage, Braces, Globe, Terminal, ShieldCheck, Settings, Search, Layers, Monitor, Trash2, Plus, Check, X, Sparkles, Download, Upload, QrCode, Scale, FileCode, Sliders, GitPullRequest, Hash, Palette, Signature, Gauge, Binary, Regex, ArrowLeftRight, Shrink, Database, Volume2, Mic, Eye, Video } from 'lucide-react';
+import { LayoutGrid, FileText, Image as ImageIcon, FileImage, Braces, Globe, Terminal, ShieldCheck, Settings, Search, Layers, Monitor, Trash2, Plus, Check, X, Sparkles, Download, Upload, QrCode, Scale, FileCode, Sliders, GitPullRequest, Hash, Palette, Signature, Gauge, Binary, Regex, ArrowLeftRight, Shrink, Database, Volume2, Mic, Eye, Video, PenTool } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ActiveTab } from '../types';
 import { useLanguage } from '../context/LanguageContext';
@@ -157,6 +157,7 @@ export default function NavigationSidebar({ activeTab, onTabChange, isMobileOpen
     { id: 'ai-writer' as ActiveTab, label: t.navigation.aiWriter, icon: Sparkles, description: t.navigation.aiWriterDesc },
     { id: 'password-generator' as ActiveTab, label: t.navigation.passwordGenerator, icon: ShieldCheck, description: t.navigation.passwordGeneratorDesc },
     { id: 'qr-generator' as ActiveTab, label: t.navigation.qrGenerator, icon: QrCode, description: t.navigation.qrGeneratorDesc },
+    { id: 'image-vectorizer' as ActiveTab, label: t.navigation.imageVectorizer, icon: Palette, description: t.navigation.imageVectorizerDesc },
     { id: 'unit-converter' as ActiveTab, label: t.navigation.unitConverter, icon: Scale, description: t.navigation.unitConverterDesc },
     { id: 'svg-rasterizer' as ActiveTab, label: t.navigation.svgRasterizer, icon: FileCode, description: t.navigation.svgRasterizerDesc },
     { id: 'batch-processor' as ActiveTab, label: t.navigation.batchProcessor, icon: Sliders, description: t.navigation.batchProcessorDesc },
@@ -175,6 +176,8 @@ export default function NavigationSidebar({ activeTab, onTabChange, isMobileOpen
     { id: 'pdf-analyst' as ActiveTab, label: t.navigation.pdfAnalyst, icon: FileText, description: t.navigation.pdfAnalystDesc },
     { id: 'exif-stripper' as ActiveTab, label: t.navigation.exifStripper, icon: Eye, description: t.navigation.exifStripperDesc },
     { id: 'video-recorder' as ActiveTab, label: t.navigation.videoRecorder, icon: Video, description: t.navigation.videoRecorderDesc },
+    { id: 'code-snapshot' as ActiveTab, label: t.navigation.codeSnapshot, icon: FileCode, description: t.navigation.codeSnapshotDesc },
+    { id: 'private-sketchpad' as ActiveTab, label: t.navigation.privateSketchpad, icon: PenTool, description: t.navigation.privateSketchpadDesc },
   ];
 
   return (

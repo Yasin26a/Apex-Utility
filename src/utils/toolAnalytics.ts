@@ -14,10 +14,13 @@ const TOOL_MUTUAL_LABELS: Record<string, string> = {
   'ai-writer': 'AI Word Smith',
   'password-generator': 'Pass Matrix Engine',
   'qr-generator': 'QR Code Matrix',
+  'image-vectorizer': 'Image Vectorizer',
   'unit-converter': 'Unit Converter Shift',
   'svg-rasterizer': 'SVG Vector Rasterizer',
   'batch-processor': 'Parallel Batch Processor',
-  'json-diff': 'JSON-Diff Matrix'
+  'json-diff': 'JSON-Diff Matrix',
+  'code-snapshot': 'Code Snapshot Canvas',
+  'private-sketchpad': 'Secure Vector Sketchpad'
 };
 
 const STORAGE_KEY = 'apex_tool_usage_events_stream';

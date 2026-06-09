@@ -211,6 +211,26 @@ const SEO_METADATA: Record<ActiveTab, SEOHeaderContent> = {
       }
     }
   },
+  'image-vectorizer': {
+    title: "Local Image Vectorizer & PNG/JPEG to SVG Converter | Apex Utility",
+    description: "Convert PNG, JPEG, and WebP raster images into high-quality scalable SVG vectors offline. Use Moore-Neighbor contour tracing, Delaunay low-poly mesh, halftone dots, or quantized retro pixel art.",
+    keywords: "local image vectorizer, png to svg converter online free, convert jpeg to svg locally, raster to vector outline tracer, delaunay polygon generator, low poly halftone",
+    ogTitle: "Local Image Vectorizer & Raster to SVG Converter Online",
+    ogDescription: "Trace boundaries or create futuristic low-poly and halftone vectors 100% offline within your browser. Full privacy with lossless SVG output downloads.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Apex Responsive Image Vectorizer",
+      "description": "Convert weightless raster images into crystal-clear scalable vector graphics (SVG) with custom outline, triangulation, halftone, and pixelated tracing controls.",
+      "applicationCategory": "DesignApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
   'unit-converter': {
     title: "Instant Unit Converter & Metric Solver Online Free | Apex Processing Labs",
     description: "Convert length, weight, volume, and temperature parameters in real-time. Displays full comparison matrices and exports results securely directly to click clipboard.",
@@ -552,17 +572,57 @@ const SEO_METADATA: Record<ActiveTab, SEOHeaderContent> = {
     }
   },
   'video-recorder': {
-    title: "HD Screen, System Audio & Cam Recorder | Apex Suite",
-    description: "Record high-definition video assets directly and privately. Superimpose live webcam bubbles, mix multi-device hardware micro-tracks in real-time, and download lossless WebM reels instantly.",
-    keywords: "screen recorder, loom online alternative, record screen and webcam, capturing microphone audio, picture in picture camera bubble, off-line video presentation recorder",
-    ogTitle: "HD Screen & Webcam Recorder Studio",
-    ogDescription: "Record high-definition video presentations, capture custom microphone voice-overs, and pop out movable webcam bubbles.",
+    title: "Screen Recorder & Instant High-Quality GIF Exporter | Apex Suite",
+    description: "Record high-definition screen captures and instantly export them into high-quality looping GIFs or WebM video. Superimpose webcam overlay, choose frame rate, quality quantization, and offline dithering controls.",
+    keywords: "screen recorder, gif exporter, convert screen capture to gif, webm to gif converter, record screen to gif, loom to gif alternative, custom color palette gif",
+    ogTitle: "Screen Recorder & High-Quality GIF Exporter Studio",
+    ogDescription: "Record your screen and convert captures instantly into fluid, high-quality looping GIFs or premium WebM presentations 100% offline.",
     schema: {
       "@context": "https://schema.org",
       "@type": "WebApplication",
       "name": "Apex High-Definition Screen & Webcam Recorder",
       "description": "High-fidelity offline-secure screen & webcam recorder.",
       "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
+  'code-snapshot': {
+    title: "Premium Code Snapshot Creator & Carbon/Ray.so Alternative | Apex Suite",
+    description: "Generate beautiful, shareable code snapshots inside customizable layouts 100% offline. Adjust gradients, paddings, macOS windows, line numbers, fonts, and export to PNG instantly.",
+    keywords: "code snapshot generator, beautiful code screenshots, carbon copy online alternative, ray.so desktop client offline, source code screenshot beautifier, gradient backdrop syntax highlighting",
+    ogTitle: "Premium Code Snapshot Studio",
+    ogDescription: "Turn raw source code into spectacular, presentation-ready vector and canvas shots with custom neon backdrops, mock browser skins, and elite typography.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Apex Code Snapshot Studio",
+      "description": "Highly customizable, privacy-focused offline source code screenshot and code-card design client.",
+      "applicationCategory": "DesignApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
+  'private-sketchpad': {
+    title: "Private Local Sketchpad & Excalidraw-like Diagrammer | Apex Suite",
+    description: "Create diagrams, mockups, flowcharts, and hand-drawn sketches 100% locally and privately. High-fidelity shape tools, customized styles, custom backing grids, and high-DPI vector image exports.",
+    keywords: "excalidraw alternative, private local sketchpad, vector wireframe builder, hand-drawn layout editor, offline flowchart designer, privacy-first diagram tool",
+    ogTitle: "Private Sketchpad & Wireframe Canvas",
+    ogDescription: "Design premium sketches, diagrams, checklists, and visual layouts privately. Export seamlessly as SVG or PNG locally with high-fidelity outputs.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Apex Secure Sketchpad",
+      "description": "Completely secure, local-first interactive vector diagramming and hand-drawn wireframing studio.",
+      "applicationCategory": "DesignApplication",
       "operatingSystem": "All Platforms",
       "offers": {
         "@type": "Offer",

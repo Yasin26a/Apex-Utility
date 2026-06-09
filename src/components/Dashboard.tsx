@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, useMotionValue, useTransform, AnimatePresence } from 'motion/react';
-import { FileDown, Image, Sparkles, Braces, ArrowRight, ShieldCheck, Zap, Globe, Cpu, Clock, Download, CheckCircle, FileText, FileImage, Trash2, Camera, Loader2, Search, Copy, Check, Info, Activity, AlertCircle, Layers, ChevronLeft, ChevronRight, GripVertical, Minus, Plus, RotateCcw, Settings, ArrowLeft, Upload, Database, QrCode, Scale, FileCode, Sliders, GitPullRequest, LayoutGrid, List, Hash, Palette, Signature, Gauge, Binary, Regex, ArrowLeftRight, Shrink, Pin, Volume2, Mic, Eye, Video } from 'lucide-react';
+import { FileDown, Image, Sparkles, Braces, ArrowRight, ShieldCheck, Zap, Globe, Cpu, Clock, Download, CheckCircle, FileText, FileImage, Trash2, Camera, Loader2, Search, Copy, Check, Info, Activity, AlertCircle, Layers, ChevronLeft, ChevronRight, GripVertical, Minus, Plus, RotateCcw, Settings, ArrowLeft, Upload, Database, QrCode, Scale, FileCode, Sliders, GitPullRequest, LayoutGrid, List, Hash, Palette, Signature, Gauge, Binary, Regex, ArrowLeftRight, Shrink, Pin, Volume2, Mic, Eye, Video, PenTool, History } from 'lucide-react';
 import { ActiveTab } from '../types';
 import html2canvas from 'html2canvas';
 import { getRecentOperations, getSessionDownloadUrl, RecentOperation } from '../utils/recentOperations';
@@ -189,14 +189,14 @@ const DEFAULT_CARDS = [
   },
   {
     id: 'qr-generator',
-    title: 'QR Signal Builder',
-    desc: 'Generate highly custom QR codes offline from plain text, URLs, email addresses, phone digits, or Wi-Fi security keys.',
-    tagline: '"custom high-resolution client-side vector qr code generator offline"',
+    title: 'QR & Barcode Studio',
+    desc: 'Generate highly custom QR codes and multi-format linear barcodes offline. Personalize colors, margins, text sizes, and error levels.',
+    tagline: '"custom high-resolution client-side vector qr and linear barcode generator"',
     category: 'Design & Signals',
     categoryIcon: 'QrCode',
     cardIcon: 'QrCode',
     textClass: 'text-amber-400',
-    buttonLabel: 'Engage QR Builder',
+    buttonLabel: 'Engage Code Studio',
     colSpan: 1,
     heightLevel: 2
   },
@@ -236,6 +236,19 @@ const DEFAULT_CARDS = [
     cardIcon: 'Sliders',
     textClass: 'text-emerald-400',
     buttonLabel: 'Engage Batch Engine',
+    colSpan: 1,
+    heightLevel: 2
+  },
+  {
+    id: 'image-vectorizer',
+    title: 'Local Image Vectorizer',
+    desc: 'Convert PNG, JPEG, and WebP images into high-quality scalable SVG vectors offline with customizable tracing styles.',
+    tagline: '"free offline PNG/JPEG to scalable SVG vectorizer"',
+    category: 'Media Lab',
+    categoryIcon: 'Palette',
+    cardIcon: 'Palette',
+    textClass: 'text-fuchsia-400',
+    buttonLabel: 'Engage Vectorizer Engine',
     colSpan: 1,
     heightLevel: 2
   },
@@ -423,14 +436,27 @@ const DEFAULT_CARDS = [
   },
   {
     id: 'video-recorder',
-    title: 'Screen & Cam Recorder',
-    desc: 'HD screen recording utility. Simultaneously capture desktop displays, windows, custom system audio, and overlay movable webcam layers.',
-    tagline: '"ultra-smooth fluid browser presentations, quick screencasts, and instant high-definition offline downloads"',
+    title: 'Screen Recorder & GIF Exporter',
+    desc: 'Record screen feeds, windows, microphone inputs, and export instantly to High-Quality looping GIFs or fluid WebM presentations 100% locally with offline dithering and quantization controls.',
+    tagline: '"instant capture, high-fidelity custom FPS looping GIFs, and offline-secure HD record reels"',
     category: 'Media Lab',
     categoryIcon: 'Video',
     cardIcon: 'Video',
     textClass: 'text-cyan-450',
-    buttonLabel: 'Launch HD Recorder',
+    buttonLabel: 'Launch Screen Studio',
+    colSpan: 1,
+    heightLevel: 2
+  },
+  {
+    id: 'code-snapshot',
+    title: 'Code Snapshot Canvas',
+    desc: 'Generate beautiful, presentation-ready code snapshots (like Carbon and Ray.so) with customized neon gradients, padding, line numbers, macOS frames, shadow depth, font families, and instant PNG downloads.',
+    tagline: '"turn raw source scripts into stunning presentation-ready cards 100% locally with offline precision"',
+    category: 'Developer Operations',
+    categoryIcon: 'Braces',
+    cardIcon: 'FileCode',
+    textClass: 'text-emerald-450',
+    buttonLabel: 'Launch Code Snapshot',
     colSpan: 1,
     heightLevel: 2
   }
@@ -462,6 +488,39 @@ const iconMap: Record<string, React.ComponentType<any>> = {
   Mic: Mic,
   Eye: Eye,
   Video: Video
+};
+
+const recentToolsLabels = {
+  en: {
+    title: 'Recently Accessed Utilities',
+    subtitle: 'Quick one-click access to your top recently launched tools.',
+    noTools: 'No utilities launched recently. Open some tool from below!',
+    launch: 'Launch'
+  },
+  es: {
+    title: 'Utilidades Recientes',
+    subtitle: 'Acceso rápido con un clic a sus utilidades abiertas recientemente.',
+    noTools: 'Ninguna utilidad abierta recientemente. ¡Abra alguna herramienta abajo!',
+    launch: 'Abrir'
+  },
+  fr: {
+    title: 'Outils Récents',
+    subtitle: 'Accès rapide en un clic à vos outils récemment ouverts.',
+    noTools: 'Aucun outil ouvert récemment. Activez-en un ci-dessous !',
+    launch: 'Lancer'
+  },
+  de: {
+    title: 'Zuletzt genutzte Anwendungen',
+    subtitle: 'Schnellzugriff auf Ihre zuletzt gestarteten Anwendungen mit einem Klick.',
+    noTools: 'Keine Anwendungen in letzter Zeit geöffnet. Starten Sie eine unten!',
+    launch: 'Starten'
+  },
+  pt: {
+    title: 'Utilidades Recentes',
+    subtitle: 'Acesso rápido com um clique de volta aos seus utilitários abertos recentemente.',
+    noTools: 'Nenhum utilitário aberto recentemente. Inicie alguma ferramenta abaixo!',
+    launch: 'Iniciar'
+  }
 };
 
 export default function Dashboard({ onTabChange }: DashboardProps) {
@@ -827,6 +886,63 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
 
   const currentLang = (['en', 'es', 'fr', 'de', 'pt'].includes(language) ? language : 'en') as 'en' | 'es' | 'fr' | 'de' | 'pt';
   const dict = dashboardUI[currentLang];
+
+  const [recentTools, setRecentTools] = useState<{ id: string; title: string; category?: string; textClass?: string; icon: any }[]>([]);
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      try {
+        const rawEvents = localStorage.getItem('apex_tool_usage_events_stream');
+        let events: any[] = [];
+        if (rawEvents) {
+          events = JSON.parse(rawEvents);
+        }
+        
+        const uniqueToolIds: string[] = [];
+        events.forEach(evt => {
+          if (evt && evt.toolId && evt.toolId !== 'dashboard' && !uniqueToolIds.includes(evt.toolId)) {
+            uniqueToolIds.push(evt.toolId);
+          }
+        });
+
+        const top5Ids = uniqueToolIds.slice(0, 5);
+
+        const mapped = top5Ids.map(toolId => {
+          const card = DEFAULT_CARDS.find(c => c.id === toolId);
+          
+          const camelKeyStr = toCamelCase(toolId);
+          const camelKey = camelKeyStr as any;
+          const translatedTitle = t.navigation && t.navigation[camelKey] ? t.navigation[camelKey] : (card ? card.title : toolId);
+
+          let iconComponent = Sparkles;
+          if (card && card.cardIcon && iconMap[card.cardIcon]) {
+            iconComponent = iconMap[card.cardIcon];
+          } else if (toolId === 'private-sketchpad') {
+            iconComponent = PenTool;
+          }
+
+          return {
+            id: toolId,
+            title: translatedTitle,
+            category: card ? card.category : 'Interactive Sandbox',
+            textClass: card ? card.textClass : 'text-amber-400',
+            icon: iconComponent
+          };
+        });
+
+        setRecentTools(mapped);
+      } catch (err) {
+        console.error('Failed to load recent tools', err);
+      }
+    };
+
+    handleUpdate();
+
+    window.addEventListener('apex_tool_analytics_updated', handleUpdate);
+    return () => {
+      window.removeEventListener('apex_tool_analytics_updated', handleUpdate);
+    };
+  }, [language, t]);
 
   const [recentOps, setRecentOps] = useState<RecentOperation[]>([]);
   const [isExporting, setIsExporting] = useState(false);
@@ -1484,6 +1600,73 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
 
       {/* Dynamic D3.js Workspace Telemetry Analytics Chart */}
       <D3AnalyticsChart />
+
+      {/* Recent Tools Widget */}
+      <div id="recent-tools-widget" className="beveled-panel p-6 border-brand-border/30 bg-[#07070a]/60 space-y-4">
+        <div className="flex items-center gap-2.5 border-b border-brand-border/10 pb-3">
+          <History className="w-5 h-5 text-brand animate-pulse" />
+          <div>
+            <h2 className="font-heading text-base font-bold text-white uppercase tracking-wider">
+              {recentToolsLabels[language as keyof typeof recentToolsLabels]?.title || recentToolsLabels.en.title}
+            </h2>
+            <p className="font-sans text-xs text-zinc-400">
+              {recentToolsLabels[language as keyof typeof recentToolsLabels]?.subtitle || recentToolsLabels.en.subtitle}
+            </p>
+          </div>
+        </div>
+
+        {recentTools.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            {recentTools.map((tool) => {
+              const ToolIcon = tool.icon;
+              return (
+                <motion.div
+                  key={tool.id}
+                  whileHover={{ y: -3, scale: 1.015 }}
+                  transition={{ type: 'spring', stiffness: 350, damping: 25 }}
+                  onClick={() => onTabChange(tool.id as ActiveTab)}
+                  className="beveled-panel p-4 bg-zinc-950/40 border border-zinc-900 hover:border-brand/40 hover:bg-[#07070a]/80 transition-all duration-300 cursor-pointer flex flex-col justify-between h-28 group relative overflow-hidden select-none"
+                >
+                  {/* Subtle hover backlight */}
+                  <div className="absolute top-0 right-0 w-16 h-16 rounded-full blur-2xl group-hover:bg-brand/5 pointer-events-none transition-all duration-300" />
+                  
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className={`p-2 rounded-lg bg-zinc-900 border border-zinc-850 flex-shrink-0 group-hover:border-brand/35 group-hover:shadow-[0_0_12px_rgba(245,158,11,0.15)] transition-all duration-300 ${tool.textClass || 'text-brand'}`}>
+                        <ToolIcon className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="font-heading text-xs font-bold text-white group-hover:text-brand truncate leading-tight transition-colors">
+                          {tool.title}
+                        </h3>
+                        <span className="font-sans text-[10px] text-zinc-500 block truncate uppercase tracking-wide mt-0.5">
+                          {tool.category}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between border-t border-zinc-900/40 pt-2.5 mt-2 font-mono text-[9px] text-zinc-500">
+                    <span className="uppercase text-[8px] tracking-wider text-zinc-600 font-semibold">
+                      APEX LABS
+                    </span>
+                    <span className="inline-flex items-center gap-1 text-brand font-bold opacity-0 group-hover:opacity-100 transition-all transform translate-x-1 group-hover:translate-x-0 duration-300">
+                      <span>{recentToolsLabels[language as keyof typeof recentToolsLabels]?.launch || recentToolsLabels.en.launch}</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </span>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="py-6 text-center border border-dashed border-zinc-900/60 rounded-xl bg-zinc-950/15">
+            <p className="font-sans text-xs text-zinc-500">
+              {recentToolsLabels[language as keyof typeof recentToolsLabels]?.noTools || recentToolsLabels.en.noTools}
+            </p>
+          </div>
+        )}
+      </div>
 
       {/* Dynamic Drag-and-Resize Utilities Matrix */}
       <div id="dashboard-core-vault">

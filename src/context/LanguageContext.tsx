@@ -24,6 +24,12 @@ export interface Translations {
     passwordGeneratorDesc: string;
     qrGenerator: string;
     qrGeneratorDesc: string;
+    imageVectorizer: string;
+    imageVectorizerDesc: string;
+    codeSnapshot: string;
+    codeSnapshotDesc: string;
+    privateSketchpad: string;
+    privateSketchpadDesc: string;
     unitConverter: string;
     unitConverterDesc: string;
     svgRasterizer: string;
@@ -117,8 +123,14 @@ export const translations: Record<Language, Translations> = {
       aiWriterDesc: 'AI Copywriter Engine',
       passwordGenerator: 'Shield Vault',
       passwordGeneratorDesc: 'Secure Password Generator',
-      qrGenerator: 'QR Signal Builder',
-      qrGeneratorDesc: 'Secure QR Code Compiler',
+      qrGenerator: 'QR & Barcode Studio',
+      qrGeneratorDesc: 'Advanced Code & Signal Builder',
+      imageVectorizer: 'Image Vectorizer',
+      imageVectorizerDesc: 'Convert PNG/JPG to scalable SVG',
+      codeSnapshot: 'Code Snap Canvas',
+      codeSnapshotDesc: 'Beautify & snapshot code layouts',
+      privateSketchpad: 'Sketchpad / Diagram',
+      privateSketchpadDesc: 'Local secure diagramming canvas',
       unitConverter: 'Unit Converter',
       unitConverterDesc: 'Secure Metric Solver & Converter',
       svgRasterizer: 'SVG Rasterizer',
@@ -153,8 +165,8 @@ export const translations: Record<Language, Translations> = {
       pdfAnalystDesc: 'Upload papers, sheets, or PDF files and converse with them using specialized AI models securely',
       exifStripper: 'EXIF Metadata Inspector',
       exifStripperDesc: 'Analyze hidden EXIF headers, GPS track logs, and strip binary metadata to secure image privacy',
-      videoRecorder: 'Screen & Cam Recorder',
-      videoRecorderDesc: 'Record screen feeds, microphone audio inputs, and overlay camera streams in high-definition',
+      videoRecorder: 'Screen Recorder & GIF Exporter',
+      videoRecorderDesc: 'Record screen feeds, microphone voice overlay, and export instantly to High-Quality looping GIFs or WebM',
     },
     settings: {
       title: 'System Aesthetics',
@@ -212,6 +224,12 @@ export const translations: Record<Language, Translations> = {
       passwordGeneratorDesc: 'Generador Claves Seguras',
       qrGenerator: 'Generador QR',
       qrGeneratorDesc: 'Compilador de Códigos QR',
+      imageVectorizer: 'Vectorizador de Imágenes',
+      imageVectorizerDesc: 'Convertir PNG/JPG a SVG escalable',
+      codeSnapshot: 'Captura de Código',
+      codeSnapshotDesc: 'Embellecer y capturar esquemas de código',
+      privateSketchpad: 'Pizarra de Diagramas',
+      privateSketchpadDesc: 'Lienzo seguro de diagramación local',
       unitConverter: 'Convertidor de Unidades',
       unitConverterDesc: 'Conversor Métrico y Científico Seguro',
       svgRasterizer: 'Rasterizador SVG',
@@ -305,6 +323,12 @@ export const translations: Record<Language, Translations> = {
       passwordGeneratorDesc: 'Générateur Mots de Passe',
       qrGenerator: 'Générateur QR',
       qrGeneratorDesc: 'Compilateur de Codes QR',
+      imageVectorizer: 'Vectoriseur d\'Image',
+      imageVectorizerDesc: 'Convertir PNG/JPG en SVG vectoriel',
+      codeSnapshot: 'Snap de Code',
+      codeSnapshotDesc: 'Créer de superbes captures de code',
+      privateSketchpad: 'Tableau de Croquis',
+      privateSketchpadDesc: 'Canevas de diagramme local et sécurisé',
       unitConverter: 'Convertisseur d\'Unités',
       unitConverterDesc: 'Convertisseur Métrique Ultra Rapide',
       svgRasterizer: 'Rastériseur SVG',
@@ -398,6 +422,12 @@ export const translations: Record<Language, Translations> = {
       passwordGeneratorDesc: 'Sicherer Passwortgenerator',
       qrGenerator: 'QR-Signal-Generator',
       qrGeneratorDesc: 'Sicherer QR-Code-Compiler',
+      imageVectorizer: 'Bild-Vektorisierer',
+      imageVectorizerDesc: 'Konvertieren Sie PNG/JPG in skalierbare SVGs',
+      codeSnapshot: 'Code-Snapshot',
+      codeSnapshotDesc: 'Schöne Code-Bilder erstellen',
+      privateSketchpad: 'Skizzenblock & Diagramme',
+      privateSketchpadDesc: 'Lokale, sichere Zeichenfläche',
       unitConverter: 'Einheiten-Konverter',
       unitConverterDesc: 'Präziser metrischer Einheitenrechner',
       svgRasterizer: 'SVG-Rasterisierer',
@@ -491,6 +521,12 @@ export const translations: Record<Language, Translations> = {
       passwordGeneratorDesc: 'Gerador de Senhas Seguras',
       qrGenerator: 'Gerador de QR',
       qrGeneratorDesc: 'Compilador de Códigos QR',
+      imageVectorizer: 'Vetorizador de Imagem',
+      imageVectorizerDesc: 'Converter PNG/JPG para SVG escalável',
+      codeSnapshot: 'Captura de Código',
+      codeSnapshotDesc: 'Beautify e capturar layouts de código',
+      privateSketchpad: 'Esboço & Diagramas',
+      privateSketchpadDesc: 'Célula de diagramação local segura',
       unitConverter: 'Conversor de Unidades',
       unitConverterDesc: 'Mestre de Conversão Métrica',
       svgRasterizer: 'Rasterizador SVG',

@@ -19,6 +19,7 @@ import {
   Plus
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import useLocalStoragePersistence from '../hooks/useLocalStoragePersistence';
 
 interface AIWriterState {
   prompt: string;
@@ -33,16 +34,21 @@ interface AIWriterState {
 
 export default function AIWriter() {
   const { t } = useLanguage();
-  const [state, setState] = useState<AIWriterState>({
-    prompt: '',
-    contentType: 'Blog Post',
-    tone: 'Professional',
-    referenceContext: '',
-    generatedText: '',
-    isGenerating: false,
-    isRefining: false,
-    error: null,
-  });
+  
+  const [state, setState, { lastSaved }] = useLocalStoragePersistence<AIWriterState>(
+    'apex_ai_writer_data',
+    {
+      prompt: '',
+      contentType: 'Blog Post',
+      tone: 'Professional',
+      referenceContext: '',
+      generatedText: '',
+      isGenerating: false,
+      isRefining: false,
+      error: null,
+    },
+    { interval: 4000 } // Autosave draft variables every 4 seconds
+  );
 
   const [copied, setCopied] = useState(false);
   const [customRefineInstruction, setCustomRefineInstruction] = useState('');
@@ -399,6 +405,12 @@ export default function AIWriter() {
                 {state.generatedText && (
                   <span className="font-mono text-[8px] px-2 py-0.5 bg-indigo-500/10 border border-indigo-500/25 rounded text-indigo-400 uppercase tracking-widest animate-pulse">
                     compliant document
+                  </span>
+                )}
+                {lastSaved && (
+                  <span className="font-mono text-[8px] px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded uppercase tracking-widest flex items-center gap-1.5 shrink-0 select-none">
+                    <span className="w-1 h-1 rounded-full bg-emerald-400 animate-ping" />
+                    AUTOSAVED {lastSaved.toLocaleTimeString()}
                   </span>
                 )}
               </div>

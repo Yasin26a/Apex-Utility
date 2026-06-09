@@ -14,6 +14,7 @@ import PDFJoiner from './components/PDFJoiner';
 import AIWriter from './components/AIWriter';
 import PasswordGenerator from './components/PasswordGenerator';
 import QRCodeGenerator from './components/QRCodeGenerator';
+import ImageVectorizer from './components/ImageVectorizer';
 import UnitConverter from './components/UnitConverter';
 import SVGRasterizer from './components/SVGRasterizer';
 import BatchProcessor from './components/BatchProcessor';
@@ -32,6 +33,8 @@ import AIAudioTranscriber from './components/AIAudioTranscriber';
 import PDFAnalyst from './components/PDFAnalyst';
 import ExifMetadataStripper from './components/ExifMetadataStripper';
 import VideoRecorder from './components/VideoRecorder';
+import CodeSnapshot from './components/CodeSnapshot';
+import PrivateSketchpad from './components/PrivateSketchpad';
 import useSEOTags from './hooks/useSEOTags';
 import CommandBar from './components/CommandBar';
 import { logToolUsage } from './utils/toolAnalytics';
@@ -39,15 +42,29 @@ import { logToolUsage } from './utils/toolAnalytics';
 const VALID_TABS: ActiveTab[] = [
   'dashboard', 'compress-pdf', 'webp-converter', 'json-beautifier', 
   'sitemap-seo', 'image-to-pdf', 'join-pdf', 'ai-writer', 
-  'password-generator', 'qr-generator', 'unit-converter', 'svg-rasterizer', 'batch-processor', 'json-diff', 'secure-hash', 'color-palette', 'digital-signature', 'seo-optimizer', 'base64-converter', 'regex-tester', 'csv-json-converter', 'image-compressor', 'rich-text-stats', 'audio-trimmer', 'ai-transcriber', 'pdf-analyst', 'exif-stripper', 'video-recorder'
+  'password-generator', 'qr-generator', 'unit-converter', 'svg-rasterizer', 'batch-processor', 'json-diff', 'secure-hash', 'color-palette', 'digital-signature', 'seo-optimizer', 'base64-converter', 'regex-tester', 'csv-json-converter', 'image-compressor', 'rich-text-stats', 'audio-trimmer', 'ai-transcriber', 'pdf-analyst', 'exif-stripper', 'video-recorder', 'image-vectorizer', 'code-snapshot', 'private-sketchpad'
 ];
 
 export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const getTabFromPath = (path: string): ActiveTab => {
-    const segment = path.replace(/^\//, ''); // trim leading slash
+  const getTabFromPath = (path: string, hash: string): ActiveTab => {
+    // 1. Resolve active tab from hash if using HashRouter
+    let h = hash || window.location.hash || '';
+    let segment = '';
+    
+    if (h.startsWith('#')) {
+      segment = h.replace(/^#\/?/, '').split('?')[0];
+    }
+    
+    // Hash is empty or just root, fallback to path
+    if (!segment) {
+      segment = path.replace(/^\//, '').split('?')[0];
+    }
+    
+    segment = segment.replace(/\/$/, '');
+
     if (!segment || segment === 'dashboard') {
       return 'dashboard';
     }
@@ -57,7 +74,7 @@ export default function App() {
     return 'dashboard';
   };
 
-  const activeTab = getTabFromPath(location.pathname);
+  const activeTab = getTabFromPath(location.pathname, location.hash);
 
   const handleTabChange = (tab: ActiveTab) => {
     if (tab === 'dashboard') {
@@ -73,15 +90,20 @@ export default function App() {
   // Dynamically inject SEO optimized meta tags targeting long-tail keywords for each active tool route
   useSEOTags(activeTab);
 
-  const hasRestored = useRef(false);
+  const initialRestoreDone = useRef(false);
 
   // Deep linking initial load configuration or routing sync on initial mount only
   useEffect(() => {
-    if (hasRestored.current) return;
-    hasRestored.current = true;
+    if (initialRestoreDone.current) return;
+    initialRestoreDone.current = true;
 
-    const currentSegment = location.pathname.replace(/^\//, '');
-    if (!currentSegment || currentSegment === '') {
+    // Check if there is an explicit tool requested in the URL hash or path
+    const hashSegment = (window.location.hash || '').replace(/^#\/?/, '').split('?')[0];
+    const pathSegment = location.pathname.replace(/^\//, '').split('?')[0];
+    const currentRoute = hashSegment || pathSegment;
+
+    // If there is no explicit route in the URL, try to restore from localStorage
+    if (!currentRoute || currentRoute === 'dashboard') {
       try {
         const saved = localStorage.getItem('apex_active_tab') as ActiveTab;
         if (saved && saved !== 'dashboard' && VALID_TABS.includes(saved)) {
@@ -175,6 +197,8 @@ export default function App() {
         return <PasswordGenerator />;
       case 'qr-generator':
         return <QRCodeGenerator />;
+      case 'image-vectorizer':
+        return <ImageVectorizer />;
       case 'unit-converter':
         return <UnitConverter />;
       case 'svg-rasterizer':
@@ -211,6 +235,10 @@ export default function App() {
         return <ExifMetadataStripper />;
       case 'video-recorder':
         return <VideoRecorder />;
+      case 'code-snapshot':
+        return <CodeSnapshot />;
+      case 'private-sketchpad':
+        return <PrivateSketchpad />;
       default:
         return <Dashboard onTabChange={handleTabChange} />;
     }

@@ -149,12 +149,25 @@ export default function CommandBar({ isOpen, onClose, onSelectTab, theme, onThem
     {
       id: 'qr-generator',
       category: 'Tools',
-      title: 'QR Code & Signal Builder',
-      description: 'Generate high-resolution custom raster and vector QR codes with styling and error restoration options',
+      title: 'QR & Barcode Studio',
+      description: 'Generate high-resolution custom raster and vector QR codes or multi-format linear barcodes with full styling and design templates',
       icon: QrCode,
-      keywords: ['qr', 'code', 'generator', 'wifi', 'email', 'sms', 'link', 'vector', 'svg', 'png', 'builder', 'compile'],
+      keywords: ['qr', 'code', 'generator', 'wifi', 'email', 'sms', 'link', 'vector', 'svg', 'png', 'builder', 'compile', 'barcode', 'ean', 'upc', 'code128'],
       action: () => {
         onSelectTab('qr-generator');
+        onClose();
+      },
+      shortcut: '↵'
+    },
+    {
+      id: 'image-vectorizer',
+      category: 'Tools',
+      title: 'Local Image Vectorizer (Raster to SVG)',
+      description: 'Convert raster JPG, JPEG, or PNG images to highly scalable SVG vectors offline with customizable contours, triangulation lowpoly, halftone matrices, and pixel grids',
+      icon: Palette,
+      keywords: ['vectorizer', 'svg', 'png to svg', 'jpeg to svg', 'contour', 'tracing', 'lowpoly', 'halftone', 'traced', 'image', 'quantize', 'pixelart'],
+      action: () => {
+        onSelectTab('image-vectorizer');
         onClose();
       },
       shortcut: '↵'

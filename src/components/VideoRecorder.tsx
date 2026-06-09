@@ -4,8 +4,10 @@ import {
   Video, ScreenShare, ShieldAlert, VideoOff, Play, Pause, Square, 
   Download, Loader2, Volume2, VolumeX, Mic, MicOff, RefreshCw, 
   Settings, HelpCircle, AlertCircle, Sparkles, CheckCircle, Monitor, 
-  Camera, Move, Maximize2, Layers, Disc, Circle, Film
+  Camera, Move, Maximize2, Layers, Disc, Circle, Film, Sliders, Image as ImageIcon, Flame
 } from 'lucide-react';
+// @ts-ignore
+import { GIFEncoder, quantize, applyPalette } from 'gifenc';
 import { useLanguage } from '../context/LanguageContext';
 import { logToolUsage } from '../utils/toolAnalytics';
 
@@ -52,6 +54,29 @@ export default function VideoRecorder() {
   const [recordedBlobUrl, setRecordedBlobUrl] = useState<string | null>(null);
   const [recordedBlobSize, setRecordedBlobSize] = useState<number>(0);
   const [recordedDuration, setRecordedDuration] = useState<number>(0);
+
+  // GIF Exporter Preferences
+  const [gifWidth, setGifWidth] = useState<number>(640);
+  const [gifFps, setGifFps] = useState<number>(10);
+  const [maxColors, setMaxColors] = useState<number>(256);
+  const [gifDither, setGifDither] = useState<boolean>(true);
+  const [paletteStrategy, setPaletteStrategy] = useState<'global' | 'local'>('local');
+  const [gifLooping, setGifLooping] = useState<boolean>(true);
+  const [gifSpeed, setGifSpeed] = useState<number>(1.0);
+
+  // GIF Compilation status
+  const [compiledGifBlobUrl, setCompiledGifBlobUrl] = useState<string | null>(null);
+  const [compiledGifSize, setCompiledGifSize] = useState<number>(0);
+  const [isCompilingGif, setIsCompilingGif] = useState<boolean>(false);
+  const [compilationProgress, setCompilationProgress] = useState<number>(0);
+  const [compilationStage, setCompilationStage] = useState<string>('');
+  const [recordedFramesCount, setRecordedFramesCount] = useState<number>(0);
+  const [activeOutputTab, setActiveOutputTab] = useState<'video' | 'gif'>('video');
+
+  // Frame lists (refs to prevent re-renders on dynamic capture frames)
+  const gifFramesRef = useRef<{ data: Uint8ClampedArray; width: number; height: number; timestamp: number }[]>([]);
+  const lastGifFrameTimeRef = useRef<number>(0);
+  const offscreenCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
   // HTML Audio level node references
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -234,6 +259,12 @@ export default function VideoRecorder() {
   const triggerRecordingSequence = async () => {
     setErrorHeader(null);
     setRecordedBlobUrl(null);
+    setCompiledGifBlobUrl(null);
+    setCompiledGifSize(0);
+    setRecordedFramesCount(0);
+    setActiveOutputTab('video');
+    gifFramesRef.current = [];
+    lastGifFrameTimeRef.current = 0;
     
     // Validate that we selected at least screen or camera
     if (!recordScreen && !recordCam) {
@@ -380,6 +411,40 @@ export default function VideoRecorder() {
           ctx.stroke();
         }
 
+        // Capture canvas snapshots for high-quality GIF creation (if actively recording)
+        if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+          const nowTime = performance.now();
+          const frameInterval = 1000 / gifFps;
+          if (nowTime - lastGifFrameTimeRef.current >= frameInterval) {
+            if (!offscreenCanvasRef.current) {
+              offscreenCanvasRef.current = document.createElement('canvas');
+            }
+            const offCanvas = offscreenCanvasRef.current;
+            
+            // Downscale to preferred GIF export width
+            const scale = gifWidth / width;
+            const targetW = gifWidth;
+            const targetH = Math.round(height * scale);
+            
+            offCanvas.width = targetW;
+            offCanvas.height = targetH;
+            
+            const offCtx = offCanvas.getContext('2d');
+            if (offCtx) {
+              offCtx.drawImage(canvas, 0, 0, targetW, targetH);
+              const imgData = offCtx.getImageData(0, 0, targetW, targetH);
+              
+              gifFramesRef.current.push({
+                data: imgData.data,
+                width: targetW,
+                height: targetH,
+                timestamp: nowTime
+              });
+            }
+            lastGifFrameTimeRef.current = nowTime;
+          }
+        }
+
         // Keep render loop spinning while state is recording
         animationFrameRef.current = requestAnimationFrame(composeFrames);
       };
@@ -471,6 +536,7 @@ export default function VideoRecorder() {
         setRecordedBlobUrl(videoURL);
         setRecordedBlobSize(compositeBlob.size);
         setRecordedDuration(recordingSeconds || 1); // Fallback offset
+        setRecordedFramesCount(gifFramesRef.current.length);
         setRecorderState('complete');
 
         // Cleanup resources
@@ -512,6 +578,92 @@ export default function VideoRecorder() {
         setRecordingSeconds(sec => sec + 1);
       }, 1000);
     }
+  };
+
+  const compileGif = () => {
+    if (gifFramesRef.current.length === 0) return;
+    setIsCompilingGif(true);
+    setCompilationProgress(0);
+    setCompilationStage('Preparing frame buffers...');
+    setCompiledGifBlobUrl(null);
+    setCompiledGifSize(0);
+
+    // Run after a short tick to let UI update
+    setTimeout(() => {
+      try {
+        const frames = gifFramesRef.current;
+        const encoder = GIFEncoder();
+        const delay = Math.round((1000 / gifFps) / gifSpeed);
+
+        // Pre-compute global palette if chosen
+        let globalPalette: any = null;
+        if (paletteStrategy === 'global' && frames.length > 0) {
+          setCompilationStage('Generating optimized global color map...');
+          // Quantize color space using a middle or first frame
+          const referenceFrame = frames[Math.floor(frames.length / 2)] || frames[0];
+          globalPalette = quantize(referenceFrame.data, maxColors, { format: 'rgb565' });
+        }
+
+        let frameIndex = 0;
+
+        const processFramesChunk = () => {
+          if (frameIndex < frames.length) {
+            setCompilationStage(`Dithering and writing frame ${frameIndex + 1} of ${frames.length}...`);
+            setCompilationProgress(Math.round((frameIndex / frames.length) * 95));
+
+            // Process 4 frames per micro-tick to stay responsive
+            const chunkEnd = Math.min(frameIndex + 4, frames.length);
+            for (let i = frameIndex; i < chunkEnd; i++) {
+              const frame = frames[i];
+              
+              // Copy data to avoid modifying the original frames array if we re-render
+              const frameDataCopy = new Uint8ClampedArray(frame.data);
+              
+              const palette = globalPalette || quantize(frameDataCopy, maxColors, { format: 'rgb565' });
+              const index = applyPalette(frameDataCopy, palette, 'rgb565');
+              
+              encoder.writeFrame(index, frame.width, frame.height, {
+                palette,
+                delay: delay,
+              });
+            }
+
+            frameIndex = chunkEnd;
+            // Schedule next frame chunk
+            setTimeout(processFramesChunk, 10);
+          } else {
+            setCompilationStage('Compressing and exporting GIF stream...');
+            setCompilationProgress(98);
+
+            setTimeout(() => {
+              try {
+                encoder.finish();
+                const bytes = encoder.stream.bytes();
+                const blob = new Blob([bytes], { type: 'image/gif' });
+                const url = URL.createObjectURL(blob);
+
+                setCompiledGifBlobUrl(url);
+                setCompiledGifSize(blob.size);
+                setCompilationProgress(100);
+                setCompilationStage('Export Compiled Successfully!');
+                setIsCompilingGif(false);
+              } catch (e: any) {
+                setErrorHeader(`GIF packing failed: ${e.message}`);
+                setIsCompilingGif(false);
+              }
+            }, 50);
+          }
+        };
+
+        // Launch progressive thread compilation
+        processFramesChunk();
+
+      } catch (err: any) {
+        console.error(err);
+        setErrorHeader(`GIF Compilation initializer failed: ${err.message}`);
+        setIsCompilingGif(false);
+      }
+    }, 120);
   };
 
   const stopRecordingWorkflow = () => {
@@ -745,6 +897,50 @@ export default function VideoRecorder() {
             </div>
           )}
 
+          {recorderState === 'idle' && (
+            <div className="p-5 rounded-lg border border-zinc-800/60 bg-[#0d0d12]/90 space-y-4">
+              <h2 className="text-xs font-mono uppercase tracking-widest text-[#94a3b8] flex items-center gap-2 border-b border-[#18181b] pb-2">
+                <Sliders className="w-3.5 h-3.5 text-cyan-400" />
+                GIF Buffer Settings
+              </h2>
+              
+              <div className="space-y-4 text-xs">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] text-zinc-500 font-mono uppercase tracking-wider block">GIF Resolution Width</label>
+                  <select
+                    value={gifWidth}
+                    onChange={(e) => setGifWidth(Number(e.target.value))}
+                    className="w-full bg-[#07070a] border border-zinc-850 rounded p-2 text-zinc-300 focus:outline-none focus:border-cyan-500/50"
+                  >
+                    <option value={320}>320px (Compact / Small Size)</option>
+                    <option value={480}>480px (Optimized standard)</option>
+                    <option value={640}>640px (Sharp - Recommended)</option>
+                    <option value={800}>800px (High Quality)</option>
+                    <option value={1280}>1280px (Screencast / Full size)</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] text-zinc-500 font-mono uppercase tracking-wider block">GIF Sample Framerate</label>
+                  <select
+                    value={gifFps}
+                    onChange={(e) => setGifFps(Number(e.target.value))}
+                    className="w-full bg-[#07070a] border border-zinc-850 rounded p-2 text-zinc-300 focus:outline-none focus:border-cyan-500/50"
+                  >
+                    <option value={5}>5 FPS (Low weight)</option>
+                    <option value={8}>8 FPS (Standard online)</option>
+                    <option value={10}>10 FPS (Fluid - Recommended)</option>
+                    <option value={12}>12 FPS (Super fluid)</option>
+                    <option value={15}>15 FPS (HD vector rate)</option>
+                  </select>
+                  <p className="text-[10px] text-zinc-500 leading-normal font-sans">
+                    Durable in-browser memory caching collects frames at these metrics for your high-quality GIF compiles.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Device level indicator voltmeter widget */}
           {recordMic && (
             <div className="p-5 rounded-lg border border-zinc-800/60 bg-[#0d0d12]/90 space-y-3.5">
@@ -954,43 +1150,226 @@ export default function VideoRecorder() {
             ) : (
               
               /* Complete state playback screen node */
-              <div className="space-y-4 animate-fade-in">
-                <div className="w-full bg-[#07070a] rounded border border-zinc-900 overflow-hidden">
-                  
-                  {recordedBlobUrl && (
-                    <video 
-                      src={recordedBlobUrl} 
-                      controls 
-                      className="w-full aspect-video bg-black"
-                    />
-                  )}
-
+              <div className="space-y-5 animate-fade-in">
+                {/* Visual Tab Selectors */}
+                <div className="flex border-b border-zinc-900 pb-px">
+                  <button
+                    onClick={() => setActiveOutputTab('video')}
+                    className={`flex items-center gap-2 px-5 py-3 border-b-2 font-mono text-xs font-bold uppercase transition-all cursor-pointer ${
+                      activeOutputTab === 'video'
+                        ? 'border-cyan-500 text-cyan-400 bg-cyan-500/[0.02]'
+                        : 'border-transparent text-zinc-500 hover:text-zinc-300'
+                    }`}
+                  >
+                    <Film className="w-3.5 h-3.5" />
+                    <span>Video Recording Reel (.webm)</span>
+                  </button>
+                  <button
+                    onClick={() => setActiveOutputTab('gif')}
+                    className={`flex items-center gap-2 px-5 py-3 border-b-2 font-mono text-xs font-bold uppercase transition-all cursor-pointer ${
+                      activeOutputTab === 'gif'
+                        ? 'border-cyan-500 text-cyan-400 bg-cyan-500/[0.02]'
+                        : 'border-transparent text-zinc-500 hover:text-zinc-300'
+                    }`}
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-yellow-400 animate-pulse" />
+                    <span>Instant GIF Exporter ({recordedFramesCount} frames buffered)</span>
+                  </button>
                 </div>
 
-                {/* Cleansed results download deck card */}
-                <div className="p-4 rounded-lg border border-cyan-500/20 bg-cyan-500/[0.02] flex flex-col md:flex-row gap-4 items-center justify-between">
-                  
-                  <div className="space-y-1">
-                    <span className="text-[9px] text-[#94a3b8] font-mono uppercase tracking-widest font-black flex items-center gap-1">
-                      <CheckCircle className="w-4 h-4 text-cyan-400" />
-                      REEL RECORDED SUCCESSFULLY
-                    </span>
-                    <div className="text-zinc-200 text-xs font-semibold">
-                      Composed Reel • Duration: {formatTimer(recordedDuration)} • Res: 1280 × 720 HD
+                {activeOutputTab === 'video' ? (
+                  <div className="space-y-4">
+                    <div className="w-full bg-[#07070a] rounded border border-zinc-900 overflow-hidden">
+                      {recordedBlobUrl && (
+                        <video 
+                          src={recordedBlobUrl} 
+                          controls 
+                          className="w-full aspect-video bg-black"
+                        />
+                      )}
+                    </div>
+
+                    <div className="p-4 rounded-lg border border-cyan-500/20 bg-cyan-500/[0.02] flex flex-col md:flex-row gap-4 items-center justify-between">
+                      <div className="space-y-1">
+                        <span className="text-[9px] text-[#94a3b8] font-mono uppercase tracking-widest font-black flex items-center gap-1">
+                          <CheckCircle className="w-4 h-4 text-cyan-400" />
+                          VIDEO COMPOSTED SECURELY
+                        </span>
+                        <div className="text-zinc-200 text-xs font-semibold">
+                          Composed Reel • Duration: {formatTimer(recordedDuration)} • Res: 1280 × 720 HD
+                        </div>
+                      </div>
+
+                      <a
+                        href={recordedBlobUrl || '#'}
+                        download={`Apex_Session_${new Date().toISOString().split('T')[0]}.webm`}
+                        className="w-full md:w-auto px-4 py-2 bg-cyan-600 hover:bg-cyan-550 active:scale-95 text-white whitespace-nowrap text-xs font-mono font-bold rounded flex items-center justify-center gap-1.5 transition-all text-center cursor-pointer shadow-lg"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        <span>DOWNLOAD VIDEO FILE</span>
+                      </a>
                     </div>
                   </div>
+                ) : (
+                  /* GIF EXPORTER ENGINE */
+                  <div className="space-y-5">
+                    <div className="p-5 rounded-lg border border-zinc-904 bg-[#07070a] space-y-4">
+                      <div className="flex items-center justify-between border-b border-zinc-900 pb-3">
+                        <span className="text-[10px] text-[#94a3b8] font-mono uppercase tracking-widest font-bold block">
+                          Instant Quantizer & Compression Setup
+                        </span>
+                        <span className="px-2 py-0.5 rounded bg-amber-500/15 border border-amber-500/20 text-amber-400 font-mono text-[9px] font-bold">
+                          100% IN-BROWSER
+                        </span>
+                      </div>
 
-                  <a
-                    href={recordedBlobUrl || '#'}
-                    download={`Apex_Session_${new Date().toISOString().split('T')[0]}.webm`}
-                    className="w-full md:w-auto px-4 py-2 bg-cyan-600 hover:bg-cyan-550 active:scale-95 text-white whitespace-nowrap text-xs font-mono font-bold rounded flex items-center justify-center gap-1.5 transition-all text-center cursor-pointer shadow-lg"
-                  >
-                    <Download className="w-3.5 h-3.5" />
-                    <span>DOWNLOAD VIDEO FILE</span>
-                  </a>
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div className="space-y-1.5">
+                          <label className="text-[9px] text-zinc-500 uppercase font-mono tracking-wider block">Max Color Depth</label>
+                          <select
+                            value={maxColors}
+                            onChange={(e) => {
+                              setMaxColors(Number(e.target.value));
+                              setCompiledGifBlobUrl(null); // Reset compiled cache
+                            }}
+                            className="w-full bg-[#0c0c10] border border-zinc-800 rounded p-1.5 text-xs text-zinc-305 focus:outline-none focus:border-cyan-500/50"
+                          >
+                            <option value={256}>256 Colors (High Fidelity)</option>
+                            <option value={128}>128 Colors (Optimized standard)</option>
+                            <option value={64}>64 Colors (Lightweight motion)</option>
+                            <option value={32}>32 Colors (Retro high-contrast)</option>
+                            <option value={16}>16 Colors (Low-bit pixel)</option>
+                          </select>
+                        </div>
 
-                </div>
+                        <div className="space-y-1.5">
+                          <label className="text-[9px] text-zinc-500 uppercase font-mono tracking-wider block font-mono">Map Strategy</label>
+                          <select
+                            value={paletteStrategy}
+                            onChange={(e: any) => {
+                              setPaletteStrategy(e.target.value);
+                              setCompiledGifBlobUrl(null);
+                            }}
+                            className="w-full bg-[#0c0c10] border border-zinc-800 rounded p-1.5 text-xs text-zinc-305 focus:outline-none focus:border-cyan-500/50"
+                          >
+                            <option value="local">Per-Frame Local (Precise gradients)</option>
+                            <option value="global">Uniform Global (Compact size)</option>
+                          </select>
+                        </div>
 
+                        <div className="space-y-1.5">
+                          <label className="text-[9px] text-zinc-500 uppercase font-mono tracking-wider block font-mono">Speed scale factor</label>
+                          <select
+                            value={gifSpeed}
+                            onChange={(e) => {
+                              setGifSpeed(Number(e.target.value));
+                              setCompiledGifBlobUrl(null);
+                            }}
+                            className="w-full bg-[#0c0c10] border border-zinc-800 rounded p-1.5 text-xs text-zinc-350 focus:outline-none focus:border-cyan-500/50"
+                          >
+                            <option value={1.0}>1.0x (Standard original)</option>
+                            <option value={1.5}>1.5x (Fast motion)</option>
+                            <option value={2.0}>2.0x (Double Speed)</option>
+                            <option value={3.0}>3.0x (Time-Lapse reel)</option>
+                            <option value={0.5}>0.5x (Slow Motion)</option>
+                          </select>
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="text-[9px] text-zinc-500 uppercase font-mono tracking-wider block">Quantization Dither</label>
+                          <button
+                            onClick={() => {
+                              setGifDither(!gifDither);
+                              setCompiledGifBlobUrl(null);
+                            }}
+                            className={`w-full py-1.5 rounded border text-xs font-mono transition-all font-semibold cursor-pointer ${
+                              gifDither 
+                                ? 'bg-cyan-500/10 border-cyan-500/30 text-cyan-400' 
+                                : 'bg-[#0c0c10] border-zinc-800 text-zinc-500'
+                            }`}
+                          >
+                            {gifDither ? 'ACTIVE (Floyd-Steinberg)' : 'DISABLED'}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {isCompilingGif ? (
+                      /* ACTIVE COMPILATION PROGRESS PANEL */
+                      <div className="p-10 rounded-lg border border-cyan-500/20 bg-cyan-500/[0.02] text-center space-y-4">
+                        <Loader2 className="w-8 h-8 text-cyan-400 animate-spin mx-auto" />
+                        <div className="space-y-2 max-w-sm mx-auto">
+                          <div className="flex justify-between items-center text-[10px] font-mono text-zinc-400">
+                            <span className="uppercase tracking-wider">{compilationStage}</span>
+                            <span>{compilationProgress}%</span>
+                          </div>
+                          <div className="w-full bg-zinc-900 rounded-full h-1.5 overflow-hidden">
+                            <div 
+                              className="bg-cyan-500 h-1.5 rounded-full transition-all duration-300"
+                              style={{ width: `${compilationProgress}%` }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ) : compiledGifBlobUrl ? (
+                      /* SUCCESSFUL COMPILED PREVIEW CARD */
+                      <div className="space-y-4 animate-fade-in">
+                        <div className="p-8 rounded-lg border border-zinc-900 bg-[#07070a] flex flex-col items-center justify-center">
+                          <span className="text-[9px] text-zinc-500 font-mono uppercase tracking-widest block mb-4">
+                            GIF Loop Render Output
+                          </span>
+                          <div className="max-w-full rounded border border-zinc-800 bg-[#040406] overflow-hidden p-2 shadow-inner">
+                            <img 
+                              src={compiledGifBlobUrl} 
+                              alt="Compiled Screen Rec Reel" 
+                              referrerPolicy="no-referrer"
+                              className="max-h-[350px] object-contain"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="p-4 rounded-lg border border-green-500/10 bg-green-500/[0.02] flex flex-col md:flex-row gap-4 items-center justify-between">
+                          <div className="space-y-1">
+                            <span className="text-[9px] text-green-400 font-mono uppercase tracking-widest font-black flex items-center gap-1">
+                              <CheckCircle className="w-4 h-4" />
+                              GIF COMPILED LOCALLY
+                            </span>
+                            <div className="text-zinc-200 text-xs font-semibold font-mono">
+                              Resolution: {gifWidth}px Wide • Estimated Size: {formatBytes(compiledGifSize)} • Delay: {Math.round((1000 / gifFps) / gifSpeed)}ms
+                            </div>
+                          </div>
+
+                          <a
+                            href={compiledGifBlobUrl}
+                            download={`Apex_Clip_${new Date().toISOString().split('T')[0]}.gif`}
+                            className="w-full md:w-auto px-4 py-2 bg-green-600 hover:bg-green-550 active:scale-95 text-white whitespace-nowrap text-xs font-mono font-bold rounded flex items-center justify-center gap-1.5 transition-all text-center cursor-pointer shadow-lg animate-bounce"
+                          >
+                            <Download className="w-3.5 h-3.5" />
+                            <span>DOWNLOAD GIF FILE</span>
+                          </a>
+                        </div>
+                      </div>
+                    ) : (
+                      /* CTA ACTION TRIGGER */
+                      <div className="p-8 rounded-lg border border-dashed border-zinc-850 text-center space-y-4">
+                        <ImageIcon className="w-10 h-10 text-zinc-650 mx-auto" />
+                        <div className="space-y-1.5 max-w-sm mx-auto">
+                          <h4 className="text-xs font-bold text-zinc-200 uppercase tracking-widest">Compile Screen Capture to GIF</h4>
+                          <p className="text-[11px] text-zinc-550 leading-normal">
+                            Convert the {recordedFramesCount} buffered raw video frames to a high-quality looping GIF instantly using dither-quantized color algorithms.
+                          </p>
+                        </div>
+                        <button
+                          onClick={compileGif}
+                          className="px-6 py-2.5 bg-gradient-to-r from-cyan-600 to-emerald-600 hover:from-cyan-555 hover:to-emerald-555 active:scale-98 text-white rounded font-mono font-bold text-xs flex items-center gap-2 mx-auto transition-all cursor-pointer shadow-lg"
+                        >
+                          <Flame className="w-4 h-4 animate-pulse text-yellow-300" />
+                          <span>SYNTHESIZE LOOPING GIF NOW</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 
