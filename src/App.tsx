@@ -35,14 +35,19 @@ import ExifMetadataStripper from './components/ExifMetadataStripper';
 import VideoRecorder from './components/VideoRecorder';
 import CodeSnapshot from './components/CodeSnapshot';
 import PrivateSketchpad from './components/PrivateSketchpad';
+import CaseConverter from './components/CaseConverter';
+import LoremGenerator from './components/LoremGenerator';
+import ImageCropper from './components/ImageCropper';
+import DateCalculator from './components/DateCalculator';
 import useSEOTags from './hooks/useSEOTags';
 import CommandBar from './components/CommandBar';
 import { logToolUsage } from './utils/toolAnalytics';
+import ToolLandingIsland from './components/ToolLandingIsland';
 
 const VALID_TABS: ActiveTab[] = [
   'dashboard', 'compress-pdf', 'webp-converter', 'json-beautifier', 
   'sitemap-seo', 'image-to-pdf', 'join-pdf', 'ai-writer', 
-  'password-generator', 'qr-generator', 'unit-converter', 'svg-rasterizer', 'batch-processor', 'json-diff', 'secure-hash', 'color-palette', 'digital-signature', 'seo-optimizer', 'base64-converter', 'regex-tester', 'csv-json-converter', 'image-compressor', 'rich-text-stats', 'audio-trimmer', 'ai-transcriber', 'pdf-analyst', 'exif-stripper', 'video-recorder', 'image-vectorizer', 'code-snapshot', 'private-sketchpad'
+  'password-generator', 'qr-generator', 'unit-converter', 'svg-rasterizer', 'batch-processor', 'json-diff', 'secure-hash', 'color-palette', 'digital-signature', 'seo-optimizer', 'base64-converter', 'regex-tester', 'csv-json-converter', 'image-compressor', 'rich-text-stats', 'audio-trimmer', 'ai-transcriber', 'pdf-analyst', 'exif-stripper', 'video-recorder', 'image-vectorizer', 'code-snapshot', 'private-sketchpad', 'case-converter', 'lorem-generator', 'image-cropper', 'date-calculator'
 ];
 
 export default function App() {
@@ -239,6 +244,14 @@ export default function App() {
         return <CodeSnapshot />;
       case 'private-sketchpad':
         return <PrivateSketchpad />;
+      case 'case-converter':
+        return <CaseConverter />;
+      case 'lorem-generator':
+        return <LoremGenerator />;
+      case 'image-cropper':
+        return <ImageCropper />;
+      case 'date-calculator':
+        return <DateCalculator />;
       default:
         return <Dashboard onTabChange={handleTabChange} />;
     }
@@ -326,6 +339,10 @@ export default function App() {
               {renderActiveView()}
             </motion.div>
           </AnimatePresence>
+
+          {activeTab !== 'dashboard' && (
+            <ToolLandingIsland toolId={activeTab} onTabChange={handleTabChange} />
+          )}
         </div>
       </main>
 

@@ -630,6 +630,86 @@ const SEO_METADATA: Record<ActiveTab, SEOHeaderContent> = {
         "priceCurrency": "USD"
       }
     }
+  },
+  'case-converter': {
+    title: "Free Case Converter & Text Formatter Online Offline | Apex Copy Code",
+    description: "Instantly transform word casing styles (UPPERCASE, lowercase, camelCase, snake_case, Title Case, Sentence case), remove blank rows, strip tags, and calculate statistics offline.",
+    keywords: "case converter online, free text formatter client-side, camelcase snake case translator, strip HTML tags copy paste tool, character counter text statistics",
+    ogTitle: "Apex Free Case Converter & Text Formatter",
+    ogDescription: "Secure local-first application to clean and format text, convert letter casing, clean spaces, and output files with complete offline security.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Apex Case Converter & Text Formatter",
+      "description": "Enterprise-grade local string transformations, whitespace cleaning, find/replace patterns, and real-time text analysis.",
+      "applicationCategory": "UtilityApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
+  'lorem-generator': {
+    title: "Free Lorem Ipsum & Client Placeholder Generator Online | Apex Copy Code",
+    description: "Instantly generate custom Lorem Ipsum dummy text paragraphs, list clusters, HTML element wraps, and colorful SVG placeholder mockups offline.",
+    keywords: "lorem ipsum generator free, click dummy text maker, placeholder image generator offline, mock HTML template paragraphs, randomized word generator",
+    ogTitle: "Apex Lorem Ipsum & Placeholder Generator",
+    ogDescription: "A powerful local toolbox to build classical lorem ipsum passages, lists, HTML-wrapped snippets, and beautifully colored vector placeholder graphic elements.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Apex Lorem Ipsum & Client Placeholder Generator",
+      "description": "Customizable localized dummy text outputs and vector responsive graphic placeholders with complete data privacy.",
+      "applicationCategory": "DesignApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
+  'image-cropper': {
+    title: "Free Image Cropper, Resizer & Ratio Balancer Online | Apex Processing Labs",
+    description: "Crop pictures, lock aspect ratios (16:9, 4:3, 1:1, etc.), scale output pixel dimensions, and fit balanced expansion padding with blurred backgrounds fully offline.",
+    keywords: "image cropper, resize images, aspect ratio calculator, photo scale, crop screenshot, offline avatar editor, blurred padding cover, instagram story size",
+    ogTitle: "Apex Image Cropper, Resizer & Ratio Balancer",
+    ogDescription: "An advanced browser-based sandbox application to crop, resize, compress formats, and expand canvas ratios with absolute security.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Apex Image Cropper & Resizer",
+      "description": "High-fidelity offline image crop rectangle modifier, custom pixel scaler, and canvas ratio balancer.",
+      "applicationCategory": "DesignApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
+  'date-calculator': {
+    title: "Apex Time & Date Calculator | Direct Multi-Format Interval Engine",
+    description: "Calculate duration difference between two dates, add/subtract intervals, filter business working days, and analyze precise timezone offsets offline.",
+    keywords: "date calculator, time difference, business days counter, workdays calendar, days count, countdown to date, timezone offset converter",
+    ogTitle: "Apex Time & Date Calculator Engine",
+    ogDescription: "A full-featured professional client-side utility to find intervals, manage business days, and convert time offsets securely.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Apex Time & Date Calculator",
+      "description": "Premium duration differences, interval planners, and business date metrics builder.",
+      "applicationCategory": "UtilityApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
   }
 };
 

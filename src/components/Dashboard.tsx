@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, useMotionValue, useTransform, AnimatePresence } from 'motion/react';
-import { FileDown, Image, Sparkles, Braces, ArrowRight, ShieldCheck, Zap, Globe, Cpu, Clock, Download, CheckCircle, FileText, FileImage, Trash2, Camera, Loader2, Search, Copy, Check, Info, Activity, AlertCircle, Layers, ChevronLeft, ChevronRight, GripVertical, Minus, Plus, RotateCcw, Settings, ArrowLeft, Upload, Database, QrCode, Scale, FileCode, Sliders, GitPullRequest, LayoutGrid, List, Hash, Palette, Signature, Gauge, Binary, Regex, ArrowLeftRight, Shrink, Pin, Volume2, Mic, Eye, Video, PenTool, History } from 'lucide-react';
+import { FileDown, Image, Sparkles, Braces, ArrowRight, ShieldCheck, Zap, Globe, Cpu, Clock, Download, CheckCircle, FileText, FileImage, Trash2, Camera, Loader2, Search, Copy, Check, Info, Activity, AlertCircle, Layers, ChevronLeft, ChevronRight, GripVertical, Minus, Plus, RotateCcw, Settings, ArrowLeft, Upload, Database, QrCode, Scale, FileCode, Sliders, GitPullRequest, LayoutGrid, List, Hash, Palette, Signature, Gauge, Binary, Regex, ArrowLeftRight, Shrink, Pin, Volume2, Mic, Eye, Video, PenTool, History, Type } from 'lucide-react';
 import { ActiveTab } from '../types';
+import { AlignLeft, Crop, Calendar } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { getRecentOperations, getSessionDownloadUrl, RecentOperation } from '../utils/recentOperations';
 import DashboardCaptureModal from './DashboardCaptureModal';
@@ -459,6 +460,58 @@ const DEFAULT_CARDS = [
     buttonLabel: 'Launch Code Snapshot',
     colSpan: 1,
     heightLevel: 2
+  },
+  {
+    id: 'case-converter',
+    title: 'Case Converter & Formatter',
+    desc: 'Transform letter cases (UPPER/lower/Title/Sentence/Camel/Snake/Slug), eliminate raw whitespace gaps, run regex search replacements, and render detailed letter weight maps in real-time.',
+    tagline: '"universal local case converter, string trimmer, and telemetry stats processor offline free"',
+    category: 'Developer Operations',
+    categoryIcon: 'Braces',
+    cardIcon: 'Type',
+    textClass: 'text-sky-400',
+    buttonLabel: 'Boot Case Converter',
+    colSpan: 1,
+    heightLevel: 2
+  },
+  {
+    id: 'lorem-generator',
+    title: 'Lorem Ipsum & Placeholders',
+    desc: 'Generate customizable classical Latin paragraphs, lists or HTML wraps, and construct beautifully styled multi-gradient vector placeholder image layers instantly.',
+    tagline: '"secure client-side lorem ipsum maker, random latin generator, responsive dummy placeholder svg"',
+    category: 'Developer Operations',
+    categoryIcon: 'Braces',
+    cardIcon: 'AlignLeft',
+    textClass: 'text-indigo-400',
+    buttonLabel: 'Open Mockup Generator',
+    colSpan: 1,
+    heightLevel: 2
+  },
+  {
+    id: 'image-cropper',
+    title: 'Image Cropper & Resizer',
+    desc: 'Crop screenshots, adjust aspect ratios (16:9, 4:3, 1:1, etc.), resize target pixel dimensions, and balance canvases with solid or blurred backdrops fully offline.',
+    tagline: '"secure visual cropper, image resizer, aspect ratio lock, canvas expanded pads offline"',
+    category: 'Developer Operations',
+    categoryIcon: 'Braces',
+    cardIcon: 'Crop',
+    textClass: 'text-violet-400',
+    buttonLabel: 'Launch Ratio Balancer',
+    colSpan: 1,
+    heightLevel: 2
+  },
+  {
+    id: 'date-calculator',
+    title: 'Time & Date Calculator',
+    desc: 'Find intervals, count business workdays, simulate milestones, add/subtract custom periods, and convert UTC/local timezone offsets fully offline.',
+    tagline: '"secure timeline planner, date difference, count business days, timezone converter offline"',
+    category: 'Developer Operations',
+    categoryIcon: 'Braces',
+    cardIcon: 'Calendar',
+    textClass: 'text-sky-400',
+    buttonLabel: 'Boot Date Calculator',
+    colSpan: 1,
+    heightLevel: 2
   }
 ];
 
@@ -487,7 +540,11 @@ const iconMap: Record<string, React.ComponentType<any>> = {
   Volume2: Volume2,
   Mic: Mic,
   Eye: Eye,
-  Video: Video
+  Video: Video,
+  Type: Type,
+  AlignLeft: AlignLeft,
+  Crop: Crop,
+  Calendar: Calendar
 };
 
 const recentToolsLabels = {
@@ -738,7 +795,11 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
         'base64-converter': "convert files, images, or texts to secure Base64 data blocks",
         'regex-tester': "validate and debug regular expressions with real-time highlighting",
         'csv-json-converter': "convert files or text between CSV and JSON formats instantly",
-        'image-compressor': "compress and resize jpeg, png, and webp images securely"
+        'image-compressor': "compress and resize jpeg, png, and webp images securely",
+        'case-converter': "convert letter cases, strip html tags, clean whitespaces offline",
+        'lorem-generator': "generate randomized latin placeholder words, lists, or svg mockups offline",
+        'image-cropper': "crop image aspect ratios, customize pixel scales, and balance backgrounds offline",
+        'date-calculator': "find date differences, count net business days, and convert timezones offline"
       },
       es: {
         'webp-converter': "convertir webp a jpg al instante sin registrarse",
@@ -761,7 +822,11 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
         'base64-converter': "convertir archivos, imágenes o textos a bloques de datos Base64 seguros",
         'regex-tester': "validar y depurar expresiones regulares con resaltado en tiempo real",
         'csv-json-converter': "convertir archivos o texto entre formatos CSV y JSON al instante",
-        'image-compressor': "comprimir y redimensionar imágenes jpeg, png y webp de forma segura"
+        'image-compressor': "comprimir y redimensionar imágenes jpeg, png y webp de forma segura",
+        'case-converter': "convertir mayúsculas y minúsculas, eliminar etiquetas html y limpiar espacios",
+        'lorem-generator': "genere texto lorem ipsum, listas, párrafos u observables svg personalizados offline",
+        'image-cropper': "recorte fotos, ajuste relaciones, redimensione píxeles y equilibre resoluções offline",
+        'date-calculator': "calcule diferencias de fechas, cuente días laborables y convierta zonas horarias sin conexión"
       },
       fr: {
         'webp-converter': "convertir instantanément webp en jpg sans inscription",
@@ -784,7 +849,11 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
         'base64-converter': "convertir des fichiers, des images ou des textes en blocs de données Base64 sécurisés",
         'regex-tester': "valider et déboguer des expressions régulières avec mise en évidence en temps réel",
         'csv-json-converter': "convertir instantanément des fichiers ou du texte entre formats CSV et JSON",
-        'image-compressor': "compresser et redimensionner les images jpeg, png et webp en toute sécurité"
+        'image-compressor': "compresser et redimensionner les images jpeg, png et webp en toute sécurité",
+        'case-converter': "convertir la casse, supprimer les balises html et nettoyer les espaces hors connexion",
+        'lorem-generator': "générer du texte lorem ipsum temporaire, listes html ou images SVG hors connexion",
+        'image-cropper': "recadrez des images au pixel près, verrouillez les proportions et équilibrez le canevas",
+        'date-calculator': "calculez les intervalles de dates, comptez les jours ouvrables et convertissez les fuseaux horaires"
       },
       de: {
         'webp-converter': "webp sofort ohne registrierung in jpg konvertieren",
@@ -807,7 +876,11 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
         'base64-converter': "dateien, bilder oder texte in sichere Base64-Datenblöcke konvertieren",
         'regex-tester': "reguläre ausdrücke mit echtzeit-hervorhebung validieren und debuggen",
         'csv-json-converter': "dateien oder text sofort zwischen den formaten CSV und JSON konvertieren",
-        'image-compressor': "jpeg-, png- und webp-bilder sicher komprimieren und in der größe anpassen"
+        'image-compressor': "jpeg-, png- und webp-bilder sicher komprimieren und in der größe anpassen",
+        'case-converter': "text-schreibweise konvertieren, html-tags entfernen und leerzeichen bereinigen",
+        'lorem-generator': "generieren sie lorem ipsum platzhalter, listen oder responsive svg mockups offline",
+        'image-cropper': "bilder zuschneiden, ziel pixelmaße anpassen und qualitäten offline optimieren",
+        'date-calculator': "berechnen sie datumsdifferenzen, zählen sie arbeitstage und konvertieren sie zeitzonen offline"
       },
       pt: {
         'webp-converter': "converter webp para jpg instantaneamente sem registro",
@@ -830,7 +903,11 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
         'base64-converter': "converter arquivos, imagens ou textos para blocos de dados Base64 seguros",
         'regex-tester': "validar e depurar expressões regulares com destaque em tempo real",
         'csv-json-converter': "converter arquivos ou texto entre formatos CSV e JSON instantaneamente",
-        'image-compressor': "comprimir e redimensionar imagens jpeg, png e webp com segurança"
+        'image-compressor': "comprimir e redimensionar imagens jpeg, png e webp com segurança",
+        'case-converter': "converter maiúsculas e minúsculas, remover tags html e limpar espaços offline",
+        'lorem-generator': "gere textos de preenchimento lorem ipsum, listas, ou imagens svg offline",
+        'image-cropper': "corte imagens e proporções de tela, redimensione pixels e equilibre resoluções localmente",
+        'date-calculator': "calcule intervalos entre datas, conte dias úteis e converta fusos horários offline"
       }
     };
     return dicts[lang]?.[cardId] || defaultTagline;

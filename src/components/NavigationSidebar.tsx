@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutGrid, FileText, Image as ImageIcon, FileImage, Braces, Globe, Terminal, ShieldCheck, Settings, Search, Layers, Monitor, Trash2, Plus, Check, X, Sparkles, Download, Upload, QrCode, Scale, FileCode, Sliders, GitPullRequest, Hash, Palette, Signature, Gauge, Binary, Regex, ArrowLeftRight, Shrink, Database, Volume2, Mic, Eye, Video, PenTool, VolumeX, Music } from 'lucide-react';
+import { LayoutGrid, FileText, Image as ImageIcon, FileImage, Braces, Globe, Terminal, ShieldCheck, Settings, Search, Layers, Monitor, Trash2, Plus, Check, X, Sparkles, Download, Upload, QrCode, Scale, FileCode, Sliders, GitPullRequest, Hash, Palette, Signature, Gauge, Binary, Regex, ArrowLeftRight, Shrink, Database, Volume2, Mic, Eye, Video, PenTool, VolumeX, Music, Type, AlignLeft, Crop, Calendar } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ActiveTab } from '../types';
 import { useLanguage } from '../context/LanguageContext';
@@ -262,6 +262,10 @@ export default function NavigationSidebar({ activeTab, onTabChange, isMobileOpen
     { id: 'video-recorder' as ActiveTab, label: t.navigation.videoRecorder, icon: Video, description: t.navigation.videoRecorderDesc },
     { id: 'code-snapshot' as ActiveTab, label: t.navigation.codeSnapshot, icon: FileCode, description: t.navigation.codeSnapshotDesc },
     { id: 'private-sketchpad' as ActiveTab, label: t.navigation.privateSketchpad, icon: PenTool, description: t.navigation.privateSketchpadDesc },
+    { id: 'case-converter' as ActiveTab, label: t.navigation.caseConverter, icon: Type, description: t.navigation.caseConverterDesc },
+    { id: 'lorem-generator' as ActiveTab, label: t.navigation.loremGenerator, icon: AlignLeft, description: t.navigation.loremGeneratorDesc },
+    { id: 'image-cropper' as ActiveTab, label: t.navigation.imageCropper, icon: Crop, description: t.navigation.imageCropperDesc },
+    { id: 'date-calculator' as ActiveTab, label: t.navigation.dateCalculator, icon: Calendar, description: t.navigation.dateCalculatorDesc },
   ];
 
   return (

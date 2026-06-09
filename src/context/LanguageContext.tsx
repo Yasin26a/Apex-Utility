@@ -66,6 +66,14 @@ export interface Translations {
     exifStripperDesc: string;
     videoRecorder: string;
     videoRecorderDesc: string;
+    caseConverter: string;
+    caseConverterDesc: string;
+    loremGenerator: string;
+    loremGeneratorDesc: string;
+    imageCropper: string;
+    imageCropperDesc: string;
+    dateCalculator: string;
+    dateCalculatorDesc: string;
   };
   settings: {
     title: string;
@@ -167,6 +175,14 @@ export const translations: Record<Language, Translations> = {
       exifStripperDesc: 'Analyze hidden EXIF headers, GPS track logs, and strip binary metadata to secure image privacy',
       videoRecorder: 'Screen Recorder & GIF Exporter',
       videoRecorderDesc: 'Record screen feeds, microphone voice overlay, and export instantly to High-Quality looping GIFs or WebM',
+      caseConverter: 'Case Converter & Formatter',
+      caseConverterDesc: 'Format text styles, convert letter cases, clean whitespace, and count text stats in real-time',
+      loremGenerator: 'Lorem Ipsum & Placeholder Generator',
+      loremGeneratorDesc: 'Generate customizable placeholder text paragraphs, list elements, sentences, HTML mockups, or image placeholder elements offline',
+      imageCropper: 'Image Cropper, Resizer & Ratio Balancer',
+      imageCropperDesc: 'Crop, adjust aspect ratios (16:9, 4:3, 1:1, etc.), resize custom pixels, and balance canvas resolutions offline',
+      dateCalculator: 'Time & Date Calculator',
+      dateCalculatorDesc: 'Calculate differences between dates, add or subtract time intervals, count business days, and convert timezones offline',
     },
     settings: {
       title: 'System Aesthetics',
@@ -266,6 +282,14 @@ export const translations: Record<Language, Translations> = {
       exifStripperDesc: 'Analice cabeceras EXIF ocultas, registros GPS y borre metadatos para proteger la privacidad',
       videoRecorder: 'Grabadora de Pantalla y Cámara',
       videoRecorderDesc: 'Grabe pantallas, entradas de micrófono y superponga señales de cámara web en alta definición',
+      caseConverter: 'Conversor de Mayúsculas',
+      caseConverterDesc: 'Formatee estilos de texto, convierta mayúsculas/minúsculas, limpie espacios y cuente estadísticas de texto',
+      loremGenerator: 'Generador de Lorem Ipsum',
+      loremGeneratorDesc: 'Genere texto de relleno de lorem ipsum personalizable, listas, oraciones, mockups de HTML o imágenes comodín fuera de línea',
+      imageCropper: 'Recortador y Redimensionador de Imágenes',
+      imageCropperDesc: 'Recorte imágenes, ajuste relaciones de aspecto, cambie el tamaño de entrada de píxeles y equilibre su resolución localmente',
+      dateCalculator: 'Calculadora de Tiempo y Fecha',
+      dateCalculatorDesc: 'Calcule diferencias entre fechas, sume o reste intervalos, cuente días laborables y convierta zonas horarias sin conexión',
     },
     settings: {
       title: 'Estética del Sistema',
@@ -365,6 +389,14 @@ export const translations: Record<Language, Translations> = {
       exifStripperDesc: 'Inspectez les données EXIF masquées, les traces GPS et supprimez les métadatas pour sécuriser vos images',
       videoRecorder: 'Enregistreur Écran & WebCam',
       videoRecorderDesc: 'Enregistrez votre écran, capturez le flux microphone et incrustez la webcam en haute définition',
+      caseConverter: 'Convertisseur de Cas & Texte',
+      caseConverterDesc: 'Structurez les styles de texte, modifiez la casse, nettoyez les espaces et analysez en temps réel',
+      loremGenerator: 'Générateur de Lorem Ipsum',
+      loremGeneratorDesc: 'Générer du texte de remplissage lorem ipsum personnalisable, listes, phrases, maquettes HTML ou images fictives hors ligne',
+      imageCropper: 'Outil de Recadrage & Redimensionnement',
+      imageCropperDesc: 'Recadrez des photos, ajustez les rapports d\'aspect, redimensionnez par pixels et équilibrez localement la résolution',
+      dateCalculator: 'Calculateur de Date & Heure',
+      dateCalculatorDesc: 'Calculez la différence entre dates, ajoutez ou soustrayez des intervalles, comptez les jours ouvrables et convertissez les fuseaux horaires',
     },
     settings: {
       title: 'Esthétique du Système',
@@ -464,6 +496,14 @@ export const translations: Record<Language, Translations> = {
       exifStripperDesc: 'Analysieren Sie versteckte EXIF Header, GPS-Spuren und entfernen Sie binäre Metadaten für maximalen Datenschutz',
       videoRecorder: 'Bildschirm & Webcam Recorder',
       videoRecorderDesc: 'Bildschirme aufnehmen, Mikrofon-Eingänge erfassen und Webcam-Streams in hoher Auflösung überlagern',
+      caseConverter: 'Schreibweise-Konverter',
+      caseConverterDesc: 'Textformate anpassen, Groß-/Kleinschreibung konvertieren, überflüssige Leerzeichen säubern und Statistiken messen',
+      loremGenerator: 'Lorem Ipsum Generator',
+      loremGeneratorDesc: 'Generieren Sie anpassbare Lorem Ipsum Platzhaltertexte, Listen, Sätze, HTML-Mockups oder Bild-Platzhalter offline',
+      imageCropper: 'Bildzuschneider & Skalierer',
+      imageCropperDesc: 'Bilder zuschneiden, Seitenverhältnisse anpassen, Pixelgrößen ändern und Canvas-Auflösungen vollständig offline optimieren',
+      dateCalculator: 'Zeit- & Datumsrechner',
+      dateCalculatorDesc: 'Berechnen Sie Differenzen zwischen Daten, addieren/subtrahieren Sie Intervalle, zählen Sie Werktage und konvertieren Sie Zeitzonen offline',
     },
     settings: {
       title: 'System-Ästhetik',
@@ -563,6 +603,14 @@ export const translations: Record<Language, Translations> = {
       exifStripperDesc: 'Analise metadados EXIF ocultos, coordenadas GPS e limpe assinaturas para proteger sua privacidade',
       videoRecorder: 'Gravador de Tela e Câmera',
       videoRecorderDesc: 'Grave transmissões de tela de desktop, áudios de microfone e sobreponha streams de webcam em HD',
+      caseConverter: 'Conversor de Maiúsculas/Minúsculas',
+      caseConverterDesc: 'Formate estilos de texto, alterne caixa de letras, limpe espaços redundantes e meça métricas de texto',
+      loremGenerator: 'Gerador de Lorem Ipsum',
+      loremGeneratorDesc: 'Gere textos de preenchimento lorem ipsum customizáveis, listas, frases, layouts HTML ou imagens mockups offline',
+      imageCropper: 'Cortador e Redimensionador de Imagens',
+      imageCropperDesc: 'Corte imagens, ajuste proporções de tela, mude dimensões de pixels e equilibre resoluções localmente',
+      dateCalculator: 'Calculadora de Data e Hora',
+      dateCalculatorDesc: 'Calcule a diferença entre datas, adicione ou subtraia períodos, conte dias úteis e converta fusos horários offline',
     },
     settings: {
       title: 'Estética do Sistema',

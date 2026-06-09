@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Search, Command, FileText, Image as ImageIcon, FileImage, Braces, Globe, LayoutGrid, Palette, ArrowRight, CornerDownLeft, Layers, Sparkles, ShieldCheck, QrCode, Scale, FileCode, Sliders, GitPullRequest, Hash, Signature, Gauge, Binary, Regex, ArrowLeftRight, Shrink } from 'lucide-react';
+import { Search, Command, FileText, Image as ImageIcon, FileImage, Braces, Globe, LayoutGrid, Palette, ArrowRight, CornerDownLeft, Layers, Sparkles, ShieldCheck, QrCode, Scale, FileCode, Sliders, GitPullRequest, Hash, Signature, Gauge, Binary, Regex, ArrowLeftRight, Shrink, Type, AlignLeft, Crop, Calendar } from 'lucide-react';
 import { ActiveTab } from '../types';
 
 interface CommandBarProps {
@@ -329,6 +329,58 @@ export default function CommandBar({ isOpen, onClose, onSelectTab, theme, onThem
       shortcut: '↵'
     },
     {
+      id: 'case-converter',
+      category: 'Tools',
+      title: 'Apex Case Converter & Text Formatter',
+      description: 'Format text styles, convert letter cases, clean whitespace, run find & replace, and calculate stats in real-time',
+      icon: Type,
+      keywords: ['case converter', 'lowercase', 'uppercase', 'title case', 'sentence case', 'camelcase', 'snake_case', 'slug', 'kebab', 'format text', 'html strip', 'find and replace'],
+      action: () => {
+        onSelectTab('case-converter');
+        onClose();
+      },
+      shortcut: '↵'
+    },
+    {
+      id: 'lorem-generator',
+      category: 'Tools',
+      title: 'Apex Lorem Ipsum & Placeholder Generator',
+      description: 'Generate customizable classical Latin copy text, sentences, HTML list wrappers, or SVG vector graphic mockups instantly',
+      icon: AlignLeft,
+      keywords: ['lorem generator', 'lorem ipsum', 'placeholder', 'dummy text', 'mock image', 'placeholder image', 'developer mockup', 'svg size', 'unlocked copy', 'paragraph list maker'],
+      action: () => {
+        onSelectTab('lorem-generator');
+        onClose();
+      },
+      shortcut: '↵'
+    },
+    {
+      id: 'image-cropper',
+      category: 'Tools',
+      title: 'Apex Image Cropper, Resizer & Ratio Balancer',
+      description: 'Crop screenshots, adjust aspect ratios (16:9, 4:3, 1:1, etc.), resize pixel scales, and balance resolutions offline',
+      icon: Crop,
+      keywords: ['image cropper', 'crop image', 'resize image', 'aspect ratio lock', 'resolution balancer', 'avatar generator', 'compress photo', 'fit inside aspect ratio', 'canvas padding', 'blurred background padding'],
+      action: () => {
+        onSelectTab('image-cropper');
+        onClose();
+      },
+      shortcut: '↵'
+    },
+    {
+      id: 'date-calculator',
+      category: 'Tools',
+      title: 'Apex Time & Date Calculator',
+      description: 'Find intervals, count business days, add/subtract duration periods, and convert UTC/local time offsets',
+      icon: Calendar,
+      keywords: ['date calculator', 'time differences', 'business days', 'add time', 'subtract date', 'working days', 'countdown', 'timezone converter', 'duration calculator'],
+      action: () => {
+        onSelectTab('date-calculator');
+        onClose();
+      },
+      shortcut: '↵'
+    },
+    {
       id: 'theme-crimson',
       category: 'Aesthetics',
       title: 'Switch to Obsidian Crimson Mode',
@@ -379,7 +431,7 @@ export default function CommandBar({ isOpen, onClose, onSelectTab, theme, onThem
     }
   ];
 
-  // Filtering the match items based on multiple triggers or keywords
+  // Filtering and prioritized sorting of match items to boost SEO / Organic index tools to top
   const filteredItems = commandItems.filter(item => {
     const term = query.toLowerCase().trim();
     if (!term) return true;
@@ -390,6 +442,24 @@ export default function CommandBar({ isOpen, onClose, onSelectTab, theme, onThem
       item.category.toLowerCase().includes(term) ||
       item.keywords.some(keyword => keyword.toLowerCase().includes(term))
     );
+  }).sort((a, b) => {
+    const term = query.toLowerCase().trim();
+    if (!term) return 0;
+    
+    // Prioritize and lift SEO / organic index tools to the absolute top so they pop first on the list
+    const isA_SEO = a.id === 'seo-optimizer' || a.id === 'sitemap-seo';
+    const isB_SEO = b.id === 'seo-optimizer' || b.id === 'sitemap-seo';
+    
+    if (isA_SEO && !isB_SEO) return -1;
+    if (!isA_SEO && isB_SEO) return 1;
+    
+    // Secondary prioritizing: title exact match / contains query comes before description matches
+    const aTitleMatch = a.title.toLowerCase().includes(term);
+    const bTitleMatch = b.title.toLowerCase().includes(term);
+    if (aTitleMatch && !bTitleMatch) return -1;
+    if (!aTitleMatch && bTitleMatch) return 1;
+    
+    return 0;
   });
 
   // Re-focus overlay input when opened
@@ -508,13 +578,21 @@ export default function CommandBar({ isOpen, onClose, onSelectTab, theme, onThem
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <span className={`font-heading font-bold ${
-                            isSelected ? 'text-brand' : 'text-zinc-300'
-                          }`}>
-                            {item.title}
-                          </span>
-                          <span className="font-mono text-[9px] uppercase tracking-wider text-zinc-600 px-1.5 py-0.5 rounded bg-zinc-950/20 border border-zinc-900/60">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className={`font-heading font-bold truncate ${
+                              isSelected ? 'text-brand' : 'text-zinc-300'
+                            }`}>
+                              {item.title}
+                            </span>
+                            {(item.id === 'seo-optimizer' || item.id === 'sitemap-seo') && (
+                              <span className="inline-flex items-center gap-0.5 pointer-events-none rounded px-1.5 py-0.5 text-[8px] font-bold font-mono text-emerald-400 bg-emerald-950/40 border border-emerald-900/50 shrink-0">
+                                <span className="w-1 h-1 rounded-full bg-emerald-400 animate-ping mr-0.5" />
+                                <span>SEO PRIORITY</span>
+                              </span>
+                            )}
+                          </div>
+                          <span className="font-mono text-[9px] uppercase tracking-wider text-zinc-600 px-1.5 py-0.5 rounded bg-zinc-950/20 border border-zinc-900/60 shrink-0">
                             {item.category}
                           </span>
                         </div>

@@ -20,7 +20,9 @@ const TOOL_MUTUAL_LABELS: Record<string, string> = {
   'batch-processor': 'Parallel Batch Processor',
   'json-diff': 'JSON-Diff Matrix',
   'code-snapshot': 'Code Snapshot Canvas',
-  'private-sketchpad': 'Secure Vector Sketchpad'
+  'private-sketchpad': 'Secure Vector Sketchpad',
+  'case-converter': 'Case Converter & Formatter',
+  'lorem-generator': 'Lorem Ipsum & Placeholder'
 };
 
 const STORAGE_KEY = 'apex_tool_usage_events_stream';
@@ -117,7 +119,8 @@ const seedUsageEvents = (): ToolUsageEvent[] => {
     'password-generator': 8,
     'qr-generator': 7,
     'json-diff': 5,
-    'unit-converter': 3
+    'unit-converter': 3,
+    'lorem-generator': 4
   };
 
   const now = new Date();
