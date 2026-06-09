@@ -1,10 +1,55 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutGrid, FileText, Image as ImageIcon, FileImage, Braces, Globe, Terminal, ShieldCheck, Settings, Search, Layers, Monitor, Trash2, Plus, Check, X, Sparkles, Download, Upload, QrCode, Scale, FileCode, Sliders, GitPullRequest, Hash, Palette, Signature, Gauge, Binary, Regex, ArrowLeftRight, Shrink, Database, Volume2, Mic, Eye, Video, PenTool } from 'lucide-react';
+import { LayoutGrid, FileText, Image as ImageIcon, FileImage, Braces, Globe, Terminal, ShieldCheck, Settings, Search, Layers, Monitor, Trash2, Plus, Check, X, Sparkles, Download, Upload, QrCode, Scale, FileCode, Sliders, GitPullRequest, Hash, Palette, Signature, Gauge, Binary, Regex, ArrowLeftRight, Shrink, Database, Volume2, Mic, Eye, Video, PenTool, VolumeX, Music } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ActiveTab } from '../types';
 import { useLanguage } from '../context/LanguageContext';
 import { usePresets } from '../context/PresetContext';
 import BackupRestoreModal from './BackupRestoreModal';
+import { startFocusSound, stopFocusSound, setFocusSoundVolume, getActiveFocusSound } from '../utils/focusSoundEngine';
+
+const ambientLabels = {
+  en: {
+    title: 'Ambient Focus Noise',
+    volume: 'Level',
+    noise: 'White Noise',
+    rain: 'Rainfall',
+    beats: 'Focus Beats',
+    stop: 'Silence'
+  },
+  es: {
+    title: 'Enfoque de Ambiente',
+    volume: 'Nivel',
+    noise: 'Ruido Blanco',
+    rain: 'Lluvia',
+    beats: 'Pulsos Focus',
+    stop: 'Silencio'
+  },
+  fr: {
+    title: 'Ambiance Focus',
+    volume: 'Niveau',
+    noise: 'Bruit Blanc',
+    rain: 'Pluie',
+    beats: 'Ondes Alpha',
+    stop: 'Silence'
+  },
+  de: {
+    title: 'Fokus-Geräusche',
+    volume: 'Pegel',
+    noise: 'Rauschen',
+    rain: 'Regen',
+    beats: 'Mental-Beats',
+    stop: 'Stumm'
+  },
+  pt: {
+    title: 'Foco de Ambiente',
+    volume: 'Nível',
+    noise: 'Ruído Branco',
+    rain: 'Chuva',
+    beats: 'Sons Alpha',
+    stop: 'Silêncio'
+  }
+};
+
 
 interface NavigationSidebarProps {
   activeTab: ActiveTab;
@@ -20,6 +65,45 @@ export default function NavigationSidebar({ activeTab, onTabChange, isMobileOpen
   const [showSettings, setShowSettings] = useState(false);
   const [isBackupModalOpen, setIsBackupModalOpen] = useState(false);
   const { language, setLanguage, t } = useLanguage();
+
+  const [activeSound, setActiveSound] = useState<'noise' | 'rain' | 'beats' | null>(null);
+  const [ambientVolume, setAmbientVolume] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem('apex_ambient_volume');
+      return saved !== null ? parseFloat(saved) : 0.5;
+    } catch (e) {
+      return 0.5;
+    }
+  });
+
+  useEffect(() => {
+    // Synchronize UI with background service engine upon sidebar mount
+    setActiveSound(getActiveFocusSound());
+  }, []);
+
+  const handleSoundToggle = (type: 'noise' | 'rain' | 'beats') => {
+    if (activeSound === type) {
+      stopFocusSound();
+      setActiveSound(null);
+    } else {
+      startFocusSound(type, ambientVolume);
+      setActiveSound(type);
+    }
+  };
+
+  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newVol = parseFloat(e.target.value);
+    setAmbientVolume(newVol);
+    setFocusSoundVolume(newVol);
+    try {
+      localStorage.setItem('apex_ambient_volume', newVol.toString());
+    } catch (_) {}
+  };
+
+  const handleMute = () => {
+    stopFocusSound();
+    setActiveSound(null);
+  };
   const { presets, activePresetId, loadPreset, saveNewPreset, deletePreset } = usePresets();
   const [newPresetName, setNewPresetName] = useState('');
   const [backupStatus, setBackupStatus] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
@@ -289,27 +373,43 @@ export default function NavigationSidebar({ activeTab, onTabChange, isMobileOpen
                     </button>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => onThemeChange('auto')}
-                    className={`w-full p-2 rounded flex items-center justify-between border transition-all cursor-pointer ${
-                      theme === 'auto'
-                        ? 'bg-brand/10 border-brand text-brand shadow-[0_0_8px_var(--theme-glow)]'
-                        : 'bg-zinc-900/40 border-zinc-800 text-zinc-500 hover:text-zinc-300 hover:border-zinc-700'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <Monitor className="w-3.5 h-3.5" />
-                      <span className="font-heading text-[9px] font-medium tracking-tight uppercase">{t.settings.systemTheme}</span>
+                  {/* Premium 'Sync with System' Toggle Switch */}
+                  <div className="flex items-center justify-between p-2 rounded bg-zinc-950/40 border border-zinc-900/60 hover:bg-zinc-950/60 transition-all">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Monitor className={`w-3.5 h-3.5 flex-shrink-0 transition-colors duration-300 ${theme === 'auto' ? 'text-brand' : 'text-zinc-500'}`} />
+                      <div className="flex flex-col min-w-0">
+                        <span className="font-heading text-[9px] font-bold tracking-wider text-zinc-300 uppercase truncate">
+                          {language === 'en' ? 'Sync with System' :
+                           language === 'es' ? 'Sincronizar con Sistema' :
+                           language === 'fr' ? 'Synchro Système' :
+                           language === 'de' ? 'System-Synchronisation' :
+                           'Sincronizar com Sistema'}
+                        </span>
+                        <span className="font-sans text-[7.5px] text-zinc-500 leading-none mt-0.5 truncate">
+                          {language === 'en' ? 'Auto-toggle crimson/cobalt via OS preference' :
+                           language === 'es' ? 'Alternancia automática según preferencia SO' :
+                           language === 'fr' ? 'Alternance auto selon le système OS' :
+                           language === 'de' ? 'Automatisch per OS-Einstellung wechseln' :
+                           'Alternância automática conforme preferência do SO'}
+                        </span>
+                      </div>
                     </div>
-                    <div className="relative flex items-center justify-center w-2 h-2 mr-1">
-                      <div
-                        className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
-                          theme === 'auto' ? 'bg-brand led-active animate-pulse' : 'bg-transparent'
+                    
+                    <button
+                      type="button"
+                      id="theme-sync-system-toggle"
+                      onClick={() => onThemeChange(theme === 'auto' ? 'crimson' : 'auto')}
+                      className={`relative inline-flex h-4 w-7.5 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                        theme === 'auto' ? 'bg-brand' : 'bg-zinc-800'
+                      }`}
+                    >
+                      <span
+                        className={`pointer-events-none inline-block h-3 w-3 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                          theme === 'auto' ? 'translate-x-3.5' : 'translate-x-0'
                         }`}
                       />
-                    </div>
-                  </button>
+                    </button>
+                  </div>
 
                   {/* Language support block */}
                   <div className="pt-2 border-t border-brand-border/20 space-y-1">
@@ -515,6 +615,73 @@ export default function NavigationSidebar({ activeTab, onTabChange, isMobileOpen
             );
           })}
         </nav>
+      </div>
+
+      {/* Persistent Ambient focus generator */}
+      <div className="border-t border-brand-border/20 pt-4 mt-2 px-1">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-1.5">
+            {activeSound ? (
+              <span className="relative flex h-2 w-2 mr-0.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-brand"></span>
+              </span>
+            ) : (
+              <Music className="w-3.5 h-3.5 text-zinc-500" />
+            )}
+            <span className="font-heading text-[10px] uppercase tracking-wider font-bold text-zinc-400">
+              {ambientLabels[language as keyof typeof ambientLabels]?.title || ambientLabels.en.title}
+            </span>
+          </div>
+          {activeSound && (
+            <button
+              onClick={handleMute}
+              className="p-1 rounded hover:bg-zinc-900 border border-transparent hover:border-zinc-800 text-zinc-500 hover:text-brand transition-all cursor-pointer"
+              title={ambientLabels[language as keyof typeof ambientLabels]?.stop || ambientLabels.en.stop}
+            >
+              <VolumeX className="w-3 h-3 text-red-500" />
+            </button>
+          )}
+        </div>
+
+        {/* 3 Option Plates */}
+        <div className="grid grid-cols-3 gap-1.5 mb-2.5">
+          {(['noise', 'rain', 'beats'] as const).map((soundType) => {
+            const isSelected = activeSound === soundType;
+            return (
+              <button
+                key={soundType}
+                type="button"
+                onClick={() => handleSoundToggle(soundType)}
+                className={`py-1 rounded text-[9px] font-mono border transition-all cursor-pointer text-center ${
+                  isSelected
+                    ? 'bg-brand/10 border-brand text-brand shadow-[0_0_8px_var(--theme-glow)] font-bold'
+                    : 'bg-zinc-950/50 border-zinc-900 text-zinc-500 hover:text-zinc-300 hover:border-zinc-800'
+                }`}
+              >
+                {ambientLabels[language as keyof typeof ambientLabels]?.[soundType] || ambientLabels.en[soundType]}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Volume Level bar slider */}
+        <div className="flex items-center gap-2">
+          <Volume2 className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.05"
+            value={ambientVolume}
+            onChange={handleVolumeChange}
+            className="w-full h-1 bg-zinc-900 rounded-lg appearance-none cursor-pointer accent-brand"
+            title="Adjust ambient level"
+          />
+          <span className="font-mono text-[8px] text-zinc-500 w-5 text-right shrink-0">
+            {Math.round(ambientVolume * 100)}%
+          </span>
+        </div>
       </div>
 
       {/* Footer Technical Matrix Panel */}
