@@ -917,7 +917,7 @@ export default function SEOOptimizer() {
                   >
                     <div className="flex items-center gap-2 text-xs">
                       <div className="w-4 h-4 rounded-full bg-zinc-800 text-[10px] text-gray-400 flex items-center justify-center font-mono">A</div>
-                      <span className="text-gray-400 font-sans">https://apexlabs.io &gt; post</span>
+                      <span className="text-gray-400 font-sans">https://apexutility.live &gt; post</span>
                     </div>
                     <div>
                       <h4 className="text-blue-500 hover:underline text-lg font-medium cursor-pointer break-words leading-snug">
@@ -943,11 +943,11 @@ export default function SEOOptimizer() {
                       <Bookmark className="w-6 h-6 text-emerald-400 absolute top-4 left-4 opacity-55" />
                       <div className="text-xs font-mono text-emerald-400/90 tracking-widest uppercase mb-1">Apex Publishing</div>
                       <div className="text-base text-white/95 font-sans font-bold leading-tight max-w-sm line-clamp-2">{metaTitle || 'Aesthetic Resource Landing Page'}</div>
-                      <div className="text-[10px] text-gray-500 font-mono mt-3">https://apexlabs.io | 100% Secure</div>
+                      <div className="text-[10px] text-gray-500 font-mono mt-3">https://apexutility.live | 100% Secure</div>
                     </div>
                     
                     <div className="p-3 text-sm space-y-1">
-                      <span className="text-xs text-zinc-500 font-mono">apexlabs.io</span>
+                      <span className="text-xs text-zinc-500 font-mono">apexutility.live</span>
                       <h4 className="text-white font-medium line-clamp-1 leading-none">{metaTitle || 'Visual Resource Post'}</h4>
                       <p className="text-xs text-zinc-400 line-clamp-2 leading-normal">{metaDescription || 'Aesthetic article landing resource notes.'}</p>
                     </div>

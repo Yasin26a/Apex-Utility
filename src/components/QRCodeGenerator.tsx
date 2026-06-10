@@ -37,7 +37,7 @@ export default function QRCodeGenerator() {
   
   // Content values
   const [plainText, setPlainText] = useState('Welcome to APEX Utility Labs secure QR console.');
-  const [url, setUrl] = useState('https://ais-pre-2fziisd2gnxbv2grdnphn2-785861104867.asia-southeast1.run.app');
+  const [url, setUrl] = useState('https://apexutility.live');
   
   // Custom Wifi
   const [wifiSsid, setWifiSsid] = useState(() => activeSettings.qrWifiSsid || '');

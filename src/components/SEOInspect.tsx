@@ -153,7 +153,7 @@ export default function SEOInspect() {
   const [copiedIndex, setCopiedIndex] = useState<string | null>(null);
   const [activeProfileId, setActiveProfileId] = useState('homepage');
 
-  const websiteUrl = 'https://apex-pdf.cloudflare.dev';
+  const websiteUrl = 'https://apexutility.live';
   const currentDateISO = '2026-06-05';
 
   // Sitemap XML markup string
