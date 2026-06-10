@@ -1503,7 +1503,7 @@ export default function PDFCompressor() {
                                     type="text"
                                     value={file.metadata?.title || ''}
                                     onChange={(e) => updateFileMetadata(file.id, 'title', e.target.value)}
-                                    placeholder="Resume - Yasin Alam"
+                                    placeholder="Resume - Alex Dev"
                                     className="w-full bg-zinc-900/50 border border-zinc-900 focus:border-brand/40 text-white rounded px-2.5 py-1.5 font-sans text-xs focus:outline-none transition-all"
                                   />
                                 </div>
@@ -1513,7 +1513,7 @@ export default function PDFCompressor() {
                                     type="text"
                                     value={file.metadata?.author || ''}
                                     onChange={(e) => updateFileMetadata(file.id, 'author', e.target.value)}
-                                    placeholder="Yasin Alam"
+                                    placeholder="Alex Dev"
                                     className="w-full bg-zinc-900/50 border border-zinc-900 focus:border-brand/40 text-white rounded px-2.5 py-1.5 font-sans text-xs focus:outline-none transition-all"
                                   />
                                 </div>

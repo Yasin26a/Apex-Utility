@@ -748,16 +748,16 @@ const SEO_METADATA: Record<ActiveTab, SEOHeaderContent> = {
     }
   },
   'about-us': {
-    title: "About Apex Laboratories & Creator Yasin Alam | Reach Out",
-    description: "Meet the creator, inspect our absolute offline-first developer mission, and safely transmit messages to Yasin Alam.",
-    keywords: "about us, apex laboratories creator, Yasin Alam developer, offline developer tools, client wasm suite, contact address",
-    ogTitle: "About Apex laboratories & Creator Yasin Alam Contact Room",
-    ogDescription: "Project background and secure compliance feedback dashboard to reach the core developer.",
+    title: "About Apex Laboratories & APEX UTILITY | Reach Out",
+    description: "Inspect our absolute offline-first developer mission, and safely transmit message queries to the APEX UTILITY support team.",
+    keywords: "about us, apex laboratories creator, APEX UTILITY, offline developer tools, client wasm suite, compliance contact address",
+    ogTitle: "About Apex Laboratories & APEX UTILITY compliance workspace",
+    ogDescription: "Project compliance backgrounds and secure message logs dashboard for developer workstations.",
     schema: {
       "@context": "https://schema.org",
       "@type": "AboutPage",
-      "name": "About Apex laboratories",
-      "description": "Founded by Yasin Alam to deliver zero-friction high performance assets.",
+      "name": "About Apex Laboratories",
+      "description": "Constructed by APEX UTILITY to deliver zero-friction high performance assets.",
       "publisher": {
         "@type": "Organization",
         "name": "Apex Utility Labs",
@@ -768,7 +768,7 @@ const SEO_METADATA: Record<ActiveTab, SEOHeaderContent> = {
   'guides': {
     title: "Apex Guides, Tutorials & Developer Articles | Apex Suit",
     description: "Read step-by-step developer documentation on WASM PDF compression, WebP rasterization, secure encryption entropy, and SEO sitemap indexing blueprints.",
-    keywords: "developer guides, wasm pdf compression, webp conversion offline, browser encryption security, sitemap seo configuration, yasin alam tutorial",
+    keywords: "developer guides, wasm pdf compression, webp conversion offline, browser encryption security, sitemap seo configuration, apex utility tutorial",
     ogTitle: "Apex Guides & Practical Tutorials Center",
     ogDescription: "Human-written technical tutorials on document engineering, secure client environments, and organic web indexes.",
     schema: {

@@ -363,7 +363,7 @@ export default function App() {
                 APEX UTILITY LABS
               </p>
               <p className="text-[11px] text-zinc-600 font-mono">
-                © {new Date().getFullYear()} <span className="text-zinc-500">apexutility.live</span> • Client-Side WASM Engine • Built by Yasin Alam
+                © {new Date().getFullYear()} <span className="text-zinc-500">apexutility.live</span> • Client-Side WASM Engine • APEX UTILITY WORKSTATION
               </p>
             </div>
             

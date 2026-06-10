@@ -303,9 +303,9 @@ export const TOOL_DEEP_DIVES: Record<ActiveTab, DeepDiveConfig> = {
     ]
   },
   'about-us': {
-    subtitle: 'Development Missions & secure Correspondent Channel',
+    subtitle: 'Development Missions & Secure Correspondent Channel',
     paragraphs: [
-      'Meet Yasin Alam and review the core mission of Apex Laboratories. This open-source toolkit was built to make high-fidelity developer assets available to everyone free of charge.',
+      'Understand the core mission of APEX UTILITY. This open-source toolkit was built to make high-fidelity developer assets available to everyone free of charge.',
       'By moving heavy calculations off cloud servers and onto local hardware, our toolset reduces costs, boosts speed, and guarantees absolute data privacy.',
       'If you want to collaborate, report compliance issues, or request a custom WASM tool, send us a secure electronic message through this dashboard.'
     ]
@@ -314,7 +314,7 @@ export const TOOL_DEEP_DIVES: Record<ActiveTab, DeepDiveConfig> = {
     subtitle: 'Apex Professional Guides & Tutorial Ecosystem',
     paragraphs: [
       'Welcome to the Apex Guides Terminal. This localized tutorial repository features highly detailed documentation drafted to help build high performance, premium graphics pipelines, secure local data vaults, and index mappings.',
-      'Each guide is formatted and written by creator Yasin Alam, diving under the hood of standard WebAssembly modules, canvas rendering workers, and cryptographically secure entropy formulas.',
+      'Each guide is formatted and written by the APEX UTILITY group, diving under the hood of standard WebAssembly modules, canvas rendering workers, and cryptographically secure entropy formulas.',
       'Through these comprehensive guides, developers can learn to build compliant schemas, optimize dynamic applications, and guarantee offline-first data integrity.'
     ]
   }

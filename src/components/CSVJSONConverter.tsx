@@ -34,7 +34,7 @@ const DEFAULT_CSV = `id,name,role,department,salary,isActive
 101,John Doe,Lead Architect,Core Platform,135000,true
 102,Sarah Smith,Principle Engineer,Data Signals,142000,true
 103,Alex Rivera,Senior Analyst,Analytics Lab,98000,false
-104,Yasin Alam,L3 Code Specialist,AI Frameworks,115000,true
+104,Alex Dev,L3 Code Specialist,AI Frameworks,115000,true
 105,Elena Petrova,UX Researcher,Design Systems,88000,true`;
 
 // Default JSON sample content corresponding to the CSV

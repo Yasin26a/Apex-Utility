@@ -72,7 +72,7 @@ export default function Guides({ onTabChange }: GuidesProps) {
       icon: Terminal,
       readTime: '6 min read',
       date: 'June 10, 2026',
-      author: 'Yasin Alam',
+      author: 'APEX RESEARCH',
       role: 'Lead Architect',
       relatedTool: 'compress-pdf',
       tags: ['WASM', 'PDF', 'WebAssembly', 'ATS Optimization'],
@@ -129,7 +129,7 @@ export default function Guides({ onTabChange }: GuidesProps) {
       icon: Sparkles,
       readTime: '5 min read',
       date: 'June 08, 2026',
-      author: 'Yasin Alam',
+      author: 'APEX RESEARCH',
       role: 'Frontend Architect',
       relatedTool: 'webp-converter',
       tags: ['WebP', 'PNG', 'Graphics', 'Performance'],
@@ -187,7 +187,7 @@ export default function Guides({ onTabChange }: GuidesProps) {
       icon: Bookmark,
       readTime: '7 min read',
       date: 'June 05, 2026',
-      author: 'Yasin Alam',
+      author: 'APEX RESEARCH',
       role: 'Security Specialist',
       relatedTool: 'password-generator',
       tags: ['Security', 'Cryptography', 'Web Crypto', 'Entropy'],
@@ -236,7 +236,7 @@ export default function Guides({ onTabChange }: GuidesProps) {
       icon: BookOpen,
       readTime: '4 min read',
       date: 'May 28, 2026',
-      author: 'Yasin Alam',
+      author: 'APEX RESEARCH',
       role: 'Growth Strategist',
       relatedTool: 'sitemap-seo',
       tags: ['SEO', 'XML Sitemaps', 'Indexing', 'Search Console'],
@@ -537,7 +537,7 @@ export default function Guides({ onTabChange }: GuidesProps) {
                   <span>Request an Engineering Guide</span>
                 </h4>
                 <p className="font-sans text-xs text-zinc-400 leading-relaxed">
-                  Is there a specific WASM format conversion, PDF metadata structure, or cryptographic encryption standard you want Yasin Alam to audit? Submit a research topic block!
+                  Is there a specific WASM format conversion, PDF metadata structure, or cryptographic encryption standard you want the APEX TEAM to audit? Submit a research topic block!
                 </p>
               </div>
 

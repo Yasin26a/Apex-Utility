@@ -423,9 +423,9 @@ export default function CommandBar({ isOpen, onClose, onSelectTab, theme, onThem
       id: 'about-us',
       category: 'System',
       title: 'About Us & Contact Information',
-      description: 'Meet creator Yasin Alam, audit project missions, and securely correspond',
+      description: 'Review APEX UTILITY compliance missions and securely correspond via terminal forms',
       icon: Command,
-      keywords: ['about', 'us', 'contact', 'email', 'yasin', 'alam', 'support', 'creator', 'founder'],
+      keywords: ['about', 'us', 'contact', 'email', 'apex', 'utility', 'support', 'compliance', 'help'],
       action: () => {
         onSelectTab('about-us');
         onClose();
