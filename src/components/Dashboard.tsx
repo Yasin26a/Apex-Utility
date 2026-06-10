@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, useMotionValue, useTransform, AnimatePresence } from 'motion/react';
+import { motion, useMotionValue, useTransform, useMotionTemplate, AnimatePresence } from 'motion/react';
 import { FileDown, Image, Sparkles, Braces, ArrowRight, ShieldCheck, Zap, Globe, Cpu, Clock, Download, CheckCircle, FileText, FileImage, Trash2, Camera, Loader2, Search, Copy, Check, Info, Activity, AlertCircle, Layers, ChevronLeft, ChevronRight, GripVertical, Minus, Plus, RotateCcw, Settings, ArrowLeft, Upload, Database, QrCode, Scale, FileCode, Sliders, GitPullRequest, LayoutGrid, List, Hash, Palette, Signature, Gauge, Binary, Regex, ArrowLeftRight, Shrink, Pin, Volume2, Mic, Eye, Video, PenTool, History, Type } from 'lucide-react';
 import { ActiveTab } from '../types';
 import { AlignLeft, Crop, Calendar } from 'lucide-react';
@@ -34,6 +34,9 @@ function ThreeDTiltCard({
   // Coordinate mapping for the glossy spotlight highlight
   const shineX = useTransform(x, [-0.5, 0.5], ['0%', '100%']);
   const shineY = useTransform(y, [-0.5, 0.5], ['0%', '100%']);
+
+  // Dynamic GPU-accelerated backdrop gradient template
+  const background = useMotionTemplate`radial-gradient(circle 240px at ${shineX} ${shineY}, rgba(255, 255, 255, 0.08) 0%, var(--theme-glow) 45%, transparent 100%)`;
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -73,16 +76,12 @@ function ThreeDTiltCard({
         style={{
           transform: 'translateZ(18px)',
           transformStyle: 'preserve-3d',
-          '--shine-x': shineX,
-          '--shine-y': shineY,
-        } as any}
+        }}
       >
-        {/* Hardware Reflection Glistening Overlay */}
-        <div 
+        {/* Hardware Reflection Glistening Overlay - Activated dynamically via Framer Motion */}
+        <motion.div 
           className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 rounded-xl"
-          style={{
-            background: 'radial-gradient(circle 220px at var(--shine-x) var(--shine-y), rgba(255, 255, 255, 0.09) 0%, rgba(255, 255, 255, 0.01) 60%, transparent 100%)'
-          }}
+          style={{ background }}
         />
         
         {/* Dynamic Category Bottom Ambient Inset Glow */}
