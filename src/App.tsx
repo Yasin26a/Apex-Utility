@@ -145,6 +145,16 @@ export default function App() {
   });
 
   const [activeTheme, setActiveTheme] = useState<'crimson' | 'cobalt'>('crimson');
+  const [isThemeTransitioning, setIsThemeTransitioning] = useState(false);
+
+  // Monitor theme changes to trigger fluid CSS filter flash and scale animation
+  useEffect(() => {
+    setIsThemeTransitioning(true);
+    const timer = setTimeout(() => {
+      setIsThemeTransitioning(false);
+    }, 750); // Matches the index.css transition duration
+    return () => clearTimeout(timer);
+  }, [activeTheme]);
 
   // Monitor prefers-color-scheme system preference
   useEffect(() => {
@@ -340,7 +350,7 @@ export default function App() {
       />
 
       {/* Main interactive workstation layout panel */}
-      <main className="flex-1 lg:ml-64 p-4 sm:p-8 min-h-screen relative z-10 max-w-7xl w-full">
+      <main className={`flex-1 lg:ml-64 p-4 sm:p-8 min-h-screen relative z-10 max-w-7xl w-full transition-all duration-700 ${isThemeTransitioning ? 'theme-switching-active' : ''}`}>
         <div className="absolute top-8 right-8 font-mono text-[9px] text-zinc-500 uppercase tracking-widest hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#0b0b0e] border border-zinc-900/60 pointer-events-none transition-all duration-500">
           <span className="w-1.5 h-1.5 rounded-full led-active animate-pulse transition-all duration-500" />
           <span>PORT INGRESS COMPILER: COMPLIANT</span>

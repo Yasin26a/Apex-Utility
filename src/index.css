@@ -101,6 +101,27 @@
   transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1); /* premium cubic expo curve */
 }
 
+/* High-end CSS filter, saturation, and contrast wave transition on theme swap */
+.theme-switching-active {
+  animation: themeSwitchFilter 0.75s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: filter, transform;
+}
+
+@keyframes themeSwitchFilter {
+  0% {
+    filter: brightness(1.12) saturate(1.4) contrast(1.05);
+    transform: scale(0.996);
+  }
+  35% {
+    filter: brightness(1.05) saturate(1.2) contrast(1.02);
+    transform: scale(0.998);
+  }
+  100% {
+    filter: brightness(1) saturate(1) contrast(1);
+    transform: scale(1);
+  }
+}
+
 /* Custom global styles to achieve the ultra-premium mechanical/obsidian aesthetic */
 body {
   background-color: #050505;
