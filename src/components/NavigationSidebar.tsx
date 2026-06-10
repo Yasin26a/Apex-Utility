@@ -238,6 +238,7 @@ export default function NavigationSidebar({ activeTab, onTabChange, isMobileOpen
     { id: 'webp-converter' as ActiveTab, label: t.navigation.webpConverter, icon: ImageIcon, description: t.navigation.webpConverterDesc },
     { id: 'json-beautifier' as ActiveTab, label: t.navigation.jsonBeautifier, icon: Braces, description: t.navigation.jsonBeautifierDesc },
     { id: 'sitemap-seo' as ActiveTab, label: t.navigation.sitemapSeo, icon: Globe, description: t.navigation.sitemapSeoDesc },
+    { id: 'sitemap-generator' as ActiveTab, label: t.navigation.sitemapGenerator, icon: FileCode, description: t.navigation.sitemapGeneratorDesc },
     { id: 'ai-writer' as ActiveTab, label: t.navigation.aiWriter, icon: Sparkles, description: t.navigation.aiWriterDesc },
     { id: 'password-generator' as ActiveTab, label: t.navigation.passwordGenerator, icon: ShieldCheck, description: t.navigation.passwordGeneratorDesc },
     { id: 'qr-generator' as ActiveTab, label: t.navigation.qrGenerator, icon: QrCode, description: t.navigation.qrGeneratorDesc },

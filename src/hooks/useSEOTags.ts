@@ -111,6 +111,26 @@ const SEO_METADATA: Record<ActiveTab, SEOHeaderContent> = {
       }
     }
   },
+  'sitemap-generator': {
+    title: "In-Browser XML Sitemap Generator Online Free | Apex SEO Hub",
+    description: "Create fully customizable, search-compliant XML sitemaps. Input your website URL, configure crawler change frequencies and priority scores, and instantly download a valid sitemap.xml file.",
+    keywords: "in-browser xml sitemap generator, custom sitemap xml builder, free sitemap online creator, google search console sitemap, custom change frequency sitemap, prioritize website links",
+    ogTitle: "In-Browser XML Sitemap Generator Online Free",
+    ogDescription: "Build pristine search-engine compliant XML sitemaps with custom frequencies and priorities in seconds.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Custom XML Sitemap Builder & Generator",
+      "description": "An interactive, client-side tool to compile, structure, and export valid XML sitemaps for top rankings across Google, Bing, and other search indexes.",
+      "applicationCategory": "SEOApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
   'image-to-pdf': {
     title: "Merge JPG/PNG Images into PDF Online Free | Apex PDF Converter",
     description: "Combine and merge multiple JPG, JPEG, and PNG images into a single optimized PDF document locally. Supports image reordering, page rotations, and security watermarks free.",

@@ -9,6 +9,7 @@ import PDFCompressor from './components/PDFCompressor';
 import WebPConverter from './components/WebPConverter';
 import JSONBeautifier from './components/JSONBeautifier';
 import SEOInspect from './components/SEOInspect';
+import SitemapGenerator from './components/SitemapGenerator';
 import ImageToPDF from './components/ImageToPDF';
 import PDFJoiner from './components/PDFJoiner';
 import AIWriter from './components/AIWriter';
@@ -50,7 +51,7 @@ import ToolLandingIsland from './components/ToolLandingIsland';
 
 const VALID_TABS: ActiveTab[] = [
   'dashboard', 'compress-pdf', 'webp-converter', 'json-beautifier', 
-  'sitemap-seo', 'image-to-pdf', 'join-pdf', 'ai-writer', 
+  'sitemap-seo', 'sitemap-generator', 'image-to-pdf', 'join-pdf', 'ai-writer', 
   'password-generator', 'qr-generator', 'unit-converter', 'svg-rasterizer', 'batch-processor', 'json-diff', 'secure-hash', 'color-palette', 'digital-signature', 'seo-optimizer', 'base64-converter', 'regex-tester', 'csv-json-converter', 'image-compressor', 'rich-text-stats', 'audio-trimmer', 'ai-transcriber', 'pdf-analyst', 'exif-stripper', 'video-recorder', 'image-vectorizer', 'code-snapshot', 'private-sketchpad', 'case-converter', 'lorem-generator', 'image-cropper', 'date-calculator', 'privacy-policy', 'terms-of-service', 'about-us', 'guides'
 ];
 
@@ -198,6 +199,8 @@ export default function App() {
         return <JSONBeautifier />;
       case 'sitemap-seo':
         return <SEOInspect />;
+      case 'sitemap-generator':
+        return <SitemapGenerator />;
       case 'image-to-pdf':
         return <ImageToPDF />;
       case 'ai-writer':

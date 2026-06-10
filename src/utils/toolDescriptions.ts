@@ -46,6 +46,14 @@ export const TOOL_DEEP_DIVES: Record<ActiveTab, DeepDiveConfig> = {
       'Once generated, the output is ready to be declared in your robots.txt or submitted directly to Google Search Console to boost your organic reach. All processing is local and secure.'
     ]
   },
+  'sitemap-generator': {
+    subtitle: 'Client Sitemap XML Builder & Structured Metadata Exporter',
+    paragraphs: [
+      'An XML sitemap acts as a critical index blueprint, guiding crawler bots through your domain to ensure efficient search indexing and optimal PageRank. Unlike traditional scraper systems that throttle your connection or hit page count caps, our fully in-browser Sitemap Generator builds structured sitemap archives securely client-side.',
+      'You can customize changes by defining change frequencies (hourly, daily, weekly, or ever-fresh) and scaling priority ratings from 0.0 up to 1.0. The generator compiles links, formats nested tags, handles character escapes, and bundles them into high-compliance XML text outputs. Plus, it includes preloaded directory presets (SaaS platforms, e-commerce, portfolios) to instantly bootstrap structures.',
+      'To verify indexing health before deployment, you can copy the XML output directly or download the generated sitemap.xml to place onto your domain root. Your links are processed entirely within secure local RAM, ensuring 100% private site development.'
+    ]
+  },
   'image-to-pdf': {
     subtitle: 'High-Definition Graphic layout compiler & PDF Assembler',
     paragraphs: [

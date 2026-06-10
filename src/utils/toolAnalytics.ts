@@ -9,6 +9,7 @@ const TOOL_MUTUAL_LABELS: Record<string, string> = {
   'webp-converter': 'WebP Converter',
   'json-beautifier': 'JSON Parser & Beauter',
   'sitemap-seo': 'SEO Site Inspect',
+  'sitemap-generator': 'Sitemap Builder',
   'image-to-pdf': 'Image to PDF Forge',
   'join-pdf': 'PDF Joiner Engine',
   'ai-writer': 'AI Word Smith',

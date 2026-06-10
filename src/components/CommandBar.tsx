@@ -121,6 +121,19 @@ export default function CommandBar({ isOpen, onClose, onSelectTab, theme, onThem
       shortcut: '↵'
     },
     {
+      id: 'sitemap-generator',
+      category: 'Tools',
+      title: 'Sitemap XML Generator',
+      description: 'Create custom in-browser XML sitemaps with custom page priorities and frequencies',
+      icon: FileCode,
+      keywords: ['seo', 'sitemap', 'generator', 'xml', 'builder', 'links', 'crawling', 'frequency', 'priority'],
+      action: () => {
+        onSelectTab('sitemap-generator');
+        onClose();
+      },
+      shortcut: '↵'
+    },
+    {
       id: 'ai-writer',
       category: 'Tools',
       title: 'Apex AI Writer & Copywriter',
@@ -499,8 +512,8 @@ export default function CommandBar({ isOpen, onClose, onSelectTab, theme, onThem
     if (!term) return 0;
     
     // Prioritize and lift SEO / organic index tools to the absolute top so they pop first on the list
-    const isA_SEO = a.id === 'seo-optimizer' || a.id === 'sitemap-seo';
-    const isB_SEO = b.id === 'seo-optimizer' || b.id === 'sitemap-seo';
+    const isA_SEO = a.id === 'seo-optimizer' || a.id === 'sitemap-seo' || a.id === 'sitemap-generator';
+    const isB_SEO = b.id === 'seo-optimizer' || b.id === 'sitemap-seo' || b.id === 'sitemap-generator';
     
     if (isA_SEO && !isB_SEO) return -1;
     if (!isA_SEO && isB_SEO) return 1;
@@ -637,7 +650,7 @@ export default function CommandBar({ isOpen, onClose, onSelectTab, theme, onThem
                             }`}>
                               {item.title}
                             </span>
-                            {(item.id === 'seo-optimizer' || item.id === 'sitemap-seo') && (
+                            {(item.id === 'seo-optimizer' || item.id === 'sitemap-seo' || item.id === 'sitemap-generator') && (
                               <span className="inline-flex items-center gap-0.5 pointer-events-none rounded px-1.5 py-0.5 text-[8px] font-bold font-mono text-emerald-400 bg-emerald-950/40 border border-emerald-900/50 shrink-0">
                                 <span className="w-1 h-1 rounded-full bg-emerald-400 animate-ping mr-0.5" />
                                 <span>SEO PRIORITY</span>

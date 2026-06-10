@@ -18,6 +18,8 @@ export interface Translations {
     jsonBeautifierDesc: string;
     sitemapSeo: string;
     sitemapSeoDesc: string;
+    sitemapGenerator: string;
+    sitemapGeneratorDesc: string;
     aiWriter: string;
     aiWriterDesc: string;
     passwordGenerator: string;
@@ -127,6 +129,8 @@ export const translations: Record<Language, Translations> = {
       jsonBeautifierDesc: 'Data Beautifier',
       sitemapSeo: 'SEO Crawler',
       sitemapSeoDesc: 'Sitemap Analyzer',
+      sitemapGenerator: 'Sitemap Generator',
+      sitemapGeneratorDesc: 'Generate custom XML sitemaps',
       aiWriter: 'AI Writer',
       aiWriterDesc: 'AI Copywriter Engine',
       passwordGenerator: 'Shield Vault',
@@ -234,6 +238,8 @@ export const translations: Record<Language, Translations> = {
       jsonBeautifierDesc: 'Embellecedor de Datos',
       sitemapSeo: 'Rastreador SEO',
       sitemapSeoDesc: 'Analizador de Mapas',
+      sitemapGenerator: 'Generador de Sitemap',
+      sitemapGeneratorDesc: 'Generar mapas de sitio XML',
       aiWriter: 'Escritor IA',
       aiWriterDesc: 'Redactor de Documentos',
       passwordGenerator: 'Bóveda de Claves',
@@ -341,6 +347,8 @@ export const translations: Record<Language, Translations> = {
       jsonBeautifierDesc: 'Mise en forme des données',
       sitemapSeo: 'Robot SEO',
       sitemapSeoDesc: 'Analyseur de Plans',
+      sitemapGenerator: 'Générateur de Sitemap',
+      sitemapGeneratorDesc: 'Générer des plans de site XML',
       aiWriter: 'Rédacteur IA',
       aiWriterDesc: 'Création de Documents',
       passwordGenerator: 'Coffre-fort',
@@ -448,6 +456,8 @@ export const translations: Record<Language, Translations> = {
       jsonBeautifierDesc: 'Datenverfeinerer',
       sitemapSeo: 'SEO-Crawler',
       sitemapSeoDesc: 'Sitemap-Analysator',
+      sitemapGenerator: 'Sitemap-Generator',
+      sitemapGeneratorDesc: 'Erstellen Sie benutzerdefinierte XML-Sitemaps',
       aiWriter: 'KI-Schreiber',
       aiWriterDesc: 'Dokumenten-Schreiber',
       passwordGenerator: 'Schlüsseltresor',
@@ -555,6 +565,8 @@ export const translations: Record<Language, Translations> = {
       jsonBeautifierDesc: 'Formatador de Dados',
       sitemapSeo: 'Rastreador SEO',
       sitemapSeoDesc: 'Analisador de Sitemap',
+      sitemapGenerator: 'Gerador de Sitemap',
+      sitemapGeneratorDesc: 'Gerar sitemaps XML personalizados',
       aiWriter: 'Escritor IA',
       aiWriterDesc: 'Motor de Redação',
       passwordGenerator: 'Cofre de Senhas',
