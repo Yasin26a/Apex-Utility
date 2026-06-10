@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Search, Command, FileText, Image as ImageIcon, FileImage, Braces, Globe, LayoutGrid, Palette, ArrowRight, CornerDownLeft, Layers, Sparkles, ShieldCheck, QrCode, Scale, FileCode, Sliders, GitPullRequest, Hash, Signature, Gauge, Binary, Regex, ArrowLeftRight, Shrink, Type, AlignLeft, Crop, Calendar } from 'lucide-react';
+import { Search, Command, FileText, Image as ImageIcon, FileImage, Braces, Globe, LayoutGrid, Palette, ArrowRight, CornerDownLeft, Layers, Sparkles, ShieldCheck, QrCode, Scale, FileCode, Sliders, GitPullRequest, Hash, Signature, Gauge, Binary, Regex, ArrowLeftRight, Shrink, Type, AlignLeft, Crop, Calendar, BookOpen } from 'lucide-react';
 import { ActiveTab } from '../types';
 
 interface CommandBarProps {
@@ -376,6 +376,58 @@ export default function CommandBar({ isOpen, onClose, onSelectTab, theme, onThem
       keywords: ['date calculator', 'time differences', 'business days', 'add time', 'subtract date', 'working days', 'countdown', 'timezone converter', 'duration calculator'],
       action: () => {
         onSelectTab('date-calculator');
+        onClose();
+      },
+      shortcut: '↵'
+    },
+    {
+      id: 'guides',
+      category: 'System',
+      title: 'Guides & Practical Tutorials',
+      description: 'Review structural layouts, frontend cryptography details, and SEO indexing blueprints',
+      icon: BookOpen,
+      keywords: ['guides', 'tutorials', 'blog', 'articles', 'documentation', 'learning', 'help', 'instructions'],
+      action: () => {
+        onSelectTab('guides');
+        onClose();
+      },
+      shortcut: '↵'
+    },
+    {
+      id: 'privacy-policy',
+      category: 'System',
+      title: 'Privacy Policy & Cookie Audit',
+      description: 'Review how we operate with Google AdSense, DoubleClick cookies, CCPA, and GDPR compliance parameters',
+      icon: ShieldCheck,
+      keywords: ['privacy', 'policy', 'cookies', 'gdpr', 'ccpa', 'security', 'adsense', 'doubleclick', 'dart', 'compliance'],
+      action: () => {
+        onSelectTab('privacy-policy');
+        onClose();
+      },
+      shortcut: '↵'
+    },
+    {
+      id: 'terms-of-service',
+      category: 'System',
+      title: 'Terms of Service & Usage Policies',
+      description: 'Understand user acceptance terms, AS-IS release of liability, and system constraints',
+      icon: FileText,
+      keywords: ['terms', 'of', 'service', 'use', 'conditions', 'liability', 'disclaimer', 'rules'],
+      action: () => {
+        onSelectTab('terms-of-service');
+        onClose();
+      },
+      shortcut: '↵'
+    },
+    {
+      id: 'about-us',
+      category: 'System',
+      title: 'About Us & Contact Information',
+      description: 'Meet creator Yasin Alam, audit project missions, and securely correspond',
+      icon: Command,
+      keywords: ['about', 'us', 'contact', 'email', 'yasin', 'alam', 'support', 'creator', 'founder'],
+      action: () => {
+        onSelectTab('about-us');
         onClose();
       },
       shortcut: '↵'

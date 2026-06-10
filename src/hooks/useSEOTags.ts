@@ -710,6 +710,78 @@ const SEO_METADATA: Record<ActiveTab, SEOHeaderContent> = {
         "priceCurrency": "USD"
       }
     }
+  },
+  'privacy-policy': {
+    title: "Privacy Policy & GDPR/CCPA Compliance | Apex Laboratories",
+    description: "Read our comprehensive data security commitments, DoubleClick DART advertising cookie declarations, and opt-out instructions to keep your browser safe.",
+    keywords: "privacy policy, adsense compliance, wasm security, doubleclick cookie opt out, GDPR user entitlements, CCPA california data rules",
+    ogTitle: "Apex Privacy Policy & Cookie Compliance Audit Shield",
+    ogDescription: "Guaranteed client-side browser isolated workloads with 100% data confidentiality and global privacy compliance.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Apex Privacy Policy",
+      "description": "Comprehensive data security commitments and advertising cookie settings.",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Apex Utility Labs",
+        "url": "https://apexutility.live"
+      }
+    }
+  },
+  'terms-of-service': {
+    title: "Terms of Service & AS-IS Software Licensing | Apex Suit",
+    description: "Read our legally binding client-side software terms, user responsibilities, and absolute disclaimers of liability.",
+    keywords: "terms of service, legal code license, disclaimer of warranty, as is software limit, user rules, scraper forbidden",
+    ogTitle: "Apex Terms of Service & Legal Licensing Code",
+    ogDescription: "Legally binding client rules, disclaimers, and guidelines for developer workstation usage.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Apex Terms of Service",
+      "description": "Legally binding software licensing terms and liability releases.",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Apex Utility Labs",
+        "url": "https://apexutility.live"
+      }
+    }
+  },
+  'about-us': {
+    title: "About Apex Laboratories & Creator Yasin Alam | Reach Out",
+    description: "Meet the creator, inspect our absolute offline-first developer mission, and safely transmit messages to Yasin Alam.",
+    keywords: "about us, apex laboratories creator, Yasin Alam developer, offline developer tools, client wasm suite, contact address",
+    ogTitle: "About Apex laboratories & Creator Yasin Alam Contact Room",
+    ogDescription: "Project background and secure compliance feedback dashboard to reach the core developer.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "AboutPage",
+      "name": "About Apex laboratories",
+      "description": "Founded by Yasin Alam to deliver zero-friction high performance assets.",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Apex Utility Labs",
+        "url": "https://apexutility.live"
+      }
+    }
+  },
+  'guides': {
+    title: "Apex Guides, Tutorials & Developer Articles | Apex Suit",
+    description: "Read step-by-step developer documentation on WASM PDF compression, WebP rasterization, secure encryption entropy, and SEO sitemap indexing blueprints.",
+    keywords: "developer guides, wasm pdf compression, webp conversion offline, browser encryption security, sitemap seo configuration, yasin alam tutorial",
+    ogTitle: "Apex Guides & Practical Tutorials Center",
+    ogDescription: "Human-written technical tutorials on document engineering, secure client environments, and organic web indexes.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Apex Developer Guides & Blog",
+      "description": "Comprehensive step-by-step developer instructions and knowledge base.",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Apex Utility Labs",
+        "url": "https://apexutility.live"
+      }
+    }
   }
 };
 

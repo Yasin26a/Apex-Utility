@@ -39,6 +39,10 @@ import CaseConverter from './components/CaseConverter';
 import LoremGenerator from './components/LoremGenerator';
 import ImageCropper from './components/ImageCropper';
 import DateCalculator from './components/DateCalculator';
+import PrivacyPolicy from './components/PrivacyPolicy';
+import TermsOfService from './components/TermsOfService';
+import AboutUs from './components/AboutUs';
+import Guides from './components/Guides';
 import useSEOTags from './hooks/useSEOTags';
 import CommandBar from './components/CommandBar';
 import { logToolUsage } from './utils/toolAnalytics';
@@ -47,7 +51,7 @@ import ToolLandingIsland from './components/ToolLandingIsland';
 const VALID_TABS: ActiveTab[] = [
   'dashboard', 'compress-pdf', 'webp-converter', 'json-beautifier', 
   'sitemap-seo', 'image-to-pdf', 'join-pdf', 'ai-writer', 
-  'password-generator', 'qr-generator', 'unit-converter', 'svg-rasterizer', 'batch-processor', 'json-diff', 'secure-hash', 'color-palette', 'digital-signature', 'seo-optimizer', 'base64-converter', 'regex-tester', 'csv-json-converter', 'image-compressor', 'rich-text-stats', 'audio-trimmer', 'ai-transcriber', 'pdf-analyst', 'exif-stripper', 'video-recorder', 'image-vectorizer', 'code-snapshot', 'private-sketchpad', 'case-converter', 'lorem-generator', 'image-cropper', 'date-calculator'
+  'password-generator', 'qr-generator', 'unit-converter', 'svg-rasterizer', 'batch-processor', 'json-diff', 'secure-hash', 'color-palette', 'digital-signature', 'seo-optimizer', 'base64-converter', 'regex-tester', 'csv-json-converter', 'image-compressor', 'rich-text-stats', 'audio-trimmer', 'ai-transcriber', 'pdf-analyst', 'exif-stripper', 'video-recorder', 'image-vectorizer', 'code-snapshot', 'private-sketchpad', 'case-converter', 'lorem-generator', 'image-cropper', 'date-calculator', 'privacy-policy', 'terms-of-service', 'about-us', 'guides'
 ];
 
 export default function App() {
@@ -252,6 +256,14 @@ export default function App() {
         return <ImageCropper />;
       case 'date-calculator':
         return <DateCalculator />;
+      case 'privacy-policy':
+        return <PrivacyPolicy />;
+      case 'terms-of-service':
+        return <TermsOfService />;
+      case 'about-us':
+        return <AboutUs />;
+      case 'guides':
+        return <Guides onTabChange={handleTabChange} />;
       default:
         return <Dashboard onTabChange={handleTabChange} />;
     }
@@ -343,6 +355,49 @@ export default function App() {
           {activeTab !== 'dashboard' && (
             <ToolLandingIsland toolId={activeTab} onTabChange={handleTabChange} />
           )}
+
+          {/* Compliant Global Legal Footer Block (AdSense Mandatory Linkages) */}
+          <footer className="mt-16 pt-8 border-t border-brand-border/20 text-center sm:text-left flex flex-col sm:flex-row justify-between items-center gap-4 text-zinc-500 font-sans text-xs pb-6 relative z-20">
+            <div className="space-y-1">
+              <p className="font-heading text-xs font-black text-white tracking-widest uppercase">
+                APEX UTILITY LABS
+              </p>
+              <p className="text-[11px] text-zinc-600 font-mono">
+                © {new Date().getFullYear()} <span className="text-zinc-500">apexutility.live</span> • Client-Side WASM Engine • Built by Yasin Alam
+              </p>
+            </div>
+            
+            <div className="flex flex-wrap justify-center gap-6 text-[11px] font-mono tracking-wider">
+              <button 
+                onClick={() => handleTabChange('guides')} 
+                className={`transition-colors cursor-pointer border-b pb-0.5 ${activeTab === 'guides' ? 'text-brand border-brand font-extrabold' : 'text-zinc-500 hover:text-brand border-transparent'}`}
+                title="Browse our structural optimization and security guides"
+              >
+                GUIDES & BLOG
+              </button>
+              <button 
+                onClick={() => handleTabChange('about-us')} 
+                className={`transition-colors cursor-pointer border-b pb-0.5 ${activeTab === 'about-us' ? 'text-brand border-brand font-extrabold' : 'text-zinc-500 hover:text-brand border-transparent'}`}
+                title="Read about the founding developers and correspond securely"
+              >
+                ABOUT & CONTACT
+              </button>
+              <button 
+                onClick={() => handleTabChange('privacy-policy')} 
+                className={`transition-colors cursor-pointer border-b pb-0.5 ${activeTab === 'privacy-policy' ? 'text-brand border-brand font-extrabold' : 'text-zinc-500 hover:text-brand border-transparent'}`}
+                title="Review our Google AdSense, DoubleClick Cookie, CCPA, and GDPR compliance policies"
+              >
+                PRIVACY POLICY
+              </button>
+              <button 
+                onClick={() => handleTabChange('terms-of-service')} 
+                className={`transition-colors cursor-pointer border-b pb-0.5 ${activeTab === 'terms-of-service' ? 'text-brand border-brand font-extrabold' : 'text-zinc-500 hover:text-brand border-transparent'}`}
+                title="Inspect our AS-IS software operations release of liability"
+              >
+                TERMS OF SERVICE
+              </button>
+            </div>
+          </footer>
         </div>
       </main>
 
