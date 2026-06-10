@@ -47,3 +47,16 @@ createRoot(document.getElementById('root')!).render(
   </StrictMode>,
 );
 
+// High-Fidelity PWA Offline Sync Engine
+if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then((registration) => {
+        console.log('[APEX Shell] Service Worker registered successfully, scope:', registration.scope);
+      })
+      .catch((error) => {
+        console.warn('[APEX Shell] Offline Service Worker failed to register: ', error);
+      });
+  });
+}
+

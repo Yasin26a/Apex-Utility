@@ -123,7 +123,7 @@ export default function App() {
     }
   }, [location.pathname, navigate]);
 
-  // Sync active tab to localStorage
+  // Sync active tab to localStorage and reset page position to top on switch
   useEffect(() => {
     try {
       localStorage.setItem('apex_active_tab', activeTab);
@@ -133,6 +133,8 @@ export default function App() {
     } catch (e) {
       console.error('Failed to save active tab to localStorage', e);
     }
+    // High-productivity scroll reset to top of page upon route or tool click
+    window.scrollTo({ top: 0, behavior: 'instant' });
   }, [activeTab]);
 
   const [themeMode, setThemeMode] = useState<'crimson' | 'cobalt' | 'auto'>(() => {
@@ -286,8 +288,12 @@ export default function App() {
 
       {/* Mobile Sticky Top Header (Visible only on screens < 1024px) */}
       <div className="lg:hidden w-full bg-[#060608]/90 backdrop-blur-md border-b border-brand-border/30 px-4 sm:px-6 py-4 flex items-center justify-between sticky top-0 z-30 transition-all duration-500">
-        <div className="flex items-center gap-3">
-          <div className="relative flex items-center justify-center w-8.5 h-8.5 rounded-lg bg-gradient-to-br from-brand/80 to-[#0e0c0c] border border-brand/30 shadow-[0_0_10px_var(--theme-glow)] shrink-0">
+        <button
+          onClick={() => handleTabChange('dashboard')}
+          className="flex items-center gap-3 cursor-pointer group hover:opacity-95 active:scale-95 transition-all text-left focus:outline-none"
+          title="Return to Home Dashboard"
+        >
+          <div className="relative flex items-center justify-center w-8.5 h-8.5 rounded-lg bg-gradient-to-br from-brand/80 to-[#0e0c0c] border border-brand/30 shadow-[0_0_10px_var(--theme-glow)] shrink-0 transition-all duration-300 group-hover:shadow-[0_0_15px_var(--theme-glow)]">
             <span className="font-heading font-bold text-white tracking-widest text-base">A</span>
           </div>
           <div className="flex items-center">
@@ -295,7 +301,7 @@ export default function App() {
               APEX UTILITY
             </h1>
           </div>
-        </div>
+        </button>
         <button
           onClick={() => setIsMobileSidebarOpen(true)}
           className="p-2 rounded bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-brand cursor-pointer focus:outline-none transition-all active:scale-95"

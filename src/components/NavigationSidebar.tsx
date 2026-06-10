@@ -279,8 +279,12 @@ export default function NavigationSidebar({ activeTab, onTabChange, isMobileOpen
       <div className="flex-1 overflow-y-auto scrollbar-thin pr-1 pb-4 min-h-0">
         {/* Master Branding Logo Plate with settings gear */}
         <div className="flex items-center justify-between pb-6 mb-6 border-b border-brand-border/35">
-          <div className="flex items-center gap-3">
-            <div className="relative flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-brand/80 to-[#0e0c0c] border border-brand/30 shadow-[0_0_15px_var(--theme-glow)] transition-all duration-500">
+          <button
+            onClick={() => onTabChange('dashboard')}
+            className="flex items-center gap-3 cursor-pointer group hover:opacity-95 active:scale-[0.98] transition-all text-left focus:outline-none"
+            title="Return to Home Dashboard"
+          >
+            <div className="relative flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-brand/80 to-[#0e0c0c] border border-brand/30 shadow-[0_0_15px_var(--theme-glow)] transition-all duration-500 group-hover:shadow-[0_0_20px_var(--theme-glow)]">
               <span className="font-heading font-bold text-white tracking-widest text-lg">A</span>
               <div className="absolute inset-0 bg-white/10 rounded-lg animate-pulse" />
             </div>
@@ -289,7 +293,7 @@ export default function NavigationSidebar({ activeTab, onTabChange, isMobileOpen
                 APEX UTILITY
               </h1>
             </div>
-          </div>
+          </button>
 
           <div className="flex items-center gap-1.5 shrink-0">
             <button

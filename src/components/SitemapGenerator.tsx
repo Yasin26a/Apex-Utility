@@ -240,7 +240,7 @@ export default function SitemapGenerator() {
           <span>SEO Engine Toolkit Active</span>
         </div>
         <h1 className="font-heading text-3xl font-black text-white tracking-tight">
-          Primiun XML Sitemap Generator
+          Premium XML Sitemap Generator
         </h1>
         <p className="font-sans text-sm text-zinc-400 max-w-3xl leading-relaxed">
           Compile standard-compliant crawl maps to configure dynamic indexes across search spiders instantly. Fully running locally in-browser with customizable priorities, change cycles, and downloadable XML files.

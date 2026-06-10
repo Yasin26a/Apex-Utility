@@ -1,0 +1,25 @@
+{
+  "name": "APEX Utility Suite",
+  "short_name": "APEX Utility",
+  "description": "Ultra-premium offline-first client-side web utility suite with high-powered developer generators, image/PDF compilers, and AI assist modules.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#09090d",
+  "theme_color": "#09090d",
+  "categories": ["developer", "utilities", "productivity"],
+  "icons": [
+    {
+      "src": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=192&q=80",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=512&q=80",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any"
+    }
+  ]
+}
