@@ -161,6 +161,25 @@ Return your response strictly as a JSON array of objects, with no markdown code 
   { "keyword": "keyword idea", "rationale": "strategic explanation" }
 ]`;
       systemInstruction = "You are an expert search planner. You respond strictly with a valid JSON array of keyword recommendations, without any markdown layout wrappers.";
+    } else if (action === "generate_variations") {
+      prompt = `Analyze the following webpage copy or topic summary and generate 3 optimized Title options and 3 optimized Meta Description options.
+Each option should match a distinct psychological search intent style:
+1. "High CTR" (Click-Through Rate Optimized - grabs attention, uses benefit-driven keywords)
+2. "Creative" (Highly engaging, punchy, narrative-driven or modern tech style)
+3. "SEO Classic" (Highly optimized for organic bot index priority, placing focus keywords early)
+
+Focus Keyword/Phrase to optimize for: "${targetKeyword || "general SEO"}"
+
+Webpage Content/Topic Copy:
+"""
+${text}
+"""
+
+Ensure every Title variation is strictly under 60 characters (ideally 30 to 60).
+Ensure every Meta Description variation is strictly under 160 characters (ideally 75 to 160).
+All options must be organic, professional, and contain no placeholder texts.`;
+
+      systemInstruction = "You are an elite, highly precise SEO copywriter and marketing planner. Your role is to generate search engine ready titles and meta descriptions that align character thresholds and target keywords precisely. Return the response in perfect JSON conforming to the requested schema. Do not enclose the output in Markdown backticks.";
     } else {
       return res.status(400).json({ error: "Invalid SEO optimization action specified." });
     }
@@ -170,8 +189,38 @@ Return your response strictly as a JSON array of objects, with no markdown code 
       contents: prompt,
       config: {
         systemInstruction,
-        temperature: 0.5,
-        responseMimeType: (action === "autofill_meta" || action === "suggest_keywords") ? "application/json" : undefined,
+        temperature: 0.6,
+        responseMimeType: (action === "autofill_meta" || action === "suggest_keywords" || action === "generate_variations") ? "application/json" : undefined,
+        responseSchema: action === "generate_variations" ? {
+          type: Type.OBJECT,
+          properties: {
+            titles: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  style: { type: Type.STRING, description: "Style classification: 'High CTR', 'Creative', or 'SEO Classic'" },
+                  text: { type: Type.STRING, description: "Page title tag candidate (30-60 characters)" },
+                  explanation: { type: Type.STRING, description: "Factual 1-sentence strategic keyword or layout rationale." }
+                },
+                required: ["style", "text", "explanation"]
+              }
+            },
+            descriptions: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  style: { type: Type.STRING, description: "Style classification: 'High CTR', 'Creative', or 'SEO Classic'" },
+                  text: { type: Type.STRING, description: "Page meta description candidate (75-160 characters)" },
+                  explanation: { type: Type.STRING, description: "Factual 1-sentence strategic benefit rationale." }
+                },
+                required: ["style", "text", "explanation"]
+              }
+            }
+          },
+          required: ["titles", "descriptions"]
+        } : undefined
       },
     });
 

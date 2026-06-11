@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Menu } from 'lucide-react';
+import { Menu, ChevronRight, Home, Folder } from 'lucide-react';
+import { useLanguage } from './context/LanguageContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ActiveTab } from './types';
 import NavigationSidebar from './components/NavigationSidebar';
@@ -55,6 +56,144 @@ const VALID_TABS: ActiveTab[] = [
   'password-generator', 'qr-generator', 'unit-converter', 'svg-rasterizer', 'batch-processor', 'json-diff', 'secure-hash', 'color-palette', 'digital-signature', 'seo-optimizer', 'base64-converter', 'regex-tester', 'csv-json-converter', 'image-compressor', 'rich-text-stats', 'audio-trimmer', 'ai-transcriber', 'pdf-analyst', 'exif-stripper', 'video-recorder', 'image-vectorizer', 'code-snapshot', 'private-sketchpad', 'case-converter', 'lorem-generator', 'image-cropper', 'date-calculator', 'privacy-policy', 'terms-of-service', 'about-us', 'guides'
 ];
 
+const CATEGORY_LOCALIZATIONS = {
+  en: {
+    doc_opt: 'Document Optimization',
+    pdf_comp: 'PDF Compilation',
+    media_lab: 'Media Lab',
+    dev_core: 'Developer Core',
+    sec_hub: 'Security Hub',
+    seo_anal: 'SEO Analytics',
+    content_ai: 'Content & AI',
+    util_matrix: 'Utility Matrix',
+    legal: 'Legal Documents',
+    home: 'Control Deck'
+  },
+  es: {
+    doc_opt: 'Optimización de Documentos',
+    pdf_comp: 'Compilación de PDF',
+    media_lab: 'Laboratorio de Medios',
+    dev_core: 'Núcleo de Desarrollo',
+    sec_hub: 'Centro de Seguridad',
+    seo_anal: 'Analítica SEO',
+    content_ai: 'Contenido e IA',
+    util_matrix: 'Matriz de Utilidades',
+    legal: 'Documentos Legales',
+    home: 'Panel de Control'
+  },
+  fr: {
+    doc_opt: 'Optimisation de Documents',
+    pdf_comp: 'Compilation PDF',
+    media_lab: 'Lab Médias',
+    dev_core: 'Outils Développeur',
+    sec_hub: 'Hub de Sécurité',
+    seo_anal: 'Analyses SEO',
+    content_ai: 'Contenu & IA',
+    util_matrix: "Matrice d'Utilitaires",
+    legal: 'Documents Légaux',
+    home: 'Tableau de Bord'
+  },
+  de: {
+    doc_opt: 'Dokumenten-Optimierung',
+    pdf_comp: 'PDF-Kompilierung',
+    media_lab: 'Medien-Labor',
+    dev_core: 'Entwickler-Core',
+    sec_hub: 'Sicherheits-Hub',
+    seo_anal: 'SEO-Analysen',
+    content_ai: 'Inhalt & KI',
+    util_matrix: 'Hilfsprogramm-Matrix',
+    legal: 'Rechtsdokumente',
+    home: 'Leitstand'
+  },
+  pt: {
+    doc_opt: 'Otimização de Documentos',
+    pdf_comp: 'Compilação de PDF',
+    media_lab: 'Laboratório de Mídia',
+    dev_core: 'Núcleo do Desenvolvedor',
+    sec_hub: 'Hub de Segurança',
+    seo_anal: 'Análise de SEO',
+    content_ai: 'Conteúdo e IA',
+    util_matrix: 'Matriz de Utilitários',
+    legal: 'Documentos Legais',
+    home: 'Painel de Controle'
+  }
+};
+
+const TAB_CATEGORY_MAP: Record<string, string> = {
+  'compress-pdf': 'doc_opt',
+  'pdf-analyst': 'doc_opt',
+  'join-pdf': 'pdf_comp',
+  'image-to-pdf': 'pdf_comp',
+  'webp-converter': 'media_lab',
+  'image-compressor': 'media_lab',
+  'image-cropper': 'media_lab',
+  'image-vectorizer': 'media_lab',
+  'svg-rasterizer': 'media_lab',
+  'video-recorder': 'media_lab',
+  'exif-stripper': 'media_lab',
+  'audio-trimmer': 'media_lab',
+  'json-beautifier': 'dev_core',
+  'json-diff': 'dev_core',
+  'base64-converter': 'dev_core',
+  'regex-tester': 'dev_core',
+  'csv-json-converter': 'dev_core',
+  'code-snapshot': 'dev_core',
+  'secure-hash': 'sec_hub',
+  'password-generator': 'sec_hub',
+  'digital-signature': 'sec_hub',
+  'qr-generator': 'sec_hub',
+  'sitemap-seo': 'seo_anal',
+  'sitemap-generator': 'seo_anal',
+  'seo-optimizer': 'seo_anal',
+  'ai-writer': 'content_ai',
+  'ai-transcriber': 'content_ai',
+  'rich-text-stats': 'content_ai',
+  'case-converter': 'content_ai',
+  'lorem-generator': 'content_ai',
+  'unit-converter': 'util_matrix',
+  'color-palette': 'util_matrix',
+  'private-sketchpad': 'util_matrix',
+  'date-calculator': 'util_matrix',
+  'batch-processor': 'util_matrix',
+  'privacy-policy': 'legal',
+  'terms-of-service': 'legal',
+  'about-us': 'legal',
+  'guides': 'legal'
+};
+
+const ADDITIONAL_LOCAL_LABELS = {
+  en: {
+    'privacy-policy': 'Privacy Policy',
+    'terms-of-service': 'Terms of Service',
+    'about-us': 'About Us & Contact',
+    'guides': 'Guides & Blog'
+  },
+  es: {
+    'privacy-policy': 'Política de Privacidad',
+    'terms-of-service': 'Términos del Servicio',
+    'about-us': 'Quiénes Somos y Contacto',
+    'guides': 'Guías y Blog'
+  },
+  fr: {
+    'privacy-policy': 'Charte de Confidentialité',
+    'terms-of-service': "Conditions d'Utilisation",
+    'about-us': 'À Propos et Contact',
+    'guides': 'Guides & Blog'
+  },
+  de: {
+    'privacy-policy': 'Datenschutz-Bestimmungen',
+    'terms-of-service': 'Nutzungsbedingungen',
+    'about-us': 'Über Uns & Kontakt',
+    'guides': 'Anleitungen & Blog'
+  },
+  pt: {
+    'privacy-policy': 'Política de Privacidade',
+    'terms-of-service': 'Termos de Serviço',
+    'about-us': 'Quem Somos e Contato',
+    'guides': 'Guias & Blog'
+  }
+};
+
 export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -85,6 +224,52 @@ export default function App() {
   };
 
   const activeTab = getTabFromPath(location.pathname, location.hash);
+
+  const { t, language } = useLanguage();
+
+  const getToolDisplayName = (tab: ActiveTab): string => {
+    if (tab === 'dashboard') return t.navigation.dashboard || 'Control Deck';
+    
+    // Check if we have specific mapping in t.navigation
+    const navKey = tab.replace(/-([a-z])/g, (g) => g[1].toUpperCase()) as keyof typeof t.navigation;
+    if (t.navigation[navKey]) {
+      return t.navigation[navKey];
+    }
+    
+    // Explicit mappings for special cases that might not map directly
+    if (tab === 'sitemap-seo') return t.navigation.sitemapSeo;
+    if (tab === 'sitemap-generator') return t.navigation.sitemapGenerator;
+    if (tab === 'image-to-pdf') return t.navigation.imageToPdf;
+    if (tab === 'join-pdf') return t.navigation.joinPdf;
+    if (tab === 'json-diff') return t.navigation.jsonDiff;
+    if (tab === 'secure-hash') return t.navigation.secureHash;
+    if (tab === 'color-palette') return t.navigation.colorPalette;
+    if (tab === 'digital-signature') return t.navigation.digitalSignature;
+    if (tab === 'seo-optimizer') return t.navigation.seoOptimizer;
+    if (tab === 'base64-converter') return t.navigation.base64Converter;
+    if (tab === 'regex-tester') return t.navigation.regexTester;
+    if (tab === 'csv-json-converter') return t.navigation.csvJsonConverter;
+    if (tab === 'image-compressor') return t.navigation.imageCompressor;
+    if (tab === 'rich-text-stats') return t.navigation.richTextStats;
+    if (tab === 'audio-trimmer') return t.navigation.audioTrimmer;
+    if (tab === 'ai-transcriber') return t.navigation.aiTranscriber;
+    if (tab === 'pdf-analyst') return t.navigation.pdfAnalyst;
+    if (tab === 'exif-stripper') return t.navigation.exifStripper;
+    if (tab === 'video-recorder') return t.navigation.videoRecorder;
+    if (tab === 'case-converter') return t.navigation.caseConverter;
+    if (tab === 'lorem-generator') return t.navigation.loremGenerator;
+    if (tab === 'image-cropper') return t.navigation.imageCropper;
+    if (tab === 'date-calculator') return t.navigation.dateCalculator;
+
+    // Additional local labels fallback
+    const lang = (language || 'en') as keyof typeof ADDITIONAL_LOCAL_LABELS;
+    const additionalLabels = ADDITIONAL_LOCAL_LABELS[lang] || ADDITIONAL_LOCAL_LABELS.en;
+    if (additionalLabels[tab as keyof typeof additionalLabels]) {
+      return additionalLabels[tab as keyof typeof additionalLabels];
+    }
+
+    return tab.replace(/-/g, ' ').toUpperCase();
+  };
 
   const handleTabChange = (tab: ActiveTab) => {
     if (tab === 'dashboard') {
@@ -286,15 +471,37 @@ export default function App() {
 
   return (
     <div className={`min-h-screen bg-[#050505] text-slate-100 flex flex-col lg:flex-row relative overflow-x-hidden transition-all duration-500 ${activeTheme === 'cobalt' ? 'theme-cobalt' : 'theme-crimson'}`}>
-      {/* Structural Ambient background glow accents driven by selected theme */}
-      <div 
-        className="absolute top-0 left-0 w-[500px] h-[500px] rounded-full blur-[150px] pointer-events-none -translate-x-1/2 -translate-y-1/2 transition-all duration-700" 
-        style={{ backgroundColor: 'var(--theme-glow)', opacity: 0.35 }}
-      />
-      <div 
-        className="absolute bottom-0 right-0 w-[600px] h-[600px] rounded-full blur-[180px] pointer-events-none translate-x-1/4 translate-y-1/4 transition-all duration-700"
-        style={{ backgroundColor: 'var(--theme-glow)', opacity: 0.15 }}
-      />
+      {/* Dynamic hardware-accelerator drift ambient background glows */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <motion.div 
+          className="absolute top-[-15%] left-[-15%] w-[60vw] h-[60vw] max-w-[800px] max-h-[800px] rounded-full blur-[160px] opacity-40 mix-blend-screen pointer-events-none"
+          style={{ backgroundColor: 'var(--theme-glow)' }}
+          animate={{
+            x: [0, 40, -20, 0],
+            y: [0, -50, 30, 0],
+            scale: [1, 1.15, 0.95, 1],
+          }}
+          transition={{
+            duration: 25,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+        <motion.div 
+          className="absolute bottom-[-20%] right-[-15%] w-[65vw] h-[65vw] max-w-[900px] max-h-[900px] rounded-full blur-[180px] opacity-25 mix-blend-screen pointer-events-none"
+          style={{ backgroundColor: 'var(--theme-glow)' }}
+          animate={{
+            x: [0, -30, 50, 0],
+            y: [0, 40, -40, 0],
+            scale: [1, 0.9, 1.1, 1],
+          }}
+          transition={{
+            duration: 30,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+      </div>
 
       {/* Mobile Sticky Top Header (Visible only on screens < 1024px) */}
       <div className="lg:hidden w-full bg-[#060608]/90 backdrop-blur-md border-b border-brand-border/30 px-4 sm:px-6 py-4 flex items-center justify-between sticky top-0 z-30 transition-all duration-500">
@@ -356,16 +563,69 @@ export default function App() {
           <span>PORT INGRESS COMPILER: COMPLIANT</span>
         </div>
 
+        {/* Sleek, responsive, physical/mechanical breadcrumb navigation trail */}
+        <div id="apex-breadcrumb-navigation-trail" className="mb-6 flex flex-wrap items-center gap-1.5 px-3 py-2 rounded-lg bg-[#07070a]/80 backdrop-blur-md border border-brand-border/20 text-[10px] font-mono leading-none tracking-wide text-zinc-400 max-w-fit shadow-md select-none animate-fade-in transition-all duration-300">
+          <button
+            type="button"
+            id="breadcrumb-home-link"
+            onClick={() => handleTabChange('dashboard')}
+            className="flex items-center gap-1 px-1.5 py-1 rounded bg-zinc-950/40 border border-zinc-900/40 hover:border-brand/40 text-zinc-400 hover:text-brand transition-all cursor-pointer hover:bg-[#111116] focus:outline-none"
+            title={t.navigation.dashboard || 'Return to Control Deck'}
+          >
+            <Home className="w-3 h-3 text-brand/80" />
+            <span className="font-heading font-black text-[9px] uppercase tracking-wider">
+              {CATEGORY_LOCALIZATIONS[language as keyof typeof CATEGORY_LOCALIZATIONS]?.home || 'Control Deck'}
+            </span>
+          </button>
+
+          {activeTab !== 'dashboard' && (
+            <>
+              <ChevronRight className="w-3 h-3 text-zinc-700 shrink-0" />
+              
+              {TAB_CATEGORY_MAP[activeTab] && CATEGORY_LOCALIZATIONS[language as keyof typeof CATEGORY_LOCALIZATIONS]?.[TAB_CATEGORY_MAP[activeTab] as keyof typeof CATEGORY_LOCALIZATIONS['en']] && (
+                <>
+                  <div className="flex items-center gap-1 px-1.5 py-1 text-zinc-500 rounded bg-zinc-950/20 border border-zinc-900/20">
+                    <Folder className="w-3 h-3 text-zinc-500" />
+                    <span className="font-heading font-bold text-[8.5px] uppercase tracking-wider">
+                      {CATEGORY_LOCALIZATIONS[language as keyof typeof CATEGORY_LOCALIZATIONS]?.[TAB_CATEGORY_MAP[activeTab] as keyof typeof CATEGORY_LOCALIZATIONS['en']]}
+                    </span>
+                  </div>
+                  <ChevronRight className="w-3 h-3 text-zinc-700 shrink-0" />
+                </>
+              )}
+
+              <div className="flex items-center gap-1 px-2 py-1 rounded bg-[#0b0b0e] border border-brand-border/40 text-brand font-black tracking-wider uppercase shadow-[0_0_8px_var(--theme-glow)]">
+                <span className="w-1 h-1 rounded-full bg-brand led-active" />
+                <span className="font-heading text-[9px]">
+                  {getToolDisplayName(activeTab)}
+                </span>
+              </div>
+            </>
+          )}
+
+          {activeTab === 'dashboard' && (
+            <>
+              <ChevronRight className="w-3 h-3 text-zinc-700 shrink-0" />
+              <div className="flex items-center gap-1 px-2 py-1 rounded bg-[#0a0c0a] border border-emerald-500/20 text-emerald-400 font-extrabold tracking-wider uppercase">
+                <span className="w-1 h-1 rounded-full bg-emerald-500 led-active animate-pulse" />
+                <span className="font-heading text-[9px]">
+                  {CATEGORY_LOCALIZATIONS[language as keyof typeof CATEGORY_LOCALIZATIONS]?.home || 'Control Deck'}
+                </span>
+              </div>
+            </>
+          )}
+        </div>
+
         {/* Workspace views rendered with smooth 3D slides inside AnimatePresence */}
-        <div className="pt-2 lg:pt-6">
+        <div className="pt-2 lg:pt-4">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
-              initial={{ opacity: 0, y: 15, rotateX: 2 }}
-              animate={{ opacity: 1, y: 0, rotateX: 0 }}
-              exit={{ opacity: 0, y: -15, rotateX: -2 }}
-              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-              style={{ transformOrigin: 'top center' }}
+              initial={{ opacity: 0, y: 16, scale: 0.985 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.99 }}
+              transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
+              style={{ transformOrigin: 'top center', willChange: 'transform, opacity' }}
             >
               {renderActiveView()}
             </motion.div>

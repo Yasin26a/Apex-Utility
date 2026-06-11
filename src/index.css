@@ -86,8 +86,8 @@
   --theme-scrollbar-end: #2563eb;
 }
 
-/* Enable premium hardware-accelerated cross-fade transition of theme CSS variables */
-*, *::before, *::after, :root {
+/* Enable premium hardware-accelerated cross-fade transition of theme CSS variables for layout hulls */
+:root, body, aside, main, header, footer, .beveled-panel, button, select, input, textarea, a, svg, circle {
   transition-property: 
     --theme-primary, 
     --theme-primary-hover, 
@@ -173,6 +173,8 @@ body {
   backdrop-filter: blur(8px);
   position: relative;
   overflow: hidden;
+  transition: border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: border-color, box-shadow, transform;
 }
 
 .beveled-panel::before {
