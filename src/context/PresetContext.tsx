@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 
 export interface SettingsPreset {
   id: string;
@@ -259,7 +259,7 @@ export const PresetProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   });
 
   // Combine default built-in presets and user custom presets
-  const presets = [...defaultPresets, ...customPresets];
+  const presets = useMemo(() => [...defaultPresets, ...customPresets], [customPresets]);
 
   // Persist custom presets whenever they change
   useEffect(() => {
@@ -276,19 +276,35 @@ export const PresetProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   }, [activeSettings, activePresetId]);
 
-  const updateActiveSettings = (
+  // Synchronize activePresetId whenever activeSettings or presets change
+  useEffect(() => {
+    const matched = presets.find((p) => {
+      return JSON.stringify(p.settings) === JSON.stringify(activeSettings);
+    });
+    const nextPresetId = matched ? matched.id : null;
+    if (activePresetId !== nextPresetId) {
+      setActivePresetId(nextPresetId);
+    }
+  }, [activeSettings, presets, activePresetId]);
+
+  const updateActiveSettings = useCallback((
     updater: Partial<SettingsPreset['settings']> | ((prev: SettingsPreset['settings']) => SettingsPreset['settings'])
   ) => {
     setActiveSettings((prev) => {
       const next = typeof updater === 'function' ? updater(prev) : { ...prev, ...updater };
-      // Check if the current settings exactly match any existing preset. If not, reset activePresetId to null
-      const matched = presets.find((p) => {
-        return JSON.stringify(p.settings) === JSON.stringify(next);
-      });
-      setActivePresetId(matched ? matched.id : null);
-      return next;
+      
+      // Perform a shallow comparison to only return a new reference if there are actual value changes
+      let hasChanges = false;
+      const keys = Object.keys(next) as Array<keyof SettingsPreset['settings']>;
+      for (const key of keys) {
+        if (next[key] !== prev[key]) {
+          hasChanges = true;
+          break;
+        }
+      }
+      return hasChanges ? next : prev;
     });
-  };
+  }, []);
 
   const loadPreset = (id: string) => {
     const target = presets.find((p) => p.id === id);

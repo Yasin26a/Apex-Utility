@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Menu, ChevronRight, Home, Folder } from 'lucide-react';
+import { Menu, ChevronRight, Home, Folder, Copy, Check } from 'lucide-react';
 import { useLanguage } from './context/LanguageContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ActiveTab } from './types';
@@ -271,6 +271,113 @@ export default function App() {
     return tab.replace(/-/g, ' ').toUpperCase();
   };
 
+  const getAbbreviatedToolName = (tab: ActiveTab): string => {
+    const fullName = getToolDisplayName(tab);
+    if (!fullName) return '';
+    if (fullName.length <= 11) return fullName;
+    
+    // Key translations shortened for mobile viewports
+    const localAbbreviations: Record<string, string> = {
+      'private-sketchpad': language === 'en' ? 'Sketchpad' : fullName.slice(0, 10) + '..',
+      'image-compressor': language === 'en' ? 'Compress' : fullName.slice(0, 10) + '..',
+      'webp-converter': language === 'en' ? 'WebP Conv' : 'WebP',
+      'svg-rasterizer': language === 'en' ? 'SVG Raster' : 'SVG',
+      'color-palette': language === 'en' ? 'Colors' : fullName.slice(0, 10) + '..',
+      'password-generator': language === 'en' ? 'Password' : fullName.slice(0, 10) + '..',
+      'qr-code-generator': language === 'en' ? 'QR Gen' : 'QR',
+      'secure-hash': language === 'en' ? 'Hash Gen' : 'Hash',
+      'unit-converter': language === 'en' ? 'Converter' : fullName.slice(0, 10) + '..',
+      'date-calculator': language === 'en' ? 'Date Calc' : fullName.slice(0, 10) + '..',
+      'exif-metadata-stripper': language === 'en' ? 'EXIF Strip' : 'EXIF',
+      'image-to-pdf': language === 'en' ? 'Img to PDF' : 'Img->PDF',
+      'join-pdf': language === 'en' ? 'PDF Join' : 'PDF Join',
+      'pdf-compressor': language === 'en' ? 'PDF Comp' : 'PDF Comp',
+      'audio-trimmer': language === 'en' ? 'Audio' : fullName.slice(0, 10) + '..',
+      'sitemap-generator': language === 'en' ? 'Sitemap' : 'Sitemap',
+      'json-diff': language === 'en' ? 'JSON Diff' : 'Diff',
+      'csv-json-converter': language === 'en' ? 'CSV/JSON' : 'CSV/JSON',
+      'digital-signature': language === 'en' ? 'Signature' : fullName.slice(0, 10) + '..',
+      'ai-audio-transcriber': language === 'en' ? 'Transcribe' : 'Audio AI',
+      'pdf-analyst': language === 'en' ? 'PDF AI' : 'PDF AI',
+      'image-vectorizer': language === 'en' ? 'Vector' : 'Vector',
+      'code-snapshot': language === 'en' ? 'Snapshot' : fullName.slice(0, 10) + '..',
+      'case-converter': language === 'en' ? 'Case Conv' : fullName.slice(0, 10) + '..',
+      'batch-processor': language === 'en' ? 'Batch' : 'Batch',
+      'seo-optimizer': language === 'en' ? 'SEO Opt' : 'SEO',
+    };
+
+    return localAbbreviations[tab] || (fullName.length > 14 ? fullName.slice(0, 11) + '..' : fullName);
+  };
+
+  const getAbbreviatedCategoryName = (categoryKey: string): string => {
+    if (!categoryKey) return '';
+    const abbrs: Record<string, Record<string, string>> = {
+      en: {
+        doc_opt: 'Doc Opt',
+        pdf_comp: 'PDF Comp',
+        media_lab: 'Media',
+        dev_core: 'Dev Core',
+        sec_hub: 'Security',
+        seo_anal: 'SEO',
+        content_ai: 'AI/Cont',
+        util_matrix: 'Utils',
+        legal: 'Legal',
+        home: 'Ctrl Deck'
+      },
+      es: {
+        doc_opt: 'Docs',
+        pdf_comp: 'PDFs',
+        media_lab: 'Medios',
+        dev_core: 'Desarrollo',
+        sec_hub: 'Seguridad',
+        seo_anal: 'SEO',
+        content_ai: 'IA/Cont',
+        util_matrix: 'Utils',
+        legal: 'Legal',
+        home: 'Panel'
+      },
+      fr: {
+        doc_opt: 'Docs',
+        pdf_comp: 'PDFs',
+        media_lab: 'Médias',
+        dev_core: 'Dév',
+        sec_hub: 'Sécurité',
+        seo_anal: 'SEO',
+        content_ai: 'IA/Cont',
+        util_matrix: 'Utils',
+        legal: 'Légal',
+        home: 'Tableau'
+      },
+      de: {
+        doc_opt: 'Docs',
+        pdf_comp: 'PDFs',
+        media_lab: 'Medien',
+        dev_core: 'Entw',
+        sec_hub: 'Sicherheit',
+        seo_anal: 'SEO',
+        content_ai: 'KI/Inh',
+        util_matrix: 'Utils',
+        legal: 'Recht',
+        home: 'Deck'
+      },
+      it: {
+        doc_opt: 'Docs',
+        pdf_comp: 'PDFs',
+        media_lab: 'Media',
+        dev_core: 'Dev',
+        sec_hub: 'Sicurezza',
+        seo_anal: 'SEO',
+        content_ai: 'IA/Cont',
+        util_matrix: 'Utils',
+        legal: 'Legale',
+        home: 'Pannello'
+      }
+    };
+    const currentLang = language as keyof typeof abbrs;
+    const lMap = abbrs[currentLang] || abbrs['en'];
+    return lMap[categoryKey] || categoryKey;
+  };
+
   const handleTabChange = (tab: ActiveTab) => {
     if (tab === 'dashboard') {
       navigate('/');
@@ -281,6 +388,7 @@ export default function App() {
 
   const [isCommandBarOpen, setIsCommandBarOpen] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [copiedPath, setCopiedPath] = useState(false);
   
   // Dynamically inject SEO optimized meta tags targeting long-tail keywords for each active tool route
   useSEOTags(activeTab);
@@ -563,57 +671,185 @@ export default function App() {
           <span>PORT INGRESS COMPILER: COMPLIANT</span>
         </div>
 
-        {/* Sleek, responsive, physical/mechanical breadcrumb navigation trail */}
-        <div id="apex-breadcrumb-navigation-trail" className="mb-6 flex flex-wrap items-center gap-1.5 px-3 py-2 rounded-lg bg-[#07070a]/80 backdrop-blur-md border border-brand-border/20 text-[10px] font-mono leading-none tracking-wide text-zinc-400 max-w-fit shadow-md select-none animate-fade-in transition-all duration-300">
-          <button
+        {/* Sleek, responsive, physical/mechanical breadcrumb navigation trail with intelligent truncation */}
+        <div id="apex-breadcrumb-navigation-trail" className="mb-6 flex flex-wrap items-center gap-1.5 px-3 py-2 rounded-lg bg-[#07070a]/80 backdrop-blur-md border border-brand-border/20 text-[10px] font-mono leading-none tracking-wide text-zinc-400 max-w-full overflow-hidden shadow-md select-none transition-all duration-300">
+          <motion.button
             type="button"
             id="breadcrumb-home-link"
             onClick={() => handleTabChange('dashboard')}
-            className="flex items-center gap-1 px-1.5 py-1 rounded bg-zinc-950/40 border border-zinc-900/40 hover:border-brand/40 text-zinc-400 hover:text-brand transition-all cursor-pointer hover:bg-[#111116] focus:outline-none"
+            className="flex items-center gap-1 px-1.5 py-1 rounded bg-zinc-950/40 border border-zinc-900/40 hover:border-brand/40 text-zinc-400 hover:text-brand transition-all cursor-pointer hover:bg-[#111116] focus:outline-none hover:shadow-[0_0_10px_var(--theme-glow-intense)] duration-300 shrink-0"
             title={t.navigation.dashboard || 'Return to Control Deck'}
+            whileHover={{ scale: 1.03, boxShadow: '0 0 10px var(--theme-primary)' }}
+            whileTap={{ scale: 0.97 }}
           >
-            <Home className="w-3 h-3 text-brand/80" />
-            <span className="font-heading font-black text-[9px] uppercase tracking-wider">
+            <Home className="w-3 h-3 text-brand/80 shrink-0" />
+            <span className="font-heading font-black text-[9px] uppercase tracking-wider hidden sm:inline">
               {CATEGORY_LOCALIZATIONS[language as keyof typeof CATEGORY_LOCALIZATIONS]?.home || 'Control Deck'}
             </span>
-          </button>
+            <span className="font-heading font-black text-[9px] uppercase tracking-wider inline sm:hidden">
+              {language === 'en' ? 'Ctrl' : CATEGORY_LOCALIZATIONS[language as keyof typeof CATEGORY_LOCALIZATIONS]?.home?.slice(0, 5) || 'Home'}
+            </span>
+          </motion.button>
 
-          {activeTab !== 'dashboard' && (
-            <>
-              <ChevronRight className="w-3 h-3 text-zinc-700 shrink-0" />
-              
-              {TAB_CATEGORY_MAP[activeTab] && CATEGORY_LOCALIZATIONS[language as keyof typeof CATEGORY_LOCALIZATIONS]?.[TAB_CATEGORY_MAP[activeTab] as keyof typeof CATEGORY_LOCALIZATIONS['en']] && (
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              className="flex items-center gap-1.5"
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              variants={{
+                hidden: { opacity: 0 },
+                visible: {
+                  opacity: 1,
+                  transition: {
+                    staggerChildren: 0.05
+                  }
+                },
+                exit: {
+                  opacity: 0,
+                  transition: {
+                    staggerChildren: 0.03,
+                    staggerDirection: -1
+                  }
+                }
+              }}
+            >
+              {activeTab !== 'dashboard' ? (
                 <>
-                  <div className="flex items-center gap-1 px-1.5 py-1 text-zinc-500 rounded bg-zinc-950/20 border border-zinc-900/20">
-                    <Folder className="w-3 h-3 text-zinc-500" />
-                    <span className="font-heading font-bold text-[8.5px] uppercase tracking-wider">
-                      {CATEGORY_LOCALIZATIONS[language as keyof typeof CATEGORY_LOCALIZATIONS]?.[TAB_CATEGORY_MAP[activeTab] as keyof typeof CATEGORY_LOCALIZATIONS['en']]}
+                  <motion.div
+                    variants={{
+                      hidden: { opacity: 0, x: -8 },
+                      visible: { opacity: 1, x: 0 },
+                      exit: { opacity: 0, x: 4 }
+                    }}
+                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                  >
+                    <ChevronRight className="w-3 h-3 text-zinc-700 shrink-0" />
+                  </motion.div>
+                  
+                  {TAB_CATEGORY_MAP[activeTab] && CATEGORY_LOCALIZATIONS[language as keyof typeof CATEGORY_LOCALIZATIONS]?.[TAB_CATEGORY_MAP[activeTab] as keyof typeof CATEGORY_LOCALIZATIONS['en']] && (
+                    <>
+                      <motion.div
+                        variants={{
+                          hidden: { opacity: 0, x: -8 },
+                          visible: { opacity: 1, x: 0 },
+                          exit: { opacity: 0, x: 4 }
+                        }}
+                        transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                        whileHover={{ scale: 1.02, boxShadow: '0 0 10px var(--theme-glow-intense)' }}
+                        className="flex items-center gap-1 px-1.5 py-1 text-zinc-500 hover:text-brand/85 rounded bg-zinc-950/20 border border-zinc-900/20 hover:border-brand-border/40 hover:bg-[#111116]/30 transition-all cursor-pointer hover:shadow-[0_0_10px_var(--theme-glow-semi)] duration-300"
+                        title={CATEGORY_LOCALIZATIONS[language as keyof typeof CATEGORY_LOCALIZATIONS]?.[TAB_CATEGORY_MAP[activeTab] as keyof typeof CATEGORY_LOCALIZATIONS['en']]}
+                      >
+                        <Folder className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
+                        <span className="font-heading font-bold text-[8.5px] uppercase tracking-wider font-mono hidden sm:inline">
+                          {CATEGORY_LOCALIZATIONS[language as keyof typeof CATEGORY_LOCALIZATIONS]?.[TAB_CATEGORY_MAP[activeTab] as keyof typeof CATEGORY_LOCALIZATIONS['en']]}
+                        </span>
+                        <span className="font-heading font-bold text-[8.5px] uppercase tracking-wider font-mono inline sm:hidden max-w-[50px] xs:max-w-[75px] truncate block">
+                          {getAbbreviatedCategoryName(TAB_CATEGORY_MAP[activeTab])}
+                        </span>
+                      </motion.div>
+
+                      <motion.div
+                        variants={{
+                          hidden: { opacity: 0, x: -8 },
+                          visible: { opacity: 1, x: 0 },
+                          exit: { opacity: 0, x: 4 }
+                        }}
+                        transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                      >
+                        <ChevronRight className="w-3 h-3 text-zinc-700 shrink-0" />
+                      </motion.div>
+                    </>
+                  )}
+
+                  <motion.div
+                    variants={{
+                      hidden: { opacity: 0, x: -12, scale: 0.95 },
+                      visible: { opacity: 1, x: 0, scale: 1 },
+                      exit: { opacity: 0, x: 8, scale: 0.95 }
+                    }}
+                    transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                    whileHover={{ scale: 1.03, boxShadow: '0 0 12px var(--theme-primary)' }}
+                    className="flex items-center gap-1 px-2 py-1 rounded bg-[#0b0b0e] border border-brand-border/40 text-brand font-black tracking-wider uppercase shadow-[0_0_8px_var(--theme-glow)] hover:border-brand-border/80 transition-all cursor-pointer duration-300"
+                    title={getToolDisplayName(activeTab)}
+                  >
+                    <span className="w-1 h-1 rounded-full bg-brand led-active animate-pulse shrink-0" />
+                    <span className="font-heading text-[9px] hidden sm:inline">
+                      {getToolDisplayName(activeTab)}
                     </span>
-                  </div>
-                  <ChevronRight className="w-3 h-3 text-zinc-700 shrink-0" />
+                    <span className="font-heading text-[9px] inline sm:hidden max-w-[65px] xs:max-w-[95px] truncate block">
+                      {getAbbreviatedToolName(activeTab)}
+                    </span>
+                  </motion.div>
+                </>
+              ) : (
+                <>
+                  <motion.div
+                    variants={{
+                      hidden: { opacity: 0, x: -8 },
+                      visible: { opacity: 1, x: 0 },
+                      exit: { opacity: 0, x: 4 }
+                    }}
+                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                  >
+                    <ChevronRight className="w-3 h-3 text-zinc-700 shrink-0" />
+                  </motion.div>
+                  <motion.div
+                    variants={{
+                      hidden: { opacity: 0, x: -12, scale: 0.95 },
+                      visible: { opacity: 1, x: 0, scale: 1 },
+                      exit: { opacity: 0, x: 8, scale: 0.95 }
+                    }}
+                    transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                    whileHover={{ scale: 1.03, boxShadow: '0 0 12px rgba(16, 185, 129, 0.35)' }}
+                    className="flex items-center gap-1 px-2 py-1 rounded bg-[#0a0c0a] border border-emerald-500/20 text-emerald-400 font-extrabold tracking-wider uppercase hover:border-emerald-500/50 hover:shadow-[0_0_12px_rgba(16,185,129,0.35)] transition-all cursor-pointer duration-300"
+                  >
+                    <span className="w-1 h-1 rounded-full bg-emerald-500 led-active animate-pulse shrink-0" />
+                    <span className="font-heading text-[9px] hidden sm:inline">
+                      {CATEGORY_LOCALIZATIONS[language as keyof typeof CATEGORY_LOCALIZATIONS]?.home || 'Control Deck'}
+                    </span>
+                    <span className="font-heading text-[9px] inline sm:hidden max-w-[65px] xs:max-w-[95px] truncate block">
+                      {language === 'en' ? 'Ctrl Deck' : (CATEGORY_LOCALIZATIONS[language as keyof typeof CATEGORY_LOCALIZATIONS]?.home || 'Control').slice(0, 9)}
+                    </span>
+                  </motion.div>
                 </>
               )}
+            </motion.div>
+          </AnimatePresence>
 
-              <div className="flex items-center gap-1 px-2 py-1 rounded bg-[#0b0b0e] border border-brand-border/40 text-brand font-black tracking-wider uppercase shadow-[0_0_8px_var(--theme-glow)]">
-                <span className="w-1 h-1 rounded-full bg-brand led-active" />
-                <span className="font-heading text-[9px]">
-                  {getToolDisplayName(activeTab)}
-                </span>
-              </div>
-            </>
-          )}
+          <div className="w-[1px] h-3 bg-zinc-800 self-center mx-1 shrink-0" />
 
-          {activeTab === 'dashboard' && (
-            <>
-              <ChevronRight className="w-3 h-3 text-zinc-700 shrink-0" />
-              <div className="flex items-center gap-1 px-2 py-1 rounded bg-[#0a0c0a] border border-emerald-500/20 text-emerald-400 font-extrabold tracking-wider uppercase">
-                <span className="w-1 h-1 rounded-full bg-emerald-500 led-active animate-pulse" />
-                <span className="font-heading text-[9px]">
-                  {CATEGORY_LOCALIZATIONS[language as keyof typeof CATEGORY_LOCALIZATIONS]?.home || 'Control Deck'}
-                </span>
-              </div>
-            </>
-          )}
+          <motion.button
+            type="button"
+            id="breadcrumb-copy-path-button"
+            onClick={async () => {
+              try {
+                await navigator.clipboard.writeText(window.location.href);
+                setCopiedPath(true);
+                setTimeout(() => setCopiedPath(false), 2000);
+              } catch (err) {
+                console.error("Failed to copy path: ", err);
+              }
+            }}
+            className={`flex items-center gap-1 px-1.5 py-1 rounded bg-zinc-950/40 border transition-all cursor-pointer hover:bg-[#111116] focus:outline-none shrink-0 duration-300 ${
+              copiedPath
+                ? 'border-emerald-500/45 text-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.25)]'
+                : 'border-zinc-900/40 hover:border-brand/40 text-zinc-500 hover:text-brand hover:shadow-[0_0_8px_var(--theme-glow-semi)]'
+            }`}
+            title={copiedPath ? 'Path Copied!' : 'Copy Current URL Path'}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            {copiedPath ? (
+              <Check className="w-3 h-3 text-emerald-400 shrink-0" strokeWidth={2.5} />
+            ) : (
+              <Copy className="w-3 h-3 shrink-0 text-zinc-500 hover:text-brand" strokeWidth={2} />
+            )}
+            <span className="font-heading font-black text-[8px] uppercase tracking-wider hidden xs:inline">
+              {copiedPath ? 'Copied' : 'Copy Path'}
+            </span>
+          </motion.button>
         </div>
 
         {/* Workspace views rendered with smooth 3D slides inside AnimatePresence */}
