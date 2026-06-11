@@ -79,10 +79,28 @@ export default function DigitalSignatureGenerator() {
     }
   }, []);
 
-  // Sync canvas size and redraw when drawn history changes
+  // Sync canvas size and redraw when drawn history changes or styling parameters update
   useEffect(() => {
     redrawCanvas();
-  }, [drawnLines, inkColor, penWidth, transparentBg, bgColor, activeMode]);
+
+    // Redraw if dynamic web fonts finish loading, ensuring font styles apply instantly
+    if (document.fonts && typeof document.fonts.ready !== 'undefined') {
+      document.fonts.ready.then(() => {
+        redrawCanvas();
+      });
+    }
+  }, [
+    drawnLines,
+    inkColor,
+    penWidth,
+    transparentBg,
+    bgColor,
+    activeMode,
+    typedName,
+    selectedFont,
+    slantAngle,
+    letterSpacing
+  ]);
 
   // Handle manual canvas repaint for maximum resolution and smooth Bézier loops
   const redrawCanvas = () => {

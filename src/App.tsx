@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Menu, ChevronRight, Home, Folder, Copy, Check } from 'lucide-react';
+import { Menu, Home, Folder, Copy, Check } from 'lucide-react';
 import { useLanguage } from './context/LanguageContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ActiveTab } from './types';
@@ -192,6 +192,46 @@ const ADDITIONAL_LOCAL_LABELS = {
     'about-us': 'Quem Somos e Contato',
     'guides': 'Guias & Blog'
   }
+};
+
+const BreadcrumbSeparator = () => {
+  return (
+    <motion.div
+      className="flex items-center justify-center px-1 select-none shrink-0"
+      initial="initial"
+      whileHover="hover"
+      animate="initial"
+    >
+      <motion.div
+        variants={{
+          initial: { 
+            rotate: 22, 
+            height: "10px", 
+            width: "1.5px", 
+            backgroundColor: "rgba(113, 113, 122, 0.4)", 
+            boxShadow: "0 0 0px var(--theme-primary)"
+          },
+          hover: { 
+            rotate: 0, 
+            height: "14px", 
+            width: "3px", 
+            backgroundColor: "var(--theme-primary)", 
+            boxShadow: "0 0 12px var(--theme-primary), 0 0 4px var(--theme-primary)"
+          }
+        }}
+        transition={{ type: "spring", stiffness: 450, damping: 16 }}
+        className="rounded-full relative overflow-hidden"
+      >
+        <motion.span 
+          className="absolute inset-0 bg-white/40 rounded-full"
+          variants={{
+            initial: { opacity: 0 },
+            hover: { opacity: 0.8, transition: { delay: 0.05 } }
+          }}
+        />
+      </motion.div>
+    </motion.div>
+  );
 };
 
 export default function App() {
@@ -389,6 +429,68 @@ export default function App() {
   const [isCommandBarOpen, setIsCommandBarOpen] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [copiedPath, setCopiedPath] = useState(false);
+  const [isToolProcessing, setIsToolProcessing] = useState(false);
+
+  // Track active tool processing states dynamically (checking active spinners in active workspace view as well as listening to custom events)
+  useEffect(() => {
+    if (activeTab === 'dashboard') {
+      setIsToolProcessing(false);
+      return;
+    }
+
+    const checkProcessingElement = () => {
+      // Find the workspace viewport wrapper
+      const viewport = document.getElementById('apex-workspace-viewport');
+      if (!viewport) {
+        setIsToolProcessing(false);
+        return;
+      }
+      
+      // Look for any active animated spinner in the active viewport (excluding any slow-spinning decoration)
+      const spinner = viewport.querySelector('.animate-spin:not(.animate-spin-slow), [class*="animate-spin"]:not([class*="-slow"]):not([style*="animation-duration: 8s"]):not([style*="animation-duration: 6s"])');
+      const isSpinning = !!spinner;
+      setIsToolProcessing(isSpinning);
+    };
+
+    // Run safe polling and mutation observation inside the viewport
+    checkProcessingElement();
+
+    // Setup Mutation Observer
+    const viewport = document.getElementById('apex-workspace-viewport');
+    let observer: MutationObserver | null = null;
+    
+    if (viewport) {
+      observer = new MutationObserver(() => {
+        checkProcessingElement();
+      });
+      observer.observe(viewport, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['class', 'style']
+      });
+    }
+
+    // Interval fallback to capture asynchronous states / promise resolves
+    const fallbackTimer = setInterval(checkProcessingElement, 400);
+
+    // Custom Event Listener to give explicit hook controls to any part of the system
+    const handleExplicitProcessing = (e: Event) => {
+      const customEvent = e as CustomEvent<{ processing: boolean }>;
+      if (customEvent.detail && typeof customEvent.detail.processing === 'boolean') {
+        setIsToolProcessing(customEvent.detail.processing);
+      }
+    };
+    window.addEventListener('apex-tool-processing', handleExplicitProcessing);
+
+    return () => {
+      if (observer) {
+        observer.disconnect();
+      }
+      clearInterval(fallbackTimer);
+      window.removeEventListener('apex-tool-processing', handleExplicitProcessing);
+    };
+  }, [activeTab]);
   
   // Dynamically inject SEO optimized meta tags targeting long-tail keywords for each active tool route
   useSEOTags(activeTab);
@@ -672,7 +774,12 @@ export default function App() {
         </div>
 
         {/* Sleek, responsive, physical/mechanical breadcrumb navigation trail with intelligent truncation */}
-        <div id="apex-breadcrumb-navigation-trail" className="mb-6 flex flex-wrap items-center gap-1.5 px-3 py-2 rounded-lg bg-[#07070a]/80 backdrop-blur-md border border-brand-border/20 text-[10px] font-mono leading-none tracking-wide text-zinc-400 max-w-full overflow-hidden shadow-md select-none transition-all duration-300">
+        <div 
+          id="apex-breadcrumb-navigation-trail" 
+          className={`mb-6 flex flex-wrap items-center gap-1.5 px-3 py-2 rounded-lg bg-[#07070a]/80 backdrop-blur-md border border-brand-border/20 text-[10px] font-mono leading-none tracking-wide text-zinc-400 max-w-full overflow-hidden shadow-md select-none transition-all duration-300 ${
+            isToolProcessing ? 'breadcrumb-pulse-glow' : ''
+          }`}
+        >
           <motion.button
             type="button"
             id="breadcrumb-home-link"
@@ -725,7 +832,7 @@ export default function App() {
                     }}
                     transition={{ type: "spring", stiffness: 380, damping: 30 }}
                   >
-                    <ChevronRight className="w-3 h-3 text-zinc-700 shrink-0" />
+                    <BreadcrumbSeparator />
                   </motion.div>
                   
                   {TAB_CATEGORY_MAP[activeTab] && CATEGORY_LOCALIZATIONS[language as keyof typeof CATEGORY_LOCALIZATIONS]?.[TAB_CATEGORY_MAP[activeTab] as keyof typeof CATEGORY_LOCALIZATIONS['en']] && (
@@ -758,7 +865,7 @@ export default function App() {
                         }}
                         transition={{ type: "spring", stiffness: 380, damping: 30 }}
                       >
-                        <ChevronRight className="w-3 h-3 text-zinc-700 shrink-0" />
+                        <BreadcrumbSeparator />
                       </motion.div>
                     </>
                   )}
@@ -793,7 +900,7 @@ export default function App() {
                     }}
                     transition={{ type: "spring", stiffness: 380, damping: 30 }}
                   >
-                    <ChevronRight className="w-3 h-3 text-zinc-700 shrink-0" />
+                    <BreadcrumbSeparator />
                   </motion.div>
                   <motion.div
                     variants={{
@@ -853,7 +960,7 @@ export default function App() {
         </div>
 
         {/* Workspace views rendered with smooth 3D slides inside AnimatePresence */}
-        <div className="pt-2 lg:pt-4">
+        <div className="pt-2 lg:pt-4" id="apex-workspace-viewport">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}

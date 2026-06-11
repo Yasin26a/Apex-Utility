@@ -288,3 +288,24 @@ body {
   letter-spacing: 0.1em;
 }
 
+/* Pulsating theme-aware glow for breadcrumb navigation trail during active tool processing state */
+@keyframes breadcrumbActiveProcessGlow {
+  0% {
+    box-shadow: 0 0 8px var(--theme-glow), inset 0 0 2px rgba(255, 255, 255, 0.05);
+    border-color: var(--theme-border);
+  }
+  50% {
+    box-shadow: 0 0 18px var(--theme-glow-intense), inset 0 0 4px var(--theme-glow);
+    border-color: var(--theme-primary);
+  }
+  100% {
+    box-shadow: 0 0 8px var(--theme-glow), inset 0 0 2px rgba(255, 255, 255, 0.05);
+    border-color: var(--theme-border);
+  }
+}
+
+.breadcrumb-pulse-glow {
+  animation: breadcrumbActiveProcessGlow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+
