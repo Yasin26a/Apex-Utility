@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
-    "build": "vite build && node -e \"if (!process.env.CF_PAGES && !process.env.NETLIFY && !process.env.VERCEL) { console.log('Building server...'); try { require('child_process').execSync('esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs', { stdio: 'inherit' }); } catch (e) { console.error('Server build failed:', e.message); process.exit(1); } } else { console.log('Static hosting platform detected. Skipping server build.'); }\"",
+    "build": "vite build && node build.js",
     "build:client": "vite build",
     "build:server": "esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
     "start": "node dist/server.cjs",
