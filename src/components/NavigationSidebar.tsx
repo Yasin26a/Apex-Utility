@@ -284,9 +284,8 @@ export default function NavigationSidebar({ activeTab, onTabChange, isMobileOpen
             className="flex items-center gap-3 cursor-pointer group hover:opacity-95 active:scale-[0.98] transition-all text-left focus:outline-none"
             title="Return to Home Dashboard"
           >
-            <div className="relative flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-brand/80 to-[#0e0c0c] border border-brand/30 shadow-[0_0_15px_var(--theme-glow)] transition-all duration-500 group-hover:shadow-[0_0_20px_var(--theme-glow)]">
-              <span className="font-heading font-bold text-white tracking-widest text-lg">A</span>
-              <div className="absolute inset-0 bg-white/10 rounded-lg animate-pulse" />
+            <div className="relative flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-brand/20 to-[#0e0c0c] border border-brand/30 shadow-[0_0_15px_var(--theme-glow)] transition-all duration-500 group-hover:shadow-[0_0_20px_var(--theme-glow)] overflow-hidden">
+              <img src="/favicon.svg" alt="APEX Logo" className="w-full h-full p-0.5 object-contain transition-transform duration-500 group-hover:scale-110" referrerPolicy="no-referrer" />
             </div>
             <div className="flex items-center">
               <h1 className="font-heading font-black text-base tracking-wider uppercase color-shift-text-3d select-none">
