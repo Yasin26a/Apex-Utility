@@ -280,6 +280,124 @@ export default function SEOOptimizer() {
         : `Tonal alert: Analyzed ${passiveVoiceMatches.length} instances of passive grammar construction. (e.g., "${passiveVoiceMatches.slice(0, 2).join('", "')}"). Rephrase to active sentences.`
     });
 
+    const stopWords = new Set([
+      'the', 'and', 'with', 'your', 'that', 'from', 'they', 'them', 'this', 'have',
+      'this', 'here', 'there', 'what', 'where', 'when', 'some', 'were', 'been', 'about',
+      'into', 'which', 'their', 'these', 'could', 'would', 'should', 'more', 'than',
+      'will', 'your', 'about', 'most', 'such', 'also', 'because', 'both', 'each', 'very',
+      'much', 'than', 'then', 'once', 'over', 'down', 'only', 'than', 'upon', 'into',
+      'than', 'just', 'made', 'make', 'many', 'like', 'than', 'even', 'through', 'this',
+      'with', 'about', 'some', 'more', 'most'
+    ]);
+
+    const baseWords = text
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, ' ')
+      .split(/\s+/)
+      .filter(w => w.length >= 4 && !stopWords.has(w));
+
+    const wordFreq: Record<string, number> = {};
+    baseWords.forEach(w => {
+      wordFreq[w] = (wordFreq[w] || 0) + 1;
+    });
+
+    const frequentKeywordsList = Object.entries(wordFreq)
+      .map(([word, count]) => ({
+        word,
+        count,
+        density: wordCount > 0 ? (count / wordCount) * 100 : 0
+      }))
+      .filter(item => item.word !== focusKeyword.toLowerCase())
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
+    const paragraphOccurrences = paragraphs.map((p, idx) => {
+      const pWords = p.split(/\s+/).filter(w => w.trim().length > 0).length || 1;
+      let pCount = 0;
+      if (focusKeyword.trim().length > 0) {
+        try {
+          const escKeyword = escapeRegExp(focusKeyword.trim());
+          const regex = new RegExp(`\\b${escKeyword}\\b`, 'gi');
+          const matches = p.match(regex);
+          pCount = matches ? matches.length : 0;
+        } catch (err) {
+          let pos = p.toLowerCase().indexOf(focusKeyword.toLowerCase());
+          while (pos !== -1) {
+            pCount++;
+            pos = p.toLowerCase().indexOf(focusKeyword.toLowerCase(), pos + focusKeyword.length);
+          }
+        }
+      }
+      return {
+        paragraphIndex: idx + 1,
+        count: pCount,
+        density: (pCount / pWords) * 100
+      };
+    });
+
+    const paragraphsWithKeyword = paragraphOccurrences.filter(p => p.count > 0).length;
+    const distributionScore = paragraphCount > 0 
+      ? Math.round((paragraphsWithKeyword / paragraphCount) * 100)
+      : 0;
+
+    const densitySuggestions: { id: string; recommendation: string; type: 'success' | 'warning' | 'alert' }[] = [];
+
+    // Check density
+    if (keywordCount === 0) {
+      densitySuggestions.push({
+        id: 'missing',
+        recommendation: `Your focus keyword "${focusKeyword}" is completely missing. Add it to your text to establish search relevance.`,
+        type: 'alert'
+      });
+    } else if (roundedDensity < targetDensityMin) {
+      const idealCountMin = Math.ceil((targetDensityMin / 100) * wordCount);
+      const diff = idealCountMin - keywordCount;
+      densitySuggestions.push({
+        id: 'under',
+        recommendation: `Keyword density (${roundedDensity}%) is below your target minimum of ${targetDensityMin}%. Try adding your focus keyword "${focusKeyword}" about ${diff} more time${diff > 1 ? 's' : ''} in critical sections.`,
+        type: 'warning'
+      });
+    } else if (roundedDensity > targetDensityMax) {
+      const idealCountMax = Math.floor((targetDensityMax / 100) * wordCount);
+      const diff = keywordCount - idealCountMax;
+      densitySuggestions.push({
+        id: 'stuffed',
+        recommendation: `Keyword density (${roundedDensity}%) is above your target maximum of ${targetDensityMax}%. This might be flagged as keyword stuffing. Remove approximately ${diff} instance${diff > 1 ? 's' : ''} or replace them with synonyms.`,
+        type: 'alert'
+      });
+    } else {
+      densitySuggestions.push({
+        id: 'perfect',
+        recommendation: `Optimized density: ${roundedDensity}% is within your target bounds. The keyword is naturally integrated.`,
+        type: 'success'
+      });
+    }
+
+    // Check distribution
+    if (distributionScore < 50 && paragraphCount > 2) {
+      densitySuggestions.push({
+        id: 'dispersion',
+        recommendation: `Poor distribution: The keyword occurs in only ${paragraphsWithKeyword} out of ${paragraphCount} paragraphs. Spread occurrences more evenly through the copy.`,
+        type: 'warning'
+      });
+    } else if (distributionScore >= 70 && paragraphCount > 2) {
+      densitySuggestions.push({
+        id: 'dispersion-pass',
+        recommendation: `Balanced distribution! Your focus keyword is spread evenly across ${paragraphsWithKeyword} of ${paragraphCount} paragraphs.`,
+        type: 'success'
+      });
+    }
+
+    // Check competitor
+    const competitor = frequentKeywordsList[0];
+    if (competitor && competitor.density > keywordDensity) {
+      densitySuggestions.push({
+        id: 'competitor',
+        recommendation: `The word "${competitor.word}" has a higher density (${competitor.density.toFixed(1)}%) than your focus keyword (${roundedDensity}%). Ensure this does not dilute search relevance.`,
+        type: 'warning'
+      });
+    }
+
     return {
       wordCount,
       charCount,
@@ -295,7 +413,12 @@ export default function SEOOptimizer() {
       densityStatus,
       densityClr,
       densityProgressClr,
-      checks
+      checks,
+      frequentKeywordsList,
+      paragraphOccurrences,
+      distributionScore,
+      densitySuggestions,
+      paragraphsWithKeyword
     };
   }, [text, focusKeyword, targetDensityMin, targetDensityMax]);
 
@@ -810,6 +933,113 @@ export default function SEOOptimizer() {
 
               <div className="p-3 bg-brand-surface/40 border border-brand-border/50 rounded-xl text-xs text-gray-400 italic">
                 Status check: {metrics.densityStatus}
+              </div>
+
+              {/* Enhanced Content & Keyword Density Relevance Analyzer */}
+              <div className="space-y-4 pt-3 border-t border-brand-border/20">
+                
+                {/* 1. Keyword Dispersion map */}
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[10px] font-mono text-gray-400 uppercase tracking-widest block font-bold">Keyword Dispersion Map</span>
+                    <span className="text-[10px] font-mono text-emerald-400 font-bold">{metrics.distributionScore}% Distribution</span>
+                  </div>
+                  
+                  {metrics.paragraphCount > 0 ? (
+                    <div className="grid grid-cols-5 sm:grid-cols-6 lg:grid-cols-5 xl:grid-cols-6 gap-2">
+                      {metrics.paragraphOccurrences.map((p, pIdx) => (
+                        <div 
+                          key={pIdx}
+                          className={`p-2.5 rounded-xl border text-center font-mono transition-all duration-150 flex flex-col justify-center items-center ${
+                            p.count > 0 
+                              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300 shadow-md shadow-emerald-500/5' 
+                              : 'bg-zinc-950/40 border-brand-border/10 text-zinc-500'
+                          }`}
+                        >
+                          <span className="text-[10px] block font-bold">P{p.paragraphIndex}</span>
+                          <span className={`text-[9px] block leading-none mt-1 font-bold ${p.count > 0 ? 'text-emerald-400' : 'text-zinc-650'}`}>{p.count}x</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-4 bg-zinc-950/20 border border-dashed border-brand-border/10 rounded-xl">
+                      <span className="text-xs text-zinc-650 font-mono">No paragraphs detected.</span>
+                    </div>
+                  )}
+                  
+                  <div className="flex justify-between items-center text-[10px] font-mono text-zinc-500 leading-none">
+                    <span>Coverage: {metrics.paragraphsWithKeyword} of {metrics.paragraphCount} paragraphs</span>
+                    <span>Goal: Spread evenly</span>
+                  </div>
+                </div>
+
+                {/* 2. Brand new supporting LSI metrics */}
+                <div className="space-y-2 pt-1">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[10px] font-mono text-gray-400 uppercase tracking-widest block font-bold">LSI Term Density & Competition</span>
+                    <span className="text-[9px] font-mono text-zinc-500">Excluding stop-words</span>
+                  </div>
+
+                  <div className="space-y-2">
+                    {metrics.frequentKeywordsList.length > 0 ? (
+                      metrics.frequentKeywordsList.map((item, fIdx) => {
+                        const isDiluter = item.density > metrics.roundedDensity;
+                        return (
+                          <div 
+                            key={fIdx} 
+                            className="p-2.5 rounded-xl bg-[#08090b] border border-brand-border/20 flex items-center justify-between transition-all duration-150 hover:border-brand-border/40"
+                          >
+                            <div className="space-y-0.5">
+                              <span className="text-xs font-mono text-zinc-200 block font-medium">#{fIdx + 1} {item.word}</span>
+                              <span className="text-[10px] text-zinc-500 font-mono block uppercase">{item.count} occurrences</span>
+                            </div>
+                            <div className="text-right">
+                              <span className={`text-xs font-mono font-extrabold block ${isDiluter ? 'text-amber-400 font-extrabold' : 'text-zinc-400'}`}>
+                                {item.density.toFixed(1)}%
+                              </span>
+                              <span className="text-[8px] font-mono text-zinc-500 block">DENSITY</span>
+                            </div>
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <div className="text-center py-4 bg-zinc-950/20 border border-brand-border/10 rounded-xl">
+                        <span className="text-xs text-zinc-500 font-mono">Write copy above to parse keyword suggestions...</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* 3. Actionable Relevance & Density suggestions */}
+                <div className="space-y-2 pt-1">
+                  <span className="text-[10px] font-mono text-gray-400 uppercase tracking-widest block font-bold">Organic Relevance Advice</span>
+                  
+                  <div className="space-y-2">
+                    {metrics.densitySuggestions.map((sug, sIdx) => {
+                      let tagClr = 'border-emerald-500/20 text-emerald-400 bg-emerald-500/5';
+                      let labelSymbol = '✓';
+                      
+                      if (sug.type === 'alert') {
+                        tagClr = 'border-rose-500/20 text-rose-400 bg-rose-500/5';
+                        labelSymbol = '⚠';
+                      } else if (sug.type === 'warning') {
+                        tagClr = 'border-amber-500/20 text-amber-400 bg-amber-500/5';
+                        labelSymbol = '!';
+                      }
+
+                      return (
+                        <div 
+                          key={sIdx} 
+                          className={`p-3 border rounded-xl flex items-start gap-2.5 transition-all duration-150 leading-relaxed text-left text-xs ${tagClr}`}
+                        >
+                          <span className="font-mono text-xs font-bold leading-none select-none px-1 pt-0.5">{labelSymbol}</span>
+                          <span className="leading-snug text-zinc-300">{sug.recommendation}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
               </div>
             </div>
           </div>
