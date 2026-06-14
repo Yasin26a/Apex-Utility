@@ -3,7 +3,7 @@ import {
   BookOpen, Search, Clock, ArrowRight, Tag, HelpCircle, 
   Terminal, Sparkles, User, Calendar, ExternalLink, ThumbsUp, 
   ChevronRight, ArrowLeft, Bookmark, Heart, Share2, MessageSquare,
-  QrCode, FileCode, Wand2, Shield
+  QrCode, FileCode, Wand2, Shield, Zap, TrendingUp
 } from 'lucide-react';
 import { ActiveTab } from '../types';
 
@@ -1429,7 +1429,274 @@ export default function Guides({ onTabChange }: GuidesProps) {
         </div>
       ) : (
         /* Guides Catalog Listing */
-        <div className="space-y-6">
+        <div className="space-y-8">
+          {/* Curated Recommendations Hub */}
+          <div className="beveled-panel bg-[#09090d]/60 p-5 md:p-6 border-brand-border/20 text-left rounded-xl space-y-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-zinc-900 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 rounded-md bg-brand/10 text-brand">
+                  <TrendingUp className="w-4 h-4 text-brand" />
+                </div>
+                <div>
+                  <h2 className="font-heading text-xs font-black text-white uppercase tracking-wider">Apex Curated Recommendations</h2>
+                  <p className="font-sans text-[10px] text-zinc-500">Fast-track your platform's organic performance and loading speeds on autopilot.</p>
+                </div>
+              </div>
+              <span className="text-[9px] font-mono bg-zinc-950 px-2 py-0.5 rounded text-zinc-500 tracking-wider w-fit">RECOMMENDED WORKSPACES</span>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              {/* Category 1: Core Web Vitals */}
+              <div className="p-4 bg-zinc-950/90 border border-zinc-900 rounded-xl space-y-3 relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-16 h-16 bg-emerald-500/5 rounded-full blur-xl pointer-events-none" />
+                
+                <div className="flex items-center gap-2 text-emerald-400">
+                  <Zap className="w-4 h-4 animate-pulse text-emerald-400" />
+                  <h3 className="font-heading text-[10px] font-black tracking-wider uppercase text-emerald-200">
+                    Performance & Speed Boosters (Core Web Vitals)
+                  </h3>
+                </div>
+                <p className="font-sans text-[11px] text-zinc-400 leading-relaxed">
+                  Reduce Largest Contentful Paint (LCP) and Cumulative Layout Shift (CLS) scores instantly by offloading render-blocking formats to client-side compressions.
+                </p>
+
+                <div className="space-y-2 pt-1 border-t border-zinc-900/60">
+                  {/* Tool item 1 */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2 rounded bg-zinc-900/40 hover:bg-zinc-900/70 transition-all border border-transparent hover:border-zinc-800">
+                    <div className="flex flex-col text-left">
+                      <span className="font-sans text-[10.5px] font-bold text-zinc-300">WebP Conversion Engine</span>
+                      <span className="font-sans text-[9px] text-zinc-500">Shrink PNG/JPG assets by up to 80% with alpha support.</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0 font-sans">
+                      <button
+                        onClick={() => setSelectedArticleId('webp-demystified')}
+                        className="px-1.5 py-0.5 bg-zinc-950 border border-zinc-800 text-zinc-400 hover:text-white transition-all font-mono text-[8.5px] font-bold rounded cursor-pointer"
+                      >
+                        GUIDE
+                      </button>
+                      <button
+                        onClick={() => onTabChange('webp-converter')}
+                        className="px-1.5 py-0.5 bg-brand text-zinc-950 hover:bg-brand-hover hover:text-white transition-all font-heading text-[8.5px] font-black tracking-wider uppercase rounded cursor-pointer flex items-center gap-0.5"
+                      >
+                        LAUNCH <ExternalLink className="w-2 h-2" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Tool item 2 */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2 rounded bg-zinc-900/40 hover:bg-zinc-900/70 transition-all border border-transparent hover:border-zinc-800">
+                    <div className="flex flex-col text-left">
+                      <span className="font-sans text-[10.5px] font-bold text-zinc-300">Lossless Image Compressor</span>
+                      <span className="font-sans text-[9px] text-zinc-500">Quantize luminance mapping on heavy header assets.</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0 font-sans">
+                      <button
+                        onClick={() => setSelectedArticleId('image-compression-lossless')}
+                        className="px-1.5 py-0.5 bg-zinc-950 border border-zinc-800 text-zinc-400 hover:text-white transition-all font-mono text-[8.5px] font-bold rounded cursor-pointer"
+                      >
+                        GUIDE
+                      </button>
+                      <button
+                        onClick={() => onTabChange('image-compressor')}
+                        className="px-1.5 py-0.5 bg-brand text-zinc-950 hover:bg-brand-hover hover:text-white transition-all font-heading text-[8.5px] font-black tracking-wider uppercase rounded cursor-pointer flex items-center gap-0.5"
+                      >
+                        LAUNCH <ExternalLink className="w-2 h-2" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Tool item 3 */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2 rounded bg-zinc-900/40 hover:bg-zinc-900/70 transition-all border border-transparent hover:border-zinc-800">
+                    <div className="flex flex-col text-left">
+                      <span className="font-sans text-[10.5px] font-bold text-zinc-300">Concurrent Batch Processor</span>
+                      <span className="font-sans text-[9px] text-zinc-500">Leverage Dynamic Async Web Workers to prevent UI freeze lag.</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0 font-sans">
+                      <button
+                        onClick={() => setSelectedArticleId('batch-processing-pipelines')}
+                        className="px-1.5 py-0.5 bg-zinc-950 border border-zinc-800 text-zinc-400 hover:text-white transition-all font-mono text-[8.5px] font-bold rounded cursor-pointer"
+                      >
+                        GUIDE
+                      </button>
+                      <button
+                        onClick={() => onTabChange('batch-processor')}
+                        className="px-1.5 py-0.5 bg-brand text-zinc-950 hover:bg-brand-hover hover:text-white transition-all font-heading text-[8.5px] font-black tracking-wider uppercase rounded cursor-pointer flex items-center gap-0.5"
+                      >
+                        LAUNCH <ExternalLink className="w-2 h-2" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Category 2: SEO Safeguards */}
+              <div className="p-4 bg-zinc-950/90 border border-zinc-900 rounded-xl space-y-3 relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-16 h-16 bg-purple-500/5 rounded-full blur-xl pointer-events-none" />
+                
+                <div className="flex items-center gap-2 text-purple-400">
+                  <Sparkles className="w-4 h-4 animate-spin text-purple-400" />
+                  <h3 className="font-heading text-[10px] font-black tracking-wider uppercase text-purple-200">
+                    Semantic & Technical SEO Safeguards
+                  </h3>
+                </div>
+                <p className="font-sans text-[11px] text-zinc-400 leading-relaxed">
+                  Enhance discoverability and domain indexation rates. Ensure full metadata relevance, correct canonical schemas, and crawlable structural maps.
+                </p>
+
+                <div className="space-y-2 pt-1 border-t border-zinc-900/60">
+                  {/* Tool item 1 */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2 rounded bg-zinc-900/40 hover:bg-zinc-900/70 transition-all border border-transparent hover:border-zinc-800">
+                    <div className="flex flex-col text-left">
+                      <span className="font-sans text-[10.5px] font-bold text-zinc-300">Sitemap & Indexing Checker</span>
+                      <span className="font-sans text-[9px] text-zinc-500">Compile sitemap.xml pathways with priority crawl paths.</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0 font-sans">
+                      <button
+                        onClick={() => setSelectedArticleId('seo-sitemaps')}
+                        className="px-1.5 py-0.5 bg-zinc-950 border border-zinc-800 text-zinc-400 hover:text-white transition-all font-mono text-[8.5px] font-bold rounded cursor-pointer"
+                      >
+                        GUIDE
+                      </button>
+                      <button
+                        onClick={() => onTabChange('sitemap-seo')}
+                        className="px-1.5 py-0.5 bg-brand text-zinc-950 hover:bg-brand-hover hover:text-white transition-all font-heading text-[8.5px] font-black tracking-wider uppercase rounded cursor-pointer flex items-center gap-0.5"
+                      >
+                        LAUNCH <ExternalLink className="w-2 h-2" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Tool item 2 */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2 rounded bg-zinc-900/40 hover:bg-zinc-900/70 transition-all border border-transparent hover:border-zinc-800">
+                    <div className="flex flex-col text-left">
+                      <span className="font-sans text-[10.5px] font-bold text-zinc-300">AI Copywriting Assistant</span>
+                      <span className="font-sans text-[9px] text-zinc-500">Inject LSI keywords into high-authority structural blog outline flows.</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0 font-sans">
+                      <button
+                        onClick={() => setSelectedArticleId('seo-copywriting-ai')}
+                        className="px-1.5 py-0.5 bg-zinc-950 border border-zinc-800 text-zinc-400 hover:text-white transition-all font-mono text-[8.5px] font-bold rounded cursor-pointer"
+                      >
+                        GUIDE
+                      </button>
+                      <button
+                        onClick={() => onTabChange('ai-writer')}
+                        className="px-1.5 py-0.5 bg-brand text-zinc-950 hover:bg-brand-hover hover:text-white transition-all font-heading text-[8.5px] font-black tracking-wider uppercase rounded cursor-pointer flex items-center gap-0.5"
+                      >
+                        LAUNCH <ExternalLink className="w-2 h-2" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Tool item 3 */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2 rounded bg-zinc-900/40 hover:bg-zinc-900/70 transition-all border border-transparent hover:border-zinc-800">
+                    <div className="flex flex-col text-left">
+                      <span className="font-sans text-[10.5px] font-bold text-zinc-300">Metadata Analyzer Tool</span>
+                      <span className="font-sans text-[9px] text-zinc-500">Run structural validation auditing active site headers.</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0 font-sans">
+                      <button
+                        onClick={() => setSelectedArticleId('advanced-seo-strategies')}
+                        className="px-1.5 py-0.5 bg-zinc-950 border border-zinc-800 text-zinc-400 hover:text-white transition-all font-mono text-[8.5px] font-bold rounded cursor-pointer"
+                      >
+                        GUIDE
+                      </button>
+                      <button
+                        onClick={() => onTabChange('seo-optimizer')}
+                        className="px-1.5 py-0.5 bg-brand text-zinc-950 hover:bg-brand-hover hover:text-white transition-all font-heading text-[8.5px] font-black tracking-wider uppercase rounded cursor-pointer flex items-center gap-0.5"
+                      >
+                        LAUNCH <ExternalLink className="w-2 h-2" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Category 3: Visual Polish & Conversion Rate */}
+              <div className="p-4 bg-zinc-950/90 border border-zinc-900 rounded-xl space-y-3 relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-16 h-16 bg-pink-500/5 rounded-full blur-xl pointer-events-none" />
+                
+                <div className="flex items-center gap-2 text-pink-400">
+                  <Sparkles className="w-4 h-4 animate-pulse text-pink-400" />
+                  <h3 className="font-heading text-[10px] font-black tracking-wider uppercase text-pink-200">
+                    Visual Polish & Conversion Rate Harmonizers
+                  </h3>
+                </div>
+                <p className="font-sans text-[11px] text-zinc-400 leading-relaxed">
+                  Design eye-safe color tokens, high-contrast QR visual triggers, and resolution-independent vector outlines to retain and convert direct organic traffic.
+                </p>
+
+                <div className="space-y-2 pt-1 border-t border-zinc-900/60 font-sans">
+                  {/* Tool item 1 */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2 rounded bg-zinc-900/40 hover:bg-zinc-900/70 transition-all border border-transparent hover:border-zinc-800">
+                    <div className="flex flex-col text-left">
+                      <span className="font-sans text-[10.5px] font-bold text-zinc-300">Color Palette & Contrast Builder</span>
+                      <span className="font-sans text-[9px] text-zinc-500">Construct accessible color palettes meeting WCAG 2.1 compliance.</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <button
+                        onClick={() => setSelectedArticleId('interactive-color-harmony')}
+                        className="px-1.5 py-0.5 bg-zinc-950 border border-zinc-800 text-zinc-400 hover:text-white transition-all font-mono text-[8.5px] font-bold rounded cursor-pointer"
+                      >
+                        GUIDE
+                      </button>
+                      <button
+                        onClick={() => onTabChange('color-palette')}
+                        className="px-1.5 py-0.5 bg-brand text-zinc-950 hover:bg-brand-hover hover:text-white transition-all font-heading text-[8.5px] font-black tracking-wider uppercase rounded cursor-pointer flex items-center gap-0.5"
+                      >
+                        LAUNCH <ExternalLink className="w-2 h-2" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Tool item 2 */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2 rounded bg-zinc-900/40 hover:bg-zinc-900/70 transition-all border border-transparent hover:border-zinc-800">
+                    <div className="flex flex-col text-left">
+                      <span className="font-sans text-[10.5px] font-bold text-zinc-300">Raster-to-Vector Converter</span>
+                      <span className="font-sans text-[9px] text-zinc-500">Trace and convert PNG bitmap lines to infinitely scalable SVG paths.</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <button
+                        onClick={() => setSelectedArticleId('raster-vectorizer')}
+                        className="px-1.5 py-0.5 bg-zinc-950 border border-zinc-800 text-zinc-400 hover:text-white transition-all font-mono text-[8.5px] font-bold rounded cursor-pointer"
+                      >
+                        GUIDE
+                      </button>
+                      <button
+                        onClick={() => onTabChange('image-vectorizer')}
+                        className="px-1.5 py-0.5 bg-brand text-zinc-950 hover:bg-brand-hover hover:text-white transition-all font-heading text-[8.5px] font-black tracking-wider uppercase rounded cursor-pointer flex items-center gap-0.5"
+                      >
+                        LAUNCH <ExternalLink className="w-2 h-2" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Tool item 3 */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2 rounded bg-zinc-900/40 hover:bg-zinc-900/70 transition-all border border-transparent hover:border-zinc-800">
+                    <div className="flex flex-col text-left">
+                      <span className="font-sans text-[10.5px] font-bold text-zinc-300">QR Code Brand Customizer</span>
+                      <span className="font-sans text-[9px] text-zinc-500">Inject high-fidelity logos directly with configurable error correction levels.</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <button
+                        onClick={() => setSelectedArticleId('qr-architecture')}
+                        className="px-1.5 py-0.5 bg-zinc-950 border border-zinc-800 text-zinc-400 hover:text-white transition-all font-mono text-[8.5px] font-bold rounded cursor-pointer"
+                      >
+                        GUIDE
+                      </button>
+                      <button
+                        onClick={() => onTabChange('qr-generator')}
+                        className="px-1.5 py-0.5 bg-brand text-zinc-950 hover:bg-brand-hover hover:text-white transition-all font-heading text-[8.5px] font-black tracking-wider uppercase rounded cursor-pointer flex items-center gap-0.5"
+                      >
+                        LAUNCH <ExternalLink className="w-2 h-2" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Controls Bar */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
             {/* Search Bar */}
