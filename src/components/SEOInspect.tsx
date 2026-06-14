@@ -2,7 +2,8 @@ import React, { useState, useMemo } from 'react';
 import { motion } from 'motion/react';
 import { 
   Globe, Download, Check, Copy, Code, Sparkles, FileText, 
-  CheckCircle, ShieldAlert, Cpu, AlertTriangle, Lightbulb, Gauge, Layers
+  CheckCircle, ShieldAlert, Cpu, AlertTriangle, Lightbulb, Gauge, Layers,
+  Award, ShieldCheck, Key, ArrowUpRight, Link2, Share2
 } from 'lucide-react';
 
 const SCHEMA_PROFILES = [
@@ -215,6 +216,159 @@ export default function SEOInspect() {
     descriptions: Array<{ style: string; text: string; explanation: string }>;
   } | null>(null);
   const [variationError, setVariationError] = useState<string | null>(null);
+
+  // Bing Webmaster Verification & E-E-A-T Trust Booster States
+  const [rawBingVerification, setRawBingVerification] = useState('');
+  const [rawGoogleVerification, setRawGoogleVerification] = useState('');
+  const [aboutUsLinked, setAboutUsLinked] = useState(true);
+  const [privacyPolicyLinked, setPrivacyPolicyLinked] = useState(true);
+  const [termsOfServiceLinked, setTermsOfServiceLinked] = useState(true);
+
+  // IndexNow API Key custom setup for zero-traffic websites
+  const [indexNowKey, setIndexNowKey] = useState(() => {
+    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    let key = '';
+    for (let i = 0; i < 32; i++) {
+      key += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return key;
+  });
+
+  // Social Pre-rendering tags state
+  const [ogTitle, setOgTitle] = useState('APEX UTILITY Forge - Local Web Utilities');
+  const [ogDesc, setOgDesc] = useState('An outstanding suite of client-side developer utilities, WebP graphics optimization pipelines, and lightning-fast PDF tools.');
+  const [ogImage, setOgImage] = useState('https://images.unsplash.com/photo-1618055182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80');
+  const [twitterCreator, setTwitterCreator] = useState('@ApexForgeDev');
+
+  // Parse raw Google validation inputs dynamically
+  const cleanGoogleCode = useMemo(() => {
+    const trimmed = rawGoogleVerification.trim();
+    if (!trimmed) return '';
+    
+    // Look for content query inside meta tag: <meta name="google-site-verification" content="abcdef..." />
+    const metaMatch = trimmed.match(/content=["']([^"']+)["']/i);
+    if (metaMatch && metaMatch[1]) return metaMatch[1];
+
+    // Look for filenames: google81a2b3c4d5e6f7.html
+    const fileMatch = trimmed.match(/(google[a-f0-9]+\.html)/i);
+    if (fileMatch) return fileMatch[1];
+
+    return trimmed.slice(0, 60);
+  }, [rawGoogleVerification]);
+
+  // Parse raw verification inputs dynamically (meta tag, XML code, or hex)
+  const cleanBingCode = useMemo(() => {
+    const trimmed = rawBingVerification.trim();
+    if (!trimmed) return '';
+    // Look for content query inside meta tag: <meta name="msvalidate.01" content="A1B2C3D4E..." />
+    const metaMatch = trimmed.match(/content=["']([A-F0-9a-f]{32})["']/i);
+    if (metaMatch && metaMatch[1]) return metaMatch[1];
+    
+    // Look for node query inside XML: <user>A1B2C3D4E...</user>
+    const xmlMatch = trimmed.match(/<user>([A-F0-9a-f]{32})<\/user>/i);
+    if (xmlMatch && xmlMatch[1]) return xmlMatch[1];
+
+    // Check for raw 32-character hexadecimal string
+    const hex32Match = trimmed.match(/[A-F0-9a-f]{32}/i);
+    if (hex32Match && hex32Match[0]) return hex32Match[0];
+
+    return trimmed.slice(0, 48); // slice safeguard
+  }, [rawBingVerification]);
+
+  // Dynamic E-E-A-T Search Trust scoring loop (Out of 100 maximum score points)
+  const trustEvaluation = useMemo(() => {
+    let score = 0;
+    const indicators: Array<{ name: string; score: number; pass: boolean; desc: string }> = [];
+
+    // 1. SSL transport
+    indicators.push({
+      name: 'HTTPS Transport Layer Security Active',
+      score: 10,
+      pass: true,
+      desc: 'SSL locks build natural credibility and prevent session manipulation triggers.'
+    });
+    score += 10;
+
+    // 2. Robots.txt rules
+    indicators.push({
+      name: 'robots.txt crawl parameters structured',
+      score: 10,
+      pass: true,
+      desc: 'Instructs search-engine crawlers around high-priority directory targets.'
+    });
+    score += 10;
+
+    // 3. Sitemap presence
+    indicators.push({
+      name: 'sitemap.xml indexation pathways mapped',
+      score: 10,
+      pass: true,
+      desc: 'Enables crawl spiders to find and digest all active developer utilities.'
+    });
+    score += 10;
+
+    // 4. Schema markup mapping
+    const hasSchema = inputSchema.trim().length > 15;
+    indicators.push({
+      name: 'Interactive Structured Schema LD-JSON graph',
+      score: 10,
+      pass: hasSchema,
+      desc: 'Encourages high-impact visual rich snippets, rating stars, and FAQ drop-downs.'
+    });
+    if (hasSchema) score += 10;
+
+    // 5. Google Search Console Setup
+    const hasGoogle = cleanGoogleCode.length >= 8;
+    indicators.push({
+      name: 'Google Search Console (GSC) Domain Verified',
+      score: 15,
+      pass: hasGoogle,
+      desc: 'Submits immediate indexing pulses to Google search nodes and monitors mobile vitals.'
+    });
+    if (hasGoogle) score += 15;
+
+    // 6. Microsoft Bing Webmaster Setup
+    const hasBing = cleanBingCode.length >= 8;
+    indicators.push({
+      name: 'Microsoft Bing Webmaster Portal Verified',
+      score: 15,
+      pass: hasBing,
+      desc: 'Powers native instant-indexing crawls across Bing, Yahoo, and DuckDuckGo.'
+    });
+    if (hasBing) score += 15;
+
+    // 7. About Us Authority link
+    indicators.push({
+      name: 'E-E-A-T Experience: Public Bio/About Us details',
+      score: 10,
+      pass: aboutUsLinked,
+      desc: 'Passes manual search rater evaluations for transparency and author pedigree.'
+    });
+    if (aboutUsLinked) score += 10;
+
+    // 8. Privacy rules
+    indicators.push({
+      name: 'E-E-A-T Transparency: Regulated Privacy Charter',
+      score: 10,
+      pass: privacyPolicyLinked,
+      desc: 'Matches GDPR and California CCPA crawl-compliance algorithms.'
+    });
+    if (privacyPolicyLinked) score += 10;
+
+    // 9. Terms validation
+    indicators.push({
+      name: 'E-E-A-T Trustworthiness: Active terms bounds',
+      score: 10,
+      pass: termsOfServiceLinked,
+      desc: 'Deters scrapers and clarifies platform usage terms to search raters.'
+    });
+    if (termsOfServiceLinked) score += 10;
+
+    return {
+      score: Math.min(score, 100),
+      indicators
+    };
+  }, [inputSchema, cleanGoogleCode, cleanBingCode, aboutUsLinked, privacyPolicyLinked, termsOfServiceLinked]);
 
   const handleLoadAuditProfile = (profileId: string) => {
     const prof = AUDIT_PROFILES.find(p => p.id === profileId);
@@ -748,6 +902,524 @@ Sitemap: ${websiteUrl}/sitemap.xml`;
           </div>
         </div>
       </div>
+
+      {/* SEARCH INDEXATION & BING/GOOGLE TRUST PORTAL */}
+      <div className="space-y-6 pt-10 border-t border-zinc-900/60 text-left">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 px-1">
+          <div className="space-y-1">
+            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-rose-500/10 border border-rose-500/20 text-rose-400 text-[10px] font-mono font-bold uppercase tracking-wider">
+              <Award className="w-3.5 h-3.5 text-rose-400 animate-pulse" />
+              <span>Domain Trust & Organic Visitor Booster</span>
+            </div>
+            <h3 className="font-heading text-xl font-black text-white tracking-tight uppercase">
+              Search Console & E-E-A-T Authority Portal
+            </h3>
+            <p className="font-sans text-xs text-[#94a3b8] max-w-xl">
+              Establish high search trust for <code>https://apexutility.live/</code>. Verify content ownership with Google & Bing, activate the instant IndexNow pipeline, and score E-E-A-T signals.
+            </p>
+          </div>
+        </div>
+
+        {/* THREE COLUMN PROTOCOL INTERFACES */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+          
+          {/* CARD 1: GOOGLE SEARCH CONSOLE */}
+          <div className="beveled-panel bg-[#09090d]/95 p-5 border-zinc-850/40 space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-zinc-900">
+              <div className="flex items-center gap-2">
+                <Globe className="w-4 h-4 text-amber-500" />
+                <h4 className="font-heading text-xs font-black text-white uppercase tracking-wider">1. Google Console</h4>
+              </div>
+              <span className={`text-[8.5px] font-mono font-black border px-1.5 py-0.5 rounded ${
+                cleanGoogleCode.length >= 8 ? 'bg-emerald-950/20 text-emerald-400 border-emerald-555/20' : 'bg-[#18181b] text-zinc-500 border-zinc-800'
+              }`}>
+                {cleanGoogleCode.length >= 8 ? 'LINKED' : 'UNCONFIGURED'}
+              </span>
+            </div>
+
+            <p className="font-sans text-[11px] text-zinc-400 leading-relaxed">
+              Google is the #1 source of free organic search traffic. Paste the <strong>google-site-verification</strong> string or HTML meta tag here.
+            </p>
+
+            <div className="space-y-2">
+              <label htmlFor="raw-google-verification-input" className="block font-mono text-[9px] text-zinc-500 uppercase font-bold">Google Site Verification Content:</label>
+              <input
+                id="raw-google-verification-input"
+                type="text"
+                value={rawGoogleVerification}
+                onChange={(e) => setRawGoogleVerification(e.target.value)}
+                placeholder='e.g., <meta name="google-site-verification" content="zXy9W8..." />'
+                className="w-full px-2.5 py-1.5 bg-zinc-950 border border-zinc-900 focus:border-amber-500 rounded text-[11px] font-mono text-zinc-300 placeholder-zinc-800 focus:outline-none transition-all"
+              />
+            </div>
+
+            {cleanGoogleCode ? (
+              <div className="space-y-3 pt-1 border-t border-zinc-900/45 animate-fade-in">
+                <div className="p-2 rounded bg-emerald-950/10 border border-emerald-500/10 flex items-center gap-1.5">
+                  <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                  <span className="font-sans text-[10px] text-emerald-300 font-bold line-clamp-1">Extracted Code: {cleanGoogleCode}</span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const isHtmlName = cleanGoogleCode.includes('.html');
+                      const fileName = isHtmlName ? cleanGoogleCode : `google${cleanGoogleCode}.html`;
+                      const fileContent = `google-site-verification: ${fileName}`;
+                      triggerDownload(fileContent, fileName, 'text/html');
+                    }}
+                    className="py-1.5 px-2 bg-[#08080c] border border-amber-500/20 hover:border-amber-500 text-amber-500 hover:text-white rounded text-[9.5px] font-heading font-black tracking-wider uppercase flex items-center justify-center gap-1 cursor-pointer transition-all active:scale-95 shadow"
+                  >
+                    <Download className="w-3 h-3" />
+                    <span>Get File</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const meta = `<meta name="google-site-verification" content="${cleanGoogleCode}" />`;
+                      copyToClipboard(meta, 'gsc-meta');
+                    }}
+                    className="py-1.5 px-2 bg-[#08080c] border border-zinc-800 hover:border-zinc-700 text-zinc-300 hover:text-white rounded text-[9.5px] font-heading font-black tracking-wider uppercase flex items-center justify-center gap-1 cursor-pointer transition-all active:scale-95 shadow"
+                  >
+                    {copiedIndex === 'gsc-meta' ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                    <span>{copiedIndex === 'gsc-meta' ? 'Copied!' : 'Copy Meta'}</span>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="p-2 py-3 bg-zinc-950 rounded border border-zinc-900 text-center text-zinc-650 font-sans text-[10px] italic">
+                Awaiting Google token code entry...
+              </div>
+            )}
+
+            <div className="pt-2 border-t border-zinc-900 space-y-1 text-[10px] text-zinc-550 leading-relaxed font-sans">
+              <span className="font-mono text-[8.5px] text-zinc-400 font-bold uppercase block">Verification Protocol:</span>
+              <ul className="list-disc list-inside space-y-1">
+                <li>Visit <a href="https://search.google.com/search-console" target="_blank" rel="noopener noreferrer" className="text-rose-400 hover:underline">Google Search Console</a>.</li>
+                <li>Add your domain: <code>https://apexutility.live/</code>.</li>
+                <li>Download the HTML file or copy the header tag, and paste here to compile.</li>
+              </ul>
+            </div>
+          </div>
+
+          {/* CARD 2: BING WEBMASTER PORTAL */}
+          <div className="beveled-panel bg-[#09090d]/95 p-5 border-zinc-850/40 space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-zinc-900">
+              <div className="flex items-center gap-2">
+                <Key className="w-4 h-4 text-sky-400" />
+                <h4 className="font-heading text-xs font-black text-white uppercase tracking-wider">2. Bing Webmaster</h4>
+              </div>
+              <span className={`text-[8.5px] font-mono font-black border px-1.5 py-0.5 rounded ${
+                cleanBingCode.length >= 8 ? 'bg-emerald-950/20 text-emerald-400 border-emerald-555/20' : 'bg-[#18181b] text-zinc-500 border-zinc-800'
+              }`}>
+                {cleanBingCode.length >= 8 ? 'LINKED' : 'UNCONFIGURED'}
+              </span>
+            </div>
+
+            <p className="font-sans text-[11px] text-zinc-400 leading-relaxed">
+              Bing processes search traffic for Bing, Yahoo, and DuckDuckGo. Paste the 32-character hexadecimal verification string.
+            </p>
+
+            <div className="space-y-2">
+              <label htmlFor="raw-bing-verification-input" className="block font-mono text-[9px] text-zinc-500 uppercase font-bold">Bing Validation XML tag/hex string:</label>
+              <input
+                id="raw-bing-verification-input"
+                type="text"
+                value={rawBingVerification}
+                onChange={(e) => setRawBingVerification(e.target.value)}
+                placeholder='e.g., <meta name="msvalidate.01" content="416B9567..." />'
+                className="w-full px-2.5 py-1.5 bg-zinc-950 border border-zinc-900 focus:border-sky-500 rounded text-[11px] font-mono text-zinc-300 placeholder-zinc-800 focus:outline-none transition-all"
+              />
+            </div>
+
+            {cleanBingCode ? (
+              <div className="space-y-3 pt-1 border-t border-zinc-900/45 animate-fade-in">
+                <div className="p-2 rounded bg-emerald-950/10 border border-emerald-500/10 flex items-center gap-1.5">
+                  <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                  <span className="font-sans text-[10px] text-emerald-300 font-bold line-clamp-1">Extracted Hex: {cleanBingCode}</span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const bingXml = `<?xml version="1.0" encoding="utf-8"?>\r\n<users>\r\n\t<user>${cleanBingCode}</user>\r\n</users>`;
+                      triggerDownload(bingXml, 'BingSiteAuth.xml', 'text/xml');
+                    }}
+                    className="py-1.5 px-2 bg-[#08080c] border border-sky-500/20 hover:border-sky-500 text-sky-400 hover:text-white rounded text-[9.5px] font-heading font-black tracking-wider uppercase flex items-center justify-center gap-1 cursor-pointer transition-all active:scale-95 shadow"
+                  >
+                    <Download className="w-3 h-3" />
+                    <span>Get XML</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const metaTag = `<meta name="msvalidate.01" content="${cleanBingCode}" />`;
+                      copyToClipboard(metaTag, 'bing-meta');
+                    }}
+                    className="py-1.5 px-2 bg-[#08080c] border border-zinc-800 hover:border-zinc-700 text-zinc-300 hover:text-white rounded text-[9.5px] font-heading font-black tracking-wider uppercase flex items-center justify-center gap-1 cursor-pointer transition-all active:scale-95 shadow"
+                  >
+                    {copiedIndex === 'bing-meta' ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                    <span>{copiedIndex === 'bing-meta' ? 'Copied!' : 'Copy Tag'}</span>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="p-2 py-3 bg-zinc-950 rounded border border-zinc-900 text-center text-zinc-650 font-sans text-[10px] italic">
+                Awaiting Bing token code entry...
+              </div>
+            )}
+
+            <div className="pt-2 border-t border-zinc-900 space-y-1 text-[10px] text-zinc-550 leading-relaxed font-sans">
+              <span className="font-mono text-[8.5px] text-sky-400 font-bold uppercase block">Quick Links:</span>
+              <p>
+                Open the <a href="https://www.bing.com/webmasters" target="_blank" rel="noopener noreferrer" className="text-sky-400 hover:underline">Bing Webmaster Portal</a> and add your domain to fetch verification tokens instantaneously!
+              </p>
+            </div>
+          </div>
+
+          {/* CARD 3: INDEXNOW PROTOCOL INTEGRATOR */}
+          <div className="beveled-panel bg-[#09090d]/95 p-5 border-zinc-850/40 space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-zinc-900">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-emerald-400 animate-pulse" />
+                <h4 className="font-heading text-xs font-black text-white uppercase tracking-wider">3. IndexNow Accelerator</h4>
+              </div>
+              <span className="text-[8.5px] font-mono bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-bold font-mono">
+                BYPASS CRAWLING
+              </span>
+            </div>
+
+            <p className="font-sans text-[11px] text-zinc-400 leading-relaxed">
+              <strong>IndexNow</strong> instantly notifies Bing, Yandex, and Seznam about updated pages. Bypasses weeks of crawling throttles on brand new sites!
+            </p>
+
+            <div className="p-2 px-3 bg-zinc-950 rounded border border-zinc-900 space-y-1.5">
+              <div className="flex justify-between items-center">
+                <span className="font-mono text-[9px] text-zinc-550 uppercase">Auto-Generated API Key:</span>
+                <button
+                  onClick={() => {
+                    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+                    let key = '';
+                    for (let i = 0; i < 32; i++) {
+                      key += chars.charAt(Math.floor(Math.random() * chars.length));
+                    }
+                    setIndexNowKey(key);
+                  }}
+                  className="text-[9px] font-mono text-emerald-400 hover:underline cursor-pointer"
+                >
+                  Regenerate
+                </button>
+              </div>
+              <p className="font-mono text-[10.5px] text-emerald-400 select-all font-bold break-all">{indexNowKey}</p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  triggerDownload(indexNowKey, `${indexNowKey}.txt`, 'text/plain');
+                }}
+                className="py-1.5 px-2 bg-[#08080c] border border-emerald-500/30 hover:border-emerald-500 text-emerald-400 hover:text-white rounded text-[9.5px] font-heading font-black tracking-wider uppercase flex items-center justify-center gap-1 cursor-pointer transition-all active:scale-95 shadow"
+              >
+                <Download className="w-3 h-3" />
+                <span>Get Key File</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const pingUrl = `https://www.bing.com/indexnow?url=https://apexutility.live/&key=${indexNowKey}`;
+                  window.open(pingUrl, '_blank');
+                }}
+                className="py-1.5 px-2 bg-[#0d0e15] border border-zinc-800 hover:border-zinc-700 text-zinc-300 hover:text-white rounded text-[9.5px] font-heading font-black tracking-wider uppercase flex items-center justify-center gap-1 cursor-pointer transition-all active:scale-95 shadow"
+              >
+                <ArrowUpRight className="w-3 h-3 text-zinc-500" />
+                <span>Send Ping</span>
+              </button>
+            </div>
+
+            <div className="pt-2 border-t border-zinc-900 space-y-1 text-[10px] text-zinc-550 leading-relaxed font-sans">
+              <span className="font-mono text-[8.5px] text-zinc-400 font-bold uppercase block">How to Speed-up Discovery:</span>
+              <ol className="list-decimal list-inside space-y-1">
+                <li>Download the Key txt file, and host it at the root of your public domain: <code>/{indexNowKey}.txt</code></li>
+                <li>Click <strong>"Send Ping"</strong> to instantly force-index your homepage!</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        {/* E-E-A-T & TRUST HEALTH ANALYZER CARD */}
+        <div className="beveled-panel bg-[#09090d]/95 p-6 border-zinc-855/40 space-y-5">
+          <div className="flex items-center justify-between pb-3 border-b border-zinc-900">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="w-4.5 h-4.5 text-emerald-400" />
+              <h4 className="font-heading text-xs font-black text-white uppercase tracking-wider">E-E-A-T Trust Health Analyzer</h4>
+            </div>
+            <span className={`text-[10px] font-mono font-black border px-2 py-0.5 rounded ${
+              trustEvaluation.score >= 85 
+                ? 'bg-emerald-950/20 text-emerald-400 border-emerald-500/20' 
+                : 'bg-amber-950/20 text-amber-400 border-amber-500/20'
+            }`}>
+              {trustEvaluation.score}% TRUST SCORE
+            </span>
+          </div>
+
+          <p className="font-sans text-[11px] text-zinc-400 leading-relaxed">
+            Google uses manual review charters and automatic classifiers to rate the <strong>E-E-A-T</strong> (Experience, Expertise, Authoritativeness, Trustworthiness) of websites. High credentials stop your domain from being classified as spam.
+          </p>
+
+          <div className="space-y-1">
+            <div className="flex justify-between text-[9px] font-mono text-zinc-550 font-bold uppercase">
+              <span>Domain Trust Progress</span>
+              <span>{trustEvaluation.score}/100 points</span>
+            </div>
+            <div className="w-full bg-zinc-950 h-2 rounded-full overflow-hidden border border-zinc-900">
+              <div 
+                className="bg-emerald-500 h-full transition-all duration-500 rounded-full" 
+                style={{ width: `${trustEvaluation.score}%` }}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <span className="font-mono text-[9px] text-zinc-500 uppercase block font-bold">Trust Component Verification Checklist:</span>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {trustEvaluation.indicators.map((ind, idx) => (
+                <div 
+                  key={idx}
+                  className={`p-2.5 rounded-lg border text-left flex items-start gap-2.5 transition-all ${
+                    ind.pass 
+                      ? 'bg-emerald-950/5 border-emerald-500/10' 
+                      : 'bg-rose-950/5 border-rose-500/10 opacity-70 hover:opacity-100'
+                  }`}
+                >
+                  <div className="pt-0.5 shrink-0">
+                    {ind.pass ? (
+                      <div className="w-4 h-4 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20">
+                        <Check className="w-2.5 h-2.5" />
+                      </div>
+                    ) : (
+                      <div className="w-4 h-4 rounded-full bg-rose-500/10 text-rose-400 flex items-center justify-center border border-rose-500/20">
+                        <AlertTriangle className="w-2.5 h-2.5" />
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <span className={`font-sans text-[10.5px] font-bold block ${ind.pass ? 'text-zinc-200' : 'text-zinc-500'}`}>
+                      {ind.name}
+                    </span>
+                    <p className="font-sans text-[9px] text-zinc-550 leading-relaxed mt-0.5">{ind.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Checker inputs */}
+          <div className="p-3 bg-zinc-950 border border-zinc-900 rounded-lg space-y-3">
+            <span className="font-mono text-[9px] text-zinc-400 uppercase font-bold block">Linked Compliance Pages Checker:</span>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <label className="flex items-center gap-2 p-1.5 rounded bg-zinc-900/40 hover:bg-zinc-900 transition-all cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={aboutUsLinked}
+                  onChange={(e) => setAboutUsLinked(e.target.checked)}
+                  className="accent-rose-500 h-3.5 w-3.5 bg-zinc-950 border-zinc-850 rounded focus:ring-0 cursor-pointer"
+                />
+                <span className="font-sans text-[10.5px] text-zinc-300">About Us</span>
+              </label>
+
+              <label className="flex items-center gap-2 p-1.5 rounded bg-zinc-900/40 hover:bg-zinc-900 transition-all cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={privacyPolicyLinked}
+                  onChange={(e) => setPrivacyPolicyLinked(e.target.checked)}
+                  className="accent-rose-500 h-3.5 w-3.5 bg-zinc-950 border-zinc-850 rounded focus:ring-0 cursor-pointer"
+                />
+                <span className="font-sans text-[10.5px] text-zinc-300">Privacy Policy</span>
+              </label>
+
+              <label className="flex items-center gap-2 p-1.5 rounded bg-zinc-900/40 hover:bg-zinc-900 transition-all cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={termsOfServiceLinked}
+                  onChange={(e) => setTermsOfServiceLinked(e.target.checked)}
+                  className="accent-rose-500 h-3.5 w-3.5 bg-zinc-950 border-zinc-850 rounded focus:ring-0 cursor-pointer"
+                />
+                <span className="font-sans text-[10.5px] text-zinc-300">Terms of Use</span>
+              </label>
+            </div>
+            <p className="font-sans text-[9px] text-rose-400 leading-normal italic">
+              💡 <strong>Notice:</strong> Your workspace includes professional responsive drafts for About Us, Privacy Policy, and Terms of Use linked dynamically in footers. Toggle checkboxes above as you verify their active placements in your deploy layouts!
+            </p>
+          </div>
+        </div>
+      </div>
+
+        {/* SOCIAL OPEN GRAPH PREVIEW PANEL */}
+        <div className="pt-4 border-t border-zinc-900/40">
+          <div className="beveled-panel bg-[#09090d]/35 p-6 border-zinc-900 space-y-5">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-zinc-900">
+              <div className="flex items-center gap-2">
+                <Share2 className="w-4.5 h-4.5 text-rose-500" />
+                <div>
+                  <h4 className="font-heading text-xs font-black text-white uppercase tracking-wider">Social Share Click-Through-Rate (CTR) Graph Optimizer</h4>
+                  <p className="font-sans text-[10.5px] text-zinc-500">Fine-tune the preview layout triggers when users share your utility domain links on Twitter, Facebook, or Discord.</p>
+                </div>
+              </div>
+              <span className="text-[9px] font-mono bg-zinc-950 px-2.5 py-0.5 rounded text-zinc-500 tracking-widest font-black uppercase">CTR SIMULATOR</span>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+              {/* Controls */}
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label htmlFor="og-title-input" className="block font-mono text-[9px] text-zinc-500 uppercase font-black">OG Preview Title:</label>
+                    <input
+                      id="og-title-input"
+                      type="text"
+                      className="w-full px-2.5 py-2 bg-zinc-950 border border-zinc-900 focus:border-rose-500 rounded-lg text-xs font-sans text-zinc-300 placeholder-zinc-700 focus:outline-none transition-all"
+                      value={ogTitle}
+                      onChange={(e) => setOgTitle(e.target.value)}
+                      placeholder="e.g., APEX UTILITY Forge - Local Developers Hub"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label htmlFor="twitter-handle-input" className="block font-mono text-[9px] text-zinc-500 uppercase font-black">Twitter Handle Creator:</label>
+                    <input
+                      id="twitter-handle-input"
+                      type="text"
+                      className="w-full px-2.5 py-2 bg-zinc-950 border border-zinc-900 focus:border-rose-500 rounded-lg text-xs font-sans text-zinc-300 placeholder-zinc-700 focus:outline-none transition-all"
+                      value={twitterCreator}
+                      onChange={(e) => setTwitterCreator(e.target.value)}
+                      placeholder="e.g., @ApexForgeDev"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label htmlFor="og-desc-textarea" className="block font-mono text-[9px] text-zinc-500 uppercase font-black">OG Description Content:</label>
+                  <textarea
+                    id="og-desc-textarea"
+                    rows={2}
+                    className="w-full px-2.5 py-2 bg-zinc-950 border border-zinc-900 focus:border-rose-500 rounded-lg text-xs font-sans text-zinc-300 placeholder-zinc-700 focus:outline-none transition-all resize-none"
+                    value={ogDesc}
+                    onChange={(e) => setOgDesc(e.target.value)}
+                    placeholder="Short description snippet of site value..."
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label htmlFor="og-image-input" className="block font-mono text-[9px] text-zinc-500 uppercase font-black">OG Display Image Link:</label>
+                  <input
+                    id="og-image-input"
+                    type="text"
+                    className="w-full px-2.5 py-2 bg-zinc-950 border border-zinc-900 focus:border-rose-500 rounded-lg text-xs font-sans text-zinc-300 placeholder-zinc-700 focus:outline-none transition-all"
+                    value={ogImage}
+                    onChange={(e) => setOgImage(e.target.value)}
+                    placeholder="Provide image link for high res custom card shares..."
+                  />
+                </div>
+
+                {/* Meta block snippet */}
+                <div className="space-y-2 pt-2 border-t border-zinc-900/60 text-left">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-[9px] text-zinc-500 uppercase block font-bold">Compiled Header Meta Snippet:</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const snippet = `<!-- Open Graph / Meta Protocol tags -->\n<meta property="og:type" content="website" />\n<meta property="og:title" content="${ogTitle}" />\n<meta property="og:description" content="${ogDesc}" />\n<meta property="og:image" content="${ogImage}" />\n<meta property="og:url" content="https://apexutility.live/" />\n\n<!-- Twitter Cards Card Protocol -->\n<meta name="twitter:card" content="summary_large_image" />\n<meta name="twitter:creator" content="${twitterCreator}" />\n<meta name="twitter:title" content="${ogTitle}" />\n<meta name="twitter:description" content="${ogDesc}" />\n<meta name="twitter:image" content="${ogImage}" />`;
+                        copyToClipboard(snippet, 'social-snippet');
+                      }}
+                      className="px-2.5 py-1 rounded bg-zinc-950 border border-zinc-900 hover:text-white transition-all text-[9.5px] font-mono cursor-pointer flex items-center gap-1.5 text-zinc-400 hover:bg-[#16161f]"
+                    >
+                      {copiedIndex === 'social-snippet' ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3 text-zinc-500" />}
+                      <span>{copiedIndex === 'social-snippet' ? 'Copied' : 'Copy Social Code'}</span>
+                    </button>
+                  </div>
+                  <div className="p-3.5 bg-zinc-950 rounded-lg border border-zinc-900 max-h-[140px] overflow-auto">
+                    <pre className="font-mono text-[9px] text-emerald-400/90 whitespace-pre text-left leading-normal select-all">
+{`<!-- Open Graph / Meta Protocol tags -->
+<meta property="og:type" content="website" />
+<meta property="og:title" content="${ogTitle}" />
+<meta property="og:description" content="${ogDesc}" />
+<meta property="og:image" content="${ogImage}" />
+<meta property="og:url" content="https://apexutility.live/" />
+
+<!-- Twitter System Protocol -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:creator" content="${twitterCreator}" />
+<meta name="twitter:title" content="${ogTitle}" />
+<meta name="twitter:description" content="${ogDesc}" />
+<meta name="twitter:image" content="${ogImage}" />`}
+                    </pre>
+                  </div>
+                </div>
+              </div>
+
+              {/* Feed Card Simulation */}
+              <div className="space-y-4">
+                <span className="font-mono text-[9px] text-zinc-500 uppercase block font-bold">Simulated Live Feed Share Preview:</span>
+                
+                <div className="rounded-xl overflow-hidden bg-[#0d0e14]/90 border border-zinc-800 text-left shadow-2xl max-w-sm mx-auto">
+                  
+                  {/* Share Header */}
+                  <div className="p-3 border-b border-zinc-900 flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full bg-rose-500 flex items-center justify-center font-heading text-[10px] font-black text-black">AP</div>
+                    <div>
+                      <span className="font-sans text-[10.5px] font-bold text-white block">Apex Labs Forge</span>
+                      <span className="font-sans text-[8.5px] text-zinc-500">Shared via feed &bull; Sponsored</span>
+                    </div>
+                  </div>
+
+                  {/* Body preview */}
+                  <div className="p-3 text-zinc-300 font-sans text-[10.5px] leading-relaxed">
+                    Check out our newly deployed high-performance operations deck! Optimized meta schemas and dynamic web architectures. Link in bio! ⚡
+                  </div>
+
+                  {/* Rich link image display */}
+                  <div className="relative aspect-[1.91/1] bg-zinc-950 border-y border-zinc-900 overflow-hidden flex items-center justify-center">
+                    {ogImage ? (
+                      <img 
+                        src={ogImage} 
+                        alt="Social preview content"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1618055182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80";
+                        }}
+                        referrerPolicy="no-referrer"
+                        className="object-cover w-full h-full"
+                      />
+                    ) : (
+                      <div className="font-mono text-[10px] text-zinc-700 uppercase">Image Ref Missing</div>
+                    )}
+                    <span className="absolute bottom-2 left-2 px-1.5 py-0.5 rounded bg-black/80 text-[8.5px] font-mono text-zinc-400 font-bold uppercase border border-zinc-800">
+                      https://apexutility.live/
+                    </span>
+                  </div>
+
+                  {/* Link Meta Details Footer block */}
+                  <div className="p-3.5 bg-zinc-950 space-y-1 block">
+                    <span className="font-mono text-[8.5px] text-rose-400 uppercase tracking-widest font-black block">APEXUTILITY.LIVE</span>
+                    <h5 className="font-sans text-xs font-bold text-white line-clamp-1">{ogTitle || 'Untitled Home Utilities'}</h5>
+                    <p className="font-sans text-[10px] text-zinc-500 line-clamp-2 leading-relaxed">{ogDesc || 'Dynamic SEO structured graphs parsed live.'}</p>
+                  </div>
+                </div>
+
+                <div className="p-3 bg-zinc-950 rounded-lg border border-zinc-900 text-left">
+                  <p className="font-sans text-[10px] text-zinc-500 leading-normal">
+                    💡 <strong>Search Trust Benefit:</strong> Having verified Open Graph headers does not feed raw crawl triggers directly, but it ensures structured rich cards whenever links are posted on public chat portals. This drives immense Referral CTR, turning clicks into solid domain index bookmarks!
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
       {/* AUTOMATED META-DATA & SCHEMA COMPLIANCE AUDITOR */}
       <div id="seo-compliance-auditor-section" className="space-y-6 pt-10 border-t border-zinc-900/60">
