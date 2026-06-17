@@ -51,7 +51,10 @@ export default function Guides({ onTabChange }: GuidesProps) {
     'secure-password-entropy': 92,
     'digital-signature-algorithms': 63,
     'regex-performance-tuning': 81,
-    'lorem-content-placeholder': 49
+    'lorem-content-placeholder': 49,
+    'ai-pdf-analysis': 67,
+    'csv-json-tabular': 52,
+    'local-image-crop': 59
   });
   const [userLiked, setUserLiked] = useState<Record<string, boolean>>({});
   const [suggestionName, setSuggestionName] = useState('');
@@ -1357,6 +1360,217 @@ export default function Guides({ onTabChange }: GuidesProps) {
           </ul>
         </div>
       )
+    },
+    {
+      id: 'ai-pdf-analysis',
+      title: 'Conversing with Documents: Behind high-fidelity AI Document Analytics & RAG Pipelines',
+      excerpt: 'Discover how large language models handle PDF document payloads in client-interactive environments. Learn to inspect, summarize, and cross-examine long-form legal, financial, or academic records safely and securely.',
+      topic: 'Content & AI',
+      icon: Wand2,
+      relatedTool: 'pdf-analyst',
+      readTime: '8 min read',
+      date: 'June 15, 2026',
+      author: 'APEX AI RESEARCH',
+      role: 'NLP Systems Architect',
+      tags: ['PDF Analyst', 'Generative AI', 'Gemini AI', 'Document Summarization', 'RAG Pipelines'],
+      content: (
+        <div className="space-y-6 font-sans text-sm text-zinc-300 leading-relaxed text-justify">
+          <p>
+            In the modern digital workflow, Portable Document Format (PDF) files are the standard for long-form textual payloads. However, manually analyzing, auditing, and digesting structured data from a hundred-page legal contract or dense academic study remains a massive time bottleneck. This is where <strong>Conversational Document AI</strong> and <strong>Retrieval-Augmented Generation (RAG)</strong> revolutionize developer productivity.
+          </p>
+          <p>
+            By linking high-performance client-side previews with robust server-side machine intelligence (such as Google Gemini models), users can cross-examine their files in plain English.
+          </p>
+
+          <div className="p-4 bg-zinc-950 rounded-xl border border-zinc-900 font-mono text-[11px] text-zinc-400 space-y-2 text-left">
+            <div className="text-zinc-200 uppercase tracking-widest font-extrabold text-[9px] flex items-center gap-1.5 mb-1 text-purple-400 font-bold">
+              <Wand2 className="w-3.5 h-3.5 text-purple-400" />
+              <span>AI PDF Summarizer Pipeline Trace</span>
+            </div>
+            <div>[STAGE 1] Document Uploaded: Local PDF file size 4.2 MB read successfully.</div>
+            <div>[STAGE 2] Content Parsing: Text stream segments extracted with page-mapped offsets.</div>
+            <div>[STAGE 3] Query Context Integration: Prompt coupled with document contents sent to Gemini.</div>
+            <div>[STAGE 4] Stream Response: Structured analytical summary displayed with zero-delay buffers.</div>
+            <div className="text-purple-400 font-semibold">[SUCCESS] Detailed insights synthesized. Sandbox idle & secure.</div>
+          </div>
+
+          <h3 className="font-heading text-xs font-black text-white uppercase tracking-wider mt-4">
+            How PDF Conversational AI Works
+          </h3>
+          <p>
+            A high-fidelity RAG flow typically executes several key steps:
+          </p>
+          <ul className="list-disc pl-5 space-y-2 text-zinc-400">
+            <li>
+              <strong className="text-white">Document Ingestion:</strong> The files are loaded into browser memory. If the document is heavy or layered, the parser extracts text coordinates and constructs a memory-mapped structure of pages.
+            </li>
+            <li>
+              <strong className="text-white">Context Partitioning:</strong> Since LLMs have high but finite context limits, the system breaks long text blocks into smaller sections or matches queries focusing on active sections.
+            </li>
+            <li>
+              <strong className="text-white">Secure API Gateway:</strong> Queries and parsed segments are sent through a secure server-side proxy route to the AI engine. This preserves user context while safeguarding master API keys.
+            </li>
+          </ul>
+
+          <div className="p-5 bg-brand/5 border border-brand/20 rounded-xl text-center space-y-3 my-6">
+            <h4 className="font-heading text-xs font-black text-brand uppercase tracking-wider">
+              🚀 Try This On Your Own Payload Instantly
+            </h4>
+            <p className="text-xs text-zinc-300">
+              Why read about PDF summarizers when you can use one? Launch our interactive AI Document Analyst to chat, query, and summarize any PDF instantly!
+            </p>
+            <button
+              onClick={() => onTabChange('pdf-analyst')}
+              className="px-4 py-1.5 bg-brand text-zinc-950 hover:bg-brand-hover hover:text-white transition-all font-heading text-[10px] font-black tracking-wider uppercase rounded-lg inline-flex items-center gap-1.5 cursor-pointer shadow-md shadow-brand/10 mx-auto"
+            >
+              <span>RUN AI PDF ANALYST WORKSPACE</span>
+              <ExternalLink className="w-3" />
+            </button>
+          </div>
+
+          <h3 className="font-heading text-xs font-black text-white uppercase tracking-wider mt-4">
+            Securing Your Sensitive Data
+          </h3>
+          <p>
+            Enterprise legal agreements and financial ledgers represent high-stakes intellectual property. To ensure total safety, our <strong>Apex PDF Analyst</strong> avoids uploading files to third-party file repositories. Files are parsed 100% locally in your browser workspace, and only the active conversational prompts and text fragments are queried through secure server-side API proxy routes.
+          </p>
+        </div>
+      )
+    },
+    {
+      id: 'csv-json-tabular',
+      title: 'Tabular Data Normalization: Streamlining Client-Side CSV-to-JSON and JSON-to-CSV Transformations',
+      excerpt: 'Review the mechanics of parsing tabular grid formats like CSV into structured nested JSON arrays. Understand RFC 4180 parsing compliance, handling escaped double-quotes, and parallel cell transformations.',
+      topic: 'Utility Matrix',
+      icon: FileCode,
+      relatedTool: 'csv-json-converter',
+      readTime: '6 min read',
+      date: 'June 16, 2026',
+      author: 'APEX DATA LABS',
+      role: 'Senior Systems Integrator',
+      tags: ['CSV JSON Converter', 'Data Transformations', 'RFC 4180', 'In-Browser Parsers', 'Grid Layouts'],
+      content: (
+        <div className="space-y-6 font-sans text-sm text-zinc-300 leading-relaxed text-justify">
+          <p>
+            In software integration, data interchange formats can vary wildly between environments. Standard spreadsheets and databases rely heavily on Comma-Separated Values (<strong>CSV</strong>), while web applications, modern servers, and API payloads favor JavaScript Object Notation (<strong>JSON</strong>). Efficient, error-free conversion between these two formats is essential for clean data integration.
+          </p>
+
+          <div className="p-4 bg-zinc-950 rounded-xl border border-zinc-900 font-mono text-[11px] text-zinc-400 space-y-2 text-left">
+            <div className="text-zinc-200 uppercase tracking-widest font-extrabold text-[9px] flex items-center gap-1.5 mb-1 text-emerald-400 font-bold">
+              <FileCode className="w-3.5 h-3.5 text-emerald-400" />
+              <span>CSV-to-JSON Parser Diagnostics</span>
+            </div>
+            <div>[STATE] Parsing CSV source string: "id,name,role\n1,""Yasin, Dev"",Architect"</div>
+            <div>[PARSER] Scanning tokens & respecting RFC 4180 nested quote values...</div>
+            <div>[MAP] Mapping row values to JSON object parameters...</div>
+            <div>[SUCCESS] Structured array formatted correctly. Ready for clipboard.</div>
+            <div className="text-emerald-400 font-semibold">{"[RESULT] JSON Payload: [{\"id\": \"1\", \"name\": \"Yasin, Dev\", \"role\": \"Architect\"}]"}</div>
+          </div>
+
+          <h3 className="font-heading text-xs font-black text-white uppercase tracking-wider mt-4">
+            RFC 4180 Parsing Compliance
+          </h3>
+          <p>
+            While CSV sounds simple, raw splitting (like using <code>row.split(',')</code>) often fails when data columns contain commas themselves (e.g., descriptions or addresses) or wrapped double-quotes. Writing a standard parser that complies with <strong>RFC 4180</strong> is critical to guarantee that columns containing commas are handled as single values if wrapped in quotes, and doubled quotes represent literal quotes.
+          </p>
+
+          <div className="p-5 bg-brand/5 border border-brand/20 rounded-xl text-center space-y-3 my-6">
+            <h4 className="font-heading text-xs font-black text-brand uppercase tracking-wider">
+              🚀 Instantly Convert Your Spreadsheet Data
+            </h4>
+            <p className="text-xs text-zinc-300">
+              Transform lists or grids into beautiful JSON arrays or valid CSV tables instantly. Run our high-performance client-side CSV ⇄ JSON Converter now!
+            </p>
+            <button
+              onClick={() => onTabChange('csv-json-converter')}
+              className="px-4 py-1.5 bg-brand text-zinc-950 hover:bg-brand-hover hover:text-white transition-all font-heading text-[10px] font-black tracking-wider uppercase rounded-lg inline-flex items-center gap-1.5 cursor-pointer shadow-md shadow-brand/10 mx-auto"
+            >
+              <span>RUN EXCEL / CSV CONVERTER</span>
+              <ExternalLink className="w-3" />
+            </button>
+          </div>
+
+          <h3 className="font-heading text-xs font-black text-white uppercase tracking-wider mt-4">
+            Advantages of Browser-Native Transformations
+          </h3>
+          <p>
+            Online spreadsheet converters often feed your files to cloud servers, risking exposure of confidential spreadsheets, lists, or transactional columns. By opting for an isolated browser environment like the <strong>Apex CSV ⇄ JSON Converter</strong>, your data never crosses the network—all parsing is processed within local memory buffers instantly!
+          </p>
+        </div>
+      )
+    },
+    {
+      id: 'local-image-crop',
+      title: 'Visual Precision: Mathematical Modeling of Fluid Crop Rectangles and Dynamic Canvas Resizing',
+      excerpt: 'Understand the frontend algorithms that calculate free-form coordinate bounding boxes, fixed aspect ratio scaling, and smart canvas expansion with blurred margin padding.',
+      topic: 'Media Lab',
+      icon: Zap,
+      relatedTool: 'image-cropper',
+      readTime: '7 min read',
+      date: 'June 16, 2026',
+      author: 'APEX CREATIVE LABS',
+      role: 'Senior Frontend Engineer',
+      tags: ['Image Cropper', 'Canvas Graphics', 'Aspect Ratio Bounds', 'Visual Resizing', 'Privacy First'],
+      content: (
+        <div className="space-y-6 font-sans text-sm text-zinc-300 leading-relaxed text-justify">
+          <p>
+            Whether prepping imagery for a social feed, formatting profile avatar snapshots, or extracting graphic frames, cropping requires precise visual calibration. A modern crop tool goes beyond simple masking. Developers must calculate normalized layout ratios, scale pixel dimension densities, and maintain crisp canvas render contexts.
+          </p>
+
+          <div className="p-4 bg-zinc-950 rounded-xl border border-zinc-900 font-mono text-[11px] text-zinc-400 space-y-2 text-left">
+            <div className="text-zinc-200 uppercase tracking-widest font-extrabold text-[9px] flex items-center gap-1.5 mb-1 text-cyan-400 font-bold">
+              <Zap className="w-3.5 h-3.5 text-cyan-400" />
+              <span>Canvas crop bounding diagnostics</span>
+            </div>
+            <div>[IMAGE] Source dimensional layout: 3840 x 2160 pixels (Landscape)</div>
+            <div>[TARGET] Aspect Ratio Locked: 1:1 (Square Profile Mode)</div>
+            <div>[MATH] Calculating crop box offsets: Top: 0px, Left: 840px, ActiveWidth: 2160px</div>
+            <div>[STAGE] Rendering focused thumbnail inside output virtual canvas...</div>
+            <div className="text-cyan-400 font-semibold">[SUCCESS] Lossless PNG asset compiled in canvas background. Ready to save.</div>
+          </div>
+
+          <h3 className="font-heading text-xs font-black text-white uppercase tracking-wider mt-4">
+            Mathematical Modeling of Aspect Ratios
+          </h3>
+          <p>
+            When a user locks their aspect ratio (e.g., 16:9 for presentations, 1:1 for headshots), the crop boundary bounding box coordinates must follow constant scaling relationships. Formulating the interactive loop requires tracking canvas pointer offsets and mapping them into the original image's coordinates:
+          </p>
+          <ul className="list-disc pl-5 space-y-2 text-zinc-400">
+            <li>
+              <strong className="text-white">Active Scaling:</strong> Resizing a side must automatically recalculate the orthogonal boundary size according to the target ratio.
+            </li>
+            <li>
+              <strong className="text-white">Bound Clamping:</strong> Prevent bounding drag lines from spilling outside the source image's real height or width boundaries.
+            </li>
+            <li>
+              <strong className="text-white">Padding Extrapolations:</strong> For image expansions, developers can apply smart borders or elegant gaussian blurred background padding in canvas contexts.
+            </li>
+          </ul>
+
+          <div className="p-5 bg-brand/5 border border-brand/20 rounded-xl text-center space-y-3 my-6">
+            <h4 className="font-heading text-xs font-black text-brand uppercase tracking-wider">
+              🚀 Crop and Resize Your Creative Assets Instantly
+            </h4>
+            <p className="text-xs text-zinc-300">
+              Need to lock a ratio, crop a frame, or expand your thumbnail's padding? Drag and drop your shots into our private interactive Image Cropper now!
+            </p>
+            <button
+              onClick={() => onTabChange('image-cropper')}
+              className="px-4 py-1.5 bg-brand text-zinc-950 hover:bg-brand-hover hover:text-white transition-all font-heading text-[10px] font-black tracking-wider uppercase rounded-lg inline-flex items-center gap-1.5 cursor-pointer shadow-md shadow-brand/10 mx-auto"
+            >
+              <span>RUN INTERACTIVE IMAGE CROPPER</span>
+              <ExternalLink className="w-3" />
+            </button>
+          </div>
+
+          <h3 className="font-heading text-xs font-black text-white uppercase tracking-wider mt-4">
+            Securing Your Visual Assets
+          </h3>
+          <p>
+            Unlike typical online image editing portals that silently upload and store images on cloud databases, our <strong>Apex Image Cropper & Resizer</strong> uses standard browser-native HTML5 Canvas layers. Every resize, crop, and padding action occurs entirely inside your secure browser sandbox, ensuring absolute data privacy.
+          </p>
+        </div>
+      )
     }
   ];
 
@@ -1378,6 +1592,34 @@ export default function Guides({ onTabChange }: GuidesProps) {
 
   return (
     <div className="space-y-8 max-w-5xl mx-auto">
+      {/* Blog Subdomain Announcement Bar */}
+      <div id="blog-subdomain-bar" className="relative group overflow-hidden bg-gradient-to-r from-brand/10 via-zinc-950 to-brand/10 border border-brand/20 p-4 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4 text-left shadow-lg">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_right,_var(--tw-gradient-stops))] from-brand/5 via-transparent to-transparent pointer-events-none" />
+        <div className="flex items-center gap-3 relative z-10">
+          <div className="p-2.5 rounded-lg bg-brand/10 text-brand">
+            <Sparkles className="w-5 h-5 text-brand animate-pulse" />
+          </div>
+          <div>
+            <h4 className="font-heading text-xs font-black tracking-wider uppercase text-white flex items-center gap-1.5">
+              <span>Apex Blog Subdomain Live</span>
+              <span className="bg-brand/15 border border-brand/30 text-brand text-[8px] font-mono px-1.5 py-0.5 rounded uppercase font-bold animate-pulse">NEW REDIRECT</span>
+            </h4>
+            <p className="font-sans text-[11px] text-zinc-400 mt-0.5 max-w-xl">
+              Host high-efficiency dynamic sitemaps, verify indexing pipelines, and read full editorial articles directly at <a href="https://blog.apexutility.live" target="_blank" rel="noopener noreferrer" className="text-brand font-bold hover:underline">blog.apexutility.live</a> to further boost search traffic.
+            </p>
+          </div>
+        </div>
+        <a 
+          href="https://blog.apexutility.live" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="px-3.5 py-1.5 bg-brand text-zinc-950 hover:bg-brand-hover hover:text-white transition-all font-heading text-[10px] font-black tracking-wider uppercase rounded-lg flex items-center gap-1.5 shrink-0 cursor-pointer shadow-md shadow-brand/10"
+        >
+          <span>READ SUBDOMAIN</span>
+          <ExternalLink className="w-3 h-3" />
+        </a>
+      </div>
+
       {/* Header Panel */}
       <div className="beveled-panel bg-[#09090d]/95 p-6 md:p-10 border-brand-border/40 shadow-2xl relative overflow-hidden text-left">
         <div className="absolute top-0 right-0 w-[400px] h-[400px] rounded-full blur-[100px] pointer-events-none -mr-40 -mt-40" style={{ backgroundColor: 'var(--theme-glow)', opacity: 0.15 }} />
