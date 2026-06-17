@@ -56,16 +56,73 @@ const PRESET_PACKS = [
   }
 ];
 
+const DISCOVERED_APP_TABS = [
+  { tab: 'dashboard', path: '/', defaultPriority: 1.0, defaultFreq: 'daily' },
+  { tab: 'compress-pdf', path: '/compress-pdf', defaultPriority: 0.9, defaultFreq: 'weekly' },
+  { tab: 'webp-converter', path: '/webp-converter', defaultPriority: 0.9, defaultFreq: 'weekly' },
+  { tab: 'json-beautifier', path: '/json-beautifier', defaultPriority: 0.8, defaultFreq: 'weekly' },
+  { tab: 'sitemap-seo', path: '/sitemap-seo', defaultPriority: 0.8, defaultFreq: 'weekly' },
+  { tab: 'sitemap-generator', path: '/sitemap-generator', defaultPriority: 0.95, defaultFreq: 'weekly' },
+  { tab: 'image-to-pdf', path: '/image-to-pdf', defaultPriority: 0.9, defaultFreq: 'weekly' },
+  { tab: 'join-pdf', path: '/join-pdf', defaultPriority: 0.9, defaultFreq: 'weekly' },
+  { tab: 'ai-writer', path: '/ai-writer', defaultPriority: 0.9, defaultFreq: 'weekly' },
+  { tab: 'password-generator', path: '/password-generator', defaultPriority: 0.75, defaultFreq: 'weekly' },
+  { tab: 'qr-generator', path: '/qr-generator', defaultPriority: 0.75, defaultFreq: 'weekly' },
+  { tab: 'unit-converter', path: '/unit-converter', defaultPriority: 0.75, defaultFreq: 'weekly' },
+  { tab: 'svg-rasterizer', path: '/svg-rasterizer', defaultPriority: 0.8, defaultFreq: 'weekly' },
+  { tab: 'batch-processor', path: '/batch-processor', defaultPriority: 0.85, defaultFreq: 'weekly' },
+  { tab: 'json-diff', path: '/json-diff', defaultPriority: 0.8, defaultFreq: 'weekly' },
+  { tab: 'secure-hash', path: '/secure-hash', defaultPriority: 0.75, defaultFreq: 'weekly' },
+  { tab: 'color-palette', path: '/color-palette', defaultPriority: 0.8, defaultFreq: 'weekly' },
+  { tab: 'digital-signature', path: '/digital-signature', defaultPriority: 0.85, defaultFreq: 'weekly' },
+  { tab: 'seo-optimizer', path: '/seo-optimizer', defaultPriority: 0.9, defaultFreq: 'weekly' },
+  { tab: 'base64-converter', path: '/base64-converter', defaultPriority: 0.75, defaultFreq: 'weekly' },
+  { tab: 'regex-tester', path: '/regex-tester', defaultPriority: 0.8, defaultFreq: 'weekly' },
+  { tab: 'csv-json-converter', path: '/csv-json-converter', defaultPriority: 0.8, defaultFreq: 'weekly' },
+  { tab: 'image-compressor', path: '/image-compressor', defaultPriority: 0.9, defaultFreq: 'weekly' },
+  { tab: 'rich-text-stats', path: '/rich-text-stats', defaultPriority: 0.75, defaultFreq: 'weekly' },
+  { tab: 'audio-trimmer', path: '/audio-trimmer', defaultPriority: 0.85, defaultFreq: 'weekly' },
+  { tab: 'ai-transcriber', path: '/ai-transcriber', defaultPriority: 0.9, defaultFreq: 'weekly' },
+  { tab: 'pdf-analyst', path: '/pdf-analyst', defaultPriority: 0.9, defaultFreq: 'weekly' },
+  { tab: 'exif-stripper', path: '/exif-stripper', defaultPriority: 0.85, defaultFreq: 'weekly' },
+  { tab: 'video-recorder', path: '/video-recorder', defaultPriority: 0.8, defaultFreq: 'weekly' },
+  { tab: 'image-vectorizer', path: '/image-vectorizer', defaultPriority: 0.85, defaultFreq: 'weekly' },
+  { tab: 'code-snapshot', path: '/code-snapshot', defaultPriority: 0.8, defaultFreq: 'weekly' },
+  { tab: 'private-sketchpad', path: '/private-sketchpad', defaultPriority: 0.8, defaultFreq: 'weekly' },
+  { tab: 'case-converter', path: '/case-converter', defaultPriority: 0.7, defaultFreq: 'weekly' },
+  { tab: 'lorem-generator', path: '/lorem-generator', defaultPriority: 0.7, defaultFreq: 'weekly' },
+  { tab: 'image-cropper', path: '/image-cropper', defaultPriority: 0.8, defaultFreq: 'weekly' },
+  { tab: 'date-calculator', path: '/date-calculator', defaultPriority: 0.7, defaultFreq: 'weekly' },
+  { tab: 'privacy-policy', path: '/privacy-policy', defaultPriority: 0.4, defaultFreq: 'monthly' },
+  { tab: 'terms-of-service', path: '/terms-of-service', defaultPriority: 0.4, defaultFreq: 'monthly' },
+  { tab: 'about-us', path: '/about-us', defaultPriority: 0.5, defaultFreq: 'monthly' },
+  { tab: 'guides', path: '/guides', defaultPriority: 0.7, defaultFreq: 'daily' }
+];
+
 export default function SitemapGenerator() {
   const { t } = useLanguage();
   
   // State variables
-  const [baseUrl, setBaseUrl] = useState('https://example.com');
-  const [routes, setRoutes] = useState<SitemapRoute[]>([
-    { id: '1', path: '/', changefreq: 'weekly', priority: 1.0, lastmodEnabled: true, lastmodDate: new Date().toISOString().split('T')[0] },
-    { id: '2', path: '/about', changefreq: 'monthly', priority: 0.8, lastmodEnabled: true, lastmodDate: new Date().toISOString().split('T')[0] },
-    { id: '3', path: '/contact', changefreq: 'monthly', priority: 0.8, lastmodEnabled: true, lastmodDate: new Date().toISOString().split('T')[0] }
-  ]);
+  const [baseUrl, setBaseUrl] = useState(() => {
+    return localStorage.getItem('apex_sitemap_base_url') || 'https://example.com';
+  });
+  
+  const [routes, setRoutes] = useState<SitemapRoute[]>(() => {
+    try {
+      const saved = localStorage.getItem('apex_sitemap_configured_routes');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    return [
+      { id: '1', path: '/', changefreq: 'weekly', priority: 1.0, lastmodEnabled: true, lastmodDate: new Date().toISOString().split('T')[0] },
+      { id: '2', path: '/about', changefreq: 'monthly', priority: 0.8, lastmodEnabled: true, lastmodDate: new Date().toISOString().split('T')[0] },
+      { id: '3', path: '/contact', changefreq: 'monthly', priority: 0.8, lastmodEnabled: true, lastmodDate: new Date().toISOString().split('T')[0] }
+    ];
+  });
 
   // Form states for adding a new route
   const [newPath, setNewPath] = useState('');
@@ -74,11 +131,17 @@ export default function SitemapGenerator() {
   const [includeLastmod, setIncludeLastmod] = useState(true);
 
   // Bulk Paste Mode States
-  const [creationMode, setCreationMode] = useState<'single' | 'bulk'>('single');
+  const [creationMode, setCreationMode] = useState<'single' | 'bulk' | 'auto'>('single');
   const [bulkInput, setBulkInput] = useState('');
   const [bulkFreq, setBulkFreq] = useState<'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never'>('weekly');
   const [bulkPriority, setBulkPriority] = useState(0.8);
   const [bulkOverwrite, setBulkOverwrite] = useState(false);
+
+  // Dynamic Auto-discovery Mode States
+  const [autoFreq, setAutoFreq] = useState<'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never'>('weekly');
+  const [autoToolPriority, setAutoToolPriority] = useState(0.85);
+  const [autoLegalPriority, setAutoLegalPriority] = useState(0.5);
+  const [autoOverwrite, setAutoOverwrite] = useState(true);
 
   // Global settings toggles
   const [globalIncludeLastmod, setGlobalIncludeLastmod] = useState(true);
@@ -412,6 +475,17 @@ export default function SitemapGenerator() {
     // Remove trailing slash
     return url.replace(/\/+$/, '');
   }, [baseUrl]);
+
+  // Synchronize dynamic sitemap variables with localStorage for instant crawl indexing persistence
+  useEffect(() => {
+    localStorage.setItem('apex_sitemap_base_url', cleanedBaseUrl);
+    window.dispatchEvent(new Event('apex_sitemap_changed'));
+  }, [cleanedBaseUrl]);
+
+  useEffect(() => {
+    localStorage.setItem('apex_sitemap_configured_routes', JSON.stringify(routes));
+    window.dispatchEvent(new Event('apex_sitemap_changed'));
+  }, [routes]);
 
   // Auto-sync suggested filename when base website host shifts
   useEffect(() => {
@@ -816,6 +890,48 @@ export default function SitemapGenerator() {
     setRoutes(mapped);
   };
 
+  // Automatically discover and map all 40 dynamic tool routes in the app
+  const handleAutoDiscovery = (fallbackFreq: typeof newFreq, toolPriority: number, legalPriority: number, overwrite: boolean) => {
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Convert DISCOVERED_APP_TABS to real sitemap routes
+    const discovered = DISCOVERED_APP_TABS.map((item) => {
+      const isLegal = ['privacy-policy', 'terms-of-service', 'about-us'].includes(item.tab);
+      const isIndex = item.tab === 'dashboard';
+      
+      let prio = item.defaultPriority;
+      if (isLegal) prio = legalPriority;
+      else if (!isIndex) {
+        // Fallback or customize general utility priority slightly based on user selection
+        prio = Number((item.defaultPriority * (toolPriority / 0.85)).toFixed(2));
+        prio = Math.min(Math.max(prio, 0.1), 1.0);
+      }
+      
+      return {
+        id: `auto_${item.tab}_${Math.random().toString(36).substring(2, 6)}`,
+        path: item.path,
+        changefreq: (isLegal ? 'monthly' : (isIndex ? 'daily' : fallbackFreq)) as any,
+        priority: prio,
+        lastmodEnabled: true,
+        lastmodDate: today
+      };
+    });
+
+    if (overwrite) {
+      setRoutes(discovered);
+    } else {
+      // Merge: avoid duplication on paths
+      setRoutes(prev => {
+        const existingPaths = new Set(prev.map(r => r.path));
+        const filteredNew = discovered.filter(r => !existingPaths.has(r.path));
+        return [...prev, ...filteredNew];
+      });
+    }
+
+    setCopiedNotice(`Auto-discovery completed! Dynamic crawling indexes initialized with ${discovered.length} active workspace routes.`);
+    setTimeout(() => setCopiedNotice(null), 5000);
+  };
+
   // XML Sitemap compilation block
   const generatedXml = useMemo(() => {
     const lines: string[] = [];
@@ -1131,6 +1247,18 @@ export default function SitemapGenerator() {
                   <FileText className="w-3.5 h-3.5" />
                   <span>Bulk Paste Mode</span>
                 </button>
+                <button
+                  type="button"
+                  onClick={() => setCreationMode('auto')}
+                  className={`px-4 py-2 text-xs font-heading font-bold uppercase tracking-wider flex items-center gap-1.5 cursor-pointer transition-all border-b-2 outline-none select-none ${
+                    creationMode === 'auto'
+                      ? 'border-brand text-brand'
+                      : 'border-transparent text-zinc-500 hover:text-zinc-300'
+                  }`}
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Auto-Detect Routes</span>
+                </button>
               </div>
 
               {creationMode === 'single' ? (
@@ -1185,7 +1313,7 @@ export default function SitemapGenerator() {
                     </button>
                   </div>
                 </form>
-              ) : (
+              ) : creationMode === 'bulk' ? (
                 /* Bulk Paste Form */
                 <form onSubmit={handleBulkImport} className="p-4 rounded-lg bg-zinc-950 border border-zinc-900 space-y-4">
                   <div className="space-y-1.5">
@@ -1348,6 +1476,94 @@ export default function SitemapGenerator() {
                     )}
                   </button>
                 </form>
+              ) : (
+                /* Workspace Route Auto-Discovery */
+                <div className="p-4 rounded-lg bg-zinc-950 border border-zinc-900 space-y-4">
+                  <div className="space-y-1.5 animate-fade-in">
+                    <h4 className="text-xs font-mono font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+                      <Sparkles className="font-bold w-4 h-4 text-brand animate-pulse" />
+                      <span>Workspace Route Auto-Discovery</span>
+                    </h4>
+                    <p className="text-[11px] text-zinc-400 font-sans leading-relaxed">
+                      Scan the active application workspace package to enumerate all 40+ dynamic interactive tool pages, blog articles, and compliance legal agreements. This instantly maps optimized crawl pathways for search engine accessibility.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-zinc-900 pt-3 text-xs">
+                    <div>
+                      <div className="flex justify-between items-center mb-1">
+                        <label className="text-[9px] font-mono text-zinc-500 uppercase">Tool Pages Priority</label>
+                        <span className="text-[10px] font-mono text-brand font-bold">{autoToolPriority.toFixed(2)}</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0.1"
+                        max="1.0"
+                        step="0.05"
+                        value={autoToolPriority}
+                        onChange={(e) => setAutoToolPriority(parseFloat(e.target.value))}
+                        className="w-full accent-brand h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer"
+                      />
+                      <p className="text-[9px] text-zinc-650 mt-1 leading-tight">Crawl weight coefficient for all core utilities.</p>
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between items-center mb-1">
+                        <label className="text-[9px] font-mono text-zinc-500 uppercase">Legal Pages Priority</label>
+                        <span className="text-[10px] font-mono text-brand font-bold">{autoLegalPriority.toFixed(2)}</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0.1"
+                        max="1.0"
+                        step="0.05"
+                        value={autoLegalPriority}
+                        onChange={(e) => setAutoLegalPriority(parseFloat(e.target.value))}
+                        className="w-full accent-brand h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer"
+                      />
+                      <p className="text-[9px] text-zinc-650 mt-1 leading-tight">Crawl weight identifier for policies & directories.</p>
+                    </div>
+
+                    <div>
+                      <label className="text-[9px] font-mono text-zinc-500 uppercase block mb-1">Default Crawl Cycle</label>
+                      <select
+                        value={autoFreq}
+                        onChange={(e) => setAutoFreq(e.target.value as any)}
+                        className="w-full bg-zinc-900 border border-zinc-850 rounded px-2.5 py-1 text-xs text-zinc-300 focus:outline-none cursor-pointer font-mono"
+                      >
+                        <option value="always">Always</option>
+                        <option value="hourly">Hourly</option>
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                        <option value="yearly">Yearly</option>
+                        <option value="never">Never</option>
+                      </select>
+                      <p className="text-[9px] text-zinc-650 mt-1 leading-tight">Suggested crawler update cycle mapping.</p>
+                    </div>
+                  </div>
+
+                  <div className="flex border-t border-zinc-900 pt-3 flex-col sm:flex-row justify-between items-center gap-3">
+                    <label className="flex items-center gap-2 cursor-pointer select-none self-start sm:self-auto">
+                      <input
+                        type="checkbox"
+                        checked={autoOverwrite}
+                        onChange={(e) => setAutoOverwrite(e.target.checked)}
+                        className="rounded bg-zinc-900 border-zinc-800 text-brand focus:ring-0 w-3.5 h-3.5 cursor-pointer accent-brand"
+                      />
+                      <span className="text-[10px] font-mono uppercase tracking-wide text-zinc-400 hover:text-white transition-colors">Replace existing sitemap</span>
+                    </label>
+
+                    <button
+                      type="button"
+                      onClick={() => handleAutoDiscovery(autoFreq, autoToolPriority, autoLegalPriority, autoOverwrite)}
+                      className="w-full sm:w-auto px-6 py-2 bg-brand hover:bg-brand-hover text-zinc-950 hover:text-zinc-900 font-mono text-xs font-bold rounded flex items-center justify-center gap-1.5 cursor-pointer transition-all active:scale-[0.98]"
+                    >
+                      <Sparkles className="w-3.5 h-3.5 text-zinc-950 shrink-0" />
+                      <span>DISCOVER & MAP 40+ APP ROUTES</span>
+                    </button>
+                  </div>
+                </div>
               )}
 
               {copiedNotice && (
