@@ -1,0 +1,5 @@
+# Google AdSense ads.txt configuration for apexutility.live
+# Replace pub-0000000000000000 with your actual Google AdSense Publisher ID
+# Learn more: https://support.google.com/adsense/answer/12171612
+
+google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0
