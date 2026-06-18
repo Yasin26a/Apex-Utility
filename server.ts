@@ -469,6 +469,146 @@ Instructions:
     res.json({ status: 'ok', uptime: process.uptime() });
   });
 
+  // API PDF Encryption & Access Restriction Endpoint
+  app.post('/api/encrypt-pdf', async (req, res) => {
+    let tempInput = '';
+    let tempOutput = '';
+    try {
+      const { pdfBase64, userPassword, ownerPassword, perms } = req.body;
+      if (!pdfBase64) {
+        res.status(400).json({ error: 'pdfBase64 string is required.' });
+        return;
+      }
+
+      // Convert base64 back to Buffer
+      const buffer = Buffer.from(pdfBase64, 'base64');
+
+      // Create unique temporary file paths
+      const uniqueId = Math.random().toString(36).substring(2, 15);
+      const fs = await import('fs');
+      const path = await import('path');
+      tempInput = path.join('/tmp', `input-${uniqueId}.pdf`);
+      tempOutput = path.join('/tmp', `output-${uniqueId}.pdf`);
+
+      // Write the buffer to the temporary input file
+      fs.writeFileSync(tempInput, buffer);
+
+      // Import muhammara dynamically to ensure it loads cleanly
+      const muhammara = (await import('muhammara')).default;
+
+      // Handle user protection flags for permissions
+      let flag = -4; // Default fully-allowed (0xFFFFFFFC)
+      if (perms) {
+        if (perms.restrictPrinting) flag &= ~4;
+        if (perms.restrictModifying) flag &= ~8;
+        if (perms.restrictCopying) flag &= ~16;
+        if (perms.restrictAnnotating) flag &= ~32;
+      }
+
+      // Execute PDF recryption
+      muhammara.recrypt(tempInput, tempOutput, {
+        userPassword: userPassword || '',
+        ownerPassword: ownerPassword || '',
+        userProtectionFlag: flag
+      });
+
+      // Read the encrypted file back and convert to base64
+      if (fs.existsSync(tempOutput)) {
+        const encryptedBuffer = fs.readFileSync(tempOutput);
+        const encryptedBase64 = encryptedBuffer.toString('base64');
+        res.json({ pdfBase64: encryptedBase64 });
+      } else {
+        throw new Error('Encryption process completed but output file could not be generated.');
+      }
+    } catch (err: any) {
+      console.error('Error encrypting PDF:', err);
+      res.status(500).json({ error: err.message || 'Verification and encryption of PDF file failed.' });
+    } finally {
+      // Robust clean up of disk streams to preserve privacy and memory footprint
+      try {
+        const fs = await import('fs');
+        if (tempInput && fs.existsSync(tempInput)) {
+          fs.unlinkSync(tempInput);
+        }
+        if (tempOutput && fs.existsSync(tempOutput)) {
+          fs.unlinkSync(tempOutput);
+        }
+      } catch (cleanErr) {
+        console.error('Secondary error cleaning temporary pdf files:', cleanErr);
+      }
+    }
+  });
+
+  // API Assistant / Supervisor Endpoint using Gemini 3.5 Flash
+  app.post('/api/assistant', async (req, res) => {
+    try {
+      const { messages } = req.body;
+      if (!messages || !Array.isArray(messages)) {
+        res.status(400).json({ error: 'Messages array is required.' });
+        return;
+      }
+
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        res.status(500).json({ 
+          error: 'GEMINI_API_KEY is not configured on the server. Please verify the Secrets panel in Settings.' 
+        });
+        return;
+      }
+
+      const ai = new GoogleGenAI({
+        apiKey: apiKey,
+        httpOptions: {
+          headers: {
+            'User-Agent': 'aistudio-build'
+          }
+        }
+      });
+
+      // Map roles to Gemini roles ('user' or 'model')
+      const contents = messages.map(msg => ({
+        role: msg.role === 'assistant' ? 'model' : 'user',
+        parts: [{ text: msg.content }]
+      }));
+
+      const systemInstruction = `You are "Apex AI Supervisor" – the elite in-browser coach and domain optimization strategist for Apex Utility.
+Your goal is to help users navigate and master the rich suite of SEO, compliance, asset optimization, and development tools available on this website.
+
+The website provides the following interactive web tools:
+1. XML Sitemap & Robots Generator ('sitemap-generator'): Build crawler-compliant sitemaps and custom robots.txt.
+2. SEO Competitor Content-Gap Analyzer ('content-gap'): Extract keywords, identify missing sections, and target rank superiority.
+3. AI Content Planner & Intent Optimizer ('content-planner'): Plan comprehensive outlines, target headings, and schema questions under full intent guidelines.
+4. AI Keyword Cluster Tool ('keyword-cluster'): Group raw search terms into visual intent siloing maps.
+5. Schema Generator & Meta compiler ('schema-generator'): Build microdata block models for advanced FAQ or product snippets.
+6. PDF Joiner, Compressor & Analyst: Merge tracks or compress document payload structures completely local and secure.
+7. WebP & Image Compressor: Convert heavy assets into lightweight, layout-compliant layouts.
+8. Security Tools: Check regex, configure color palettes, calculate date math, generate qr codes, and build secure cryptographically random password formats.
+
+Tone Guidelines:
+- Highly professional, encouraging, analytical, and supportive.
+- Proactively guide users to select the right tool or tab to solve their issues. For example, if they want to build a sitemap, suggest clicking "Sitemap Generator" (active tab name 'sitemap-generator').
+- Keep answers super-informative, structured, and friendly. Avoid long-winded paragraphs; use rich lists and bold focal terms to make inputs easily scan.`;
+
+      const result = await ai.models.generateContent({
+        model: 'gemini-3.5-flash',
+        contents: contents,
+        config: {
+          systemInstruction: systemInstruction,
+          temperature: 0.7
+        }
+      });
+
+      if (!result.text) {
+        throw new Error('Gemini API returned an empty output stream.');
+      }
+
+      res.json({ text: result.text.trim() });
+    } catch (err: any) {
+      console.error('Error in assistant api:', err);
+      res.status(500).json({ error: err.message || 'Internal server error during assistant conversation.' });
+    }
+  });
+
   // Serve a dynamically generated, search-crawler compliant sitemap.xml
   app.get('/sitemap.xml', (req, res) => {
     const host = req.headers.host || 'apexutility.live';

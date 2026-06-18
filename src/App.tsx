@@ -32,9 +32,15 @@ import { AT_LEAST_20_ARTICLES, Article } from './data/articles';
 import WebPConverter from './components/WebPConverter';
 import PDFJoiner from './components/PDFJoiner';
 import ContentPlanner from './components/ContentPlanner';
+import { Document as PDFDocumentView, Page as PDFPageView, pdfjs } from 'react-pdf';
+
+if (typeof window !== 'undefined') {
+  pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+}
 import SchemaGenerator from './components/SchemaGenerator';
 import SEOCompetitorGapAnalyzer from './components/SEOCompetitorGapAnalyzer';
 import AIKeywordClusterTool from './components/AIKeywordClusterTool';
+import AIAssistantSupervisor from './components/AIAssistantSupervisor';
 
 export default function App() {
   const navigate = useNavigate();
@@ -56,6 +62,7 @@ export default function App() {
   // PDF Optimizer States
   const [pdfSubTab, setPdfSubTab] = useState<'optimize' | 'merge'>('optimize');
   const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [pdfPageCount, setPdfPageCount] = useState<number | null>(null);
   const [compressionIntensity, setCompressionIntensity] = useState<'standard' | 'balanced' | 'ultra'>('balanced');
   const [stripMetadata, setStripMetadata] = useState(true);
   const [downscaleImages, setDownscaleImages] = useState(true);
@@ -67,6 +74,29 @@ export default function App() {
   const [optimizedBlobUrl, setOptimizedBlobUrl] = useState<string | null>(null);
   const [optimizedSize, setOptimizedSize] = useState(0);
   const [originalSize, setOriginalSize] = useState(0);
+
+  // Watermark States for Single PDF Optimizer
+  const [watermarkEnabled, setWatermarkEnabled] = useState(false);
+  const [watermarkType, setWatermarkType] = useState<'text' | 'image'>('text');
+  const [watermarkText, setWatermarkText] = useState('CONFIDENTIAL');
+  const [watermarkTextColor, setWatermarkTextColor] = useState('#ef4444');
+  const [watermarkFontSize, setWatermarkFontSize] = useState(48);
+  const [watermarkRotation, setWatermarkRotation] = useState(-45);
+  const [watermarkOpacity, setWatermarkOpacity] = useState(0.3);
+  const [watermarkPosition, setWatermarkPosition] = useState<'center' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'tiled'>('center');
+  const [watermarkImageFile, setWatermarkImageFile] = useState<File | null>(null);
+  const [watermarkImageScale, setWatermarkImageScale] = useState(1);
+  const [watermarkRange, setWatermarkRange] = useState<'all' | 'first' | 'custom'>('all');
+  const [watermarkCustomRange, setWatermarkCustomRange] = useState('1');
+
+  // Security & Encryption States for PDF Optimizer
+  const [pdfSecurityEnabled, setPdfSecurityEnabled] = useState(false);
+  const [pdfUserPassword, setPdfUserPassword] = useState('');
+  const [pdfOwnerPassword, setPdfOwnerPassword] = useState('');
+  const [pdfRestrictPrinting, setPdfRestrictPrinting] = useState(false);
+  const [pdfRestrictModifying, setPdfRestrictModifying] = useState(false);
+  const [pdfRestrictCopying, setPdfRestrictCopying] = useState(false);
+  const [pdfRestrictAnnotating, setPdfRestrictAnnotating] = useState(false);
 
   // Article Hub States
   const [articleSearch, setArticleSearch] = useState('');
@@ -97,6 +127,27 @@ export default function App() {
       prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
     );
   };
+
+  // Load page count dynamically for single PDF file optimizer
+  useEffect(() => {
+    if (!pdfFile) {
+      setPdfPageCount(null);
+      return;
+    }
+    const loadPageCount = async () => {
+      try {
+        const { PDFDocument } = await import('pdf-lib');
+        const arrayBuffer = await pdfFile.arrayBuffer();
+        const pdfDoc = await PDFDocument.load(arrayBuffer);
+        const count = pdfDoc.getPageCount();
+        setPdfPageCount(count);
+      } catch (err) {
+        console.error("Error reading single PDF page count:", err);
+        setPdfPageCount(null);
+      }
+    };
+    loadPageCount();
+  }, [pdfFile]);
 
   // Print Article to PDF using browser Print API with ultra-polished print layout
   const handlePrintArticle = (art: Article) => {
@@ -464,7 +515,288 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
         Math.round(outputBytes.length * (1 - (compressionRatio * 0.12)))
       );
 
-      const finalBlob = new Blob([outputBytes.slice(0, targetSize)], { type: 'application/pdf' });
+      let processedPdfBytes = outputBytes.slice(0, targetSize);
+
+      if (watermarkEnabled) {
+        addLog("Applying customized document watermark overlays...");
+        try {
+          const { PDFDocument: LibPDFDoc, degrees: LibDegrees, rgb: LibRgb } = await import('pdf-lib');
+          const pdfDoc = await LibPDFDoc.load(processedPdfBytes);
+          
+          let embeddedImage: any = null;
+          let imageWidth = 0;
+          let imageHeight = 0;
+
+          if (watermarkType === 'image' && watermarkImageFile) {
+            addLog("Formulating high-definition png canvas matrix for image watermark...");
+            const pngBytes = await new Promise<ArrayBuffer>((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                  const canvas = document.createElement('canvas');
+                  canvas.width = img.width;
+                  canvas.height = img.height;
+                  const ctx = canvas.getContext('2d');
+                  if (!ctx) { reject(new Error('Could not get Canvas context')); return; }
+                  ctx.drawImage(img, 0, 0);
+                  canvas.toBlob((blob) => {
+                    if (!blob) { reject(new Error('Canvas to blob failed')); return; }
+                    const fileReader = new FileReader();
+                    fileReader.onload = () => {
+                      if (fileReader.result instanceof ArrayBuffer) {
+                        resolve(fileReader.result);
+                      } else {
+                        reject(new Error('Failed to convert blob to ArrayBuffer'));
+                      }
+                    };
+                    fileReader.onerror = () => reject(new Error('Blob read error'));
+                    fileReader.readAsArrayBuffer(blob);
+                  }, 'image/png');
+                };
+                img.onerror = () => reject(new Error('Image load failed'));
+                img.src = e.target?.result as string;
+              };
+              reader.onerror = () => reject(new Error('FileReader failed'));
+              reader.readAsDataURL(watermarkImageFile);
+            });
+
+            embeddedImage = await pdfDoc.embedPng(pngBytes);
+            imageWidth = embeddedImage.width * watermarkImageScale * 0.25;
+            imageHeight = embeddedImage.height * watermarkImageScale * 0.25;
+          }
+
+          let colorRgb = LibRgb(0.9, 0.1, 0.1); // default
+          if (watermarkTextColor) {
+            const hex = watermarkTextColor.replace('#', '');
+            const r = parseInt(hex.substring(0, 2), 16) / 255;
+            const g = parseInt(hex.substring(2, 4), 16) / 255;
+            const b = parseInt(hex.substring(4, 6), 16) / 255;
+            if (!isNaN(r) && !isNaN(g) && !isNaN(b)) {
+              colorRgb = LibRgb(r, g, b);
+            }
+          }
+
+          const pages = pdfDoc.getPages();
+          addLog(`Scanning page tree (${pages.length} pages found). Overlaying watermarks...`);
+
+          for (let pageNum = 0; pageNum < pages.length; pageNum++) {
+            let isApplicable = false;
+            if (watermarkRange === 'all') {
+              isApplicable = true;
+            } else if (watermarkRange === 'first') {
+              isApplicable = (pageNum === 0);
+            } else if (watermarkRange === 'custom' && watermarkCustomRange) {
+              const parts = watermarkCustomRange.split(',');
+              for (const part of parts) {
+                const cleanPart = part.trim();
+                if (cleanPart.includes('-')) {
+                  const [startStr, endStr] = cleanPart.split('-');
+                  const start = parseInt(startStr.trim(), 10);
+                  const end = parseInt(endStr.trim(), 10);
+                  if (!isNaN(start) && !isNaN(end)) {
+                    const pageNum1 = pageNum + 1;
+                    if (pageNum1 >= start && pageNum1 <= end) {
+                      isApplicable = true;
+                    }
+                  }
+                } else {
+                  const val = parseInt(cleanPart, 10);
+                  if (!isNaN(val) && pageNum + 1 === val) {
+                    isApplicable = true;
+                  }
+                }
+              }
+            }
+
+            if (!isApplicable) continue;
+
+            const page = pages[pageNum];
+            const { width, height } = page.getSize();
+
+            if (watermarkType === 'text' && watermarkText) {
+              const textWidth = watermarkText.length * (watermarkFontSize * 0.55);
+              const textHeight = watermarkFontSize;
+
+              if (watermarkPosition === 'tiled') {
+                const stepX = Math.max(160, textWidth * 1.5);
+                const stepY = Math.max(120, textHeight * 2.5);
+                for (let x = 40; x < width; x += stepX) {
+                  for (let y = 40; y < height; y += stepY) {
+                    page.drawText(watermarkText, {
+                      x,
+                      y,
+                      size: watermarkFontSize,
+                      color: colorRgb,
+                      opacity: watermarkOpacity,
+                      rotate: LibDegrees(watermarkRotation),
+                    });
+                  }
+                }
+              } else {
+                let posX = 0;
+                let posY = 0;
+                switch (watermarkPosition) {
+                  case 'center':
+                    posX = (width - textWidth) / 2;
+                    posY = (height - textHeight) / 2;
+                    break;
+                  case 'top-left':
+                    posX = 40;
+                    posY = height - 60;
+                    break;
+                  case 'top-right':
+                    posX = width - textWidth - 40;
+                    posY = height - 60;
+                    break;
+                  case 'bottom-left':
+                    posX = 40;
+                    posY = 60;
+                    break;
+                  case 'bottom-right':
+                    posX = width - textWidth - 40;
+                    posY = 60;
+                    break;
+                }
+
+                if (watermarkPosition === 'center' && watermarkRotation !== 0) {
+                  posX = width / 2 - (Math.cos(watermarkRotation * Math.PI / 180) * textWidth / 2);
+                  posY = height / 2 - (Math.sin(watermarkRotation * Math.PI / 180) * textHeight / 2);
+                }
+
+                page.drawText(watermarkText, {
+                  x: posX,
+                  y: posY,
+                  size: watermarkFontSize,
+                  color: colorRgb,
+                  opacity: watermarkOpacity,
+                  rotate: LibDegrees(watermarkRotation),
+                });
+              }
+            } else if (watermarkType === 'image' && embeddedImage) {
+              if (watermarkPosition === 'tiled') {
+                const stepX = Math.max(160, imageWidth * 1.8);
+                const stepY = Math.max(160, imageHeight * 1.8);
+                for (let x = 30; x < width; x += stepX) {
+                  for (let y = 30; y < height; y += stepY) {
+                    page.drawImage(embeddedImage, {
+                      x,
+                      y,
+                      width: imageWidth,
+                      height: imageHeight,
+                      opacity: watermarkOpacity,
+                      rotate: LibDegrees(watermarkRotation),
+                    });
+                  }
+                }
+              } else {
+                let posX = 0;
+                let posY = 0;
+                switch (watermarkPosition) {
+                  case 'center':
+                    posX = (width - imageWidth) / 2;
+                    posY = (height - imageHeight) / 2;
+                    break;
+                  case 'top-left':
+                    posX = 30;
+                    posY = height - imageHeight - 30;
+                    break;
+                  case 'top-right':
+                    posX = width - imageWidth - 30;
+                    posY = height - imageHeight - 30;
+                    break;
+                  case 'bottom-left':
+                    posX = 30;
+                    posY = 30;
+                    break;
+                  case 'bottom-right':
+                    posX = width - imageWidth - 30;
+                    posY = 30;
+                    break;
+                }
+
+                page.drawImage(embeddedImage, {
+                  x: posX,
+                  y: posY,
+                  width: imageWidth,
+                  height: imageHeight,
+                  opacity: watermarkOpacity,
+                  rotate: LibDegrees(watermarkRotation),
+                });
+              }
+            }
+          }
+
+          processedPdfBytes = await pdfDoc.save();
+          addLog("Successfully embedded robust watermark vector layer!");
+        } catch (overlayErr: any) {
+          console.error("Watermark generation failed", overlayErr);
+          addLog(`Watermark generation fallback skipped: ${overlayErr.message || overlayErr}`);
+        }
+      }
+
+      if (pdfSecurityEnabled && (pdfUserPassword || pdfOwnerPassword || pdfRestrictPrinting || pdfRestrictModifying || pdfRestrictCopying || pdfRestrictAnnotating)) {
+        addLog("Applying document encryption and security access restrictions...");
+        setOptimizingProgress(80);
+        try {
+          // Convert processedPdfBytes to base64 safely in 8KB chunks (supports huge files)
+          let binary = '';
+          const len = processedPdfBytes.byteLength || processedPdfBytes.length;
+          const chunk_size = 8192;
+          for (let i = 0; i < len; i += chunk_size) {
+            const chunk = processedPdfBytes.subarray ? processedPdfBytes.subarray(i, i + chunk_size) : processedPdfBytes.slice(i, i + chunk_size);
+            binary += String.fromCharCode.apply(null, Array.from(chunk));
+          }
+          const base64Str = btoa(binary);
+
+          // Call the server crypt service
+          const response = await fetch('/api/encrypt-pdf', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              pdfBase64: base64Str,
+              userPassword: pdfUserPassword,
+              ownerPassword: pdfOwnerPassword,
+              perms: {
+                restrictPrinting: pdfRestrictPrinting,
+                restrictModifying: pdfRestrictModifying,
+                restrictCopying: pdfRestrictCopying,
+                restrictAnnotating: pdfRestrictAnnotating,
+              }
+            })
+          });
+
+          if (!response.ok) {
+            const errData = await response.json();
+            throw new Error(errData.error || 'Server encryption service error');
+          }
+
+          const resData = await response.json();
+          const encryptedBytesStr = atob(resData.pdfBase64);
+          const encryptedBytes = new Uint8Array(encryptedBytesStr.length);
+          for (let i = 0; i < encryptedBytesStr.length; i++) {
+            encryptedBytes[i] = encryptedBytesStr.charCodeAt(i);
+          }
+          processedPdfBytes = encryptedBytes;
+          
+          let restrictionsApplied: string[] = [];
+          if (pdfUserPassword) restrictionsApplied.push("Access Password");
+          if (pdfOwnerPassword) restrictionsApplied.push("Owner Password");
+          if (pdfRestrictPrinting) restrictionsApplied.push("Restricted Printing");
+          if (pdfRestrictModifying) restrictionsApplied.push("Restricted Editing");
+          if (pdfRestrictCopying) restrictionsApplied.push("Restricted Text Copying");
+          if (pdfRestrictAnnotating) restrictionsApplied.push("Restricted Annotations");
+          addLog(`Applied restrictions: [${restrictionsApplied.join(', ')}]`);
+        } catch (encryptErr: any) {
+          console.error("Encryption failed", encryptErr);
+          addLog(`Access restriction setup failed: ${encryptErr.message || encryptErr}`);
+          addLog("Proceeding with standard unencrypted compiled PDF output.");
+        }
+      }
+
+      const finalBlob = new Blob([processedPdfBytes], { type: 'application/pdf' });
 
       setOriginalSize(origSize);
       setOptimizedSize(finalBlob.size);
@@ -494,6 +826,13 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
     setOptimizedBlobUrl(null);
     setOptimizingLogs([]);
     setOptimizingProgress(0);
+    setPdfSecurityEnabled(false);
+    setPdfUserPassword('');
+    setPdfOwnerPassword('');
+    setPdfRestrictPrinting(false);
+    setPdfRestrictModifying(false);
+    setPdfRestrictCopying(false);
+    setPdfRestrictAnnotating(false);
   };
 
   return (
@@ -1573,25 +1912,61 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                           </div>
                         </div>
                       ) : (
-                        <div className="p-4 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between gap-4">
-                          <div className="flex items-center gap-3 min-w-0">
-                            <div className="p-2.5 bg-rose-500/10 rounded-lg border border-rose-500/20 text-rose-400">
-                              <FileText className="w-5 h-5" />
+                        <div className="p-4 bg-slate-900/50 rounded-xl border border-slate-800 space-y-4">
+                          <p className="text-[10px] font-mono uppercase bg-slate-950/80 px-2 py-1 rounded inline-block text-slate-400 font-bold border border-slate-850">
+                            PDF Thumbnail Preview
+                          </p>
+                          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
+                            {/* PDF page 1 thumbnail view container */}
+                            <div className="w-24 h-32 bg-slate-950 rounded-lg border border-slate-800 flex items-center justify-center relative overflow-hidden select-none pointer-events-none p-1 shrink-0">
+                              <PDFDocumentView
+                                file={pdfFile}
+                                loading={
+                                  <div className="text-center font-mono text-[8px] text-slate-500 tracking-wider">
+                                    LOADING...
+                                  </div>
+                                }
+                                error={
+                                  <div className="text-center font-mono text-[8px] text-rose-500">
+                                    ERR PREVIEW
+                                  </div>
+                                }
+                              >
+                                <PDFPageView
+                                  pageNumber={1}
+                                  width={84}
+                                  renderTextLayer={false}
+                                  renderAnnotationLayer={false}
+                                />
+                              </PDFDocumentView>
                             </div>
-                            <div className="min-w-0">
-                              <p className="font-semibold text-sm text-slate-200 truncate">{pdfFile.name}</p>
-                              <p className="font-mono text-[11px] text-slate-500">{(pdfFile.size / 1024).toFixed(1)} KB</p>
+
+                            {/* Details & Actions */}
+                            <div className="flex-1 min-w-0 flex flex-col justify-between h-32 text-center sm:text-left">
+                              <div className="space-y-1">
+                                <p className="font-semibold text-sm text-slate-200 break-all">{pdfFile.name}</p>
+                                <p className="font-mono text-[11px] text-slate-500 mt-1">
+                                  Size: <span className="text-slate-300">{(pdfFile.size / 1024).toFixed(1)} KB</span>
+                                </p>
+                                <p className="font-mono text-[11px] text-slate-500">
+                                  Pages: <span className="text-slate-300">{pdfPageCount !== null ? `${pdfPageCount} ${pdfPageCount === 1 ? 'page' : 'pages'}` : 'Loading...'}</span>
+                                </p>
+                              </div>
+
+                              <div className="pt-2 flex justify-center sm:justify-start">
+                                {!isOptimizing && (
+                                  <button
+                                    onClick={handleResetOptimizer}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-950 hover:bg-slate-850 border border-slate-800 text-slate-400 hover:text-rose-400 rounded-lg text-xs font-semibold cursor-pointer transition-colors"
+                                    title="Remove file"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                    <span>Remove Document</span>
+                                  </button>
+                                )}
+                              </div>
                             </div>
                           </div>
-                          {!isOptimizing && (
-                            <button
-                              onClick={handleResetOptimizer}
-                              className="p-2 bg-slate-950 hover:bg-slate-850 border border-slate-800 rounded-lg text-slate-400 hover:text-rose-400 transition-colors"
-                              title="Remove file"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          )}
                         </div>
                       )}
 
@@ -1671,6 +2046,355 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                                 </label>
                               </div>
                             </div>
+                          </div>
+
+                          {/* Beautiful PDF Watermarking Controls Section */}
+                          <div className="p-4 bg-slate-900 border border-slate-800 rounded-xl space-y-4">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <span className="p-1 px-2 rounded-full bg-indigo-500/10 text-indigo-400 font-mono text-[10px] font-bold uppercase border border-indigo-400/20">Optional Tool</span>
+                                <h4 className="font-bold text-sm text-slate-200">Overlay PDF Watermark</h4>
+                              </div>
+                              <label className="relative inline-flex items-center cursor-pointer">
+                                <input 
+                                  type="checkbox" 
+                                  className="sr-only peer" 
+                                  checked={watermarkEnabled}
+                                  onChange={(e) => setWatermarkEnabled(e.target.checked)}
+                                />
+                                <div className="w-9 h-5 bg-slate-950 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-rose-600 peer-checked:after:bg-white border border-slate-800"></div>
+                              </label>
+                            </div>
+
+                            {watermarkEnabled && (
+                              <div className="space-y-4 pt-2 border-t border-slate-850 animate-fadeIn text-xs">
+                                {/* Type Selector */}
+                                <div>
+                                  <label className="block text-[10px] uppercase font-mono font-bold tracking-wider text-slate-400 mb-2">Watermark Media Type</label>
+                                  <div className="grid grid-cols-2 gap-2">
+                                    {(['text', 'image'] as const).map((wt) => (
+                                      <button
+                                        key={wt}
+                                        type="button"
+                                        onClick={() => setWatermarkType(wt)}
+                                        className={`py-1.5 px-3 rounded-lg font-semibold border capitalize font-mono text-center transition-all ${
+                                          watermarkType === wt
+                                            ? 'bg-rose-500/10 border-rose-550 text-rose-400'
+                                            : 'bg-slate-950 border-slate-850 text-slate-500 hover:text-slate-300'
+                                        }`}
+                                      >
+                                        {wt === 'text' ? '🔤 Text Stamp' : '🖼️ Custom Image'}
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+
+                                {/* TEXT WATERMARK PARAMS */}
+                                {watermarkType === 'text' ? (
+                                  <div className="space-y-3">
+                                    <div className="space-y-1">
+                                      <label className="block text-[10px] font-mono text-slate-400 uppercase tracking-wide">Watermark Text Content</label>
+                                      <input 
+                                        type="text" 
+                                        value={watermarkText}
+                                        onChange={(e) => setWatermarkText(e.target.value)}
+                                        className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white font-mono text-xs focus:outline-none focus:border-rose-500/40"
+                                        placeholder="CONFIDENTIAL"
+                                      />
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-3">
+                                      <div className="space-y-1">
+                                        <label className="block text-[10px] font-mono text-slate-400 uppercase tracking-wide">Text Stamp Color</label>
+                                        <div className="flex items-center gap-2">
+                                          <input 
+                                            type="color" 
+                                            value={watermarkTextColor}
+                                            onChange={(e) => setWatermarkTextColor(e.target.value)}
+                                            className="w-8 h-8 rounded cursor-pointer bg-transparent border-0"
+                                          />
+                                          <input 
+                                            type="text" 
+                                            value={watermarkTextColor}
+                                            onChange={(e) => setWatermarkTextColor(e.target.value)}
+                                            className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-center font-mono text-xs text-slate-350"
+                                          />
+                                        </div>
+                                      </div>
+
+                                      <div className="space-y-1">
+                                        <label className="block text-[10px] font-mono text-slate-400 uppercase tracking-wide">Font Size ({watermarkFontSize}px)</label>
+                                        <input 
+                                          type="range" 
+                                          min="12" 
+                                          max="120" 
+                                          value={watermarkFontSize}
+                                          onChange={(e) => setWatermarkFontSize(Number(e.target.value))}
+                                          className="w-full h-1 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-rose-550 mt-2"
+                                        />
+                                      </div>
+                                    </div>
+
+                                    <div className="space-y-1">
+                                      <div className="flex justify-between items-center">
+                                        <label className="block text-[10px] font-mono text-slate-400 uppercase tracking-wide">Rotation Angle ({watermarkRotation}°)</label>
+                                        <div className="flex gap-1.5">
+                                          {[-90, -45, 0, 45, 90].map((deg) => (
+                                            <button
+                                              key={deg}
+                                              type="button"
+                                              onClick={() => setWatermarkRotation(deg)}
+                                              className="text-[9px] font-mono bg-slate-950 hover:bg-slate-850 px-1.5 py-0.5 rounded border border-slate-850 hover:border-slate-800 text-slate-400"
+                                            >
+                                              {deg}°
+                                            </button>
+                                          ))}
+                                        </div>
+                                      </div>
+                                      <input 
+                                        type="range" 
+                                        min="-180" 
+                                        max="180" 
+                                        value={watermarkRotation}
+                                        onChange={(e) => setWatermarkRotation(Number(e.target.value))}
+                                        className="w-full h-1 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-rose-555 accent-rose-600 mt-2"
+                                      />
+                                    </div>
+                                  </div>
+                                ) : (
+                                  /* IMAGE WATERMARK PARAMS */
+                                  <div className="space-y-3">
+                                    <div className="space-y-1">
+                                      <label className="block text-[10px] font-mono text-slate-400 uppercase tracking-wide">Overlay Watermark Stamp Image File</label>
+                                      
+                                      <div className="flex gap-2">
+                                        <div 
+                                          onClick={() => document.getElementById('watermark-img-picker')?.click()}
+                                          className="flex-1 p-3 border border-dashed border-slate-800 hover:border-slate-700 bg-slate-950 hover:bg-slate-900/40 rounded-lg text-center cursor-pointer transition-all flex flex-col items-center justify-center gap-1 min-h-16"
+                                        >
+                                          <input 
+                                            type="file" 
+                                            id="watermark-img-picker"
+                                            accept="image/png, image/jpeg, image/webp"
+                                            className="hidden"
+                                            onChange={(e) => {
+                                              if (e.target.files && e.target.files[0]) {
+                                                setWatermarkImageFile(e.target.files[0]);
+                                              }
+                                            }}
+                                          />
+                                          {watermarkImageFile ? (
+                                            <div className="flex items-center gap-2 text-slate-350 font-medium">
+                                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                              <span className="truncate max-w-[170px] text-[10px] font-mono">{watermarkImageFile.name}</span>
+                                            </div>
+                                          ) : (
+                                            <>
+                                              <p className="text-[10px] font-semibold text-slate-350">Select or drop stamp logo</p>
+                                              <p className="text-[9px] text-slate-605 text-slate-500">Supports transparent PNG, JPEGs</p>
+                                            </>
+                                          )}
+                                        </div>
+
+                                        {watermarkImageFile && (
+                                          <div className="w-16 h-16 rounded-lg bg-slate-950 border border-slate-800 p-1 shrink-0 flex items-center justify-center overflow-hidden">
+                                            <img 
+                                              src={URL.createObjectURL(watermarkImageFile)} 
+                                              alt="stamp preview" 
+                                              className="max-w-full max-h-full object-contain" 
+                                            />
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+
+                                    <div className="space-y-1">
+                                      <label className="block text-[10px] font-mono text-slate-400 uppercase tracking-wide text-xs">Image Scaler Size ({watermarkImageScale.toFixed(2)}x)</label>
+                                      <input 
+                                        type="range" 
+                                        min="0.1" 
+                                        max="3.0" 
+                                        step="0.05"
+                                        value={watermarkImageScale}
+                                        onChange={(e) => setWatermarkImageScale(Number(e.target.value))}
+                                        className="w-full h-1 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-rose-600 mt-2"
+                                      />
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* UNIVERSAL WATERMARK SETTINGS */}
+                                <div className="grid grid-cols-2 gap-3">
+                                  <div className="space-y-1">
+                                    <label className="block text-[10px] font-mono text-slate-400 lg:tracking-tight uppercase">Raster Position Presets</label>
+                                    <select
+                                      value={watermarkPosition}
+                                      onChange={(e: any) => setWatermarkPosition(e.target.value)}
+                                      className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-slate-300 font-mono text-xs focus:outline-none"
+                                    >
+                                      <option value="center">Center Center</option>
+                                      <option value="top-left">Top Left Corner</option>
+                                      <option value="top-right">Top Right Corner</option>
+                                      <option value="bottom-left">Bottom Left Corner</option>
+                                      <option value="bottom-right">Bottom Right Corner</option>
+                                      <option value="tiled">Grid Matrix (Tiled)</option>
+                                    </select>
+                                  </div>
+
+                                  <div className="space-y-1">
+                                    <label className="block text-[10px] font-mono text-slate-400 uppercase">Stamp Opacity ({Math.round(watermarkOpacity * 100)}%)</label>
+                                    <input 
+                                      type="range" 
+                                      min="0.05" 
+                                      max="1.0" 
+                                      step="0.05"
+                                      value={watermarkOpacity}
+                                      onChange={(e) => setWatermarkOpacity(Number(e.target.value))}
+                                      className="w-full h-1 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-rose-600 mt-2"
+                                    />
+                                  </div>
+                                </div>
+
+                                <div className="p-3 bg-slate-950 rounded-lg border border-slate-850 space-y-2">
+                                  <label className="block text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wide">Target Page Range applicator</label>
+                                  <div className="grid grid-cols-3 gap-1.5">
+                                    {(['all', 'first', 'custom'] as const).map((r) => (
+                                      <button
+                                        key={r}
+                                        type="button"
+                                        onClick={() => setWatermarkRange(r)}
+                                        className={`py-1 rounded font-mono text-[9px] uppercase tracking-wider text-center border font-bold transition-all ${
+                                          watermarkRange === r
+                                            ? 'bg-indigo-500/10 border-indigo-400/30 text-indigo-400'
+                                            : 'bg-slate-900 border-transparent text-slate-500 hover:text-slate-300'
+                                        }`}
+                                      >
+                                        {r === 'all' && 'All pages'}
+                                        {r === 'first' && 'First page'}
+                                        {r === 'custom' && 'Ranges'}
+                                      </button>
+                                    ))}
+                                  </div>
+
+                                  {watermarkRange === 'custom' && (
+                                    <div className="space-y-1 pt-1 animate-fadeIn">
+                                      <input 
+                                        type="text"
+                                        value={watermarkCustomRange}
+                                        onChange={(e) => setWatermarkCustomRange(e.target.value)}
+                                        placeholder="e.g. 1, 3-5, 7"
+                                        className="w-full bg-slate-900 border border-slate-800 rounded px-2 py-1 text-white font-mono text-[10px] tracking-widest focus:outline-none"
+                                      />
+                                      <p className="text-[8px] text-zinc-500 leading-normal font-mono">Use comma separated page lists and dashes for limits (e.g., "1, 3-5"). First page is 1.</p>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Rich PDF Security and Document Protection Controls */}
+                          <div className="p-4 bg-slate-900 border border-slate-800 rounded-xl space-y-4">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <span className="p-1 px-2 rounded-full bg-emerald-500/10 text-emerald-400 font-mono text-[10px] font-bold uppercase border border-emerald-400/20">Access Security</span>
+                                <h4 className="font-bold text-sm text-slate-200">Restrict Access & Permissions</h4>
+                              </div>
+                              <label className="relative inline-flex items-center cursor-pointer">
+                                <input 
+                                  type="checkbox" 
+                                  className="sr-only peer" 
+                                  checked={pdfSecurityEnabled}
+                                  onChange={(e) => setPdfSecurityEnabled(e.target.checked)}
+                                />
+                                <div className="w-9 h-5 bg-slate-950 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600 peer-checked:after:bg-white border border-slate-800"></div>
+                              </label>
+                            </div>
+
+                            {pdfSecurityEnabled && (
+                              <div className="space-y-4 pt-2 border-t border-slate-850 animate-fadeIn text-xs animate-fadeIn">
+                                {/* Passwords Panel */}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                  <div className="space-y-1">
+                                    <label className="block text-[10px] font-mono text-slate-400 uppercase tracking-wide">Document Open Password</label>
+                                    <input 
+                                      type="text" 
+                                      value={pdfUserPassword}
+                                      onChange={(e) => setPdfUserPassword(e.target.value)}
+                                      className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-white font-mono text-xs focus:outline-none focus:border-emerald-500/40"
+                                      placeholder="Leave blank for none"
+                                    />
+                                    <p className="text-[8px] text-zinc-500 font-mono leading-normal">Requires entering password to view content.</p>
+                                  </div>
+
+                                  <div className="space-y-1">
+                                    <label className="block text-[10px] font-mono text-slate-400 uppercase tracking-wide">Permissions Password</label>
+                                    <input 
+                                      type="text" 
+                                      value={pdfOwnerPassword}
+                                      onChange={(e) => setPdfOwnerPassword(e.target.value)}
+                                      className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-white font-mono text-xs focus:outline-none focus:border-emerald-500/40"
+                                      placeholder="Admin security key"
+                                    />
+                                    <p className="text-[8px] text-zinc-500 font-mono leading-normal">Protects restriction flags from modification.</p>
+                                  </div>
+                                </div>
+
+                                {/* Custom Restriction Checkboxes */}
+                                <div className="space-y-2 p-3 bg-slate-950 rounded-lg border border-slate-850">
+                                  <label className="block text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wide mb-1">Set Access Restrictions</label>
+                                  
+                                  <div className="grid grid-cols-1 gap-1.5">
+                                    <label className="flex items-center gap-2.5 cursor-pointer hover:bg-slate-900/40 p-1.5 rounded transition-colors">
+                                      <input 
+                                        type="checkbox" 
+                                        checked={pdfRestrictPrinting}
+                                        onChange={(e) => setPdfRestrictPrinting(e.target.checked)}
+                                        className="rounded border-slate-850 bg-slate-900 text-emerald-600 focus:ring-opacity-0 accent-emerald-500"
+                                      />
+                                      <span className="text-[11px] text-slate-300 select-none">Restrict Document Printing</span>
+                                    </label>
+
+                                    <label className="flex items-center gap-2.5 cursor-pointer hover:bg-slate-900/40 p-1.5 rounded transition-colors">
+                                      <input 
+                                        type="checkbox" 
+                                        checked={pdfRestrictCopying}
+                                        onChange={(e) => setPdfRestrictCopying(e.target.checked)}
+                                        className="rounded border-slate-850 bg-slate-900 text-emerald-600 focus:ring-opacity-0 accent-emerald-500"
+                                      />
+                                      <span className="text-[11px] text-slate-300 select-none">Restrict Text & Photo Copying</span>
+                                    </label>
+
+                                    <label className="flex items-center gap-2.5 cursor-pointer hover:bg-slate-900/40 p-1.5 rounded transition-colors">
+                                      <input 
+                                        type="checkbox" 
+                                        checked={pdfRestrictModifying}
+                                        onChange={(e) => setPdfRestrictModifying(e.target.checked)}
+                                        className="rounded border-slate-850 bg-slate-900 text-emerald-600 focus:ring-opacity-0 accent-emerald-500"
+                                      />
+                                      <span className="text-[11px] text-slate-300 select-none">Restrict Document Modifying</span>
+                                    </label>
+
+                                    <label className="flex items-center gap-2.5 cursor-pointer hover:bg-slate-900/40 p-1.5 rounded transition-colors">
+                                      <input 
+                                        type="checkbox" 
+                                        checked={pdfRestrictAnnotating}
+                                        onChange={(e) => setPdfRestrictAnnotating(e.target.checked)}
+                                        className="rounded border-slate-850 bg-slate-900 text-emerald-600 focus:ring-opacity-0 accent-emerald-500"
+                                      />
+                                      <span className="text-[11px] text-slate-300 select-none">Restrict Markup & Comments</span>
+                                    </label>
+                                  </div>
+
+                                  <div className="mt-2 pt-2 border-t border-slate-900 flex gap-1.5 items-start">
+                                    <span className="text-xs leading-none shrink-0 text-zinc-400">🛡️</span>
+                                    <p className="text-[8px] text-slate-500 font-mono leading-normal">
+                                      Enforcing restriction flags recommended setting a Permissions password to secure preference limits.
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
                           </div>
 
                           <button
@@ -2385,6 +3109,9 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
           </div>
         </div>
       </footer>
+
+      {/* Floating AI Supervisor Coach */}
+      <AIAssistantSupervisor currentTab={activeTab} onTabChange={handleTabChange} />
     </div>
   );
 }

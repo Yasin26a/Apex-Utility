@@ -5,9 +5,14 @@ import {
   Trash2, ArrowUp, ArrowDown, RotateCw, Download, Cpu, 
   Info, Check, HelpCircle, Plus, Copy, AlertCircle, X, CheckCircle, Move
 } from 'lucide-react';
-import { PDFDocument, degrees } from 'pdf-lib';
-import { Document, Page } from 'react-pdf';
+import { PDFDocument, degrees, rgb } from 'pdf-lib';
+import { Document, Page, pdfjs } from 'react-pdf';
 import { addRecentOperation } from '../utils/recentOperations';
+
+// Bind workers cleanly from standard CDN using version-specific template
+if (typeof window !== 'undefined') {
+  pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+}
 
 interface PDFSourceFile {
   id: string;
@@ -62,7 +67,21 @@ export default function PDFJoiner() {
   });
   
   // Side tab controls
-  const [activeTab, setActiveTab] = useState<'pages' | 'metadata'>('pages');
+  const [activeTab, setActiveTab] = useState<'pages' | 'metadata' | 'watermark'>('pages');
+
+  // Watermark States for Joined PDF
+  const [watermarkEnabled, setWatermarkEnabled] = useState(false);
+  const [watermarkType, setWatermarkType] = useState<'text' | 'image'>('text');
+  const [watermarkText, setWatermarkText] = useState('CONFIDENTIAL');
+  const [watermarkTextColor, setWatermarkTextColor] = useState('#ef4444');
+  const [watermarkFontSize, setWatermarkFontSize] = useState(48);
+  const [watermarkRotation, setWatermarkRotation] = useState(-45);
+  const [watermarkOpacity, setWatermarkOpacity] = useState(0.3);
+  const [watermarkPosition, setWatermarkPosition] = useState<'center' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'tiled'>('center');
+  const [watermarkImageFile, setWatermarkImageFile] = useState<File | null>(null);
+  const [watermarkImageScale, setWatermarkImageScale] = useState(1);
+  const [watermarkRange, setWatermarkRange] = useState<'all' | 'first' | 'custom'>('all');
+  const [watermarkCustomRange, setWatermarkCustomRange] = useState('1');
 
   // Drag and Drop active indices
   const [draggedPageIndex, setDraggedPageIndex] = useState<number | null>(null);
@@ -362,6 +381,219 @@ export default function PDFJoiner() {
       if (meta.subject) mergedPdf.setSubject(meta.subject);
       if (meta.creator) mergedPdf.setCreator(meta.creator);
 
+      if (watermarkEnabled) {
+        addLog("Applying customized document watermark overlays...");
+        try {
+          let embeddedImage: any = null;
+          let imageWidth = 0;
+          let imageHeight = 0;
+
+          if (watermarkType === 'image' && watermarkImageFile) {
+            addLog("Formulating png matrix for image watermark...");
+            const pngBytes = await new Promise<ArrayBuffer>((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                  const canvas = document.createElement('canvas');
+                  canvas.width = img.width;
+                  canvas.height = img.height;
+                  const ctx = canvas.getContext('2d');
+                  if (!ctx) { reject(new Error('Could not get Canvas context')); return; }
+                  ctx.drawImage(img, 0, 0);
+                  canvas.toBlob((blob) => {
+                    if (!blob) { reject(new Error('Canvas to blob failed')); return; }
+                    const fileReader = new FileReader();
+                    fileReader.onload = () => {
+                      if (fileReader.result instanceof ArrayBuffer) {
+                        resolve(fileReader.result);
+                      } else {
+                        reject(new Error('Failed to convert blob to ArrayBuffer'));
+                      }
+                    };
+                    fileReader.onerror = () => reject(new Error('Blob read error'));
+                    fileReader.readAsArrayBuffer(blob);
+                  }, 'image/png');
+                };
+                img.onerror = () => reject(new Error('Image load failed'));
+                img.src = e.target?.result as string;
+              };
+              reader.onerror = () => reject(new Error('FileReader failed'));
+              reader.readAsDataURL(watermarkImageFile);
+            });
+
+            embeddedImage = await mergedPdf.embedPng(pngBytes);
+            imageWidth = embeddedImage.width * watermarkImageScale * 0.25;
+            imageHeight = embeddedImage.height * watermarkImageScale * 0.25;
+          }
+
+          let colorRgb = rgb(0.9, 0.1, 0.1); // default
+          if (watermarkTextColor) {
+            const hex = watermarkTextColor.replace('#', '');
+            const r = parseInt(hex.substring(0, 2), 16) / 255;
+            const g = parseInt(hex.substring(2, 4), 16) / 255;
+            const b = parseInt(hex.substring(4, 6), 16) / 255;
+            if (!isNaN(r) && !isNaN(g) && !isNaN(b)) {
+              colorRgb = rgb(r, g, b);
+            }
+          }
+
+          const pages = mergedPdf.getPages();
+          addLog(`Scanning page tree (${pages.length} pages found). Overlaying watermarks...`);
+
+          for (let pageNum = 0; pageNum < pages.length; pageNum++) {
+            let isApplicable = false;
+            if (watermarkRange === 'all') {
+              isApplicable = true;
+            } else if (watermarkRange === 'first') {
+              isApplicable = (pageNum === 0);
+            } else if (watermarkRange === 'custom' && watermarkCustomRange) {
+              const parts = watermarkCustomRange.split(',');
+              for (const part of parts) {
+                const cleanPart = part.trim();
+                if (cleanPart.includes('-')) {
+                  const [startStr, endStr] = cleanPart.split('-');
+                  const start = parseInt(startStr.trim(), 10);
+                  const end = parseInt(endStr.trim(), 10);
+                  if (!isNaN(start) && !isNaN(end)) {
+                    const pageNum1 = pageNum + 1;
+                    if (pageNum1 >= start && pageNum1 <= end) {
+                      isApplicable = true;
+                    }
+                  }
+                } else {
+                  const val = parseInt(cleanPart, 10);
+                  if (!isNaN(val) && pageNum + 1 === val) {
+                    isApplicable = true;
+                  }
+                }
+              }
+            }
+
+            if (!isApplicable) continue;
+
+            const page = pages[pageNum];
+            const { width, height } = page.getSize();
+
+            if (watermarkType === 'text' && watermarkText) {
+              const textWidth = watermarkText.length * (watermarkFontSize * 0.55);
+              const textHeight = watermarkFontSize;
+
+              if (watermarkPosition === 'tiled') {
+                const stepX = Math.max(160, textWidth * 1.5);
+                const stepY = Math.max(120, textHeight * 2.5);
+                for (let x = 40; x < width; x += stepX) {
+                  for (let y = 40; y < height; y += stepY) {
+                    page.drawText(watermarkText, {
+                      x,
+                      y,
+                      size: watermarkFontSize,
+                      color: colorRgb,
+                      opacity: watermarkOpacity,
+                      rotate: degrees(watermarkRotation),
+                    });
+                  }
+                }
+              } else {
+                let posX = 0;
+                let posY = 0;
+                switch (watermarkPosition) {
+                  case 'center':
+                    posX = (width - textWidth) / 2;
+                    posY = (height - textHeight) / 2;
+                    break;
+                  case 'top-left':
+                    posX = 40;
+                    posY = height - 60;
+                    break;
+                  case 'top-right':
+                    posX = width - textWidth - 40;
+                    posY = height - 60;
+                    break;
+                  case 'bottom-left':
+                    posX = 40;
+                    posY = 60;
+                    break;
+                  case 'bottom-right':
+                    posX = width - textWidth - 40;
+                    posY = 60;
+                    break;
+                }
+
+                if (watermarkPosition === 'center' && watermarkRotation !== 0) {
+                  posX = width / 2 - (Math.cos(watermarkRotation * Math.PI / 180) * textWidth / 2);
+                  posY = height / 2 - (Math.sin(watermarkRotation * Math.PI / 180) * textHeight / 2);
+                }
+
+                page.drawText(watermarkText, {
+                  x: posX,
+                  y: posY,
+                  size: watermarkFontSize,
+                  color: colorRgb,
+                  opacity: watermarkOpacity,
+                  rotate: degrees(watermarkRotation),
+                });
+              }
+            } else if (watermarkType === 'image' && embeddedImage) {
+              if (watermarkPosition === 'tiled') {
+                const stepX = Math.max(160, imageWidth * 1.8);
+                const stepY = Math.max(160, imageHeight * 1.8);
+                for (let x = 30; x < width; x += stepX) {
+                  for (let y = 30; y < height; y += stepY) {
+                    page.drawImage(embeddedImage, {
+                      x,
+                      y,
+                      width: imageWidth,
+                      height: imageHeight,
+                      opacity: watermarkOpacity,
+                      rotate: degrees(watermarkRotation),
+                    });
+                  }
+                }
+              } else {
+                let posX = 0;
+                let posY = 0;
+                switch (watermarkPosition) {
+                  case 'center':
+                    posX = (width - imageWidth) / 2;
+                    posY = (height - imageHeight) / 2;
+                    break;
+                  case 'top-left':
+                    posX = 30;
+                    posY = height - imageHeight - 30;
+                    break;
+                  case 'top-right':
+                    posX = width - imageWidth - 30;
+                    posY = height - imageHeight - 30;
+                    break;
+                  case 'bottom-left':
+                    posX = 30;
+                    posY = 30;
+                    break;
+                  case 'bottom-right':
+                    posX = width - imageWidth - 30;
+                    posY = 30;
+                    break;
+                }
+
+                page.drawImage(embeddedImage, {
+                  x: posX,
+                  y: posY,
+                  width: imageWidth,
+                  height: imageHeight,
+                  opacity: watermarkOpacity,
+                  rotate: degrees(watermarkRotation),
+                });
+              }
+            }
+          }
+          addLog("Successfully embedded robust watermark vector layer!");
+        } catch (overlayErr: any) {
+          console.error("Watermark generation failed", overlayErr);
+          addLog(`Watermark generation fallback skipped: ${overlayErr.message || overlayErr}`);
+        }
+      }
+
       // 5. Build final arrayBuffer
       addLog(`Compressing and saving bytes stream arrays...`);
       const mergedPdfBytes = await mergedPdf.save();
@@ -658,33 +890,60 @@ export default function PDFJoiner() {
               )}
             </div>
 
-            {/* List of files with names, sizes and counts */}
+            {/* Grid of files with first-page thumbnail previews */}
             <div className="beveled-panel p-5 bg-[#07070a]/60 border-zinc-900/30">
               <h4 className="font-heading text-xs uppercase font-bold text-zinc-400 tracking-wider mb-3">Loaded Source PDF Files List</h4>
-              <div className="space-y-2.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {sourceFiles.map((f) => (
-                  <div key={f.id} className="flex justify-between items-center bg-[#09090d] border border-zinc-900 px-3.5 py-2.5 rounded-lg">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="p-2 rounded bg-rose-500/5 text-rose-400 border border-rose-500/10">
-                        <FileText className="w-4 h-4" />
+                  <div key={f.id} className="flex flex-col bg-[#09090d] border border-zinc-900 hover:border-zinc-850 rounded-lg p-3 relative group transition-colors">
+                    <button
+                      onClick={() => removeSourceFile(f.id)}
+                      className="absolute top-2 right-2 p-1 rounded-md border border-zinc-800 bg-zinc-950 hover:bg-red-950/20 hover:border-red-950 text-zinc-500 hover:text-red-400 cursor-pointer transition-all z-10"
+                      title="Purge all pages of this file"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+
+                    <div className="flex gap-3">
+                      {/* Document thumbnail first page */}
+                      <div className="w-14 h-18 bg-[#0c0c10] border border-zinc-850 rounded flex items-center justify-center shrink-0 relative overflow-hidden select-none pointer-events-none p-0.5">
+                        <Document
+                          file={f.blobUrl}
+                          loading={
+                            <div className="text-[7px] font-mono text-zinc-650 text-center uppercase tracking-tight">
+                              Loading...
+                            </div>
+                          }
+                          error={
+                            <div className="text-[7px] font-mono text-zinc-600 text-center uppercase tracking-tight">
+                              FAIL
+                            </div>
+                          }
+                        >
+                          <Page
+                            pageNumber={1}
+                            width={50}
+                            renderTextLayer={false}
+                            renderAnnotationLayer={false}
+                          />
+                        </Document>
                       </div>
-                      <div className="min-w-0">
-                        <span className="block font-heading text-xs font-semibold text-white truncate max-w-sm" title={f.name}>
-                          {f.name}
-                        </span>
-                        <span className="block font-mono text-[9px] text-[#94a3b8] mt-0.5">
-                          Size: {f.sizeStr} | Page count: {f.pageCount} pages
+
+                      {/* PDF parameters & details */}
+                      <div className="min-w-0 flex flex-col justify-between py-0.5">
+                        <div className="space-y-1">
+                          <span className="block font-heading text-xs font-semibold text-white truncate max-w-[130px] sm:max-w-[140px] md:max-w-[160px] lg:max-w-[120px] xl:max-w-[150px]" title={f.name}>
+                            {f.name}
+                          </span>
+                          <span className="block font-mono text-[9px] text-[#94a3b8]">
+                            Pages: {f.pageCount}
+                          </span>
+                        </div>
+                        <span className="block font-mono text-[9px] text-zinc-550">
+                          {f.sizeStr}
                         </span>
                       </div>
                     </div>
-
-                    <button
-                      onClick={() => removeSourceFile(f.id)}
-                      className="p-1.5 rounded-lg border border-zinc-800 bg-zinc-950 hover:bg-red-950/20 hover:border-red-950 text-zinc-500 hover:text-red-400 cursor-pointer transition-all"
-                      title="Purge all pages of this file"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
                   </div>
                 ))}
               </div>
@@ -698,11 +957,11 @@ export default function PDFJoiner() {
             {/* Unified Preferences Controls */}
             <div className="beveled-panel bg-[#09090d] border-zinc-800/60 p-5 space-y-5">
               <div className="flex justify-between items-center pb-2 border-b border-zinc-900/60">
-                <div className="flex-1 grid grid-cols-2 gap-1 p-1 bg-zinc-950 rounded-xl border border-zinc-900">
+                <div className="flex-1 grid grid-cols-3 gap-1 p-1 bg-zinc-950 rounded-xl border border-zinc-900">
                   <button
                     type="button"
                     onClick={() => setActiveTab('pages')}
-                    className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-[10px] uppercase tracking-wider font-mono font-bold transition-all cursor-pointer ${
+                    className={`flex items-center justify-center gap-1 py-1.5 px-1 rounded-lg text-[10px] uppercase tracking-wider font-mono font-bold transition-all cursor-pointer ${
                       activeTab === 'pages'
                         ? 'bg-brand text-zinc-950 font-black shadow-[0_0_12px_rgba(245,158,11,0.15)]'
                         : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900'
@@ -714,7 +973,7 @@ export default function PDFJoiner() {
                   <button
                     type="button"
                     onClick={() => setActiveTab('metadata')}
-                    className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-[10px] uppercase tracking-wider font-mono font-bold transition-all cursor-pointer ${
+                    className={`flex items-center justify-center gap-1 py-1.5 px-1 rounded-lg text-[10px] uppercase tracking-wider font-mono font-bold transition-all cursor-pointer ${
                       activeTab === 'metadata'
                         ? 'bg-brand text-zinc-950 font-black shadow-[0_0_12px_rgba(245,158,11,0.15)]'
                         : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900'
@@ -723,11 +982,23 @@ export default function PDFJoiner() {
                     <Sliders className="w-3 h-3" />
                     <span>Headers</span>
                   </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('watermark')}
+                    className={`flex items-center justify-center gap-1 py-1.5 px-1 rounded-lg text-[10px] uppercase tracking-wider font-mono font-bold transition-all cursor-pointer ${
+                      activeTab === 'watermark'
+                        ? 'bg-brand text-zinc-950 font-black shadow-[0_0_12px_rgba(245,158,11,0.15)]'
+                        : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900'
+                    }`}
+                  >
+                    <Sparkles className="w-3 h-3" />
+                    <span>Watermark</span>
+                  </button>
                 </div>
               </div>
 
               <AnimatePresence mode="wait">
-                {activeTab === 'pages' ? (
+                {activeTab === 'pages' && (
                   <motion.div
                     key="pagesinfo"
                     initial={{ opacity: 0, x: -10 }}
@@ -766,7 +1037,9 @@ export default function PDFJoiner() {
                       </div>
                     </div>
                   </motion.div>
-                ) : (
+                )}
+
+                {activeTab === 'metadata' && (
                   <motion.div
                     key="metadataoptions"
                     initial={{ opacity: 0, x: 5 }}
@@ -774,7 +1047,7 @@ export default function PDFJoiner() {
                     exit={{ opacity: 0, x: -5 }}
                     className="space-y-4 text-xs select-none"
                   >
-                    <p className="text-[10px] text-zinc-500 leading-normal">
+                    <p className="text-[10px] text-zinc-500 leading-normal font-mono">
                       Customize standard PDF document metadata header block attributes injected inside key-value catalogs of the compiled bundle.
                     </p>
 
@@ -817,6 +1090,249 @@ export default function PDFJoiner() {
                         className="w-full bg-[#050508] border border-zinc-800 rounded px-2.5 py-1.5 text-white font-mono text-xs focus:outline-none focus:border-brand/40"
                       />
                     </div>
+                  </motion.div>
+                )}
+
+                {activeTab === 'watermark' && (
+                  <motion.div
+                    key="watermarkoptions"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="space-y-4 text-xs select-none"
+                  >
+                    <div className="flex items-center justify-between pb-1 border-b border-zinc-900">
+                      <span className="text-[10px] uppercase tracking-wider text-zinc-400 font-mono font-bold">Document Watermarking</span>
+                      <label className="relative inline-flex items-center cursor-pointer scale-90">
+                        <input 
+                          type="checkbox" 
+                          className="sr-only peer" 
+                          checked={watermarkEnabled}
+                          onChange={(e) => setWatermarkEnabled(e.target.checked)}
+                        />
+                        <div className="w-8 h-4 bg-zinc-950 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-zinc-400 after:border-zinc-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-brand peer-checked:after:bg-zinc-950 border border-zinc-800"></div>
+                      </label>
+                    </div>
+
+                    {!watermarkEnabled ? (
+                      <p className="text-[10px] text-zinc-500 leading-relaxed font-mono">
+                        Turn on the document watermarking engine to overlay text stamps or brand images on your compiled PDF pages before downloading.
+                      </p>
+                    ) : (
+                      <div className="space-y-3 animate-fadeIn">
+                        {/* Selector type */}
+                        <div className="grid grid-cols-2 gap-1 p-0.5 bg-zinc-950 rounded-lg border border-zinc-950">
+                          <button
+                            type="button"
+                            onClick={() => setWatermarkType('text')}
+                            className={`py-1 rounded font-mono text-[9px] uppercase tracking-wider text-center font-bold transition-all cursor-pointer ${
+                              watermarkType === 'text'
+                                ? 'bg-brand text-zinc-950 font-extrabold'
+                                : 'text-zinc-500 hover:text-zinc-300'
+                            }`}
+                          >
+                            Text Stamp
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setWatermarkType('image')}
+                            className={`py-1 rounded font-mono text-[9px] uppercase tracking-wider text-center font-bold transition-all cursor-pointer ${
+                              watermarkType === 'image'
+                                ? 'bg-brand text-zinc-950 font-extrabold'
+                                : 'text-zinc-500 hover:text-zinc-300'
+                            }`}
+                          >
+                            Image Overlay
+                          </button>
+                        </div>
+
+                        {watermarkType === 'text' ? (
+                          <div className="space-y-2.5">
+                            <div className="space-y-0.5">
+                              <label className="block text-[8px] uppercase tracking-widest text-[#94a3b8] font-mono">Watermark Text Content</label>
+                              <input
+                                type="text"
+                                value={watermarkText}
+                                onChange={(e) => setWatermarkText(e.target.value)}
+                                className="w-full bg-[#050508] border border-zinc-800 rounded px-2.5 py-1.5 text-white font-mono text-xs focus:outline-none"
+                                placeholder="CONFIDENTIAL"
+                              />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-2">
+                              <div className="space-y-0.5">
+                                <label className="block text-[8px] uppercase tracking-widest text-[#94a3b8] font-mono">Stamp Color</label>
+                                <div className="flex items-center gap-1.5">
+                                  <input
+                                    type="color"
+                                    value={watermarkTextColor}
+                                    onChange={(e) => setWatermarkTextColor(e.target.value)}
+                                    className="w-6 h-6 rounded cursor-pointer bg-transparent border-0"
+                                  />
+                                  <input
+                                    type="text"
+                                    value={watermarkTextColor}
+                                    onChange={(e) => setWatermarkTextColor(e.target.value)}
+                                    className="w-full bg-[#050508] border border-zinc-800 rounded px-1.5 py-0.5 text-center font-mono text-[10px] text-zinc-350"
+                                  />
+                                </div>
+                              </div>
+
+                              <div className="space-y-0.5">
+                                <label className="block text-[8px] uppercase tracking-widest text-[#94a3b8] font-mono">Font Size ({watermarkFontSize}px)</label>
+                                <input
+                                  type="range"
+                                  min="12"
+                                  max="120"
+                                  value={watermarkFontSize}
+                                  onChange={(e) => setWatermarkFontSize(Number(e.target.value))}
+                                  className="w-full h-1 bg-zinc-950 rounded-lg appearance-none cursor-pointer accent-brand mt-1.5"
+                                />
+                              </div>
+                            </div>
+
+                            <div className="space-y-0.5">
+                              <div className="flex justify-between items-center text-[8px] uppercase tracking-widest text-[#94a3b8] font-mono">
+                                <span>Rotation Angle ({watermarkRotation}°)</span>
+                                <button
+                                  type="button"
+                                  onClick={() => setWatermarkRotation(0)}
+                                  className="text-[7px] text-zinc-500 hover:text-white"
+                                >
+                                  [RESET]
+                                </button>
+                              </div>
+                              <input
+                                type="range"
+                                min="-180"
+                                max="180"
+                                value={watermarkRotation}
+                                onChange={(e) => setWatermarkRotation(Number(e.target.value))}
+                                className="w-full h-1 bg-zinc-950 rounded-lg appearance-none cursor-pointer accent-brand mt-1.5"
+                              />
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="space-y-2.5">
+                            <div className="space-y-1">
+                              <label className="block text-[8px] uppercase tracking-widest text-[#94a3b8] font-mono">Stamp Graphic Asset</label>
+                              <div className="flex gap-2">
+                                <div
+                                  onClick={() => document.getElementById('joiner-watermark-picker')?.click()}
+                                  className="flex-1 p-2 border border-dashed border-zinc-805 border-zinc-800 bg-zinc-950 hover:bg-zinc-900 text-center rounded cursor-pointer transition-colors min-h-[50px] flex flex-col justify-center items-center"
+                                >
+                                  <input
+                                    type="file"
+                                    id="joiner-watermark-picker"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={(e) => {
+                                      if (e.target.files && e.target.files[0]) {
+                                        setWatermarkImageFile(e.target.files[0]);
+                                      }
+                                    }}
+                                  />
+                                  {watermarkImageFile ? (
+                                    <span className="text-[9px] font-mono text-zinc-350 truncate max-w-[120px]">{watermarkImageFile.name}</span>
+                                  ) : (
+                                    <span className="text-[9px] text-zinc-500 font-mono">Pick brand image...</span>
+                                  )}
+                                </div>
+                                {watermarkImageFile && (
+                                  <div className="w-12 h-12 rounded bg-zinc-950 border border-zinc-900 p-0.5 shrink-0 flex items-center justify-center overflow-hidden">
+                                    <img 
+                                      src={URL.createObjectURL(watermarkImageFile)} 
+                                      alt="stamp preview" 
+                                      className="max-w-full max-h-full object-contain" 
+                                    />
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="space-y-0.5">
+                              <label className="block text-[8px] uppercase tracking-widest text-[#94a3b8] font-mono">Image Size Modifier ({watermarkImageScale.toFixed(2)}x)</label>
+                              <input
+                                type="range"
+                                min="0.1"
+                                max="3.0"
+                                step="0.05"
+                                value={watermarkImageScale}
+                                onChange={(e) => setWatermarkImageScale(Number(e.target.value))}
+                                className="w-full h-1 bg-zinc-950 rounded-lg appearance-none cursor-pointer accent-brand mt-1.5"
+                              />
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Universal Alignment and opacity */}
+                        <div className="grid grid-cols-2 gap-2 pb-1 border-b border-zinc-900">
+                          <div className="space-y-0.5">
+                            <label className="block text-[8px] uppercase tracking-widest text-[#94a3b8] font-mono">Preset Position</label>
+                            <select
+                              value={watermarkPosition}
+                              onChange={(e: any) => setWatermarkPosition(e.target.value)}
+                              className="w-full bg-[#050508] border border-zinc-800 rounded px-1.5 py-1 text-slate-300 font-mono text-[9px] focus:outline-none"
+                            >
+                              <option value="center">Center</option>
+                              <option value="top-left">Top-Left</option>
+                              <option value="top-right">Top-Right</option>
+                              <option value="bottom-left">Bottom-Left</option>
+                              <option value="bottom-right">Bottom-Right</option>
+                              <option value="tiled">Tiled (Grid)</option>
+                            </select>
+                          </div>
+
+                          <div className="space-y-0.5">
+                            <label className="block text-[8px] uppercase tracking-widest text-[#94a3b8] font-mono">Opacity ({Math.round(watermarkOpacity * 100)}%)</label>
+                            <input
+                              type="range"
+                              min="0.05"
+                              max="1.0"
+                              step="0.05"
+                              value={watermarkOpacity}
+                              onChange={(e) => setWatermarkOpacity(Number(e.target.value))}
+                              className="w-full h-1 bg-zinc-950 rounded-lg appearance-none cursor-pointer accent-brand mt-1.5"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Page selection range targets */}
+                        <div className="p-2 bg-zinc-950 rounded border border-zinc-900/60 space-y-1.5">
+                          <label className="block text-[8px] uppercase tracking-widest text-[#94a3b8] font-mono">Overlaid Range Applicator</label>
+                          <div className="grid grid-cols-3 gap-1">
+                            {(['all', 'first', 'custom'] as const).map((r) => (
+                              <button
+                                key={r}
+                                type="button"
+                                onClick={() => setWatermarkRange(r)}
+                                className={`py-1 rounded font-mono text-[8px] uppercase tracking-wider text-center border font-bold transition-all cursor-pointer ${
+                                  watermarkRange === r
+                                    ? 'bg-brand/10 border-brand/30 text-brand'
+                                    : 'bg-zinc-900 border-transparent text-zinc-500 hover:text-zinc-350'
+                                }`}
+                              >
+                                {r === 'all' && 'All Pages'}
+                                {r === 'first' && 'First Only'}
+                                {r === 'custom' && 'Custom'}
+                              </button>
+                            ))}
+                          </div>
+
+                          {watermarkRange === 'custom' && (
+                            <div className="space-y-1 animate-fadeIn pt-0.5">
+                              <input 
+                                type="text"
+                                value={watermarkCustomRange}
+                                onChange={(e) => setWatermarkCustomRange(e.target.value)}
+                                placeholder="e.g. 1, 3-5, 7"
+                                className="w-full bg-[#050508] border border-zinc-800 rounded px-2 py-0.5 text-white font-mono text-[9px] tracking-widest focus:outline-none"
+                              />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </motion.div>
                 )}
               </AnimatePresence>

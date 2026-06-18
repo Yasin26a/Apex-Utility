@@ -167,6 +167,7 @@ export interface BatchPDFState {
   originalBlobUrl?: string;
   originalFile?: File;
   error?: string;
+  pageCount?: number;
   metadata?: BatchPDFMetadata;
   showMetadataEdit?: boolean;
   metadataDirty?: boolean;
@@ -839,6 +840,17 @@ export default function PDFCompressor() {
       // Create local object URL for previewing PDF files
       const originalBlobUrl = isPDF ? URL.createObjectURL(file) : '';
 
+      let pageCount: number | undefined = undefined;
+      if (isPDF) {
+        try {
+          const arrayBuffer = await file.arrayBuffer();
+          const loadedDoc = await PDFDocument.load(arrayBuffer);
+          pageCount = loadedDoc.getPageCount();
+        } catch (err) {
+          console.error("Error reading PDF page count:", err);
+        }
+      }
+
       return {
         id,
         name: file.name,
@@ -849,6 +861,7 @@ export default function PDFCompressor() {
         compressedSizeStr: '',
         originalBlobUrl,
         originalFile: file,
+        pageCount,
         metadata: {
           title: inferredTitle,
           author: '',
@@ -1395,6 +1408,11 @@ export default function PDFCompressor() {
                               <span className="font-mono text-[9px] text-zinc-500">
                                 {file.originalSizeStr}
                               </span>
+                              {file.pageCount !== undefined && (
+                                <span className="font-mono text-[9px] text-zinc-400">
+                                  • {file.pageCount} {file.pageCount === 1 ? 'page' : 'pages'}
+                                </span>
+                              )}
                               {isPdf && (
                                 <div className="inline-flex flex-wrap items-center gap-2">
                                   <button
