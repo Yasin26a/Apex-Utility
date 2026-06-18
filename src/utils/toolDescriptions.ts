@@ -325,5 +325,37 @@ export const TOOL_DEEP_DIVES: Record<ActiveTab, DeepDiveConfig> = {
       'Each guide is formatted and written by the APEX UTILITY group, diving under the hood of standard WebAssembly modules, canvas rendering workers, and cryptographically secure entropy formulas.',
       'Through these comprehensive guides, developers can learn to build compliant schemas, optimize dynamic applications, and guarantee offline-first data integrity.'
     ]
+  },
+  'content-planner': {
+    subtitle: 'AI-Powered Search Intent & Semantic Layout Compiler',
+    paragraphs: [
+      'Successful content distribution relies on understanding search intent, harvesting LSI semantic keywords, and establishing granular heading trees before writing copy. The AI Content Planner solves this by leveraging Gemini deep-learning engines to process keywords, map user search intent categories, and outline ready-to-write article schemas completely in real-time.',
+      'Unlike default outline scrapers that produce generic lists, our planner classifies the specific search intent funnel stage (TOFU, MOFU, or BOFU) and explains the psychological trigger behind the query. It returns extensive LSI words to insert, structures exact H1, H2, and H3 hierarchies, and details standard FAQ accordion items with answer drafts.',
+      'This tool is fully integrated with our copywriter for high SEO compliance. Plan content visually, tracking targets with functional checkbox checklists to streamline your workflow.'
+    ]
+  },
+  'schema-generator': {
+    subtitle: 'JSON-LD Rich Snippet Microdata Synthesizer',
+    paragraphs: [
+      'Structured data or schema markup is the universal language of search engine crawlers. By explicitly detailing high-context fields, websites achieve high impressions, visual FAQ drops, stellar rating stars, local map packs, and career exposure. The JSON-LD Rich Schema Architect enables developers and webmasters to build, validate, and download valid nested script microdata in real-time.',
+      'Our tool provides two premium compilation pipelines: a visual template-driven form builder for rapid, high-standard article, product, FAQ list, and local office scaffolding, and a state-of-the-art AI-powered unstructured analyzer. Simply feed Gemini raw pages, emails, or drafts, and it automatically extracts, refines, and formats correct nested JSON-LD objects.',
+      'All generated payloads conform strictly to official Schema.org standards. Code snippets can be previewed dynamically, copied directly to the clipboard, downloaded locally as a JSON file, or easily tested using official Google Rich Results testing workflows.'
+    ]
+  },
+  'content-gap': {
+    subtitle: 'SEO Competitor Intelligence & On-Page Deficit Analyzer',
+    paragraphs: [
+      'Top page rankings are achieved by filling structural topic spaces better than current winners. Rather than guessing why rivals rank above your material, our Competitor Content-Gap Analyzer performs deep semantic comparisons to uncover hidden keyword exclusions and header structure flaws instantly using Gemini.',
+      'By evaluating your custom draft or target topics side-of-side with up to three high-ranking competitor descriptions or drafts, the tool highlights missing LSI key terms, quantifies search intent stages, and uncovers head-to-head structural topic deficits that damage content depth scores.',
+      'Each analysis generates a highly actionable, step-by-step revision workbook. Effortlessly track which sections to expand, see dynamic competitor coverage heatmaps, and obtain copy-pasteable headline updates specifically structured to maximize organic search authority.'
+    ]
+  },
+  'keyword-cluster': {
+    subtitle: 'AI-Powered Semantic Topical Authority Architect',
+    paragraphs: [
+      'Topical authority is the backbone of rank-registration in modern search schemas. Modern search agents bypass simplistic keyword matching to evaluate holistic thematic mastery. The AI Keyword Clustering & Semantic Mapping workstation transforms a flat, unstructured list of query phrases into a high-utility taxonomic topic tree.',
+      'By utilizing advanced text embeddings and semantic proximity classifiers, our engine groups high-volume modifiers together into logical pillar articles. This lets editorial teams build strict hub-and-spoke link plans, protecting site property structures from duplicate canonical indexing penalties or self-cannibalism.',
+      'Furthermore, each generated keyword cluster maps search lifecycle funnels, marking TOFU informational, MOFU commercial, and BOFU transactional distributions. The integrated outlines architect then drafts pristine ready-to-use editorial blueprints with H2 headers, meta-descriptions, and content guidance cards for writers.'
+    ]
   }
 };

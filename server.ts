@@ -1,5 +1,6 @@
 import express from 'express';
 import path from 'path';
+import { GoogleGenAI, Type } from '@google/genai';
 
 async function createServer() {
   const app = express();
@@ -8,6 +9,460 @@ async function createServer() {
   // JSON and URL-encoded body parsers
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+
+  // API Content Planner Endpoint using Gemini 3.5 Flash
+  app.post('/api/content-planner', async (req, res) => {
+    try {
+      const { keyword, audience, tone, format } = req.body;
+      if (!keyword || typeof keyword !== 'string') {
+        res.status(400).json({ error: 'Keyword must be a non-empty string.' });
+        return;
+      }
+
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        res.status(500).json({ 
+          error: 'GEMINI_API_KEY is not configured on the server. Please check the Secrets panel in Settings.' 
+        });
+        return;
+      }
+
+      // Initialize the modern GoogleGenAI client with required header
+      const ai = new GoogleGenAI({
+        apiKey: apiKey,
+        httpOptions: {
+          headers: {
+            'User-Agent': 'aistudio-build'
+          }
+        }
+      });
+
+      const userPrompt = `Develop a detailed search intent & content planning strategy for the following keyword/topic:
+Keyword: "${keyword}"
+Target Audience: ${audience || 'General public'}
+Desired Editorial Tone: ${tone || 'Professional & informative'}
+Suggested Content Format: ${format || 'Comprehensive Guide'}
+
+Generate recommendations, semantic keyword expansions, long-tail search questions, target audience profiling, meta compliance details, an editorial word-count target, detailed outlining structure (H1, H2s, H3s) containing bullet lists of key details, and relevant schema-compliant FAQs.`;
+
+      const responseSchema = {
+        type: Type.OBJECT,
+        properties: {
+          keyword: { type: Type.STRING },
+          searchIntent: {
+            type: Type.OBJECT,
+            properties: {
+              intentType: { type: Type.STRING },
+              explanation: { type: Type.STRING },
+              stage: { type: Type.STRING }
+            },
+            required: ["intentType", "explanation", "stage"]
+          },
+          userProblem: { type: Type.STRING },
+          audienceProfile: {
+            type: Type.OBJECT,
+            properties: {
+              demographics: { type: Type.STRING },
+              expertiseLevel: { type: Type.STRING },
+              intentTriggers: {
+                type: Type.ARRAY,
+                items: { type: Type.STRING }
+              }
+            },
+            required: ["demographics", "expertiseLevel", "intentTriggers"]
+          },
+          keywords: {
+            type: Type.OBJECT,
+            properties: {
+              primary: { type: Type.STRING },
+              semantic: {
+                type: Type.ARRAY,
+                items: { type: Type.STRING }
+              },
+              longTailQuestions: {
+                type: Type.ARRAY,
+                items: {
+                  type: Type.OBJECT,
+                  properties: {
+                    question: { type: Type.STRING },
+                    explanation: { type: Type.STRING }
+                  },
+                  required: ["question", "explanation"]
+                }
+              }
+            },
+            required: ["primary", "semantic", "longTailQuestions"]
+          },
+          seoGuidelines: {
+            type: Type.OBJECT,
+            properties: {
+              recommendedWordCount: { type: Type.INTEGER },
+              metaTitle: { type: Type.STRING },
+              metaDescription: { type: Type.STRING },
+              editorialTone: { type: Type.STRING }
+            },
+            required: ["recommendedWordCount", "metaTitle", "metaDescription", "editorialTone"]
+          },
+          outline: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                heading: { type: Type.STRING },
+                type: { type: Type.STRING },
+                description: { type: Type.STRING },
+                keyPointsToCover: {
+                  type: Type.ARRAY,
+                  items: { type: Type.STRING }
+                }
+              },
+              required: ["heading", "type", "description", "keyPointsToCover"]
+            }
+          },
+          faq: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                question: { type: Type.STRING },
+                answer: { type: Type.STRING }
+              },
+              required: ["question", "answer"]
+            }
+          }
+        },
+        required: [
+          "keyword",
+          "searchIntent",
+          "userProblem",
+          "audienceProfile",
+          "keywords",
+          "seoGuidelines",
+          "outline",
+          "faq"
+        ]
+      };
+
+      const result = await ai.models.generateContent({
+        model: 'gemini-3.5-flash',
+        contents: userPrompt,
+        config: {
+          systemInstruction: 'You are an elite SEO strategist, semantic search architecture engineer, and pro copywriting outline directory editor. Return strict, pristine structural layouts in raw JSON according to the exact response schema. Keep descriptions and answers precise, highly professional, with no markdown codeblock wrappers.',
+          responseMimeType: 'application/json',
+          responseSchema: responseSchema,
+          temperature: 0.2
+        }
+      });
+
+      if (!result.text) {
+        throw new Error('Gemini API returned an empty response.');
+      }
+
+      const cleanJson = JSON.parse(result.text.trim());
+      res.json(cleanJson);
+    } catch (err: any) {
+      console.error('Error in content-planner api:', err);
+      res.status(500).json({ error: err.message || 'Internal server error processing report.' });
+    }
+  });
+
+  // API Schema Generator Endpoint using Gemini 3.5 Flash
+  app.post('/api/schema-generator', async (req, res) => {
+    try {
+      const { schemaType, textPrompt } = req.body;
+      if (!textPrompt || typeof textPrompt !== 'string') {
+        res.status(400).json({ error: 'Text prompt or raw content must be a non-empty string.' });
+        return;
+      }
+
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        res.status(500).json({ 
+          error: 'GEMINI_API_KEY is not configured on the server. Please check the Secrets panel in Settings.' 
+        });
+        return;
+      }
+
+      const ai = new GoogleGenAI({
+        apiKey: apiKey,
+        httpOptions: {
+          headers: {
+            'User-Agent': 'aistudio-build'
+          }
+        }
+      });
+
+      const userPrompt = `Extract or compile a valid JSON-LD SEO schema object based on the details provided.
+Desired SchemaType: "${schemaType || 'Article'}"
+Source Context & Inputs:
+"${textPrompt}"
+
+Your task:
+1. Create a fully compliant, rich JSON-LD schema using the @context: "https://schema.org" namespace.
+2. Ensure properties are nested, detailed, realistic, and schema-compliant. Include relevant rich-snippet properties (e.g., author names, publisher, price, currency, rating count, reviews, step details, coordinates, breadcrumb URLs, dates, custom nesting, etc.).
+3. Return only the flat JSON-LD object itself inside the "schema" key of the response JSON.
+4. Provide a 2-3 sentence markdown summary explaining the structured fields generated and any recommended additions. Match the language of the source text if it is not English.`;
+
+      const responseSchema = {
+        type: Type.OBJECT,
+        properties: {
+          schemaJson: { type: Type.STRING, description: "The stringified JSON-LD block. Ensure it has correct syntax, escapes, and fits the Google Rich Snippet compliance rules. Start with @context." },
+          explanation: { type: Type.STRING, description: "A brief summary explaining the fields populated and some optimization recommendations." }
+        },
+        required: ["schemaJson", "explanation"]
+      };
+
+      const result = await ai.models.generateContent({
+        model: 'gemini-3.5-flash',
+        contents: userPrompt,
+        config: {
+          systemInstruction: 'You are an elite SEO Search Architecture specialist who specializes in Google Rich Snippets, JSON-LD microdata, Schema.org specifications, and technical search markup. Generate a high-quality schema compilation matching schema.org definitions. Return strict JSON according to the response schema. Never include markdown code wrappers around the schema string itself.',
+          responseMimeType: 'application/json',
+          responseSchema: responseSchema,
+          temperature: 0.1
+        }
+      });
+
+      if (!result.text) {
+        throw new Error('Gemini API returned an empty response.');
+      }
+
+      const cleanJson = JSON.parse(result.text.trim());
+      res.json(cleanJson);
+    } catch (err: any) {
+      console.error('Error in schema-generator api:', err);
+      res.status(500).json({ error: err.message || 'Internal server error processing schema compilation.' });
+    }
+  });
+
+  // API Content-Gap Analyzer Endpoint using Gemini 3.5 Flash
+  app.post('/api/content-gap-analyzer', async (req, res) => {
+    try {
+      const { targetKeyword, ourContent, competitors } = req.body;
+      if (!targetKeyword || !ourContent) {
+        res.status(400).json({ error: 'Target keyword and your current content/topic are required.' });
+        return;
+      }
+
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        res.status(500).json({ 
+          error: 'GEMINI_API_KEY is not configured on the server. Please check the Secrets panel in Settings.' 
+        });
+        return;
+      }
+
+      const ai = new GoogleGenAI({
+        apiKey: apiKey,
+        httpOptions: {
+          headers: {
+            'User-Agent': 'aistudio-build'
+          }
+        }
+      });
+
+      const userPrompt = `Compare our content idea/draft against competitors to locate high-value keyword and structural gaps.
+Primary Target Keyword: "${targetKeyword}"
+Our Current Content/Topic Draft:
+"${ourContent}"
+
+Competitors Information:
+${JSON.stringify(competitors, null, 2)}
+
+Your task:
+1. Identify the Search Intent category, primary intent stage (TOFU/MOFU/BOFU) and user pain points.
+2. Formulate a list of high-impact LSI / semantic keywords found in competitor material but missing (or under-represented) in ours.
+3. Analyze structural topics or specific sections covered by rivals which we omitted. Evaluate the GAP severity (e.g., High, Medium, Low).
+4. Outline 4-5 highly actionable, SEO-focused recommendations to fill these gaps.
+5. Provide quantitative scores (Depth Score 1-100) comparing our content draft against competitor materials. Make sure to generate the depth score for our draft first and then each competitor named or specified.`;
+
+      const responseSchema = {
+        type: Type.OBJECT,
+        properties: {
+          searchIntent: { type: Type.STRING, description: "Category of research intent e.g. Informational (TOFU), and summary of user behavior." },
+          missingKeywords: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                keyword: { type: Type.STRING },
+                importance: { type: Type.STRING, description: "High/Medium/Critical" },
+                rationale: { type: Type.STRING, description: "Why do we need this keyword?" }
+              },
+              required: ["keyword", "importance", "rationale"]
+            }
+          },
+          structuralGaps: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                competitorTopic: { type: Type.STRING, description: "The subtopic or head-to-head title aspect competitors covered well" },
+                missedDetail: { type: Type.STRING, description: "What exactly did they write about that we didn't include?" },
+                severity: { type: Type.STRING, description: "High/Medium/Low" },
+                fillAction: { type: Type.STRING, description: "Draft title or specific suggestion to fill this gap" }
+              },
+              required: ["competitorTopic", "missedDetail", "severity", "fillAction"]
+            }
+          },
+          scores: {
+            type: Type.OBJECT,
+            properties: {
+              ourScore: { type: Type.INTEGER, description: "Score representing content completeness out of 100" },
+              competitorsScores: {
+                type: Type.ARRAY,
+                items: {
+                  type: Type.OBJECT,
+                  properties: {
+                    nameOrUrl: { type: Type.STRING },
+                    score: { type: Type.INTEGER }
+                  },
+                  required: ["nameOrUrl", "score"]
+                }
+              }
+            },
+            required: ["ourScore", "competitorsScores"]
+          },
+          actionPlan: {
+            type: Type.ARRAY,
+            items: { type: Type.STRING },
+            description: "Step by step list of guidelines to revise or upgrade our material to rank above competitors."
+          }
+        },
+        required: ["searchIntent", "missingKeywords", "structuralGaps", "scores", "actionPlan"]
+      };
+
+      const result = await ai.models.generateContent({
+        model: 'gemini-3.5-flash',
+        contents: userPrompt,
+        config: {
+          systemInstruction: 'You are an absolute grandmaster Content Strategist and Competition SEO Auditing wizard. Your specialty is taking raw text drafts, extracting structural outline hierarchies, mapping semantic gaps, and detailing exact actions to dominate search engine results. Return strictly correct JSON adhering to the specified return structure.',
+          responseMimeType: 'application/json',
+          responseSchema: responseSchema,
+          temperature: 0.2
+        }
+      });
+
+      if (!result.text) {
+        throw new Error('Gemini API returned an empty response.');
+      }
+
+      res.json(JSON.parse(result.text.trim()));
+    } catch (err: any) {
+      console.error('Error in content-gap analyzer:', err);
+      res.status(500).json({ error: err.message || 'Internal server error processing content gap analysis.' });
+    }
+  });
+
+  // API Keyword Cluster & Semantic Mapping Endpoint using Gemini 3.5 Flash
+  app.post('/api/keyword-cluster', async (req, res) => {
+    try {
+      const { rawKeywords, groupingSensitivity, includeSearchIntent } = req.body;
+      if (!rawKeywords || !rawKeywords.trim()) {
+        res.status(400).json({ error: 'At least one keyword/list of terms is required to perform clustering.' });
+        return;
+      }
+
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        res.status(500).json({ 
+          error: 'GEMINI_API_KEY is not configured on the server. Please verify the Secrets panel in Settings.' 
+        });
+        return;
+      }
+
+      const ai = new GoogleGenAI({
+        apiKey: apiKey,
+        httpOptions: {
+          headers: {
+            'User-Agent': 'aistudio-build'
+          }
+        }
+      });
+
+      const userPrompt = `Perform an advanced keyword clustering and semantic map compilation.
+Raw input terms/keywords:
+"${rawKeywords}"
+
+Settings:
+Grouping Sensitivity: ${groupingSensitivity || 'medium'}
+Analyze Search Intent: ${includeSearchIntent !== false ? 'Yes' : 'No'}
+
+Instructions:
+1. Parse each keyword from the raw query. If raw queries are unorganized fragments, compile them into cohesive target keywords.
+2. Group related items into semantic "clusters" matching the grouping sensitivity. For broad, group them into high-level categories; for tight, separate elements with slight semantic distance into minor narrow clusters.
+3. For each cluster, define a strong visual parent clusterName, evaluate the Core Search Intent & stage, estimate monthly search volumes, assign keyword difficulties (Low/Medium/High), and flag whether the term is a Core or Secondary keyword for that cluster.
+4. Construct a content-marketing layout: propose a recommended page title and visual H2 Article Outline headings representing how a writer should address the topic to rank effectively.
+5. Provide a summary of the topical map and a percentage or item count distribution across the TOFU (Top of Funnel/Informational), MOFU (Middle of Funnel/Evaluation), and BOFU (Bottom of Funnel/Action/Transactional) lifecycle stages.`;
+
+      const responseSchema = {
+        type: Type.OBJECT,
+        properties: {
+          clusters: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                clusterName: { type: Type.STRING, description: "High-level theme or semantic hub title" },
+                coreIntent: { type: Type.STRING, description: "E.g. Informational (TOFU), Commercial (MOFU), Transactional (BOFU)" },
+                keywords: {
+                  type: Type.ARRAY,
+                  items: {
+                    type: Type.OBJECT,
+                    properties: {
+                      keyword: { type: Type.STRING },
+                      volume: { type: Type.INTEGER, description: "Estimated monthly search volume (realistic standard)" },
+                      difficulty: { type: Type.STRING, description: "Low / Medium / High" },
+                      relevance: { type: Type.STRING, description: "Core / Secondary / LSI" }
+                    },
+                    required: ["keyword", "volume", "difficulty", "relevance"]
+                  }
+                },
+                recommendedTitle: { type: Type.STRING, description: "Suggested H1 or Page Title matching this cluster" },
+                articleStructureOutline: {
+                  type: Type.ARRAY,
+                  items: { type: Type.STRING },
+                  description: "List of H2 subtopics to cover in a comprehensive article/page for this cluster"
+                }
+              },
+              required: ["clusterName", "coreIntent", "keywords", "recommendedTitle", "articleStructureOutline"]
+            }
+          },
+          topicalMapSummary: { type: Type.STRING, description: "Strategic summary detailing how these semantic groups construct a robust topical map" },
+          keywordFunnelDist: {
+            type: Type.OBJECT,
+            properties: {
+              tofu: { type: Type.INTEGER, description: "TOFU distribution value (sum to 100 or raw item levels)" },
+              mofu: { type: Type.INTEGER, description: "MOFU distribution value (sum to 100 or raw item levels)" },
+              bofu: { type: Type.INTEGER, description: "BOFU distribution value (sum to 100 or raw item levels)" }
+            },
+            required: ["tofu", "mofu", "bofu"]
+          }
+        },
+        required: ["clusters", "topicalMapSummary", "keywordFunnelDist"]
+      };
+
+      const result = await ai.models.generateContent({
+        model: 'gemini-3.5-flash',
+        contents: userPrompt,
+        config: {
+          systemInstruction: 'You are an elite Senior On-Page Architect, SEO Data Scientist, and Semantic Core Engineer. You group arbitrary search words into clean visual topical siloing systems, calculating intent matrices and returning valid structural JSON outputs according to responseSchema rules.',
+          responseMimeType: 'application/json',
+          responseSchema: responseSchema,
+          temperature: 0.1
+        }
+      });
+
+      if (!result.text) {
+        throw new Error('Gemini API returned an empty output stream.');
+      }
+
+      res.json(JSON.parse(result.text.trim()));
+    } catch (err: any) {
+      console.error('Error in keyword cluster api:', err);
+      res.status(500).json({ error: err.message || 'Internal server error during keyword clustering execution.' });
+    }
+  });
 
   // API endpoints
   app.get('/api/health', (_req, res) => {
@@ -23,7 +478,7 @@ async function createServer() {
     const tools = [
       'compress-pdf', 'webp-converter', 'json-beautifier', 
       'sitemap-seo', 'sitemap-generator', 'image-to-pdf', 'join-pdf', 'ai-writer', 
-      'password-generator', 'qr-generator', 'unit-converter', 'svg-rasterizer', 'batch-processor', 'json-diff', 'secure-hash', 'color-palette', 'digital-signature', 'seo-optimizer', 'base64-converter', 'regex-tester', 'csv-json-converter', 'image-compressor', 'rich-text-stats', 'audio-trimmer', 'ai-transcriber', 'pdf-analyst', 'exif-stripper', 'video-recorder', 'image-vectorizer', 'code-snapshot', 'private-sketchpad', 'case-converter', 'lorem-generator', 'image-cropper', 'date-calculator', 'privacy-policy', 'terms-of-service', 'about-us', 'guides'
+      'password-generator', 'qr-generator', 'unit-converter', 'svg-rasterizer', 'batch-processor', 'json-diff', 'secure-hash', 'color-palette', 'digital-signature', 'seo-optimizer', 'base64-converter', 'regex-tester', 'csv-json-converter', 'image-compressor', 'rich-text-stats', 'audio-trimmer', 'ai-transcriber', 'pdf-analyst', 'exif-stripper', 'video-recorder', 'image-vectorizer', 'code-snapshot', 'private-sketchpad', 'case-converter', 'lorem-generator', 'image-cropper', 'date-calculator', 'privacy-policy', 'terms-of-service', 'about-us', 'guides', 'content-planner', 'schema-generator', 'content-gap', 'keyword-cluster'
     ];
 
     const today = new Date().toISOString().split('T')[0];

@@ -19,11 +19,22 @@ import {
   Trash2,
   Sparkles,
   Search,
-  Clock
+  Clock,
+  Printer,
+  Bookmark,
+  BookmarkCheck,
+  Activity,
+  Image as ImageIcon
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ActiveTab } from './types';
 import { AT_LEAST_20_ARTICLES, Article } from './data/articles';
+import WebPConverter from './components/WebPConverter';
+import PDFJoiner from './components/PDFJoiner';
+import ContentPlanner from './components/ContentPlanner';
+import SchemaGenerator from './components/SchemaGenerator';
+import SEOCompetitorGapAnalyzer from './components/SEOCompetitorGapAnalyzer';
+import AIKeywordClusterTool from './components/AIKeywordClusterTool';
 
 export default function App() {
   const navigate = useNavigate();
@@ -43,6 +54,7 @@ export default function App() {
   const [isGenerating, setIsGenerating] = useState(false);
 
   // PDF Optimizer States
+  const [pdfSubTab, setPdfSubTab] = useState<'optimize' | 'merge'>('optimize');
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [compressionIntensity, setCompressionIntensity] = useState<'standard' | 'balanced' | 'ultra'>('balanced');
   const [stripMetadata, setStripMetadata] = useState(true);
@@ -60,6 +72,198 @@ export default function App() {
   const [articleSearch, setArticleSearch] = useState('');
   const [selectedArticleCategory, setSelectedArticleCategory] = useState<string>('All');
   const [readingArticle, setReadingArticle] = useState<Article | null>(null);
+
+  // Read Later State utilizing localStorage
+  const [bookmarkedIds, setBookmarkedIds] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('apex_bookmarked_articles');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  // Sync to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('apex_bookmarked_articles', JSON.stringify(bookmarkedIds));
+    } catch (e) {
+      console.error(e);
+    }
+  }, [bookmarkedIds]);
+
+  const toggleBookmark = (id: string) => {
+    setBookmarkedIds(prev => 
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+  };
+
+  // Print Article to PDF using browser Print API with ultra-polished print layout
+  const handlePrintArticle = (art: Article) => {
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    document.body.appendChild(iframe);
+
+    const iframeDoc = iframe.contentWindow?.document || iframe.contentDocument;
+    if (!iframeDoc) return;
+
+    // Compile dynamic formatted HTML nodes matching headings and codes
+    const renderedContent = art.content.map((paragraph) => {
+      if (paragraph.startsWith('###')) {
+        return `<h2 style="font-size: 18px; font-weight: bold; color: #111; margin-top: 24px; margin-bottom: 12px; border-bottom: 1px solid #ddd; padding-bottom: 6px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">${paragraph.replace('###', '').trim()}</h2>`;
+      }
+      if (paragraph.match(/^[0-9]\./)) {
+        return `<p style="font-size: 14px; color: #222; font-weight: 500; margin-left: 16px; margin-top: 10px; margin-bottom: 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">${paragraph}</p>`;
+      }
+      if (paragraph.startsWith('```')) {
+        const cleanCode = paragraph.replace(/```[a-z]*/g, '').trim();
+        return `<pre style="background: #f4f6f8; border: 1px solid #e1e4e6; padding: 12px; border-radius: 6px; font-family: 'Courier New', Courier, monospace; font-size: 12px; color: #cf1544; overflow-x: auto; margin-top: 14px; margin-bottom: 14px; line-height: 1.4; white-space: pre-wrap; word-break: break-all;"><code>${cleanCode}</code></pre>`;
+      }
+      return `<p style="font-size: 14px; line-height: 1.6; color: #333; margin-top: 12px; margin-bottom: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; text-align: justify; text-justify: inter-word;">${paragraph}</p>`;
+    }).join('');
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>${art.title} - Print Edition</title>
+        <style>
+          @page {
+            size: letter;
+            margin: 20mm;
+          }
+          body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #fff;
+          }
+          .header {
+            border-bottom: 3px solid #cf1544;
+            padding-bottom: 14px;
+            margin-bottom: 24px;
+          }
+          .site-title {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #cf1544;
+            margin-bottom: 6px;
+            font-family: monospace;
+            font-weight: bold;
+          }
+          .article-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: #000;
+            margin: 4px 0 10px 0;
+            line-height: 1.25;
+            letter-spacing: -0.5px;
+          }
+          .meta-container {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #555;
+            border-top: 1px dashed #e1e4e6;
+            padding-top: 8px;
+          }
+          .meta-item {
+            display: inline-block;
+            margin-right: 14px;
+          }
+          .summary-box {
+            background-color: #fcf8f2;
+            border-left: 4px solid #cf1544;
+            padding: 12px 16px;
+            margin-bottom: 24px;
+            font-style: italic;
+            font-size: 13px;
+            color: #444;
+            line-height: 1.5;
+            border-radius: 0 4px 4px 0;
+          }
+          .footer {
+            margin-top: 40px;
+            border-top: 1px solid #e1e4e6;
+            padding-top: 12px;
+            font-size: 10px;
+            color: #777;
+            text-align: center;
+            font-family: monospace;
+          }
+          @media print {
+            body {
+              background-color: #fff;
+              color: #000;
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
+            }
+            .summary-box {
+              background-color: #fcf8f2 !important;
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
+            }
+            pre {
+              background-color: #f4f6f8 !important;
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <div class="site-title">APEX UTILITY LABS • SEO & ADSENSE PUBLISHING RESOURCE</div>
+          <h1 class="article-title">${art.title}</h1>
+          <div class="meta-container">
+            <div>
+              <span class="meta-item"><strong>Category:</strong> ${art.category}</span>
+              <span class="meta-item"><strong>Date:</strong> ${art.publishDate}</span>
+            </div>
+            <div>
+              <span class="meta-item"><strong>Read Time:</strong> ${art.readTime}</span>
+              <span class="meta-item"><strong>Length:</strong> ${art.wordCount} words</span>
+            </div>
+          </div>
+        </div>
+        <div class="summary-box">
+          <strong>Expert Summary:</strong> ${art.summary}
+        </div>
+        <div class="article-body">
+          ${renderedContent}
+        </div>
+        <div class="footer">
+          Printed dynamically via APEX Utility Labs • Clean Search Spider Schema Certified • https://apexutility.live
+        </div>
+        <script>
+          window.onload = function() {
+            window.focus();
+            window.print();
+          }
+        </script>
+      </body>
+      </html>
+    `;
+
+    iframeDoc.open();
+    iframeDoc.write(htmlContent);
+    iframeDoc.close();
+
+    // Clean up temporary execution element safely
+    setTimeout(() => {
+      if (document.body.contains(iframe)) {
+        document.body.removeChild(iframe);
+      }
+    }, 5000);
+  };
 
   // Synchronize router location with active tab
   useEffect(() => {
@@ -390,6 +594,18 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                 </button>
 
                 <button
+                  onClick={() => handleTabChange('webp-converter')}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                    activeTab === 'webp-converter'
+                      ? 'bg-gradient-to-r from-rose-500/15 via-indigo-600/10 to-transparent border-l-4 border-rose-500 text-rose-400 font-semibold'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                  }`}
+                >
+                  <ImageIcon className="w-4 h-4" />
+                  <span>WebP Converter</span>
+                </button>
+
+                <button
                   onClick={() => handleTabChange('guides')}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                     activeTab === 'guides'
@@ -399,6 +615,36 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                 >
                   <FileCheck className="w-4 h-4" />
                   <span>AdSense Launch Guide</span>
+                </button>
+
+                <button
+                  onClick={() => handleTabChange('keyword-cluster')}
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                    activeTab === 'keyword-cluster'
+                      ? 'bg-gradient-to-r from-rose-500/15 via-indigo-600/10 to-transparent border-l-4 border-rose-500 text-rose-400 font-semibold font-bold'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Sparkles className="w-4 h-4 text-emerald-400 animate-pulse" />
+                    <span>Keyword Clustering</span>
+                  </div>
+                  <span className="bg-emerald-950/60 border border-emerald-900/40 text-[9px] text-emerald-400 px-1.5 py-0.5 rounded font-mono font-bold uppercase shrink-0">AI</span>
+                </button>
+
+                <button
+                  onClick={() => handleTabChange('content-gap')}
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                    activeTab === 'content-gap'
+                      ? 'bg-gradient-to-r from-rose-500/15 via-indigo-600/10 to-transparent border-l-4 border-rose-500 text-rose-400 font-semibold font-bold'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Activity className="w-4 h-4 text-sky-400" />
+                    <span>On-Page Gap Analyzer</span>
+                  </div>
+                  <span className="bg-slate-800 text-[9px] text-slate-400 px-1.5 py-0.5 rounded font-mono font-bold uppercase shrink-0">Pro</span>
                 </button>
               </nav>
             </div>
@@ -542,6 +788,18 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                     </button>
 
                     <button
+                      onClick={() => handleTabChange('webp-converter')}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                        activeTab === 'webp-converter'
+                          ? 'bg-slate-900 border-l-4 border-rose-500 text-rose-400 font-semibold'
+                          : 'text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      <ImageIcon className="w-4 h-4" />
+                      <span>WebP Converter</span>
+                    </button>
+
+                    <button
                       onClick={() => handleTabChange('guides')}
                       className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                         activeTab === 'guides'
@@ -551,6 +809,30 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                     >
                       <FileCheck className="w-4 h-4" />
                       <span>AdSense Launch Guide</span>
+                    </button>
+
+                    <button
+                      onClick={() => handleTabChange('keyword-cluster')}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                        activeTab === 'keyword-cluster'
+                          ? 'bg-slate-900 border-l-4 border-rose-500 text-rose-400 font-semibold font-bold'
+                          : 'text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      <Sparkles className="w-4 h-4 text-emerald-400" />
+                      <span>Keyword Clustering</span>
+                    </button>
+
+                    <button
+                      onClick={() => handleTabChange('content-gap')}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                        activeTab === 'content-gap'
+                          ? 'bg-slate-900 border-l-4 border-rose-500 text-rose-400 font-semibold font-bold'
+                          : 'text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      <Activity className="w-4 h-4 text-sky-400" />
+                      <span>On-Page Gap Analyzer</span>
                     </button>
                   </nav>
 
@@ -738,6 +1020,50 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                     </div>
                     <span className="text-[11px] font-mono text-sky-400 group-hover:underline flex items-center gap-1 mt-4">
                       Complete Document <ArrowRight className="w-3.5 h-3.5" />
+                    </span>
+                  </div>
+
+                  {/* AI Keyword Clustering Tool Card */}
+                  <div 
+                    onClick={() => handleTabChange('keyword-cluster')}
+                    className="group bg-slate-950 p-5 rounded-xl border border-slate-800 hover:border-slate-700 cursor-pointer hover:shadow-lg transition-all flex flex-col justify-between col-span-1 sm:col-span-2"
+                  >
+                    <div>
+                      <div className="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-4 border border-emerald-500/10 group-hover:bg-emerald-500 group-hover:text-black transition-all">
+                        <Sparkles className="w-5 h-5" />
+                      </div>
+                      <h4 className="font-bold text-slate-100 group-hover:text-emerald-400 transition-colors flex items-center gap-1.5 font-sans">
+                        AI Keyword Clustering &amp; Semantic Mapping
+                        <span className="bg-emerald-900/30 border border-emerald-800/50 text-[10px] text-emerald-400 font-mono font-bold uppercase px-1.5 py-0.5 rounded leading-none">AI</span>
+                      </h4>
+                      <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+                        Group search phrases into visual topical siloing systems with Google Search Lifecycle Stage (TOFU/MOFU/BOFU) percentage mapping and H2 outline blueprints driven by Gemini.
+                      </p>
+                    </div>
+                    <span className="text-[11px] font-mono text-emerald-400 group-hover:underline flex items-center gap-1 mt-4">
+                      Launch Clustering Studio <ArrowRight className="w-3.5 h-3.5" />
+                    </span>
+                  </div>
+
+                  {/* On-Page Content Gap Analyzer Card */}
+                  <div 
+                    onClick={() => handleTabChange('content-gap')}
+                    className="group bg-slate-950 p-5 rounded-xl border border-slate-800 hover:border-slate-700 cursor-pointer hover:shadow-lg transition-all flex flex-col justify-between col-span-1 sm:col-span-2"
+                  >
+                    <div>
+                      <div className="w-10 h-10 rounded-lg bg-sky-500/10 text-sky-400 flex items-center justify-center mb-4 border border-sky-500/10 group-hover:bg-sky-500 group-hover:text-black transition-all">
+                        <Activity className="w-5 h-5" />
+                      </div>
+                      <h4 className="font-bold text-slate-100 group-hover:text-sky-400 transition-colors flex items-center gap-1.5 font-sans">
+                        SEO Competitor Content-Gap Analyzer
+                        <span className="bg-indigo-950/40 border border-indigo-900/40 text-[10px] text-indigo-400 font-mono font-bold uppercase px-1.5 py-0.5 rounded leading-none">Pro</span>
+                      </h4>
+                      <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+                        Examine arbitrary search draft text and evaluate structural, keyword and intent deficit severities directly compared against high-ranking competitors.
+                      </p>
+                    </div>
+                    <span className="text-[11px] font-mono text-sky-400 group-hover:underline flex items-center gap-1 mt-4">
+                      Deploy Core Gap Audit <ArrowRight className="w-3.5 h-3.5" />
                     </span>
                   </div>
 
@@ -1141,6 +1467,27 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
               </motion.div>
             )}
 
+            {/* Tab: WebP Image Converter */}
+            {activeTab === 'webp-converter' && (
+              <motion.div
+                key="webp-converter"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                className="space-y-6"
+              >
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-rose-400 uppercase">Core Asset Optimization</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight">WebP Image Converter</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">
+                    Convert high-density JPEGs, PNGs, and GIFs into speed-optimized WebP files using localized Canvas API processes.
+                  </p>
+                </div>
+
+                <WebPConverter />
+              </motion.div>
+            )}
+
             {/* Tab: PDF Optimizer */}
             {activeTab === 'compress-pdf' && (
               <motion.div
@@ -1150,15 +1497,45 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                 exit={{ opacity: 0, y: -15 }}
                 className="space-y-6"
               >
-                <div className="space-y-1">
-                  <span className="text-[10px] font-mono font-bold tracking-widest text-rose-400 uppercase">Document &amp; Assets compliance</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight">PDF Document Optimizer</h2>
-                  <p className="text-slate-400 text-xs sm:text-sm">
-                    Clears tracking identifiers, compresses stream objects, and rebuilds file trees safely inside your browser thread.
-                  </p>
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-slate-800">
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf1544] uppercase">Document &amp; Assets compliance</span>
+                    <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">
+                      {pdfSubTab === 'optimize' ? 'PDF Document Optimizer' : 'PDF Document merger'}
+                    </h2>
+                    <p className="text-slate-400 text-xs sm:text-sm">
+                      {pdfSubTab === 'optimize'
+                        ? 'Clears tracking headers, compresses stream objects, and rebuilds file trees safely inside your browser thread.'
+                        : 'Arrange, rotate, duplicate, and merge multiple standalone PDF documents into a single integrated output.'}
+                    </p>
+                  </div>
+
+                  <div className="flex p-1 bg-slate-900 border border-slate-800 rounded-xl shrink-0">
+                    <button
+                      onClick={() => setPdfSubTab('optimize')}
+                      className={`px-3.5 py-1.5 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
+                        pdfSubTab === 'optimize'
+                          ? 'bg-rose-505 bg-rose-600 text-white shadow-lg'
+                          : 'text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      Optimize PDF
+                    </button>
+                    <button
+                      onClick={() => setPdfSubTab('merge')}
+                      className={`px-3.5 py-1.5 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
+                        pdfSubTab === 'merge'
+                          ? 'bg-rose-505 bg-rose-600 text-white shadow-lg'
+                          : 'text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      PDF Merge
+                    </button>
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {pdfSubTab === 'optimize' ? (
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   {/* Left form area */}
                   <div className="lg:col-span-2 space-y-6">
                     {/* Drag-n-drop Dropzone */}
@@ -1440,6 +1817,9 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                     </div>
                   </div>
                 </div>
+                ) : (
+                  <PDFJoiner />
+                )}
               </motion.div>
             )}
 
@@ -1458,7 +1838,7 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                     <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf1544] uppercase">Compliance Master Library</span>
                     <h2 className="text-2xl font-extrabold text-white tracking-tight">AdSense Readiness &amp; Tool Academy</h2>
                     <p className="text-slate-400 text-xs sm:text-sm">
-                      Discover 20 authoritative, high-quality, fully detailed guides on SEO indexing, browser privacy buffers, media compression, and global compliance.
+                      Discover {AT_LEAST_20_ARTICLES.length} authoritative, high-quality, fully detailed guides on SEO indexing, browser privacy buffers, media compression, and global compliance.
                     </p>
                   </div>
                   
@@ -1466,7 +1846,7 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                   <div className="grid grid-cols-3 gap-2 sm:gap-3 shrink-0">
                     <div className="p-3 bg-slate-950 rounded-xl border border-slate-850 text-center">
                       <p className="text-[10px] font-mono text-slate-500 uppercase">Articles</p>
-                      <p className="text-sm sm:text-lg font-black text-rose-400">20 / 20</p>
+                      <p className="text-sm sm:text-lg font-black text-rose-400">{AT_LEAST_20_ARTICLES.length} / {AT_LEAST_20_ARTICLES.length}</p>
                     </div>
                     <div className="p-3 bg-slate-950 rounded-xl border border-slate-850 text-center">
                       <p className="text-[10px] font-mono text-slate-500 uppercase">Crawl Index</p>
@@ -1488,7 +1868,7 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                     </span>
                     <input
                       type="text"
-                      placeholder="Search 20 compliance articles..."
+                      placeholder={`Search ${AT_LEAST_20_ARTICLES.length} compliance articles...`}
                       value={articleSearch}
                       onChange={(e) => setArticleSearch(e.target.value)}
                       className="w-full bg-slate-900 border border-slate-800 rounded-lg pl-9 pr-4 py-2 text-xs text-slate-200 placeholder-slate-550 focus:border-rose-500 focus:outline-none transition-all"
@@ -1584,7 +1964,23 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                                   <span className={`px-2 py-0.5 rounded-md text-[9px] font-mono font-bold tracking-wide border uppercase ${tagColor}`}>
                                     {art.category}
                                   </span>
-                                  <span className="text-[10px] text-slate-500 font-mono">{art.publishDate}</span>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-[10px] text-slate-500 font-mono">{art.publishDate}</span>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        toggleBookmark(art.id);
+                                      }}
+                                      className="p-1 rounded text-slate-500 hover:text-rose-400 hover:bg-slate-900 transition-all"
+                                      title={bookmarkedIds.includes(art.id) ? "Remove from Reading List" : "Add to Reading List"}
+                                    >
+                                      {bookmarkedIds.includes(art.id) ? (
+                                        <BookmarkCheck className="w-3.5 h-3.5 text-rose-500 fill-rose-500/20" />
+                                      ) : (
+                                        <Bookmark className="w-3.5 h-3.5" />
+                                      )}
+                                    </button>
+                                  </div>
                                 </div>
                                 <h3 className="font-bold text-slate-200 group-hover:text-rose-400 text-sm leading-snug group-hover:underline transition-colors line-clamp-2">
                                   {art.title}
@@ -1664,6 +2060,63 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                           Sitemap <ArrowRight className="w-2.5 h-2.5" />
                         </button>
                       </div>
+                    </div>
+
+                    {/* Saved for Later: Reading List Container */}
+                    <div className="bg-slate-950 p-5 rounded-xl border border-slate-800 space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                          <BookmarkCheck className="w-4 h-4 text-rose-500 fill-rose-500/10 shrink-0" />
+                          <h4 className="font-bold text-slate-200 text-xs sm:text-sm uppercase tracking-wide truncate">Reading List</h4>
+                        </div>
+                        <span className="px-2 py-0.5 bg-slate-900 border border-slate-850 rounded text-[10px] font-mono text-slate-400 shrink-0">
+                          {bookmarkedIds.length} saved
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-400 leading-relaxed font-sans">
+                        Access your bookmarked SEO blueprints and verification guides offline at any time.
+                      </p>
+
+                      <hr className="border-slate-850" />
+
+                      {bookmarkedIds.length === 0 ? (
+                        <div className="text-center py-6 px-4 bg-slate-900/40 rounded-lg border border-dashed border-slate-850">
+                          <Bookmark className="w-5 h-5 text-slate-600 mx-auto mb-2" />
+                          <p className="text-[11px] text-slate-400 font-medium font-sans">Your reading list is empty</p>
+                          <p className="text-[10px] text-slate-500 mt-1">Click the bookmark icon on any guide to save it here.</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-2.5 max-h-[280px] overflow-y-auto pr-1">
+                          {AT_LEAST_20_ARTICLES.filter((art) => bookmarkedIds.includes(art.id)).map((art) => (
+                            <div 
+                              key={art.id}
+                              onClick={() => setReadingArticle(art)}
+                              className="group p-2.5 bg-slate-900/60 hover:bg-slate-900 rounded-lg border border-slate-850 hover:border-slate-755 transition-all cursor-pointer flex items-center justify-between gap-3"
+                            >
+                              <div className="min-w-0 space-y-1">
+                                <h5 className="font-semibold text-xs text-slate-200 group-hover:text-rose-400 transition-colors line-clamp-1">
+                                  {art.title}
+                                </h5>
+                                <div className="flex items-center gap-2 text-[10px] text-slate-500 font-mono">
+                                  <span className="text-slate-400">{art.category}</span>
+                                  <span>•</span>
+                                  <span>{art.readTime}</span>
+                                </div>
+                              </div>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toggleBookmark(art.id);
+                                }}
+                                className="p-1 text-slate-500 hover:text-rose-400 hover:bg-slate-950 rounded transition-colors shrink-0"
+                                title="Remove bookmark"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -1749,6 +2202,30 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                             </button>
                           )}
                           <button
+                            onClick={() => handlePrintArticle(readingArticle)}
+                            className="flex-1 sm:flex-initial py-2 px-3 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 rounded-lg text-xs font-bold transition-colors inline-flex items-center justify-center gap-1.5"
+                          >
+                            <Printer className="w-3.5 h-3.5" /> Print Article to PDF
+                          </button>
+                          <button
+                            onClick={() => toggleBookmark(readingArticle.id)}
+                            className={`flex-1 sm:flex-initial py-2 px-3 rounded-lg text-xs font-bold transition-all inline-flex items-center justify-center gap-1.5 border ${
+                              bookmarkedIds.includes(readingArticle.id)
+                                ? 'bg-rose-500/10 border-rose-500/20 text-rose-400'
+                                : 'bg-slate-950 hover:bg-slate-800 text-slate-300 border-slate-800'
+                            }`}
+                          >
+                            {bookmarkedIds.includes(readingArticle.id) ? (
+                              <>
+                                <BookmarkCheck className="w-3.5 h-3.5 text-rose-500 fill-rose-500/20" /> Added to Read Later
+                              </>
+                            ) : (
+                              <>
+                                <Bookmark className="w-3.5 h-3.5" /> Read Later
+                              </>
+                            )}
+                          </button>
+                          <button
                             onClick={() => {
                               navigator.clipboard.writeText(`https://apexutility.live/guides#${readingArticle.id}`);
                               alert("Article deep link copied to clipboard successfully!");
@@ -1768,6 +2245,118 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                     </motion.div>
                   </div>
                 )}
+              </motion.div>
+            )}
+
+            {/* Tab: Content Planner & Search Intent Engine */}
+            {activeTab === 'content-planner' && (
+              <motion.div
+                key="content-planner"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                className="space-y-6"
+              >
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf1544] uppercase">AI-Powered Search Intelligence</span>
+                    <h2 className="text-2xl font-extrabold text-white tracking-tight">AI Content Outline &amp; Search Intent Planner</h2>
+                    <p className="text-slate-400 text-xs sm:text-sm">
+                      Maximize search volumes and author high-quality compliance articles. Analyze search queries, extract semantic LSI clusters, and design structural outlines.
+                    </p>
+                  </div>
+                  
+                  <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-slate-900 border border-slate-850 rounded-xl">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                    <span className="text-[10px] font-mono text-slate-400">Gemini-3.5-Flash Layer</span>
+                  </div>
+                </div>
+
+                <ContentPlanner />
+              </motion.div>
+            )}
+
+            {/* Tab: Schema Generator */}
+            {activeTab === 'schema-generator' && (
+              <motion.div
+                key="schema-generator"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                className="space-y-6"
+              >
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-mono font-bold tracking-widest text-rose-500 uppercase">JSON-LD Structuring Suite</span>
+                    <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Structured Rich Schema Architect</h2>
+                    <p className="text-slate-400 text-xs sm:text-sm">
+                      Synthesize Google Rich Snippets compliant schemas or extract structured microdata with our specialized AI parser.
+                    </p>
+                  </div>
+                  
+                  <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-slate-900 border border-slate-850 rounded-xl">
+                    <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
+                    <span className="text-[10px] font-mono text-slate-400">Google Rich Snip Engine</span>
+                  </div>
+                </div>
+
+                <SchemaGenerator />
+              </motion.div>
+            )}
+
+            {/* Tab: Content Gap Analyzer */}
+            {activeTab === 'content-gap' && (
+              <motion.div
+                key="content-gap"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                className="space-y-6"
+              >
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-mono font-bold tracking-widest text-emerald-500 uppercase">On-Page Deficit Analyzer</span>
+                    <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">SEO Competitor Content-Gap Analyzer</h2>
+                    <p className="text-slate-400 text-xs sm:text-sm">
+                      Compare your draft content directly against rivals to harvest LSI keywords, evaluate intent, and fill structural gap severities.
+                    </p>
+                  </div>
+                  
+                  <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-slate-900 border border-slate-850 rounded-xl">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                    <span className="text-[10px] font-mono text-slate-400">Gemini-3.5-Flash Benchmark</span>
+                  </div>
+                </div>
+
+                <SEOCompetitorGapAnalyzer />
+              </motion.div>
+            )}
+
+            {/* Tab: AI Keyword Cluster & Semantic Mapping */}
+            {activeTab === 'keyword-cluster' && (
+              <motion.div
+                key="keyword-cluster"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                className="space-y-6"
+              >
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-mono font-bold tracking-widest text-emerald-500 uppercase">Topical Authority Pillars</span>
+                    <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">AI Keyword Cluster &amp; Semantic Mapping Tool</h2>
+                    <p className="text-slate-400 text-xs sm:text-sm">
+                      Cluster keywords into highly-aligned semantic hubs, analyze user search intent funnels, and auto-generate structured content blueprints.
+                    </p>
+                  </div>
+                  
+                  <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-slate-900 border border-slate-850 rounded-xl">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                    <span className="text-[10px] font-mono text-slate-400">Powered by Gemini 3.5 Flash</span>
+                  </div>
+                </div>
+
+                <AIKeywordClusterTool />
               </motion.div>
             )}
 

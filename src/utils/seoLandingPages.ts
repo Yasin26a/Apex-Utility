@@ -208,6 +208,32 @@ const CUSTOM_LANDING_LOGIC: Record<string, Partial<LandingPageConfig>> = {
         answer: 'Yes! The classical passages are carefully extracted and randomized from Marcus Tullius Cicero\'s De Finibus Bonorum et Malorum academic writings, preserving authentic syllable proportions.'
       }
     ]
+  },
+  'keyword-cluster': {
+    title: 'Free AI Keyword Clustering Tool Online - Semantic Search Mapping',
+    headline: 'Instantly Cluster Raw Terms & Compile Dynamic Lifecycle Funnel Maps',
+    subheadline: 'An advanced full-stack semantic mapping workstation powered by Gemini models to silo arbitrary collections list queries into structural themed article outlines.',
+    introParagraph: 'Topical authority sits at the core of modern search algorithms. The APEX AI Keyword Cluster & Semantic Mapping Tool is an automated architect mapping raw keywords into related category silos. Instantly group search intents, calculate difficulty distributions, estimate average volumes, configure H2 header guidelines, and draw graphic funnel visualizations.',
+    benefits: [
+      'Thematic Siloing System: Automatically cluster raw phrases into parent categories to map perfect hub-and-spoke article architectures.',
+      'Intent Lifecycle Classification: Distinguish TOFU (Topist Informational), MOFU (Commercial Comparison), and BOFU (Transactional Action) stages automatically.',
+      'Scribers Editorial Blueprints: Receive optimized recommended article H1 titles and ready-to-write visual H2 headings to fully answer queries.'
+    ],
+    howToSteps: [
+      'Enter or copy-paste your raw search terms list in the text configuration panel (one phrase per line or comma separated).',
+      'Tune groupings (Low Sensitivity handles broad category pillars, High Sensitivity focuses on highly precise semantic closeness), and toggle Intent Mapping.',
+      'Execute. Copy your mapped hierarchical JSON database, view visual authority map branches, or save a complete CSV matrix spreadsheet.'
+    ],
+    faqs: [
+      {
+        question: 'How does semantic keyword clustering differ from simple alphabetical groupings?',
+        answer: 'Alphabetical groupings focus on character matches, missing synonyms. Semantic clustering computes conceptual closeness—recognizing that "buy home gym" and "cheap workout weights discounts" target the same intent and must be siloed in a common pillar.'
+      },
+      {
+        question: 'What do the lifecycle stages TOFU, MOFU, and BOFU represent for SEO?',
+        answer: 'TOFU (Top of Funnel) is for educational content like guides; MOFU (Middle) is for comparison reviews and evaluation checklist forms; BOFU (Bottom) is conversion queries such as pricing sheets or sign-up links. A healthy topical map spreads content across all three.'
+      }
+    ]
   }
 };
 

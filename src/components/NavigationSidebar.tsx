@@ -267,6 +267,9 @@ export default function NavigationSidebar({ activeTab, onTabChange, isMobileOpen
     { id: 'lorem-generator' as ActiveTab, label: t.navigation.loremGenerator, icon: AlignLeft, description: t.navigation.loremGeneratorDesc },
     { id: 'image-cropper' as ActiveTab, label: t.navigation.imageCropper, icon: Crop, description: t.navigation.imageCropperDesc },
     { id: 'date-calculator' as ActiveTab, label: t.navigation.dateCalculator, icon: Calendar, description: t.navigation.dateCalculatorDesc },
+    { id: 'content-planner' as ActiveTab, label: t.navigation.contentPlanner || 'AI Content Planner', icon: Sparkles, description: t.navigation.contentPlannerDesc || 'Analyze search intent, LSI keywords and generate outlines' },
+    { id: 'schema-generator' as ActiveTab, label: t.navigation.schemaGenerator || 'JSON-LD Schema Generator', icon: Braces, description: t.navigation.schemaGeneratorDesc || 'Generate search-optimized JSON-LD schema markup templates or let AI extract microdata automatically' },
+    { id: 'content-gap' as ActiveTab, label: t.navigation.contentGap || 'Competitor Content-Gap Analyzer', icon: ArrowLeftRight, description: t.navigation.contentGapDesc || 'Unveil missing keyword opportunities and head-to-head structural topical gaps vs competitors' },
   ];
 
   return (

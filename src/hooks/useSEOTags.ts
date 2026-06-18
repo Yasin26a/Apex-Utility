@@ -802,6 +802,86 @@ const SEO_METADATA: Record<ActiveTab, SEOHeaderContent> = {
         "url": "https://apexutility.live"
       }
     }
+  },
+  'content-planner': {
+    title: "AI Content Outline & Search Intent Planner | Apex SEO Suite",
+    description: "Maximize organic traffic and audit user search intent. Extract high-impact LSI keywords and construct SEO optimal content hierarchies using Gemini AI.",
+    keywords: "AI content outline planner, search intent classifier, organic SEO strategy builder, LSI search terms, Gemini content writer, article structure generator",
+    ogTitle: "AI Content Outline & Search Intent Planner | APEX SEO",
+    ogDescription: "Plan content campaigns scientifically. Discover search intent maps, LSI words, and custom article structures in real-time.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "AI Content Outline and Search Intent Planner",
+      "description": "Analyze user intent, retrieve high value semantic keyword targets and draft precise, copywriter-ready article outlines via Gemini AI integration.",
+      "applicationCategory": "SEOApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
+  'schema-generator': {
+    title: "JSON-LD Rich Schema Generator & AI Architect | Apex SEO Suite",
+    description: "Create and validate schema markup patterns including FAQ pages, Article blocks, Local Businesses, and Product Offers or auto-generate schemas via AI.",
+    keywords: "JSON-LD schema generator, Schema.org builder, rich snippet tags, Google snippet optimizer, structured data validator, AI microdata parser",
+    ogTitle: "JSON-LD Rich Schema Generator & AI Architect",
+    ogDescription: "Design, compile, and validate bulletproof structured schema.org markup with our dynamic visual template builder and AI-assisted compiler.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "JSON-LD Rich Schema Generator & AI Architect",
+      "description": "Synthesizes or extracts SEO-compliant schema markup using direct input templates or Gemini AI parsing engines.",
+      "applicationCategory": "SEOApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
+  'content-gap': {
+    title: "SEO Competitor Content-Gap Analyzer | Apex SEO Suite",
+    description: "Identify search intents, uncover high-priority missing semantic keywords, analyze head-to-head topical gaps and formulate complete revision playbooks using AI.",
+    keywords: "SEO content gap analysis, competitor keyword intelligence, on-page optimization auditor, LSI semantic compiler, Gemini search analyzer, topical map gap finder",
+    ogTitle: "SEO Competitor Content-Gap Analyzer | APEX Suite",
+    ogDescription: "Audit your content drafts against up to 3 rivals in real-time. Unveil missing keywords and structural head-to-head topical gaps beautifully.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "SEO Competitor Content-Gap Analyzer",
+      "description": "Exposes missing keyword opportunities and structural heading gaps between our drafts and high-ranking competitor links.",
+      "applicationCategory": "SEOApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
+  'keyword-cluster': {
+    title: "AI Keyword Clustering & Semantic Search Mapping | Apex SEO Suite",
+    description: "Cluster raw search phrases into precise semantic authority hubs, classify funnel lifecycle intents, and draft ready-to-write article heading frameworks using AI.",
+    keywords: "AI keyword clustering, semantic keyword tool, search intent clustering, topical authority map siloing, SEO sitemap outline architect, Gemini keywords grouping",
+    ogTitle: "AI Keyword Clustering & Semantic Search Mapping | APEX Suite",
+    ogDescription: "Transform list keywords into structured thematic search clusters, mapping user lifecycle stages and auto-generating articles metadata with Gemini.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "AI Keyword Clustering & Semantic Mapping Tool",
+      "description": "Groups lists of raw keywords into distinct semantic topic clusters, analyzes funnel distributions, and blueprints matching H2 layout trees.",
+      "applicationCategory": "SEOApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
   }
 };
 

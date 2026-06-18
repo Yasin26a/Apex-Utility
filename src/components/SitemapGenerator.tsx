@@ -96,7 +96,11 @@ const DISCOVERED_APP_TABS = [
   { tab: 'privacy-policy', path: '/privacy-policy', defaultPriority: 0.4, defaultFreq: 'monthly' },
   { tab: 'terms-of-service', path: '/terms-of-service', defaultPriority: 0.4, defaultFreq: 'monthly' },
   { tab: 'about-us', path: '/about-us', defaultPriority: 0.5, defaultFreq: 'monthly' },
-  { tab: 'guides', path: '/guides', defaultPriority: 0.7, defaultFreq: 'daily' }
+  { tab: 'guides', path: '/guides', defaultPriority: 0.7, defaultFreq: 'daily' },
+  { tab: 'content-planner', path: '/content-planner', defaultPriority: 0.9, defaultFreq: 'weekly' },
+  { tab: 'schema-generator', path: '/schema-generator', defaultPriority: 0.85, defaultFreq: 'weekly' },
+  { tab: 'content-gap', path: '/content-gap', defaultPriority: 0.9, defaultFreq: 'weekly' },
+  { tab: 'keyword-cluster', path: '/keyword-cluster', defaultPriority: 0.9, defaultFreq: 'weekly' }
 ];
 
 export default function SitemapGenerator() {

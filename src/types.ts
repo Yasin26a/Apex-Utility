@@ -38,4 +38,9 @@ export type ActiveTab =
   | 'privacy-policy'
   | 'terms-of-service'
   | 'about-us'
-  | 'guides';
+  | 'guides'
+  | 'content-planner'
+  | 'schema-generator'
+  | 'content-gap'
+  | 'keyword-cluster';
+

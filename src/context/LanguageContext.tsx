@@ -76,6 +76,12 @@ export interface Translations {
     imageCropperDesc: string;
     dateCalculator: string;
     dateCalculatorDesc: string;
+    contentPlanner?: string;
+    contentPlannerDesc?: string;
+    schemaGenerator?: string;
+    schemaGeneratorDesc?: string;
+    contentGap?: string;
+    contentGapDesc?: string;
   };
   settings: {
     title: string;
@@ -187,6 +193,12 @@ export const translations: Record<Language, Translations> = {
       imageCropperDesc: 'Crop, adjust aspect ratios (16:9, 4:3, 1:1, etc.), resize custom pixels, and balance canvas resolutions offline',
       dateCalculator: 'Time & Date Calculator',
       dateCalculatorDesc: 'Calculate differences between dates, add or subtract time intervals, count business days, and convert timezones offline',
+      contentPlanner: 'AI Content Planner',
+      contentPlannerDesc: 'Analyze search intent, discover LSI keyword opportunities, and generate structural article content outlines via Gemini',
+      schemaGenerator: 'JSON-LD Schema Generator',
+      schemaGeneratorDesc: 'Generate search-optimized JSON-LD schema markup templates or let AI extract microdata automatically',
+      contentGap: 'Competitor Content-Gap Analyzer',
+      contentGapDesc: 'Highlight missing keyword opportunities, topical deficits, and structured guidelines comparing drafts with rivals via AI',
     },
     settings: {
       title: 'System Aesthetics',
@@ -296,6 +308,12 @@ export const translations: Record<Language, Translations> = {
       imageCropperDesc: 'Recorte imágenes, ajuste relaciones de aspecto, cambie el tamaño de entrada de píxeles y equilibre su resolución localmente',
       dateCalculator: 'Calculadora de Tiempo y Fecha',
       dateCalculatorDesc: 'Calcule diferencias entre fechas, sume o reste intervalos, cuente días laborables y convierta zonas horarias sin conexión',
+      contentPlanner: 'Planificador de Contenidos IA',
+      contentPlannerDesc: 'Analice la intención de búsqueda, descubra palabras clave LSI y genere esquemas de artículos optimizados',
+      schemaGenerator: 'Generador de Esquemas JSON-LD',
+      schemaGeneratorDesc: 'Genere esquemas JSON-LD para motores de búsqueda o deje que la IA extraiga microdatos automáticamente',
+      contentGap: 'Analizador de Brechas de Contenido',
+      contentGapDesc: 'Identifique conceptos faltantes, palabras clave LSI no representadas e intenciones comparando con hasta 3 competidores',
     },
     settings: {
       title: 'Estética del Sistema',
@@ -405,6 +423,12 @@ export const translations: Record<Language, Translations> = {
       imageCropperDesc: 'Recadrez des photos, ajustez les rapports d\'aspect, redimensionnez par pixels et équilibrez localement la résolution',
       dateCalculator: 'Calculateur de Date & Heure',
       dateCalculatorDesc: 'Calculez la différence entre dates, ajoutez ou soustrayez des intervalles, comptez les jours ouvrables et convertissez les fuseaux horaires',
+      contentPlanner: 'Planificateur de Contenu IA',
+      contentPlannerDesc: 'Analysez l\'intention de recherche, découvrez les mots-clés LSI et générez des plans d\'articles optimisés',
+      schemaGenerator: 'Générateur de Schémas JSON-LD',
+      schemaGeneratorDesc: 'Générez des balises de schéma JSON-LD optimisées ou laissez l\'IA extraire les microdonnées automatiquement',
+      contentGap: 'Analyseur d\'Écart de Contenu',
+      contentGapDesc: 'Identifiez les lacunes thématiques, les requêtes sémantiques LSI manquantes en comparant votre brouillon avec 3 concurrents',
     },
     settings: {
       title: 'Esthétique du Système',
@@ -514,6 +538,12 @@ export const translations: Record<Language, Translations> = {
       imageCropperDesc: 'Bilder zuschneiden, Seitenverhältnisse anpassen, Pixelgrößen ändern und Canvas-Auflösungen vollständig offline optimieren',
       dateCalculator: 'Zeit- & Datumsrechner',
       dateCalculatorDesc: 'Berechnen Sie Differenzen zwischen Daten, addieren/subtrahieren Sie Intervalle, zählen Sie Werktage und konvertieren Sie Zeitzonen offline',
+      contentPlanner: 'KI-Contentplaner',
+      contentPlannerDesc: 'Analysieren Sie die Suchintention, entdecken Sie LSI-Keywords und erstellen Sie optimierte Artikelstrukturen',
+      schemaGenerator: 'JSON-LD Schema Generator',
+      schemaGeneratorDesc: 'Erstellen Sie suchmaschinenoptimierte JSON-LD Schema-Markups oder lassen Sie KI Daten automatisch extrahieren',
+      contentGap: 'Mitbewerber Content-Gap-Analyse',
+      contentGapDesc: 'Identifizieren Sie LSI-Keywords, inhaltliche Defizite und thematische Lücken durch den KI-Vergleich mit bis zu 3 Konkurrenten',
     },
     settings: {
       title: 'System-Ästhetik',
@@ -623,6 +653,12 @@ export const translations: Record<Language, Translations> = {
       imageCropperDesc: 'Corte imagens, ajuste proporções de tela, mude dimensões de pixels e equilibre resoluções localmente',
       dateCalculator: 'Calculadora de Data e Hora',
       dateCalculatorDesc: 'Calcule a diferença entre datas, adicione ou subtraia períodos, conte dias úteis e converta fusos horários offline',
+      contentPlanner: 'Planejador de Conteúdo IA',
+      contentPlannerDesc: 'Analise a intenção de pesquisa, descubra palavras-chave LSI e gere esboços de artigos otimizados',
+      schemaGenerator: 'Gerador de Esquema JSON-LD',
+      schemaGeneratorDesc: 'Gere marcações de esquema JSON-LD otimizadas para busca ou deixe a IA extrair microdados automaticamente',
+      contentGap: 'Analisador de Brecha de Conteúdo',
+      contentGapDesc: 'Identifique termos sémanticos LSI faltantes, lacunas de tópicos de cabeçalhos e direções de SEO contra 3 concorrentes',
     },
     settings: {
       title: 'Estética do Sistema',
