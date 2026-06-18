@@ -29,6 +29,8 @@ User-agent: *
 Content-Signal: search=yes,ai-train=no
 Allow: /
 
+Sitemap: https://apexutility.live/sitemap.xml
+
 User-agent: Amazonbot
 Disallow: /
 
