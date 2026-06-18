@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
-  Signature, Type, Edit3, Trash2, Undo2, Download, 
+  PenTool as Signature, Type, Edit3, Trash2, Undo2, Download, 
   Copy, Sparkles, Sliders, Settings, RefreshCw, 
   HelpCircle, ChevronDown, CheckCircle2, Layout, FileText, 
   Move, ZoomIn, ZoomOut, Check, Info, Palette

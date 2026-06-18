@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, useMotionValue, useTransform, useMotionTemplate, AnimatePresence } from 'motion/react';
-import { FileDown, Image, Sparkles, Braces, ArrowRight, ShieldCheck, Zap, Globe, Cpu, Clock, Download, CheckCircle, FileText, FileImage, Trash2, Camera, Loader2, Search, Copy, Check, Info, Activity, AlertCircle, Layers, ChevronLeft, ChevronRight, GripVertical, Minus, Plus, RotateCcw, Settings, ArrowLeft, Upload, Database, QrCode, Scale, FileCode, Sliders, GitPullRequest, LayoutGrid, List, Hash, Palette, Signature, Gauge, Binary, Regex, ArrowLeftRight, Shrink, Pin, Volume2, Mic, Eye, Video, PenTool, History, Type } from 'lucide-react';
+import { FileDown, Image, Sparkles, Braces, ArrowRight, ShieldCheck, Zap, Globe, Cpu, Clock, Download, CheckCircle, FileText, FileImage, Trash2, Camera, Loader2, Search, Copy, Check, Info, Activity, AlertCircle, Layers, ChevronLeft, ChevronRight, GripVertical, Minus, Plus, RotateCcw, Settings, ArrowLeft, Upload, Database, QrCode, Scale, FileCode, Sliders, GitPullRequest, LayoutGrid, List, Hash, Palette, Gauge, Binary, Regex, ArrowLeftRight, Shrink, Pin, Volume2, Mic, Eye, Video, PenTool, History, Type } from 'lucide-react';
 import { ActiveTab } from '../types';
 import { AlignLeft, Crop, Calendar } from 'lucide-react';
 import html2canvas from 'html2canvas';
@@ -563,6 +563,45 @@ const DEFAULT_CARDS = [
     buttonLabel: 'Boot Date Calculator',
     colSpan: 1,
     heightLevel: 2
+  },
+  {
+    id: 'private-sketchpad',
+    title: 'Private Vector Sketchpad',
+    desc: 'Draft vector graphics, write notes, design wireframes, and draw prototypes with pen pressure simulator and custom grids, fully client-side and offline.',
+    tagline: '"interactive vector sketching, client-side sketchpad, pen and pressure canvas fully sandbox protected"',
+    category: 'Design & Signals',
+    categoryIcon: 'Cpu',
+    cardIcon: 'PenTool',
+    textClass: 'text-amber-400',
+    buttonLabel: 'Launch Free Sketchpad',
+    colSpan: 1,
+    heightLevel: 2
+  },
+  {
+    id: 'seo-inspect',
+    title: 'Google Index Audit & Crawler',
+    desc: 'Simulate search engine crawling spiders, audit sitemap nodes, analyze meta tags, check responsive standards, and inspect domain settings.',
+    tagline: '"on-page inspector, robot audit, indexing spider, metadata and structure validator offline"',
+    category: 'Design & Signals',
+    categoryIcon: 'Cpu',
+    cardIcon: 'Globe',
+    textClass: 'text-rose-400',
+    buttonLabel: 'Run Domain Audit',
+    colSpan: 1,
+    heightLevel: 2
+  },
+  {
+    id: 'keyword-cluster',
+    title: 'AI Keyword Clustering Engine',
+    desc: 'Group raw search terms into high-intent thematic query hubs, design layout hubs, and map parent semantical topics using Gemini AI power.',
+    tagline: '"intent keyword mapping, cluster groups, search engine semantical clustering with Gemini"',
+    category: 'AI Copywriting',
+    categoryIcon: 'Sparkles',
+    cardIcon: 'Sparkles',
+    textClass: 'text-emerald-400',
+    buttonLabel: 'Cluster Keywords',
+    colSpan: 1,
+    heightLevel: 2
   }
 ];
 
@@ -582,7 +621,7 @@ const iconMap: Record<string, React.ComponentType<any>> = {
   GitPullRequest: GitPullRequest,
   Hash: Hash,
   Palette: Palette,
-  Signature: Signature,
+  Signature: PenTool,
   Gauge: Gauge,
   Binary: Binary,
   Regex: Regex,
@@ -595,7 +634,9 @@ const iconMap: Record<string, React.ComponentType<any>> = {
   Type: Type,
   AlignLeft: AlignLeft,
   Crop: Crop,
-  Calendar: Calendar
+  Calendar: Calendar,
+  PenTool: PenTool,
+  Globe: Globe
 };
 
 const recentToolsLabels = {
@@ -852,7 +893,10 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
         'case-converter': "convert letter cases, strip html tags, clean whitespaces offline",
         'lorem-generator': "generate randomized latin placeholder words, lists, or svg mockups offline",
         'image-cropper': "crop image aspect ratios, customize pixel scales, and balance backgrounds offline",
-        'date-calculator': "find date differences, count net business days, and convert timezones offline"
+        'date-calculator': "find date differences, count net business days, and convert timezones offline",
+        'private-sketchpad': "interactive vector sketching, client-side sketchpad, pen and pressure canvas fully sandbox protected",
+        'seo-inspect': "on-page inspector, robot audit, indexing spider, metadata and structure validator offline",
+        'keyword-cluster': "intent keyword mapping, cluster groups, search engine semantical clustering with Gemini"
       },
       es: {
         'webp-converter': "convertir webp a jpg al instante sin registrarse",

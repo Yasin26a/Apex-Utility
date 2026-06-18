@@ -43,6 +43,37 @@ import SchemaGenerator from './components/SchemaGenerator';
 import SEOCompetitorGapAnalyzer from './components/SEOCompetitorGapAnalyzer';
 import AIKeywordClusterTool from './components/AIKeywordClusterTool';
 import AIAssistantSupervisor from './components/AIAssistantSupervisor';
+import Dashboard from './components/Dashboard';
+import JSONBeautifier from './components/JSONBeautifier';
+import ImageToPDF from './components/ImageToPDF';
+import PasswordGenerator from './components/PasswordGenerator';
+import QRCodeGenerator from './components/QRCodeGenerator';
+import UnitConverter from './components/UnitConverter';
+import SVGRasterizer from './components/SVGRasterizer';
+import BatchProcessor from './components/BatchProcessor';
+import ImageVectorizer from './components/ImageVectorizer';
+import JSONDiffChecker from './components/JSONDiffChecker';
+import SecureHashGenerator from './components/SecureHashGenerator';
+import ColorPaletteGenerator from './components/ColorPaletteGenerator';
+import DigitalSignatureGenerator from './components/DigitalSignatureGenerator';
+import SEOOptimizer from './components/SEOOptimizer';
+import Base64Converter from './components/Base64Converter';
+import RegexTester from './components/RegexTester';
+import CSVJSONConverter from './components/CSVJSONConverter';
+import ImageCompressor from './components/ImageCompressor';
+import RichTextStatistics from './components/RichTextStatistics';
+import AudioTrimmer from './components/AudioTrimmer';
+import AIAudioTranscriber from './components/AIAudioTranscriber';
+import PDFAnalyst from './components/PDFAnalyst';
+import ExifMetadataStripper from './components/ExifMetadataStripper';
+import CodeSnapshot from './components/CodeSnapshot';
+import CaseConverter from './components/CaseConverter';
+import LoremGenerator from './components/LoremGenerator';
+import ImageCropper from './components/ImageCropper';
+import DateCalculator from './components/DateCalculator';
+import PrivateSketchpad from './components/PrivateSketchpad';
+import SEOInspect from './components/SEOInspect';
+import AIWriter from './components/AIWriter';
 
 export default function App() {
   const navigate = useNavigate();
@@ -844,13 +875,13 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-black text-zinc-100 flex flex-col font-sans selection:bg-brand selection:text-white">
       {/* Header Bar */}
-      <header className="bg-slate-950/80 backdrop-blur-md border-b border-slate-800 sticky top-0 z-50 px-4 py-3 flex items-center justify-between">
+      <header className="bg-[#050507]/95 backdrop-blur-md border-b border-red-950/45 sticky top-0 z-50 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button 
             onClick={() => setIsMobileSidebarOpen(true)}
-            className="md:hidden p-1.5 hover:bg-slate-800 rounded-lg transition-colors text-slate-400 hover:text-slate-100"
+            className="md:hidden p-1.5 hover:bg-zinc-900 rounded-lg transition-colors text-zinc-400 hover:text-white"
             aria-label="Toggle Navigation Menu"
           >
             <Menu className="w-6 h-6" />
@@ -860,14 +891,14 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
             onClick={() => handleTabChange('dashboard')}
             className="flex items-center gap-2 cursor-pointer select-none"
           >
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-rose-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-rose-500/10">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand to-red-950 flex items-center justify-center shadow-lg shadow-brand/10 border border-brand/20">
               <Compass className="w-5 h-5 text-white animate-pulse" />
             </div>
             <div>
-              <h1 className="font-bold text-lg leading-tight tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
+              <h1 className="font-bold text-lg leading-tight tracking-tight bg-gradient-to-r from-white via-zinc-200 to-zinc-400 bg-clip-text text-transparent">
                 Apex Utility Labs
               </h1>
-              <span className="text-[10px] font-mono font-medium text-slate-400 block tracking-wider uppercase">
+              <span className="text-[10px] font-mono font-medium text-red-500/80 block tracking-wider uppercase">
                 Pro Webmaster Tools
               </span>
             </div>
@@ -875,15 +906,15 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="hidden sm:flex items-center gap-1.5 bg-slate-900 px-3 py-1.5 rounded-full border border-slate-800">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-ping"></span>
-            <span className="text-xs font-mono text-slate-300 font-medium tracking-wide">
+          <div className="hidden sm:flex items-center gap-1.5 bg-zinc-950 px-3 py-1.5 rounded-full border border-red-950/40">
+            <span className="w-2 h-2 rounded-full bg-brand inline-block animate-ping"></span>
+            <span className="text-xs font-mono text-red-400 font-medium tracking-wide">
               Server: Online
             </span>
           </div>
           <button 
             onClick={() => handleTabChange('about-us')}
-            className="px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:text-slate-100 bg-slate-900 border border-slate-800 hover:border-slate-700 hover:bg-slate-800 transition-all shadow-sm"
+            className="px-3.5 py-1.5 rounded-lg text-xs font-medium text-zinc-300 hover:text-white bg-zinc-950 border border-red-950/30 hover:border-brand/35 hover:bg-red-950/20 transition-all shadow-sm"
           >
             Documentation
           </button>
@@ -894,10 +925,10 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
       <div className="flex-1 flex relative">
         
         {/* Navigation Sidebar (Desktop view) */}
-        <aside className="hidden md:block w-72 bg-slate-950 border-r border-slate-800 p-6 flex-shrink-0 flex flex-col justify-between">
+        <aside className="hidden md:block w-72 bg-black border-r border-red-950/45 p-6 flex-shrink-0 flex flex-col justify-between">
           <div className="space-y-6">
             <div>
-              <p className="px-3 text-[11px] font-mono text-slate-500 font-semibold tracking-widest uppercase mb-3">
+              <p className="px-3 text-[11px] font-mono text-zinc-500 font-semibold tracking-widest uppercase mb-3">
                 Main Workspace
               </p>
               <nav className="space-y-1" aria-label="Sidebar Deck Navigation">
@@ -905,23 +936,23 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                   onClick={() => handleTabChange('dashboard')}
                   className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                     activeTab === 'dashboard'
-                      ? 'bg-gradient-to-r from-rose-500/15 via-indigo-600/10 to-transparent border-l-4 border-rose-500 text-rose-400 font-semibold'
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                      ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold'
+                      : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
                   }`}
                 >
                   <div className="flex items-center gap-3">
                     <LayoutDashboard className="w-4 h-4" />
                     <span>Control Deck</span>
                   </div>
-                  <span className="bg-slate-800 text-[10px] text-slate-400 px-1.5 py-0.5 rounded font-mono font-bold uppercase">Index</span>
+                  <span className="bg-zinc-900 text-[10px] text-zinc-400 px-1.5 py-0.5 rounded font-mono font-bold uppercase">Index</span>
                 </button>
 
                 <button
                   onClick={() => handleTabChange('sitemap-generator')}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                     activeTab === 'sitemap-generator'
-                      ? 'bg-gradient-to-r from-rose-500/15 via-indigo-600/10 to-transparent border-l-4 border-rose-500 text-rose-400 font-semibold'
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                      ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold'
+                      : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
                   }`}
                 >
                   <Map className="w-4 h-4" />
@@ -932,8 +963,8 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                   onClick={() => handleTabChange('compress-pdf')}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                     activeTab === 'compress-pdf'
-                      ? 'bg-gradient-to-r from-rose-500/15 via-indigo-600/10 to-transparent border-l-4 border-rose-500 text-rose-400 font-semibold'
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                      ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold'
+                      : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
                   }`}
                 >
                   <FileText className="w-4 h-4" />
@@ -944,8 +975,8 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                   onClick={() => handleTabChange('webp-converter')}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                     activeTab === 'webp-converter'
-                      ? 'bg-gradient-to-r from-rose-500/15 via-indigo-600/10 to-transparent border-l-4 border-rose-500 text-rose-400 font-semibold'
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                      ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold'
+                      : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
                   }`}
                 >
                   <ImageIcon className="w-4 h-4" />
@@ -956,8 +987,8 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                   onClick={() => handleTabChange('guides')}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                     activeTab === 'guides'
-                      ? 'bg-gradient-to-r from-rose-500/15 via-indigo-600/10 to-transparent border-l-4 border-rose-500 text-rose-400 font-semibold'
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                      ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold'
+                      : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
                   }`}
                 >
                   <FileCheck className="w-4 h-4" />
@@ -968,53 +999,53 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                   onClick={() => handleTabChange('keyword-cluster')}
                   className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                     activeTab === 'keyword-cluster'
-                      ? 'bg-gradient-to-r from-rose-500/15 via-indigo-600/10 to-transparent border-l-4 border-rose-500 text-rose-400 font-semibold font-bold'
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                      ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold'
+                      : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <Sparkles className="w-4 h-4 text-emerald-400 animate-pulse" />
+                    <Sparkles className="w-4 h-4 text-brand animate-pulse" />
                     <span>Keyword Clustering</span>
                   </div>
-                  <span className="bg-emerald-950/60 border border-emerald-900/40 text-[9px] text-emerald-400 px-1.5 py-0.5 rounded font-mono font-bold uppercase shrink-0">AI</span>
+                  <span className="bg-red-950/60 border border-red-900/40 text-[9px] text-brand px-1.5 py-0.5 rounded font-mono font-bold uppercase shrink-0">AI</span>
                 </button>
 
                 <button
                   onClick={() => handleTabChange('content-gap')}
                   className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                     activeTab === 'content-gap'
-                      ? 'bg-gradient-to-r from-rose-500/15 via-indigo-600/10 to-transparent border-l-4 border-rose-500 text-rose-400 font-semibold font-bold'
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                      ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold'
+                      : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <Activity className="w-4 h-4 text-sky-400" />
+                    <Activity className="w-4 h-4 text-brand" />
                     <span>On-Page Gap Analyzer</span>
                   </div>
-                  <span className="bg-slate-800 text-[9px] text-slate-400 px-1.5 py-0.5 rounded font-mono font-bold uppercase shrink-0">Pro</span>
+                  <span className="bg-zinc-900 text-[9px] text-zinc-400 px-1.5 py-0.5 rounded font-mono font-bold uppercase shrink-0">Pro</span>
                 </button>
 
                 <button
                   onClick={() => handleTabChange('video-recorder')}
                   className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                     activeTab === 'video-recorder'
-                      ? 'bg-gradient-to-r from-rose-500/15 via-indigo-600/10 to-transparent border-l-4 border-rose-500 text-rose-400 font-semibold font-bold'
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                      ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold'
+                      : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <Video className="w-4 h-4 text-cyan-400" />
+                    <Video className="w-4 h-4 text-brand" />
                     <span>Screen &amp; Video Studio</span>
                   </div>
-                  <span className="bg-sky-950 border border-sky-900 text-[9px] text-sky-400 px-1.5 py-0.5 rounded font-mono font-bold uppercase shrink-0">HD</span>
+                  <span className="bg-red-950 border border-red-900/40 text-[9px] text-brand px-1.5 py-0.5 rounded font-mono font-bold uppercase shrink-0">HD</span>
                 </button>
               </nav>
             </div>
 
-            <hr className="border-slate-800" />
+            <hr className="border-red-950/45" />
 
             <div>
-              <p className="px-3 text-[11px] font-mono text-slate-500 font-semibold tracking-widest uppercase mb-3">
+              <p className="px-3 text-[11px] font-mono text-zinc-500 font-semibold tracking-widest uppercase mb-3">
                 Core Legal &amp; Identity
               </p>
               <nav className="space-y-1" aria-label="Sidebar Legal Navigation">
@@ -1022,8 +1053,8 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                   onClick={() => handleTabChange('about-us')}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                     activeTab === 'about-us'
-                      ? 'bg-gradient-to-r from-indigo-500/15 via-rose-600/10 to-transparent border-l-4 border-indigo-500 text-indigo-400 font-semibold'
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                      ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold'
+                      : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
                   }`}
                 >
                   <Users className="w-4 h-4" />
@@ -1034,8 +1065,8 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                   onClick={() => handleTabChange('privacy-policy')}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                     activeTab === 'privacy-policy'
-                      ? 'bg-gradient-to-r from-indigo-500/15 via-rose-600/10 to-transparent border-l-4 border-indigo-500 text-indigo-400 font-semibold'
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                      ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold'
+                      : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
                   }`}
                 >
                   <ShieldCheck className="w-4 h-4" />
@@ -1046,8 +1077,8 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                   onClick={() => handleTabChange('terms-of-service')}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                     activeTab === 'terms-of-service'
-                      ? 'bg-gradient-to-r from-indigo-500/15 via-rose-600/10 to-transparent border-l-4 border-indigo-500 text-indigo-400 font-semibold'
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                      ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold'
+                      : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
                   }`}
                 >
                   <FileText className="w-4 h-4" />
@@ -1057,18 +1088,18 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
             </div>
           </div>
 
-          <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-800 text-xs">
-            <h4 className="font-semibold text-slate-200 mb-1 flex items-center gap-1.5">
-              <Globe className="w-3.5 h-3.5 text-rose-400" />
+          <div className="bg-zinc-950 p-4 rounded-xl border border-red-950/45 text-xs">
+            <h4 className="font-semibold text-zinc-200 mb-1 flex items-center gap-1.5">
+              <Globe className="w-3.5 h-3.5 text-brand" />
               SEO &amp; Index Ready
             </h4>
-            <p className="text-slate-400 leading-relaxed mb-2.5">
+            <p className="text-zinc-400 leading-relaxed mb-2.5">
               Approved layout elements customized for search spiders and robot validation checks.
             </p>
             <a 
               href="/sitemap.xml" 
               target="_blank" 
-              className="text-indigo-400 hover:text-indigo-300 font-mono font-medium text-[11px] hover:underline flex items-center gap-1"
+              className="text-brand hover:text-brand-hover font-mono font-medium text-[11px] hover:underline flex items-center gap-1"
             >
               View XML Sitemap <ArrowRight className="w-3 h-3" />
             </a>
@@ -1094,31 +1125,31 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                 animate={{ x: 0 }}
                 exit={{ x: '-100%' }}
                 transition={{ type: 'tween', duration: 0.25 }}
-                className="fixed inset-y-0 left-0 w-80 max-w-[85vw] bg-slate-950 border-r border-slate-800 p-6 z-50 flex flex-col justify-between md:hidden"
+                className="fixed inset-y-0 left-0 w-80 max-w-[85vw] bg-black border-r border-red-950/45 p-6 z-50 flex flex-col justify-between md:hidden"
               >
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="font-bold text-slate-100 text-base">Apex Menu</h4>
-                      <p className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Active Navigation Workspace</p>
+                      <h4 className="font-bold text-zinc-100 text-base">Apex Menu</h4>
+                      <p className="text-[10px] font-mono text-red-500 uppercase tracking-widest">Active Navigation Workspace</p>
                     </div>
                     <button 
                       onClick={() => setIsMobileSidebarOpen(false)}
-                      className="p-1 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-slate-100 transition-colors"
+                      className="p-1 hover:bg-zinc-900 rounded-lg text-zinc-400 hover:text-white transition-colors"
                     >
                       <X className="w-5 h-5" />
                     </button>
                   </div>
 
-                  <hr className="border-slate-800" />
+                  <hr className="border-red-950/45" />
 
                   <nav className="space-y-1">
                     <button
                       onClick={() => handleTabChange('dashboard')}
                       className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                         activeTab === 'dashboard'
-                          ? 'bg-slate-900 border-l-4 border-rose-500 text-rose-400 font-semibold'
-                          : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                          ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold'
+                          : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
                       }`}
                     >
                       <LayoutDashboard className="w-4 h-4" />
@@ -1129,8 +1160,8 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                       onClick={() => handleTabChange('sitemap-generator')}
                       className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                         activeTab === 'sitemap-generator'
-                          ? 'bg-slate-900 border-l-4 border-rose-500 text-rose-400 font-semibold'
-                          : 'text-slate-400 hover:text-slate-200'
+                          ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold'
+                          : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
                       }`}
                     >
                       <Map className="w-4 h-4" />
@@ -1141,8 +1172,8 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                       onClick={() => handleTabChange('compress-pdf')}
                       className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                         activeTab === 'compress-pdf'
-                          ? 'bg-slate-900 border-l-4 border-rose-500 text-rose-400 font-semibold'
-                          : 'text-slate-400 hover:text-slate-200'
+                          ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold'
+                          : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
                       }`}
                     >
                       <FileText className="w-4 h-4" />
@@ -1153,8 +1184,8 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                       onClick={() => handleTabChange('webp-converter')}
                       className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                         activeTab === 'webp-converter'
-                          ? 'bg-slate-900 border-l-4 border-rose-500 text-rose-400 font-semibold'
-                          : 'text-slate-400 hover:text-slate-200'
+                          ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold'
+                          : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
                       }`}
                     >
                       <ImageIcon className="w-4 h-4" />
@@ -1165,8 +1196,8 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                       onClick={() => handleTabChange('guides')}
                       className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                         activeTab === 'guides'
-                          ? 'bg-slate-900 border-l-4 border-rose-500 text-rose-400 font-semibold'
-                          : 'text-slate-400 hover:text-slate-200'
+                          ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold'
+                          : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
                       }`}
                     >
                       <FileCheck className="w-4 h-4" />
@@ -1177,11 +1208,11 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                       onClick={() => handleTabChange('keyword-cluster')}
                       className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                         activeTab === 'keyword-cluster'
-                          ? 'bg-slate-900 border-l-4 border-rose-500 text-rose-400 font-semibold font-bold'
-                          : 'text-slate-400 hover:text-slate-200'
+                          ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold'
+                          : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
                       }`}
                     >
-                      <Sparkles className="w-4 h-4 text-emerald-400" />
+                      <Sparkles className="w-4 h-4 text-brand" />
                       <span>Keyword Clustering</span>
                     </button>
 
@@ -1189,11 +1220,11 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                       onClick={() => handleTabChange('content-gap')}
                       className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                         activeTab === 'content-gap'
-                          ? 'bg-slate-900 border-l-4 border-rose-500 text-rose-400 font-semibold font-bold'
-                          : 'text-slate-400 hover:text-slate-200'
+                          ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold animate-pulse'
+                          : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
                       }`}
                     >
-                      <Activity className="w-4 h-4 text-sky-400" />
+                      <Activity className="w-4 h-4 text-brand" />
                       <span>On-Page Gap Analyzer</span>
                     </button>
 
@@ -1201,24 +1232,24 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                       onClick={() => handleTabChange('video-recorder')}
                       className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                         activeTab === 'video-recorder'
-                          ? 'bg-slate-900 border-l-4 border-rose-500 text-rose-400 font-semibold'
-                          : 'text-slate-400 hover:text-slate-200'
+                          ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold'
+                          : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
                       }`}
                     >
-                      <Video className="w-4 h-4 text-cyan-400" />
+                      <Video className="w-4 h-4 text-brand" />
                       <span>Screen &amp; Video Studio</span>
                     </button>
                   </nav>
 
-                  <hr className="border-slate-800" />
+                  <hr className="border-red-950/45" />
 
                   <nav className="space-y-1">
                     <button
                       onClick={() => handleTabChange('about-us')}
                       className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                         activeTab === 'about-us'
-                          ? 'bg-slate-900 border-l-4 border-indigo-500 text-indigo-400 font-semibold'
-                          : 'text-slate-400 hover:text-slate-200'
+                          ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold'
+                          : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
                       }`}
                     >
                       <Users className="w-4 h-4" />
@@ -1229,8 +1260,8 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                       onClick={() => handleTabChange('privacy-policy')}
                       className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                         activeTab === 'privacy-policy'
-                          ? 'bg-slate-900 border-l-4 border-indigo-500 text-indigo-400 font-semibold'
-                          : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                          ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold'
+                          : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
                       }`}
                     >
                       <ShieldCheck className="w-4 h-4" />
@@ -1241,8 +1272,8 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                       onClick={() => handleTabChange('terms-of-service')}
                       className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                         activeTab === 'terms-of-service'
-                          ? 'bg-slate-900 border-l-4 border-indigo-500 text-indigo-400 font-semibold'
-                          : 'text-slate-400 hover:text-slate-200'
+                          ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold'
+                          : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
                       }`}
                     >
                       <FileText className="w-4 h-4" />
@@ -1251,12 +1282,12 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                   </nav>
                 </div>
 
-                <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-800 text-xs">
-                  <h4 className="font-semibold text-slate-200 mb-1 flex items-center gap-1.5">
-                    <Globe className="w-3.5 h-3.5 text-rose-400" />
+                <div className="bg-zinc-950 p-4 rounded-xl border border-red-950/45 text-xs">
+                  <h4 className="font-semibold text-zinc-200 mb-1 flex items-center gap-1.5">
+                    <Globe className="w-3.5 h-3.5 text-brand" />
                     Robots &amp; Sitemap Compliant
                   </h4>
-                  <p className="text-slate-400 leading-relaxed">
+                  <p className="text-zinc-400 leading-relaxed">
                     Layout complies with structural directory schemas for search engines and spider validations.
                   </p>
                 </div>
@@ -1269,220 +1300,359 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
         <main className="flex-1 p-4 sm:p-8 overflow-y-auto max-w-5xl mx-auto" id="main-content-window">
           
           <AnimatePresence mode="wait">
-            
-            {/* Tab: Dashboard / Control Deck */}
-            {activeTab === 'dashboard' && (
-              <motion.div
-                key="dashboard"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
-                transition={{ duration: 0.2 }}
-                className="space-y-8"
-              >
-                {/* Hero section */}
-                <div className="bg-gradient-to-tr from-slate-950 via-slate-900 to-indigo-950/40 p-6 sm:p-8 rounded-2xl border border-slate-800 shadow-xl relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-80 h-80 bg-rose-500/5 rounded-full blur-3xl pointer-events-none"></div>
-                  <div className="absolute bottom-0 left-10 w-80 h-80 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none"></div>
-                  
-                  <div className="relative">
-                    <span className="bg-rose-500/10 text-rose-400 font-mono text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full border border-rose-500/20">
-                      SEO Index Readiness Optimized
-                    </span>
-                    <h2 className="text-2xl sm:text-3.5xl font-extrabold text-white mt-4 tracking-tight leading-tight">
-                      Compliance Workspace for Digital Creators
-                    </h2>
-                    <p className="text-slate-300 text-sm sm:text-base mt-2 max-w-2xl leading-relaxed">
-                      Build fully crawler-compliant web properties with instant legal templates, XML sitemaps, and step-by-step launch procedures tailored for rapid Google AdSense approval.
-                    </p>
-                    
-                    <div className="flex flex-wrap gap-3 mt-6">
-                      <button
-                        onClick={() => handleTabChange('sitemap-generator')}
-                        className="bg-rose-500 hover:bg-rose-600 text-white font-medium text-sm px-5 py-2.5 rounded-lg flex items-center gap-2 shadow-lg shadow-rose-500/10 transition-all hover:scale-[1.02]"
-                      >
-                        <Map className="w-4 h-4" />
-                        Launch Sitemap SEO Generator
-                      </button>
-                      <button
-                        onClick={() => handleTabChange('guides')}
-                        className="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 hover:border-slate-600 font-medium text-sm px-5 py-2.5 rounded-lg transition-all"
-                      >
-                        Read Launch Checklist
-                      </button>
-                    </div>
-                  </div>
+             {activeTab === 'dashboard' && (
+              <Dashboard onTabChange={handleTabChange} />
+            )}
+
+            {activeTab === 'json-beautifier' && (
+              <motion.div key="json-beautifier" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf1544] uppercase">Serialization Tools</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">JSON Beautifier &amp; Formatter</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Beautify, parse, validate, and minify nested JSON structures cleanly in your browser thread.</p>
                 </div>
+                <JSONBeautifier />
+              </motion.div>
+            )}
 
-                {/* Info Deck Grid */}
-                <h3 className="text-base font-bold font-mono tracking-widest text-slate-400 uppercase border-b border-slate-800 pb-2">
-                  Launch Properties Index
-                </h3>
-                
-                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  
-                  {/* Sitemap SEO Card */}
-                  <div 
-                    onClick={() => handleTabChange('sitemap-generator')}
-                    className="group bg-slate-950 p-5 rounded-xl border border-slate-800 hover:border-slate-700 cursor-pointer hover:shadow-lg transition-all flex flex-col justify-between"
-                  >
-                    <div>
-                      <div className="w-10 h-10 rounded-lg bg-rose-500/10 text-rose-400 flex items-center justify-center mb-4 border border-rose-500/10 group-hover:bg-rose-500 group-hover:text-white transition-all">
-                        <Map className="w-5 h-5" />
-                      </div>
-                      <h4 className="font-bold text-slate-100 group-hover:text-rose-400 transition-colors">Sitemap SEO Generator</h4>
-                      <p className="text-xs text-slate-400 mt-2 leading-relaxed">
-                        Build spider-friendly XML maps and search crawler directory schemas to accelerate index registration.
-                      </p>
-                    </div>
-                    <span className="text-[11px] font-mono text-rose-400 group-hover:underline flex items-center gap-1 mt-4">
-                      Configure Sitemap <ArrowRight className="w-3.5 h-3.5" />
-                    </span>
-                  </div>
-
-                  {/* PDF Optimizer Card */}
-                  <div 
-                    onClick={() => handleTabChange('compress-pdf')}
-                    className="group bg-slate-950 p-5 rounded-xl border border-slate-800 hover:border-slate-700 cursor-pointer hover:shadow-lg transition-all flex flex-col justify-between"
-                  >
-                    <div>
-                      <div className="w-10 h-10 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center mb-4 border border-indigo-500/10 group-hover:bg-indigo-500 group-hover:text-white transition-all">
-                        <FileText className="w-5 h-5" />
-                      </div>
-                      <h4 className="font-bold text-slate-100 group-hover:text-indigo-400 transition-colors">PDF Doc Optimizer</h4>
-                      <p className="text-xs text-slate-400 mt-2 leading-relaxed">
-                        Strip private user tracking metadata strings, rebuild stream objects, and compress file footprints offline.
-                      </p>
-                    </div>
-                    <span className="text-[11px] font-mono text-indigo-400 group-hover:underline flex items-center gap-1 mt-4">
-                      Optimize File <ArrowRight className="w-3.5 h-3.5" />
-                    </span>
-                  </div>
-
-                  {/* Privacy Policy Card */}
-                  <div 
-                    onClick={() => handleTabChange('privacy-policy')}
-                    className="group bg-slate-950 p-5 rounded-xl border border-slate-800 hover:border-slate-700 cursor-pointer hover:shadow-lg transition-all flex flex-col justify-between"
-                  >
-                    <div>
-                      <div className="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-4 border border-emerald-500/10 group-hover:bg-emerald-500 group-hover:text-white transition-all">
-                        <ShieldCheck className="w-5 h-5" />
-                      </div>
-                      <h4 className="font-bold text-slate-100 group-hover:text-emerald-400 transition-colors">Privacy Policy</h4>
-                      <p className="text-xs text-slate-400 mt-2 leading-relaxed">
-                        Fully drafted, crawler-compliant documentation detailing log files, DART cookies, and GDPR declarations.
-                      </p>
-                    </div>
-                    <span className="text-[11px] font-mono text-emerald-400 group-hover:underline flex items-center gap-1 mt-4">
-                      Complete Document <ArrowRight className="w-3.5 h-3.5" />
-                    </span>
-                  </div>
-
-                  {/* Terms of Service Card */}
-                  <div 
-                    onClick={() => handleTabChange('terms-of-service')}
-                    className="group bg-slate-950 p-5 rounded-xl border border-slate-800 hover:border-slate-700 cursor-pointer hover:shadow-lg transition-all flex flex-col justify-between"
-                  >
-                    <div>
-                      <div className="w-10 h-10 rounded-lg bg-sky-500/10 text-sky-400 flex items-center justify-center mb-4 border border-sky-500/10 group-hover:bg-sky-500 group-hover:text-white transition-all">
-                        <FileText className="w-5 h-5" />
-                      </div>
-                      <h4 className="font-bold text-slate-100 group-hover:text-sky-400 transition-colors">Terms of Service</h4>
-                      <p className="text-xs text-slate-400 mt-2 leading-relaxed">
-                        User agreement agreements, liability disclaimers, and transparent clauses protecting property indexing rights.
-                      </p>
-                    </div>
-                    <span className="text-[11px] font-mono text-sky-400 group-hover:underline flex items-center gap-1 mt-4">
-                      Complete Document <ArrowRight className="w-3.5 h-3.5" />
-                    </span>
-                  </div>
-
-                  {/* AI Keyword Clustering Tool Card */}
-                  <div 
-                    onClick={() => handleTabChange('keyword-cluster')}
-                    className="group bg-slate-950 p-5 rounded-xl border border-slate-800 hover:border-slate-700 cursor-pointer hover:shadow-lg transition-all flex flex-col justify-between col-span-1 sm:col-span-2"
-                  >
-                    <div>
-                      <div className="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-4 border border-emerald-500/10 group-hover:bg-emerald-500 group-hover:text-black transition-all">
-                        <Sparkles className="w-5 h-5" />
-                      </div>
-                      <h4 className="font-bold text-slate-100 group-hover:text-emerald-400 transition-colors flex items-center gap-1.5 font-sans">
-                        AI Keyword Clustering &amp; Semantic Mapping
-                        <span className="bg-emerald-900/30 border border-emerald-800/50 text-[10px] text-emerald-400 font-mono font-bold uppercase px-1.5 py-0.5 rounded leading-none">AI</span>
-                      </h4>
-                      <p className="text-xs text-slate-400 mt-2 leading-relaxed">
-                        Group search phrases into visual topical siloing systems with Google Search Lifecycle Stage (TOFU/MOFU/BOFU) percentage mapping and H2 outline blueprints driven by Gemini.
-                      </p>
-                    </div>
-                    <span className="text-[11px] font-mono text-emerald-400 group-hover:underline flex items-center gap-1 mt-4">
-                      Launch Clustering Studio <ArrowRight className="w-3.5 h-3.5" />
-                    </span>
-                  </div>
-
-                  {/* On-Page Content Gap Analyzer Card */}
-                  <div 
-                    onClick={() => handleTabChange('content-gap')}
-                    className="group bg-slate-950 p-5 rounded-xl border border-slate-800 hover:border-slate-700 cursor-pointer hover:shadow-lg transition-all flex flex-col justify-between col-span-1 sm:col-span-2"
-                  >
-                    <div>
-                      <div className="w-10 h-10 rounded-lg bg-sky-500/10 text-sky-400 flex items-center justify-center mb-4 border border-sky-500/10 group-hover:bg-sky-500 group-hover:text-black transition-all">
-                        <Activity className="w-5 h-5" />
-                      </div>
-                      <h4 className="font-bold text-slate-100 group-hover:text-sky-400 transition-colors flex items-center gap-1.5 font-sans">
-                        SEO Competitor Content-Gap Analyzer
-                        <span className="bg-indigo-950/40 border border-indigo-900/40 text-[10px] text-indigo-400 font-mono font-bold uppercase px-1.5 py-0.5 rounded leading-none">Pro</span>
-                      </h4>
-                      <p className="text-xs text-slate-400 mt-2 leading-relaxed">
-                        Examine arbitrary search draft text and evaluate structural, keyword and intent deficit severities directly compared against high-ranking competitors.
-                      </p>
-                    </div>
-                    <span className="text-[11px] font-mono text-sky-400 group-hover:underline flex items-center gap-1 mt-4">
-                      Deploy Core Gap Audit <ArrowRight className="w-3.5 h-3.5" />
-                    </span>
-                  </div>
-
-                  {/* Screen Recorder & Video Studio Card */}
-                  <div 
-                    onClick={() => handleTabChange('video-recorder')}
-                    className="group bg-slate-950 p-5 rounded-xl border border-slate-800 hover:border-cyan-500/70 cursor-pointer hover:shadow-lg transition-all flex flex-col justify-between col-span-1 sm:col-span-2 lg:col-span-4"
-                  >
-                    <div>
-                      <div className="w-10 h-10 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center mb-4 border border-cyan-500/10 group-hover:bg-cyan-500 group-hover:text-black transition-all">
-                        <Video className="w-5 h-5" />
-                      </div>
-                      <h4 className="font-bold text-slate-100 group-hover:text-cyan-400 transition-colors flex items-center gap-1.5 font-sans">
-                        Screen Recorder &amp; Video Studio
-                        <span className="bg-sky-950/40 border border-sky-900/40 text-[10px] text-cyan-400 font-mono font-bold uppercase px-1.5 py-0.5 rounded leading-none">HD Studio</span>
-                      </h4>
-                      <p className="text-xs text-slate-400 mt-2 leading-relaxed">
-                        Maximize time-on-site metrics and address user learning intention. Capture high-definition screencasts, browser windows, webcams, and microphone voiceovers completely client-side. Export recordings instantly to high-fidelity looping GIFs or compressed WebM formats without any cloud processing.
-                      </p>
-                    </div>
-                    <span className="text-[11px] font-mono text-cyan-400 group-hover:underline flex items-center gap-1 mt-4">
-                      Launch Video Studio <ArrowRight className="w-3.5 h-3.5" />
-                    </span>
-                  </div>
-
+            {activeTab === 'image-to-pdf' && (
+              <motion.div key="image-to-pdf" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-indigo-400 uppercase">Document Conversion</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Image to PDF Compiler</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Combine multiple raster formats (JPG, PNG, WebP) into a high-compliance single PDF file offline.</p>
                 </div>
+                <ImageToPDF />
+              </motion.div>
+            )}
 
-                {/* AdSense Tip Section */}
-                <div className="bg-slate-950 p-5 rounded-xl border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="space-y-1">
-                    <h4 className="font-bold text-slate-100 flex items-center gap-1.5 text-sm sm:text-base">
-                      <ShieldCheck className="w-4 h-4 text-rose-400" />
-                      AdSense Integration &amp; Domain Verification Ready
-                    </h4>
-                    <p className="text-xs text-slate-400 max-w-2xl leading-relaxed">
-                      By including complete About Us, Privacy Policy, and Terms of Service endpoints in your primary menu sidebar, you instantly meet the &ldquo;Standard Consumer Disclosures&rdquo; requirement.
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => handleTabChange('guides')}
-                    className="bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 hover:border-slate-700 px-4 py-2 rounded-lg text-xs font-medium self-start sm:self-center shrink-0"
-                  >
-                    Manage domain settings
-                  </button>
+            {activeTab === 'join-pdf' && (
+              <motion.div key="join-pdf" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-teal-400 uppercase">Document Compilation</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">PDF Document Merger &amp; Joining Deck</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Combine multiple standalone files, re-order stream packages, and construct an unified document.</p>
                 </div>
+                <PDFJoiner />
+              </motion.div>
+            )}
+
+            {activeTab === 'ai-writer' && (
+              <motion.div key="ai-writer" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-emerald-400 uppercase">AI Creativity</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">AI Copywriter &amp; Text Architect</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Write rich, high-engagement marketing, developer, or indexing copy using generative pathways.</p>
+                </div>
+                <AIWriter />
+              </motion.div>
+            )}
+
+            {activeTab === 'password-generator' && (
+              <motion.div key="password-generator" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-rose-400 uppercase">Security &amp; Sandbox</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Deterministic Password Generator</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Generate cryptographically secure random characters and passwords with customizable complexity limits.</p>
+                </div>
+                <PasswordGenerator />
+              </motion.div>
+            )}
+
+            {activeTab === 'qr-generator' && (
+              <motion.div key="qr-generator" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-sky-400 uppercase">Publishing Tools</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Structured QR Code Architect</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Render customizable high-density raster or clean vector QR codes for URLs, WiFi, or text nodes.</p>
+                </div>
+                <QRCodeGenerator />
+              </motion.div>
+            )}
+
+            {activeTab === 'unit-converter' && (
+              <motion.div key="unit-converter" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-orange-400 uppercase">Calculators</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Universal Unit &amp; Ratio Converter</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Convert lengths, masses, temperatures, pixel lengths, and standard digital sizes precisely.</p>
+                </div>
+                <UnitConverter />
+              </motion.div>
+            )}
+
+            {activeTab === 'svg-rasterizer' && (
+              <motion.div key="svg-rasterizer" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf1544] uppercase">Design Vectors</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">SVG to Raster Image Compiler</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Compile scalable vector markup into exact pixel-perfect PNG or JPG images with custom scaling factors.</p>
+                </div>
+                <SVGRasterizer />
+              </motion.div>
+            )}
+
+            {activeTab === 'batch-processor' && (
+              <motion.div key="batch-processor" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-violet-400 uppercase">Bulk Production</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Multi-Format Batch Processor</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Apply compression, renaming pipelines, and sequential conversions to large asset sets concurrently.</p>
+                </div>
+                <BatchProcessor />
+              </motion.div>
+            )}
+
+            {activeTab === 'image-vectorizer' && (
+              <motion.div key="image-vectorizer" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-emerald-400 uppercase">Asset Deck</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Raster to SVG Vectorizer</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Deconstruct pixel borders and synthesize clean paths to export JPG or PNG images as responsive SVGs.</p>
+                </div>
+                <ImageVectorizer />
+              </motion.div>
+            )}
+
+            {activeTab === 'json-diff' && (
+              <motion.div key="json-diff" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf1544] uppercase">Developer Tools</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">JSON Diff &amp; Comparison Validator</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Analyze, align, and highlight precise additions, deletions, or mutations between two structural datasets.</p>
+                </div>
+                <JSONDiffChecker />
+              </motion.div>
+            )}
+
+            {activeTab === 'secure-hash' && (
+              <motion.div key="secure-hash" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-amber-500 uppercase">Security &amp; Sandbox</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Cryptographic Secure Hash Generator</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Obtain high-fidelity SHA-256, SHA-512, MD5, or SHA-1 fingerprinted strings entirely client-side.</p>
+                </div>
+                <SecureHashGenerator />
+              </motion.div>
+            )}
+
+            {activeTab === 'color-palette' && (
+              <motion.div key="color-palette" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-fuchsia-400 uppercase">Design Vectors</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Color Palette &amp; Contrast Architect</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Generate accessible schemes, compute legal color-blind combinations, and extract HEX codes.</p>
+                </div>
+                <ColorPaletteGenerator />
+              </motion.div>
+            )}
+
+            {activeTab === 'digital-signature' && (
+              <motion.div key="digital-signature" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-indigo-400 uppercase">Security &amp; Sandbox</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Digital Signature &amp; Verification Workspace</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Draw, format, and serialize high-resolution signature graphics to certify digital receipts.</p>
+                </div>
+                <DigitalSignatureGenerator />
+              </motion.div>
+            )}
+
+            {activeTab === 'seo-optimizer' && (
+              <motion.div key="seo-optimizer" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf1544] uppercase">SEO Intelligence</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">SEO Compliance Optimizer &amp; Evaluator</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Analyze titles, headers, descriptions, and semantic density ratios to optimize search rank indexability.</p>
+                </div>
+                <SEOOptimizer />
+              </motion.div>
+            )}
+
+            {activeTab === 'base64-converter' && (
+              <motion.div key="base64-converter" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-blue-400 uppercase">Serialization Tools</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Base64 Text &amp; Binaries Transcoder</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Directly draft and extract binary files or text strings into compliant base64 web indices.</p>
+                </div>
+                <Base64Converter />
+              </motion.div>
+            )}
+
+            {activeTab === 'regex-tester' && (
+              <motion.div key="regex-tester" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf1544] uppercase">Developer Tools</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Regular Expression Diagnostic Deck</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Compile, optimize, and evaluate pattern layouts with sub-string visual highlighting.</p>
+                </div>
+                <RegexTester />
+              </motion.div>
+            )}
+
+            {activeTab === 'csv-json-converter' && (
+              <motion.div key="csv-json-converter" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-emerald-400 uppercase">Serialization Tools</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">CSV to JSON &amp; Table Transpiler</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Convert row files or raw clipboard strings seamlessly between database structures and spreadsheets.</p>
+                </div>
+                <CSVJSONConverter />
+              </motion.div>
+            )}
+
+            {activeTab === 'image-compressor' && (
+              <motion.div key="image-compressor" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf1544] uppercase">Media Lab</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">High-Ratio Image Compressor</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Squeeze pixel footprints of PNG, JPEG, or GIF formats using progressive canvas quantization.</p>
+                </div>
+                <ImageCompressor />
+              </motion.div>
+            )}
+
+            {activeTab === 'rich-text-stats' && (
+              <motion.div key="rich-text-stats" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf1544] uppercase">Analysis Deck</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Rich Text Statistics &amp; Complexity Analyzer</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Trace letter, word, page and line sizes alongside reading age formulas and lexical density indexes.</p>
+                </div>
+                <RichTextStatistics />
+              </motion.div>
+            )}
+
+            {activeTab === 'audio-trimmer' && (
+              <motion.div key="audio-trimmer" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-teal-400 uppercase">Media Lab</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Lossless Audio Trimmer &amp; Waveform Splicer</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Splice audio track frames directly inside your browser with clean, immediate waveform previews.</p>
+                </div>
+                <AudioTrimmer />
+              </motion.div>
+            )}
+
+            {activeTab === 'ai-transcriber' && (
+              <motion.div key="ai-transcriber" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf1544] uppercase">AI Creativity</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">AI Audio Transcriber &amp; Speech Interpreter</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Transcribe voice loops, audio uploads, or active browser recording pipelines into editable transcripts.</p>
+                </div>
+                <AIAudioTranscriber />
+              </motion.div>
+            )}
+
+            {activeTab === 'pdf-analyst' && (
+              <motion.div key="pdf-analyst" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-indigo-400 uppercase">Document Optimization</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">PDF Structure Analyst &amp; Extractor</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Inspect interior object maps, layout trees, forms, and embedded graphics details.</p>
+                </div>
+                <PDFAnalyst />
+              </motion.div>
+            )}
+
+            {activeTab === 'exif-stripper' && (
+              <motion.div key="exif-stripper" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-rose-500 uppercase">Security &amp; Sandbox</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">EXIF &amp; Camera Metadata Stripper</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Wipe GPS coordinates, focal settings, and hardware identifiers from image properties securely.</p>
+                </div>
+                <ExifMetadataStripper />
+              </motion.div>
+            )}
+
+            {activeTab === 'code-snapshot' && (
+              <motion.div key="code-snapshot" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf1544] uppercase">Publishing Tools</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Elegant Code Snapshot Mockup Studio</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Convert snippet characters into beautiful syntax-highlighted frames for online documentation.</p>
+                </div>
+                <CodeSnapshot />
+              </motion.div>
+            )}
+
+            {activeTab === 'case-converter' && (
+              <motion.div key="case-converter" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-emerald-400 uppercase">Text Deck</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Case Converter &amp; Text Formatter</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Convert letters between CamelCase, UPPERCASE, sentence styles, and clean empty margins instantly.</p>
+                </div>
+                <CaseConverter />
+              </motion.div>
+            )}
+
+            {activeTab === 'lorem-generator' && (
+              <motion.div key="lorem-generator" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-emerald-500 uppercase">Text Deck</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Lorem Ipsum Placeholder Generator</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Synthesize customized lengths of placeholder descriptions for mockups and templates.</p>
+                </div>
+                <LoremGenerator />
+              </motion.div>
+            )}
+
+            {activeTab === 'image-cropper' && (
+              <motion.div key="image-cropper" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-sky-400 uppercase">Media Lab</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Precision Image Cropper &amp; Aspect Ratio Tool</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Crop local imagery to custom standards, target widths, or round shapes completely offline.</p>
+                </div>
+                <ImageCropper />
+              </motion.div>
+            )}
+
+            {activeTab === 'date-calculator' && (
+              <motion.div key="date-calculator" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf1544] uppercase">Calculators</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Dynamic Date Calculator &amp; Interval Engine</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Determine elapsed time between dates, compute business day schedules, or compound offsets.</p>
+                </div>
+                <DateCalculator />
+              </motion.div>
+            )}
+
+            {activeTab === 'private-sketchpad' && (
+              <motion.div key="private-sketchpad" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-emerald-400 uppercase">Design Vectors</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Isolated Client-Side Sketchpad</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Collaborate, draft wireframes, or compose freeform drawings entirely isolated from backends.</p>
+                </div>
+                <PrivateSketchpad />
+              </motion.div>
+            )}
+
+            {activeTab === 'seo-inspect' && (
+              <motion.div key="seo-inspect" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-teal-400 uppercase">SEO Intelligence</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Google Index &amp; Crawler Simulator Audit</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Audit domain names, evaluate sitemaps, trace redirects, and check search engine ready parameters.</p>
+                </div>
+                <SEOInspect />
+              </motion.div>
+            )}
+
+            {activeTab === 'sitemap-seo' && (
+              <motion.div key="sitemap-seo" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf1544] uppercase">SEO Intelligence</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Sitemap Checker</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Inspect, analyze and validate XML sitemaps to verify crawler indexability standards.</p>
+                </div>
+                <SEOInspect />
               </motion.div>
             )}
 
