@@ -38,8 +38,8 @@ export default function VideoRecorder() {
 
   // Preference switches
   const [recordScreen, setRecordScreen] = useState(true);
-  const [recordCam, setRecordCam] = useState(true);
-  const [recordMic, setRecordMic] = useState(true);
+  const [recordCam, setRecordCam] = useState(false);
+  const [recordMic, setRecordMic] = useState(false);
   const [camShape, setCamShape] = useState<'circle' | 'square'>('circle');
   const [camSize, setCamSize] = useState<'sm' | 'md' | 'lg'>('md');
   const [camPosition, setCamPosition] = useState<'bottom-left' | 'bottom-right' | 'top-right' | 'top-left'>('bottom-left');
@@ -94,26 +94,29 @@ export default function VideoRecorder() {
 
   // Enumerating media capture nodes
   useEffect(() => {
-    enumerateInputs();
+    enumerateInputs(false);
     return () => {
       terminateAllSTreams();
       if (audioVolumeTimerRef.current) cancelAnimationFrame(audioVolumeTimerRef.current);
     };
   }, []);
 
-  const enumerateInputs = async () => {
+  const enumerateInputs = async (askPermission: boolean = false) => {
     try {
       if (!navigator || !navigator.mediaDevices) {
         console.warn("Media devices API is undefined in this context/sandbox.");
         return;
       }
-      // Trigger prompt permission initially to discover labels cleanly
-      await navigator.mediaDevices.getUserMedia({ audio: true, video: true }).then((s) => {
-        // Stop discovery stream instantly
-        s.getTracks().forEach(t => t.stop());
-      }).catch(() => {
-        // Fallback gracefully if hardware is busy or absent
-      });
+      
+      if (askPermission) {
+        // Trigger prompt permission to discover labels cleanly
+        await navigator.mediaDevices.getUserMedia({ audio: true, video: true }).then((s) => {
+          // Stop discovery stream instantly
+          s.getTracks().forEach(t => t.stop());
+        }).catch(() => {
+          // Fallback gracefully if hardware is busy or absent
+        });
+      }
 
       const devices = await navigator.mediaDevices.enumerateDevices();
       const videoIn = devices
@@ -126,8 +129,8 @@ export default function VideoRecorder() {
       setCamDevices(videoIn);
       setMicDevices(audioIn);
 
-      if (videoIn.length > 0) setSelectedCam(videoIn[0].deviceId);
-      if (audioIn.length > 0) setSelectedMic(audioIn[0].deviceId);
+      if (videoIn.length > 0 && !selectedCam) setSelectedCam(videoIn[0].deviceId);
+      if (audioIn.length > 0 && !selectedMic) setSelectedMic(audioIn[0].deviceId);
 
     } catch (err: any) {
       console.warn("Media device enumeration limited:", err.message);
@@ -211,6 +214,9 @@ export default function VideoRecorder() {
       if (audioTrack) {
         startMicVoltmeter(stream);
       }
+
+      // Refresh devices list silently to populate friendly name labels now that permission is approved
+      enumerateInputs(false);
     } catch (err: any) {
       setErrorHeader(`Webcam / Mic access denied or unavailable: ${err.message}`);
       setRecordCam(false);

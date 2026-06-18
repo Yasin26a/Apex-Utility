@@ -8,7 +8,6 @@ import { getRecentOperations, getSessionDownloadUrl, RecentOperation } from '../
 import DashboardCaptureModal from './DashboardCaptureModal';
 import { useLanguage } from '../context/LanguageContext';
 import TaskQueue from './TaskQueue';
-import D3AnalyticsChart from './D3AnalyticsChart';
 
 interface DashboardProps {
   onTabChange: (tab: ActiveTab) => void;
@@ -1780,8 +1779,7 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
         </motion.div>
       )}
 
-      {/* Dynamic D3.js Workspace Telemetry Analytics Chart */}
-      <D3AnalyticsChart />
+
 
       {/* Recent Tools Widget */}
       <div id="recent-tools-widget" className="beveled-panel p-6 border-brand-border/30 bg-[#07070a]/60 space-y-4">
