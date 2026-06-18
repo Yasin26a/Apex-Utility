@@ -103,6 +103,10 @@ export default function VideoRecorder() {
 
   const enumerateInputs = async () => {
     try {
+      if (!navigator || !navigator.mediaDevices) {
+        console.warn("Media devices API is undefined in this context/sandbox.");
+        return;
+      }
       // Trigger prompt permission initially to discover labels cleanly
       await navigator.mediaDevices.getUserMedia({ audio: true, video: true }).then((s) => {
         // Stop discovery stream instantly

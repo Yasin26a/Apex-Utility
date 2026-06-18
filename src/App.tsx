@@ -24,7 +24,8 @@ import {
   Bookmark,
   BookmarkCheck,
   Activity,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Video
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ActiveTab } from './types';
@@ -32,6 +33,7 @@ import { AT_LEAST_20_ARTICLES, Article } from './data/articles';
 import WebPConverter from './components/WebPConverter';
 import PDFJoiner from './components/PDFJoiner';
 import ContentPlanner from './components/ContentPlanner';
+import VideoRecorder from './components/VideoRecorder';
 import { Document as PDFDocumentView, Page as PDFPageView, pdfjs } from 'react-pdf';
 
 if (typeof window !== 'undefined') {
@@ -69,6 +71,7 @@ export default function App() {
   const [cleanStructure, setCleanStructure] = useState(true);
   const [isDragging, setIsDragging] = useState(false);
   const [isOptimizing, setIsOptimizing] = useState(false);
+  const [isFileReading, setIsFileReading] = useState(false);
   const [optimizingProgress, setOptimizingProgress] = useState(0);
   const [optimizingLogs, setOptimizingLogs] = useState<string[]>([]);
   const [optimizedBlobUrl, setOptimizedBlobUrl] = useState<string | null>(null);
@@ -429,20 +432,23 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
     if (!pdfFile) return;
 
     setIsOptimizing(true);
-    setOptimizingProgress(5);
+    setIsFileReading(true);
+    setOptimizingProgress(0);
     setOptimizingLogs([]);
     setOptimizedBlobUrl(null);
 
     addLog(`Initiating document analysis for: "${pdfFile.name}"`);
     addLog(`Original Payload Footprint: ${(pdfFile.size / 1024).toFixed(1)} KB`);
     
-    await new Promise(resolve => setTimeout(resolve, 600));
-    setOptimizingProgress(20);
+    await new Promise(resolve => setTimeout(resolve, 1200));
     addLog("Mounting direct binary array-buffer streaming thread...");
     
     try {
       const arrayBuffer = await pdfFile.arrayBuffer();
       const bytes = new Uint8Array(arrayBuffer);
+      
+      setIsFileReading(false);
+      setOptimizingProgress(20);
       
       await new Promise(resolve => setTimeout(resolve, 600));
       setOptimizingProgress(45);
@@ -817,6 +823,7 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
       setIsOptimizing(false);
     } catch (err: any) {
       addLog(`Err processing stream: ${err.message || err}`);
+      setIsFileReading(false);
       setIsOptimizing(false);
     }
   };
@@ -826,6 +833,7 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
     setOptimizedBlobUrl(null);
     setOptimizingLogs([]);
     setOptimizingProgress(0);
+    setIsFileReading(false);
     setPdfSecurityEnabled(false);
     setPdfUserPassword('');
     setPdfOwnerPassword('');
@@ -984,6 +992,21 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                     <span>On-Page Gap Analyzer</span>
                   </div>
                   <span className="bg-slate-800 text-[9px] text-slate-400 px-1.5 py-0.5 rounded font-mono font-bold uppercase shrink-0">Pro</span>
+                </button>
+
+                <button
+                  onClick={() => handleTabChange('video-recorder')}
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                    activeTab === 'video-recorder'
+                      ? 'bg-gradient-to-r from-rose-500/15 via-indigo-600/10 to-transparent border-l-4 border-rose-500 text-rose-400 font-semibold font-bold'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Video className="w-4 h-4 text-cyan-400" />
+                    <span>Screen &amp; Video Studio</span>
+                  </div>
+                  <span className="bg-sky-950 border border-sky-900 text-[9px] text-sky-400 px-1.5 py-0.5 rounded font-mono font-bold uppercase shrink-0">HD</span>
                 </button>
               </nav>
             </div>
@@ -1172,6 +1195,18 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                     >
                       <Activity className="w-4 h-4 text-sky-400" />
                       <span>On-Page Gap Analyzer</span>
+                    </button>
+
+                    <button
+                      onClick={() => handleTabChange('video-recorder')}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                        activeTab === 'video-recorder'
+                          ? 'bg-slate-900 border-l-4 border-rose-500 text-rose-400 font-semibold'
+                          : 'text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      <Video className="w-4 h-4 text-cyan-400" />
+                      <span>Screen &amp; Video Studio</span>
                     </button>
                   </nav>
 
@@ -1403,6 +1438,28 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                     </div>
                     <span className="text-[11px] font-mono text-sky-400 group-hover:underline flex items-center gap-1 mt-4">
                       Deploy Core Gap Audit <ArrowRight className="w-3.5 h-3.5" />
+                    </span>
+                  </div>
+
+                  {/* Screen Recorder & Video Studio Card */}
+                  <div 
+                    onClick={() => handleTabChange('video-recorder')}
+                    className="group bg-slate-950 p-5 rounded-xl border border-slate-800 hover:border-cyan-500/70 cursor-pointer hover:shadow-lg transition-all flex flex-col justify-between col-span-1 sm:col-span-2 lg:col-span-4"
+                  >
+                    <div>
+                      <div className="w-10 h-10 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center mb-4 border border-cyan-500/10 group-hover:bg-cyan-500 group-hover:text-black transition-all">
+                        <Video className="w-5 h-5" />
+                      </div>
+                      <h4 className="font-bold text-slate-100 group-hover:text-cyan-400 transition-colors flex items-center gap-1.5 font-sans">
+                        Screen Recorder &amp; Video Studio
+                        <span className="bg-sky-950/40 border border-sky-900/40 text-[10px] text-cyan-400 font-mono font-bold uppercase px-1.5 py-0.5 rounded leading-none">HD Studio</span>
+                      </h4>
+                      <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+                        Maximize time-on-site metrics and address user learning intention. Capture high-definition screencasts, browser windows, webcams, and microphone voiceovers completely client-side. Export recordings instantly to high-fidelity looping GIFs or compressed WebM formats without any cloud processing.
+                      </p>
+                    </div>
+                    <span className="text-[11px] font-mono text-cyan-400 group-hover:underline flex items-center gap-1 mt-4">
+                      Launch Video Studio <ArrowRight className="w-3.5 h-3.5" />
                     </span>
                   </div>
 
@@ -2410,19 +2467,50 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
 
                       {/* Loading block */}
                       {isOptimizing && (
-                        <div className="space-y-4 pt-4">
+                        <div className="space-y-4 pt-4 animate-fadeIn">
                           <div className="flex justify-between text-xs font-mono">
-                            <span className="text-slate-400">Processing file payload...</span>
-                            <span className="text-rose-400 font-bold">{optimizingProgress}%</span>
+                            <span className="text-slate-400">
+                              {isFileReading ? "Reading local file payload..." : "Optimizing document structure..."}
+                            </span>
+                            <span className="text-rose-400 font-bold">
+                              {isFileReading ? (
+                                <span className="inline-flex items-center gap-1">
+                                  Analyzing
+                                  <span className="animate-pulse">...</span>
+                                </span>
+                              ) : (
+                                `${optimizingProgress}%`
+                              )}
+                            </span>
                           </div>
-                          <div className="w-full bg-slate-900 h-2 rounded-full overflow-hidden border border-slate-800">
-                            <motion.div 
-                              className="bg-gradient-to-r from-rose-500 to-indigo-500 h-full"
-                              initial={{ width: 0 }}
-                              animate={{ width: `${optimizingProgress}%` }}
-                              transition={{ duration: 0.3 }}
-                            />
+                          <div className="w-full bg-slate-950 h-2.5 rounded-full overflow-hidden border border-slate-900 relative">
+                            {isFileReading ? (
+                              <motion.div 
+                                className="bg-gradient-to-r from-rose-500 via-pink-500 to-indigo-500 h-full rounded-full absolute top-0 left-0"
+                                style={{ width: "35%" }}
+                                animate={{
+                                  x: ["-20%", "220%"]
+                                }}
+                                transition={{
+                                  repeat: Infinity,
+                                  ease: "easeInOut",
+                                  duration: 1.4
+                                }}
+                              />
+                            ) : (
+                              <motion.div 
+                                className="bg-gradient-to-r from-rose-500 to-indigo-500 h-full absolute top-0 left-0"
+                                initial={{ width: "5%" }}
+                                animate={{ width: `${optimizingProgress}%` }}
+                                transition={{ duration: 0.3 }}
+                              />
+                            )}
                           </div>
+                          {isFileReading && (
+                            <p className="text-[10px] text-slate-500 font-mono text-center">
+                              Decoding binary headers and validating document security boundaries
+                            </p>
+                          )}
                         </div>
                       )}
 
@@ -2804,10 +2892,52 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                       <hr className="border-slate-850" />
 
                       {bookmarkedIds.length === 0 ? (
-                        <div className="text-center py-6 px-4 bg-slate-900/40 rounded-lg border border-dashed border-slate-850">
-                          <Bookmark className="w-5 h-5 text-slate-600 mx-auto mb-2" />
-                          <p className="text-[11px] text-slate-400 font-medium font-sans">Your reading list is empty</p>
-                          <p className="text-[10px] text-slate-500 mt-1">Click the bookmark icon on any guide to save it here.</p>
+                        <div className="space-y-4">
+                          <div className="text-center py-5 px-4 bg-slate-900/30 rounded-lg border border-dashed border-slate-850">
+                            <Bookmark className="w-5 h-5 text-slate-600 mx-auto mb-2" />
+                            <p className="text-[11px] text-slate-400 font-medium font-sans">Your reading list is empty</p>
+                            <p className="text-[10px] text-slate-500 mt-1">Click the bookmark icon on any guide to save it here.</p>
+                          </div>
+                          
+                          <div className="space-y-2 pt-1">
+                            <div className="flex items-center gap-1 text-[10px] uppercase tracking-wider font-mono font-bold text-rose-400">
+                              <Sparkles className="w-3 h-3 text-rose-400 shrink-0" />
+                              <span>You might like</span>
+                            </div>
+                            <div className="space-y-2">
+                              {AT_LEAST_20_ARTICLES.filter(art => 
+                                ['psychology-dark-patterns', 'seo-secrets-spa-no-backend', 'double-adsense-rpm-insider-tricks'].includes(art.id)
+                              ).map((art) => (
+                                <div
+                                  key={art.id}
+                                  onClick={() => setReadingArticle(art)}
+                                  className="group p-2.5 bg-slate-900/45 hover:bg-slate-900/90 rounded-lg border border-slate-850 hover:border-slate-700 transition-all cursor-pointer flex items-center justify-between gap-3"
+                                >
+                                  <div className="min-w-0 space-y-1">
+                                    <h5 className="font-semibold text-xs text-slate-300 group-hover:text-rose-400 transition-colors line-clamp-2 leading-snug">
+                                      {art.title}
+                                    </h5>
+                                    <div className="flex items-center gap-1.5 text-[9px] text-slate-500 font-mono">
+                                      <span className="text-rose-400/90 bg-rose-500/10 px-1 py-0.2 rounded text-[8px] border border-rose-500/10">Trending</span>
+                                      <span>•</span>
+                                      <span>{art.readTime}</span>
+                                    </div>
+                                  </div>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      toggleBookmark(art.id);
+                                    }}
+                                    className="p-1 px-1.5 text-slate-400 hover:text-white hover:bg-rose-500 bg-slate-900 hover:border-rose-400 border border-slate-800 rounded transition-all shrink-0 flex items-center gap-0.5"
+                                    title="Add to Reading List"
+                                  >
+                                    <Bookmark className="w-3 h-3" />
+                                    <span className="text-[9px] font-mono font-bold">+</span>
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
                         </div>
                       ) : (
                         <div className="space-y-2.5 max-h-[280px] overflow-y-auto pr-1">
@@ -3081,6 +3211,34 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                 </div>
 
                 <AIKeywordClusterTool />
+              </motion.div>
+            )}
+
+            {/* Tab: Screen Recorder & Video Studio */}
+            {activeTab === 'video-recorder' && (
+              <motion.div
+                key="video-recorder"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                className="space-y-6"
+              >
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-mono font-bold tracking-widest text-cyan-400 uppercase">Live Media Sandbox</span>
+                    <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Screen Recorder &amp; Video Studio</h2>
+                    <p className="text-slate-400 text-xs sm:text-sm">
+                      Record raw displays, individual browser application windows, customized webcams and mic voices. Quantize, dither, and export back to fluid inline GIF/WebM files completely client-side.
+                    </p>
+                  </div>
+                  
+                  <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-slate-900 border border-slate-850 rounded-xl">
+                    <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+                    <span className="text-[10px] font-mono text-slate-400">100% Client-Side Sandbox</span>
+                  </div>
+                </div>
+
+                <VideoRecorder />
               </motion.div>
             )}
 
