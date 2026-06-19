@@ -25,7 +25,9 @@ import {
   BookmarkCheck,
   Activity,
   Image as ImageIcon,
-  Video
+  Video,
+  Twitter,
+  Linkedin
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ActiveTab } from './types';
@@ -3431,6 +3433,68 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                               </p>
                             );
                           })}
+                        </div>
+
+                        {/* Quick Share Section */}
+                        <div className={`mt-8 p-4 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 border transition-colors ${
+                          readTheme === 'sepia'
+                            ? 'bg-[#1a1412] border-[#ece4db]/10'
+                            : readTheme === 'parchment'
+                            ? 'bg-stone-100 border-stone-250'
+                            : 'bg-slate-900/40 border-slate-850'
+                        }`}>
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+                            <span className={`text-[11px] font-mono uppercase font-bold tracking-wider ${
+                              readTheme === 'parchment' ? 'text-stone-600' : 'text-slate-400'
+                            }`}>Share this guide with your audience:</span>
+                          </div>
+                          
+                          <div className="flex flex-wrap items-center gap-2">
+                            {/* Twitter / X */}
+                            <button
+                              onClick={() => {
+                                const text = encodeURIComponent(`Check out "${readingArticle.title}" on Apex Utility - and learn how to optimize your web layouts!`);
+                                const url = encodeURIComponent(`https://apexutility.live/guides#${readingArticle.id}`);
+                                window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
+                              }}
+                              className="px-3 py-1.5 bg-[#1da1f2]/10 hover:bg-[#1da1f2]/20 text-[#1da1f2] border border-[#1da1f2]/20 hover:border-[#1da1f2]/40 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer hover:scale-105"
+                              title="Share on Twitter / X"
+                            >
+                              <Twitter className="w-3.5 h-3.5 fill-current" />
+                              <span>X / Twitter</span>
+                            </button>
+
+                            {/* LinkedIn */}
+                            <button
+                              onClick={() => {
+                                const url = encodeURIComponent(`https://apexutility.live/guides#${readingArticle.id}`);
+                                window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank');
+                              }}
+                              className="px-3 py-1.5 bg-[#0077b5]/10 hover:bg-[#0077b5]/20 text-[#0077b5] border border-[#0077b5]/20 hover:border-[#0077b5]/40 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer hover:scale-105"
+                              title="Share on LinkedIn"
+                            >
+                              <Linkedin className="w-3.5 h-3.5 fill-current" />
+                              <span>LinkedIn</span>
+                            </button>
+
+                            {/* Copy Link */}
+                            <button
+                              onClick={() => {
+                                navigator.clipboard.writeText(`https://apexutility.live/guides#${readingArticle.id}`);
+                                alert("Article deep link copied to clipboard successfully!");
+                              }}
+                              className={`px-3 py-1.5 text-xs font-bold transition-all flex items-center gap-1.5 rounded-lg border cursor-pointer hover:scale-105 ${
+                                readTheme === 'parchment'
+                                  ? 'bg-stone-200/50 hover:bg-stone-200 text-stone-850 border-stone-300'
+                                  : 'bg-slate-950 hover:bg-slate-900 text-slate-300 border-slate-800'
+                              }`}
+                              title="Copy Article Deep Link"
+                            >
+                              <Copy className="w-3.5 h-3.5" />
+                              <span>Copy Link</span>
+                            </button>
+                          </div>
                         </div>
 
                         {/* 5. In-Flow Action Buttons (Footer elements merged seamlessly) */}
