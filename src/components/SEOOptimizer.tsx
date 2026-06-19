@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { jsPDF } from 'jspdf';
 import { 
   Sparkles, 
   Search, 
@@ -18,7 +19,8 @@ import {
   BookOpen, 
   Cpu, 
   CheckCircle2,
-  Bookmark
+  Bookmark,
+  FileDown
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -530,6 +532,343 @@ export default function SEOOptimizer() {
     return { label: 'Perfect Length', clr: 'text-emerald-400', progressClr: 'bg-emerald-500', width: (len / 160) * 100 };
   }, [metaDescription]);
 
+  // Downloadable structured HTML PDF report of all identified on-page optimization issues
+  const generatePDFReport = () => {
+    try {
+      const doc = new jsPDF('p', 'pt', 'letter');
+      const pageWidth = 612;
+      const pageHeight = 792;
+      const margin = 54;
+      const maxW = pageWidth - margin * 2; // 504 pt
+      
+      let pageNum = 1;
+      let y = margin;
+      
+      const drawHeaderAndFooter = () => {
+        // Draw Running Header
+        doc.setFont('Helvetica', 'bold');
+        doc.setFontSize(8);
+        doc.setTextColor(16, 185, 129); // Emerald-500
+        doc.text("APEX MARKETING STUDIO  |  ON-PAGE SEO AUDIT REPORT", margin, 35);
+        
+        doc.setFont('Helvetica', 'normal');
+        doc.setFontSize(7);
+        doc.setTextColor(115, 115, 115);
+        doc.text(`Generated: ${new Date().toLocaleDateString()}`, pageWidth - margin, 35, { align: 'right' });
+        
+        doc.setLineWidth(0.75);
+        doc.setDrawColor(226, 232, 240); // Slate-200
+        doc.line(margin, 42, pageWidth - margin, 42);
+        
+        // Draw Running Footer
+        doc.setFont('Helvetica', 'normal');
+        doc.setFontSize(7);
+        doc.text(`Page ${pageNum}`, pageWidth / 2, pageHeight - 35, { align: 'center' });
+        doc.text(`Target Keyword: "${focusKeyword}"`, margin, pageHeight - 35);
+        doc.text("Confidential & Proprietary", pageWidth - margin, pageHeight - 35, { align: 'right' });
+      };
+      
+      const checkPageBreak = (neededHeight: number) => {
+        if (y + neededHeight > pageHeight - margin - 35) {
+          doc.addPage();
+          pageNum++;
+          y = 65; // Reset to page start (leaving space after running header line)
+          drawHeaderAndFooter();
+        }
+      };
+
+      // Draw initial page decoration
+      drawHeaderAndFooter();
+      y = 70;
+
+      // Report Header Block
+      doc.setFillColor(15, 23, 42); // bg slate-900 (deep dark background)
+      doc.rect(margin, y, maxW, 55, 'F');
+      
+      doc.setFont('Helvetica', 'bold');
+      doc.setFontSize(14);
+      doc.setTextColor(255, 255, 255);
+      doc.text("ON-PAGE SEO OPTIMIZATION REPORT", margin + 15, y + 25);
+      
+      doc.setFont('Helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(16, 185, 129); // emerald
+      doc.text(`Automated Real-Time Audit Summary`, margin + 15, y + 42);
+      
+      y += 75;
+
+      // Metadata/Summary Block Box
+      checkPageBreak(85);
+      doc.setFillColor(248, 250, 252); // grey-50
+      doc.rect(margin, y, maxW, 75, 'F');
+      doc.setDrawColor(226, 232, 240);
+      doc.setLineWidth(1);
+      doc.rect(margin, y, maxW, 75, 'S');
+
+      doc.setFont('Helvetica', 'bold');
+      doc.setFontSize(9);
+      doc.setTextColor(30, 41, 59);
+      doc.text("AUDIT TARGET PARAMETERS", margin + 12, y + 18);
+
+      // Grid stats: Focus keyword, Density targets, Word counts
+      doc.setFont('Helvetica', 'normal');
+      doc.setFontSize(8.5);
+      doc.setTextColor(71, 85, 105);
+      doc.text(`Focus Keyphrase:`, margin + 12, y + 36);
+      doc.text(`Target Density Bounds:`, margin + 12, y + 48);
+      doc.text(`Document Volume:`, margin + 12, y + 60);
+
+      doc.setFont('Helvetica', 'bold');
+      doc.setTextColor(15, 23, 42);
+      doc.text(`"${focusKeyword || 'None specified'}"`, margin + 125, y + 36);
+      doc.text(`${targetDensityMin}% - ${targetDensityMax}%`, margin + 125, y + 48);
+      doc.text(`${metrics.wordCount} Words / ${metrics.charCount} Characters`, margin + 125, y + 60);
+
+      // Right column metrics
+      doc.setFont('Helvetica', 'normal');
+      doc.setTextColor(71, 85, 105);
+      doc.text(`Readability Index:`, margin + 290, y + 36);
+      doc.text(`Measured Grade level:`, margin + 290, y + 48);
+      doc.text(`Keyword Density:`, margin + 290, y + 60);
+
+      doc.setFont('Helvetica', 'bold');
+      doc.setTextColor(15, 23, 42);
+      doc.text(`${metrics.readingEaseScore} (${metrics.readabilityCategory})`, margin + 395, y + 36);
+      doc.text(`U.S. Grade ${metrics.roundedGradeLevel}`, margin + 395, y + 48);
+      doc.text(`${metrics.roundedDensity}% (${metrics.keywordCount} matches)`, margin + 395, y + 60);
+
+      y += 95;
+
+      // Section 1: Detailed Checklist Audits
+      checkPageBreak(50);
+      doc.setFont('Helvetica', 'bold');
+      doc.setFontSize(11);
+      doc.setTextColor(15, 23, 42);
+      doc.text("ON-PAGE TECHNICAL CHECKLIST STATUS", margin, y);
+      y += 6;
+      doc.setLineWidth(1.5);
+      doc.setDrawColor(16, 185, 129); // emerald divider
+      doc.line(margin, y, margin + 210, y);
+      y += 18;
+
+      // Render Each Check item
+      metrics.checks.forEach((item) => {
+        // Evaluate comment lines wrapping dynamically
+        const checkLabel = `${item.label}`;
+        const checkFeedback = `${item.feedback}`;
+        const feedbackLines = doc.splitTextToSize(checkFeedback, maxW - 75);
+        const cellHeight = 28 + feedbackLines.length * 11;
+        
+        checkPageBreak(cellHeight);
+        
+        // draw tick or warning box
+        doc.setFillColor(item.pass ? 240 : 254, item.pass ? 253 : 242, item.pass ? 250 : 242); // emerald-50 or rose-50 background
+        doc.setDrawColor(item.pass ? 167 : 254, item.pass ? 243 : 202, item.pass ? 216 : 202); // emerald-200 or rose-200 brand border
+        doc.rect(margin, y, maxW, cellHeight - 6, 'DF');
+
+        // Draw status badge
+        doc.setFont('Helvetica', 'bold');
+        doc.setFontSize(7.5);
+        if (item.pass) {
+          doc.setFillColor(16, 185, 129); // emerald solid
+          doc.rect(margin + 12, y + 10, 36, 13, 'F');
+          doc.setTextColor(255, 255, 255);
+          doc.text("PASSED", margin + 17, y + 19.5);
+        } else {
+          doc.setFillColor(239, 68, 68); // rose/red solid
+          doc.rect(margin + 12, y + 10, 36, 13, 'F');
+          doc.setTextColor(255, 255, 255);
+          doc.text("ISSUE", margin + 20, y + 19.5);
+        }
+
+        // Title text next to status
+        doc.setFont('Helvetica', 'bold');
+        doc.setFontSize(9);
+        doc.setTextColor(15, 23, 42);
+        doc.text(checkLabel, margin + 58, y + 19);
+
+        // Feedback narrative
+        doc.setFont('Helvetica', 'normal');
+        doc.setFontSize(8);
+        doc.setTextColor(71, 85, 105);
+        feedbackLines.forEach((fl: string, flIdx: number) => {
+          doc.text(fl, margin + 58, y + 33 + flIdx * 11);
+        });
+
+        y += cellHeight;
+      });
+
+      y += 15;
+
+      // Section 2: Density and Distribution Audit Recommendations
+      checkPageBreak(50);
+      doc.setFont('Helvetica', 'bold');
+      doc.setFontSize(11);
+      doc.setTextColor(15, 23, 42);
+      doc.text("DENSITY & DISTRIBUTION AUDIT", margin, y);
+      y += 6;
+      doc.setLineWidth(1.5);
+      doc.setDrawColor(16, 185, 129);
+      doc.line(margin, y, margin + 185, y);
+      y += 18;
+
+      // Write recommendations 
+      metrics.densitySuggestions.forEach((suggestion) => {
+        const wrapList = doc.splitTextToSize(suggestion.recommendation, maxW - 20);
+        const ruleHeight = wrapList.length * 11 + 14;
+        checkPageBreak(ruleHeight);
+
+        // Fill background based on severity
+        if (suggestion.type === 'success') {
+          doc.setFillColor(240, 253, 250); // Teal 50
+          doc.setDrawColor(204, 251, 241);
+        } else if (suggestion.type === 'warning') {
+          doc.setFillColor(254, 253, 237); // Amber 50
+          doc.setDrawColor(254, 243, 199);
+        } else {
+          doc.setFillColor(254, 242, 242); // Rose 50
+          doc.setDrawColor(254, 226, 226);
+        }
+        doc.rect(margin, y, maxW, ruleHeight - 4, 'DF');
+
+        doc.setFont('Helvetica', 'bold');
+        doc.setFontSize(8);
+        if (suggestion.type === 'success') {
+          doc.setTextColor(13, 148, 136); // Teal-600
+          doc.text("[SUGGESTION PASSED]", margin + 10, y + 13);
+        } else if (suggestion.type === 'warning') {
+          doc.setTextColor(217, 119, 6); // Amber-600
+          doc.text("[DIAGNOSTIC WARNING]", margin + 10, y + 13);
+        } else {
+          doc.setTextColor(220, 38, 38); // Red-600
+          doc.text("[OPTIMIZATION ALERT]", margin + 10, y + 13);
+        }
+
+        doc.setFont('Helvetica', 'normal');
+        doc.setFontSize(8);
+        doc.setTextColor(51, 65, 85);
+        wrapList.forEach((line: string, lineIdx: number) => {
+          doc.text(line, margin + 10, y + 24 + lineIdx * 11);
+        });
+
+        y += ruleHeight;
+      });
+
+      y += 15;
+
+      // Section 3: Metadata audit summaries
+      checkPageBreak(50);
+      doc.setFont('Helvetica', 'bold');
+      doc.setFontSize(11);
+      doc.setTextColor(15, 23, 42);
+      doc.text("METADATA PREVIEW ANALYSIS", margin, y);
+      y += 6;
+      doc.setLineWidth(1.5);
+      doc.setDrawColor(16, 185, 129);
+      doc.line(margin, y, margin + 175, y);
+      y += 18;
+
+      // Evaluated SEO Title row
+      doc.setFont('Helvetica', 'bold');
+      doc.setFontSize(8.5);
+      doc.setTextColor(30, 41, 59);
+      doc.text("Proposed SEO Title Preview (Title Tag):", margin, y);
+      y += 13;
+      
+      const wrapTitle = doc.splitTextToSize(metaTitle || "No Title entered", maxW - 20);
+      doc.setFont('Helvetica', 'italic');
+      doc.setFontSize(8.5);
+      doc.setTextColor(5, 150, 105); // emerald green indication
+      wrapTitle.forEach((line: string) => {
+        doc.text(line, margin + 10, y);
+        y += 11;
+      });
+      y += 4;
+      
+      doc.setFont('Helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(100, 116, 139);
+      doc.text(`Length: ${metaTitle.length} characters | Analysis: ${currentMetaTitleLengthStatus.label}`, margin, y);
+      y += 18;
+
+      // Evaluated SEO Description row
+      checkPageBreak(65);
+      doc.setFont('Helvetica', 'bold');
+      doc.setFontSize(8.5);
+      doc.setTextColor(30, 41, 59);
+      doc.text("Proposed Meta Description Preview:", margin, y);
+      y += 13;
+
+      const wrapDesc = doc.splitTextToSize(metaDescription || "No Description entered", maxW - 20);
+      doc.setFont('Helvetica', 'italic');
+      doc.setFontSize(8.5);
+      doc.setTextColor(71, 85, 105);
+      wrapDesc.forEach((line: string) => {
+        doc.text(line, margin + 10, y);
+        y += 11;
+      });
+      y += 4;
+
+      doc.setFont('Helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(100, 116, 139);
+      doc.text(`Length: ${metaDescription.length} characters | Analysis: ${currentMetaDescriptionLengthStatus.label}`, margin, y);
+      y += 24;
+
+      // Section 4: Secondary distribution of topics inside copy
+      checkPageBreak(50);
+      doc.setFont('Helvetica', 'bold');
+      doc.setFontSize(11);
+      doc.setTextColor(15, 23, 42);
+      doc.text("SECONDARY SEMANTIC TOPICS & DENSITY", margin, y);
+      y += 6;
+      doc.setLineWidth(1.5);
+      doc.setDrawColor(16, 185, 129);
+      doc.line(margin, y, margin + 250, y);
+      y += 15;
+
+      doc.setFont('Helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(100, 116, 139);
+      doc.text("Top secondary terms discovered in your copy (excluding stop words and target keyword):", margin, y);
+      y += 15;
+
+      // Frequency items loop table
+      doc.setFillColor(241, 245, 249); // Header slate-100
+      doc.rect(margin, y, maxW, 18, 'F');
+      doc.setFont('Helvetica', 'bold');
+      doc.setFontSize(8);
+      doc.setTextColor(51, 65, 85);
+      doc.text("RANK & SEMANTIC TERM", margin + 10, y + 12);
+      doc.text("OCCURRENCE COUNT", margin + 220, y + 12);
+      doc.text("MEASURED DENSITY", margin + 380, y + 12);
+      y += 18;
+
+      metrics.frequentKeywordsList.forEach((item, idx) => {
+        checkPageBreak(18);
+        doc.setFillColor(idx % 2 === 0 ? 255 : 248, idx % 2 === 0 ? 255 : 250, idx % 2 === 0 ? 255 : 252); // Alt rows gray-50
+        doc.rect(margin, y, maxW, 18, 'F');
+        doc.setDrawColor(241, 245, 249);
+        doc.setLineWidth(1);
+        doc.line(margin, y + 18, margin + maxW, y + 18);
+
+        doc.setFont('Helvetica', 'normal');
+        doc.setFontSize(8);
+        doc.setTextColor(15, 23, 42);
+        doc.text(`#${idx + 1}  ${item.word}`, margin + 10, y + 12);
+        doc.text(`${item.count} times`, margin + 220, y + 12);
+        doc.text(`${item.density.toFixed(2)}%`, margin + 380, y + 12);
+        y += 18;
+      });
+
+      // Saved Document download invocation
+      doc.save(`seo_audit_${focusKeyword.toLowerCase().replace(/[^a-z0-9]+/g, '_') || 'document'}.pdf`);
+    } catch (err: any) {
+      console.error("PDF generation failure error", err);
+      alert(`Could not compile audit PDF document: ${err.message || err}`);
+    }
+  };
+
   return (
     <div id="seo-optimizer-dashboard" className="max-w-[1400px] mx-auto p-4 md:p-6 lg:p-8 space-y-6">
       
@@ -550,31 +889,43 @@ export default function SEOOptimizer() {
           </p>
         </div>
         
-        {/* Reset / Standard defaults */}
-        <button 
-          id="btn-reset-seo"
-          onClick={() => {
-            setText(`# Crafting the Ultimate User Experience\n\nIn the modern age, building a successful website requires an intimate understanding of both human behavior and search engine algorithms. By prioritizing professional typography, elegant color palettes, and responsive layouts, you can captivate your target audience immediately.\n\nHistorically, digital planners stuffed articles full of repetitive, low-value phrases. Today, this strategy backfires dramatically because indexing spiders are highly intelligent. They utilize deep machine-learning models to judge whether content provides real utility. Outstanding, high-contrast visual hierarchies coupled with readable copy are paramount to rank effectively. Use precise, active sentences to convey maximum authority.`);
-            setFocusKeyword('UX design');
-            setMetaTitle('UX Design and Styling Best Practices | Apex processing Labs');
-            setMetaDescription('Discover how to craft gorgeous responsive layouts and premium visual assets. Enhance search engine readability with SEO planning tools.');
-            setAiSuggestions([]);
-            setAiApiKeyMissing(false);
-          }}
-          className="flex items-center gap-2 px-4 py-2 border border-brand-border/40 hover:border-brand-border/80 bg-brand-surface/40 hover:bg-brand-surface/80 rounded-xl text-xs text-gray-400 hover:text-white transition duration-200 font-mono tracking-wider"
-        >
-          <RotateCcw className="w-3.5 h-3.5" />
-          {(() => {
-            const m: Record<string, string> = {
-              en: 'RESTORE TEMPLATE',
-              es: 'RESTAURAR PLANTILLA',
-              fr: 'RESTAURER LE MODÈLE',
-              de: 'VORLAGE WIEDERHERSTELLEN',
-              pt: 'RESTAURAR MODELO'
-            };
-            return m[language] || m.en;
-          })()}
-        </button>
+        {/* Actions Button Bar */}
+        <div className="flex items-center gap-3 flex-wrap">
+          <button
+            id="btn-download-pdf-report"
+            onClick={generatePDFReport}
+            className="flex items-center gap-2 px-4 py-2 border border-emerald-500/30 hover:border-emerald-500 bg-emerald-500/10 hover:bg-emerald-500/20 rounded-xl text-xs text-emerald-400 hover:text-white transition duration-200 font-mono tracking-wider shadow-lg shadow-emerald-500/5 cursor-pointer"
+          >
+            <FileDown className="w-3.5 h-3.5 animate-bounce" />
+            DOWNLOAD AUDIT REPORT (PDF)
+          </button>
+
+          {/* Reset / Standard defaults */}
+          <button 
+            id="btn-reset-seo"
+            onClick={() => {
+              setText(`# Crafting the Ultimate User Experience\n\nIn the modern age, building a successful website requires an intimate understanding of both human behavior and search engine algorithms. By prioritizing professional typography, elegant color palettes, and responsive layouts, you can captivate your target audience immediately.\n\nHistorically, digital planners stuffed articles full of repetitive, low-value phrases. Today, this strategy backfires dramatically because indexing spiders are highly intelligent. They utilize deep machine-learning models to judge whether content provides real utility. Outstanding, high-contrast visual hierarchies coupled with readable copy are paramount to rank effectively. Use precise, active sentences to convey maximum authority.`);
+              setFocusKeyword('UX design');
+              setMetaTitle('UX Design and Styling Best Practices | Apex processing Labs');
+              setMetaDescription('Discover how to craft gorgeous responsive layouts and premium visual assets. Enhance search engine readability with SEO planning tools.');
+              setAiSuggestions([]);
+              setAiApiKeyMissing(false);
+            }}
+            className="flex items-center gap-2 px-4 py-2 border border-brand-border/40 hover:border-brand-border/80 bg-brand-surface/40 hover:bg-brand-surface/80 rounded-xl text-xs text-gray-400 hover:text-white transition duration-200 font-mono tracking-wider cursor-pointer"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            {(() => {
+              const m: Record<string, string> = {
+                en: 'RESTORE TEMPLATE',
+                es: 'RESTAURAR PLANTILLA',
+                fr: 'RESTAURER LE MODÈLE',
+                de: 'VORLAGE WIEDERHERSTELLEN',
+                pt: 'RESTAURAR MODELO'
+              };
+              return m[language] || m.en;
+            })()}
+          </button>
+        </div>
       </div>
 
       {/* AI Key Missing Safety Banner */}
