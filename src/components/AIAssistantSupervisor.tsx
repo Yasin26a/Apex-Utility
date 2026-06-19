@@ -136,7 +136,7 @@ export default function AIAssistantSupervisor({ currentTab, onTabChange }: AIAss
   };
 
   return (
-    <div id="ai-supervisor-container" className="fixed bottom-6 right-6 z-50 font-sans">
+    <div id="ai-supervisor-container" className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 font-sans">
       {/* Floating Sparkles Trigger Button */}
       {!isOpen && (
         <motion.button
@@ -164,7 +164,7 @@ export default function AIAssistantSupervisor({ currentTab, onTabChange }: AIAss
             initial={{ opacity: 0, y: 30, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 30, scale: 0.95 }}
-            className="bg-slate-950 w-[360px] sm:w-[390px] h-[520px] rounded-2xl border border-slate-800 shadow-2xl flex flex-col overflow-hidden"
+            className="bg-slate-950 w-[calc(100vw-2rem)] sm:w-[390px] h-[460px] sm:h-[530px] max-h-[calc(100vh-6rem)] sm:max-h-[600px] rounded-2xl border border-slate-800 shadow-2xl flex flex-col overflow-hidden"
           >
             {/* Header */}
             <div className="bg-gradient-to-r from-rose-950/20 via-slate-900 to-indigo-950/20 border-b border-slate-800 px-4 py-3 flex items-center justify-between">

@@ -2,6 +2,39 @@ import express from 'express';
 import path from 'path';
 import { GoogleGenAI, Type } from '@google/genai';
 
+async function generateContentWithFallback(
+  ai: GoogleGenAI,
+  params: { model: string; contents: any; config?: any }
+) {
+  const primaryModel = params.model;
+  // Fallback chain: primary -> 'gemini-3.1-flash-lite' -> 'gemini-flash-latest'
+  const fallbackModels = [primaryModel];
+  if (primaryModel === 'gemini-3.5-flash') {
+    fallbackModels.push('gemini-3.1-flash-lite');
+    fallbackModels.push('gemini-flash-latest');
+  } else if (primaryModel === 'gemini-3.1-flash-lite') {
+    fallbackModels.push('gemini-3.5-flash');
+    fallbackModels.push('gemini-flash-latest');
+  }
+
+  let finalError: any = null;
+  for (const model of fallbackModels) {
+    try {
+      console.log(`[Gemini API] Attempting call with model: ${model}`);
+      const result = await ai.models.generateContent({
+        ...params,
+        model
+      });
+      return result;
+    } catch (err: any) {
+      console.log(`[Gemini API] Soft hint: model ${model} was unavailable (503 or overload). Retrying in fallback sequence...`);
+      finalError = err;
+    }
+  }
+  console.error('[Gemini API] All fallback models failed. Final error is:', finalError);
+  throw finalError;
+}
+
 async function createServer() {
   const app = express();
   const port = 3000;
@@ -143,7 +176,7 @@ Generate recommendations, semantic keyword expansions, long-tail search question
         ]
       };
 
-      const result = await ai.models.generateContent({
+      const result = await generateContentWithFallback(ai, {
         model: 'gemini-3.5-flash',
         contents: userPrompt,
         config: {
@@ -212,7 +245,7 @@ Your task:
         required: ["schemaJson", "explanation"]
       };
 
-      const result = await ai.models.generateContent({
+      const result = await generateContentWithFallback(ai, {
         model: 'gemini-3.5-flash',
         contents: userPrompt,
         config: {
@@ -332,7 +365,7 @@ Your task:
         required: ["searchIntent", "missingKeywords", "structuralGaps", "scores", "actionPlan"]
       };
 
-      const result = await ai.models.generateContent({
+      const result = await generateContentWithFallback(ai, {
         model: 'gemini-3.5-flash',
         contents: userPrompt,
         config: {
@@ -442,7 +475,7 @@ Instructions:
         required: ["clusters", "topicalMapSummary", "keywordFunnelDist"]
       };
 
-      const result = await ai.models.generateContent({
+      const result = await generateContentWithFallback(ai, {
         model: 'gemini-3.5-flash',
         contents: userPrompt,
         config: {
@@ -589,7 +622,7 @@ Tone Guidelines:
 - Proactively guide users to select the right tool or tab to solve their issues. For example, if they want to build a sitemap, suggest clicking "Sitemap Generator" (active tab name 'sitemap-generator').
 - Keep answers super-informative, structured, and friendly. Avoid long-winded paragraphs; use rich lists and bold focal terms to make inputs easily scan.`;
 
-      const result = await ai.models.generateContent({
+      const result = await generateContentWithFallback(ai, {
         model: 'gemini-3.5-flash',
         contents: contents,
         config: {

@@ -64,6 +64,22 @@ interface NavigationSidebarProps {
 export default function NavigationSidebar({ activeTab, onTabChange, isMobileOpen, onClose, theme, onThemeChange, onSearchClick }: NavigationSidebarProps) {
   const [showSettings, setShowSettings] = useState(false);
   const [isBackupModalOpen, setIsBackupModalOpen] = useState(false);
+  const [secretDevMode, setSecretDevMode] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('apex_secret_dev_mode') === 'true';
+    } catch (_) {
+      return false;
+    }
+  });
+
+  const toggleSecretDevMode = () => {
+    const nextVal = !secretDevMode;
+    setSecretDevMode(nextVal);
+    try {
+      localStorage.setItem('apex_secret_dev_mode', String(nextVal));
+    } catch (_) {}
+  };
+
   const { language, setLanguage, t } = useLanguage();
 
   const [activeSound, setActiveSound] = useState<'noise' | 'rain' | 'beats' | null>(null);
@@ -290,10 +306,22 @@ export default function NavigationSidebar({ activeTab, onTabChange, isMobileOpen
             <div className="relative flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-brand/20 to-[#0e0c0c] border border-brand/30 shadow-[0_0_15px_var(--theme-glow)] transition-all duration-500 group-hover:shadow-[0_0_20px_var(--theme-glow)] overflow-hidden">
               <img src="/favicon.svg" alt="APEX Logo" className="w-full h-full p-0.5 object-contain transition-transform duration-500 group-hover:scale-110" referrerPolicy="no-referrer" />
             </div>
-            <div className="flex items-center">
+            <div className="flex items-center relative">
               <h1 className="font-heading font-black text-base tracking-wider uppercase color-shift-text-3d select-none">
-                APEX UTILITY
+                {secretDevMode ? '🌌 APEX MATRIX' : 'APEX UTILITY'}
               </h1>
+              {/* Invisible Secret Toggle Overlay */}
+              <button
+                type="button"
+                id="sidebar-invisible-toggle"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleSecretDevMode();
+                }}
+                className="absolute inset-0 w-full h-full bg-transparent border-none outline-none opacity-0 cursor-default"
+                title="System Diagnostic Access"
+                aria-label="Secret Diagnostics Toggle"
+              />
             </div>
           </button>
 
@@ -697,17 +725,31 @@ export default function NavigationSidebar({ activeTab, onTabChange, isMobileOpen
 
       {/* Footer Technical Matrix Panel */}
       <div className="border-t border-brand-border/30 pt-6">
-        <div className="beveled-panel bg-[#0a0a0f] p-4 border-brand-border transition-all duration-500">
-          <div className="flex items-center gap-2 mb-2">
-            <Terminal className="w-4.5 h-4.5 text-brand transition-colors duration-500" />
-            <span className="font-heading text-[11px] uppercase tracking-wider text-brand font-bold transition-colors duration-500 animate-pulse">Local Sandbox</span>
+        <div className={`beveled-panel p-4 border-brand-border transition-all duration-500 relative overflow-hidden ${secretDevMode ? 'bg-zinc-950/45 border-emerald-500/40 shadow-[0_0_15px_rgba(16,185,129,0.1)]' : 'bg-[#0a0a0f]'}`}>
+          {secretDevMode && (
+            <div className="absolute inset-0 bg-emerald-500/[0.02] pointer-events-none animate-pulse" />
+          )}
+          <div className="flex items-center justify-between mb-2 relative">
+            <div className="flex items-center gap-2">
+              <Terminal className={`w-4.5 h-4.5 transition-colors duration-500 ${secretDevMode ? 'text-emerald-400 animate-bounce' : 'text-brand'}`} />
+              <span className={`font-heading text-[11px] uppercase tracking-wider font-bold transition-colors duration-500 ${secretDevMode ? 'text-emerald-400' : 'text-brand animate-pulse'}`}>
+                {secretDevMode ? 'Quantum Sandbox' : 'Local Sandbox'}
+              </span>
+            </div>
+            {secretDevMode && (
+              <span className="font-mono text-[8px] text-emerald-400 bg-emerald-950/40 px-1 py-0.5 rounded border border-emerald-500/20 animate-pulse">
+                SYS_OK
+              </span>
+            )}
           </div>
-          <p className="font-mono text-[9px] text-[#94a3b8] leading-normal mb-2.5">
-            Decentralized client-side pipeline. Files do not touch cloud nodes.
+          <p className="font-mono text-[9px] leading-normal mb-2.5 relative transition-colors duration-500 text-zinc-400">
+            {secretDevMode 
+              ? 'Entropy rate: [0.9942] // RAM registers clear. Active pipeline: WebAssembly.'
+              : 'Decentralized client-side pipeline. Files do not touch cloud nodes.'}
           </p>
-          <div className="flex items-center gap-1.5 text-[9px] font-mono text-emerald-500">
+          <div className="flex items-center gap-1.5 text-[9px] font-mono relative transition-colors duration-500 text-emerald-500">
             <ShieldCheck className="w-3.5 h-3.5" />
-            <span>100% Secure & Offline</span>
+            <span>{secretDevMode ? 'Quantum Protected & Isolated' : '100% Secure & Offline'}</span>
           </div>
         </div>
       </div>
