@@ -360,6 +360,15 @@ export default function App() {
     }
   }, [location]);
 
+  // Scroll to top of both window and the main scroll panel whenever the active tab changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    const mainEl = document.getElementById('main-content-window');
+    if (mainEl) {
+      mainEl.scrollTo({ top: 0, behavior: 'instant' });
+    }
+  }, [activeTab]);
+
   const handleTabChange = (tab: ActiveTab) => {
     setActiveTab(tab);
     navigate(tab === 'dashboard' ? '/' : `/${tab}`);
@@ -875,7 +884,7 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
   };
 
   return (
-    <div className="min-h-screen bg-black text-zinc-100 flex flex-col font-sans selection:bg-brand selection:text-white">
+    <div className="h-screen overflow-hidden bg-black text-zinc-100 flex flex-col font-sans selection:bg-brand selection:text-white">
       {/* Header Bar */}
       <header className="bg-[#050507]/95 backdrop-blur-md border-b border-red-950/45 sticky top-0 z-50 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -916,10 +925,10 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
       </header>
 
       {/* Main Layout Area */}
-      <div className="flex-1 flex relative">
+      <div className="flex-1 flex relative overflow-hidden">
         
         {/* Navigation Sidebar (Desktop view) */}
-        <aside className="hidden md:block w-72 bg-black border-r border-red-950/45 p-6 flex-shrink-0 flex flex-col justify-between">
+        <aside className="hidden md:block w-72 bg-black border-r border-red-950/45 p-6 flex-shrink-0 flex flex-col justify-between h-full overflow-y-auto">
           <div className="space-y-6">
             <div>
               <p className="px-3 text-[11px] font-mono text-zinc-500 font-semibold tracking-widest uppercase mb-3">

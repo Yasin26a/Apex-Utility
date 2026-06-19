@@ -62,91 +62,92 @@ export default function ImageToPDF() {
   // Default parameters
   const { activeSettings, updateActiveSettings } = usePresets();
 
-  const [options, setOptions] = useState<MergeOptions>({
+  const [options, setOptions] = useState<MergeOptions>(() => ({
     fileName: 'Apex_Merged_Document',
-    pageSize: 'A4',
-    orientation: 'auto',
-    margin: 'none',
-    stretchMode: 'fit',
-    quality: 0.85,
+    pageSize: activeSettings?.pdfPageSize || 'A4',
+    orientation: activeSettings?.pdfOrientation || 'auto',
+    margin: activeSettings?.pdfMargin || 'none',
+    stretchMode: activeSettings?.pdfStretchMode || 'fit',
+    quality: activeSettings?.pdfQuality !== undefined ? activeSettings.pdfQuality : 0.85,
     title: 'Custom Merged Document',
     author: 'APEX Labs Forge',
     subject: 'Image Compilation Portfolio',
     creator: 'APEX UTILITY Forge Engine v2',
-    watermarkType: 'none',
-    watermarkText: 'CONFIDENTIAL',
-    watermarkColor: '#ef4444',
-    watermarkOpacity: 0.25,
+    watermarkType: activeSettings?.pdfWatermarkType || 'none',
+    watermarkText: activeSettings?.pdfWatermarkText || 'CONFIDENTIAL',
+    watermarkColor: activeSettings?.pdfWatermarkColor || '#ef4444',
+    watermarkOpacity: activeSettings?.pdfWatermarkOpacity !== undefined ? activeSettings.pdfWatermarkOpacity : 0.25,
     watermarkRotation: -45,
-    watermarkPosition: 'center'
-  });
+    watermarkPosition: activeSettings?.pdfWatermarkPosition || 'center'
+  }));
+
+  const updateOption = useCallback(<K extends keyof MergeOptions>(key: K, value: MergeOptions[K]) => {
+    setOptions(prev => ({ ...prev, [key]: value }));
+    
+    // Sync to active settings if applicable
+    const mapping: Record<string, keyof SettingsPreset['settings']> = {
+      pageSize: 'pdfPageSize',
+      orientation: 'pdfOrientation',
+      margin: 'pdfMargin',
+      stretchMode: 'pdfStretchMode',
+      quality: 'pdfQuality',
+      watermarkType: 'pdfWatermarkType',
+      watermarkText: 'pdfWatermarkText',
+      watermarkColor: 'pdfWatermarkColor',
+      watermarkOpacity: 'pdfWatermarkOpacity',
+      watermarkPosition: 'pdfWatermarkPosition',
+    };
+
+    const settingsKey = mapping[key as string];
+    if (settingsKey && activeSettings) {
+      updateActiveSettings({ [settingsKey]: value as any });
+    }
+  }, [activeSettings, updateActiveSettings]);
 
   // Sync state with active settings when preset changes
   useEffect(() => {
-    setOptions((prev) => ({
-      ...prev,
-      pageSize: activeSettings.pdfPageSize,
-      orientation: activeSettings.pdfOrientation,
-      margin: activeSettings.pdfMargin,
-      stretchMode: activeSettings.pdfStretchMode,
-      quality: activeSettings.pdfQuality,
-      watermarkType: activeSettings.pdfWatermarkType,
-      watermarkText: activeSettings.pdfWatermarkText,
-      watermarkColor: activeSettings.pdfWatermarkColor,
-      watermarkOpacity: activeSettings.pdfWatermarkOpacity,
-      watermarkPosition: activeSettings.pdfWatermarkPosition,
-    }));
-  }, [
-    activeSettings.pdfPageSize,
-    activeSettings.pdfOrientation,
-    activeSettings.pdfMargin,
-    activeSettings.pdfStretchMode,
-    activeSettings.pdfQuality,
-    activeSettings.pdfWatermarkType,
-    activeSettings.pdfWatermarkText,
-    activeSettings.pdfWatermarkColor,
-    activeSettings.pdfWatermarkOpacity,
-    activeSettings.pdfWatermarkPosition,
-  ]);
-
-  // Sync back local option changes to central active settings
-  useEffect(() => {
-    if (
-      options.pageSize !== activeSettings.pdfPageSize ||
-      options.orientation !== activeSettings.pdfOrientation ||
-      options.margin !== activeSettings.pdfMargin ||
-      options.stretchMode !== activeSettings.pdfStretchMode ||
-      options.quality !== activeSettings.pdfQuality ||
-      options.watermarkType !== activeSettings.pdfWatermarkType ||
-      options.watermarkText !== activeSettings.pdfWatermarkText ||
-      options.watermarkColor !== activeSettings.pdfWatermarkColor ||
-      options.watermarkOpacity !== activeSettings.pdfWatermarkOpacity ||
-      options.watermarkPosition !== activeSettings.pdfWatermarkPosition
-    ) {
-      updateActiveSettings({
-        pdfPageSize: options.pageSize,
-        pdfOrientation: options.orientation,
-        pdfMargin: options.margin,
-        pdfStretchMode: options.stretchMode,
-        pdfQuality: options.quality,
-        pdfWatermarkType: options.watermarkType,
-        pdfWatermarkText: options.watermarkText,
-        pdfWatermarkColor: options.watermarkColor,
-        pdfWatermarkOpacity: options.watermarkOpacity,
-        pdfWatermarkPosition: options.watermarkPosition,
+    if (activeSettings) {
+      setOptions((prev) => {
+        if (
+          prev.pageSize === activeSettings.pdfPageSize &&
+          prev.orientation === activeSettings.pdfOrientation &&
+          prev.margin === activeSettings.pdfMargin &&
+          prev.stretchMode === activeSettings.pdfStretchMode &&
+          prev.quality === activeSettings.pdfQuality &&
+          prev.watermarkType === activeSettings.pdfWatermarkType &&
+          prev.watermarkText === activeSettings.pdfWatermarkText &&
+          prev.watermarkColor === activeSettings.pdfWatermarkColor &&
+          prev.watermarkOpacity === activeSettings.pdfWatermarkOpacity &&
+          prev.watermarkPosition === activeSettings.pdfWatermarkPosition
+        ) {
+          return prev;
+        }
+        return {
+          ...prev,
+          pageSize: activeSettings.pdfPageSize,
+          orientation: activeSettings.pdfOrientation,
+          margin: activeSettings.pdfMargin,
+          stretchMode: activeSettings.pdfStretchMode,
+          quality: activeSettings.pdfQuality,
+          watermarkType: activeSettings.pdfWatermarkType,
+          watermarkText: activeSettings.pdfWatermarkText,
+          watermarkColor: activeSettings.pdfWatermarkColor,
+          watermarkOpacity: activeSettings.pdfWatermarkOpacity,
+          watermarkPosition: activeSettings.pdfWatermarkPosition,
+        };
       });
     }
   }, [
-    options.pageSize,
-    options.orientation,
-    options.margin,
-    options.stretchMode,
-    options.quality,
-    options.watermarkType,
-    options.watermarkText,
-    options.watermarkColor,
-    options.watermarkOpacity,
-    options.watermarkPosition,
+    activeSettings?.pdfPageSize,
+    activeSettings?.pdfOrientation,
+    activeSettings?.pdfMargin,
+    activeSettings?.pdfStretchMode,
+    activeSettings?.pdfQuality,
+    activeSettings?.pdfWatermarkType,
+    activeSettings?.pdfWatermarkText,
+    activeSettings?.pdfWatermarkColor,
+    activeSettings?.pdfWatermarkOpacity,
+    activeSettings?.pdfWatermarkPosition,
   ]);
 
   const [expandedOptionSection, setExpandedOptionSection] = useState<'layout' | 'quality' | 'metadata' | 'watermark'>('layout');
@@ -721,7 +722,7 @@ export default function ImageToPDF() {
                   <input
                     type="text"
                     value={options.fileName}
-                    onChange={(e) => setOptions(prev => ({ ...prev, fileName: e.target.value }))}
+                    onChange={(e) => updateOption('fileName', e.target.value)}
                     placeholder="Merge Name"
                     className="w-full bg-zinc-950/80 border border-zinc-800 focus:border-brand/40 px-3.5 py-2.5 rounded text-white text-xs outline-none font-sans"
                   />
@@ -754,7 +755,7 @@ export default function ImageToPDF() {
                           <span className="text-[9px] font-mono uppercase text-zinc-500 block">Page Size</span>
                           <select
                             value={options.pageSize}
-                            onChange={(e) => setOptions(prev => ({ ...prev, pageSize: e.target.value as any }))}
+                            onChange={(e) => updateOption('pageSize', e.target.value as any)}
                             className="w-full bg-zinc-900 border border-zinc-800 rounded px-2.5 py-1.5 text-white text-xs outline-none"
                           >
                             <option value="A4">A4 (Standard)</option>
@@ -768,7 +769,7 @@ export default function ImageToPDF() {
                           <select
                             value={options.orientation}
                             disabled={options.pageSize === 'fit'}
-                            onChange={(e) => setOptions(prev => ({ ...prev, orientation: e.target.value as any }))}
+                            onChange={(e) => updateOption('orientation', e.target.value as any)}
                             className="w-full bg-zinc-900 border border-zinc-800 rounded px-2.5 py-1.5 text-white text-xs outline-none disabled:opacity-40"
                           >
                             <option value="auto">Auto Orient</option>
@@ -781,7 +782,7 @@ export default function ImageToPDF() {
                           <span className="text-[9px] font-mono uppercase text-zinc-500 block">Page Margin</span>
                           <select
                             value={options.margin}
-                            onChange={(e) => setOptions(prev => ({ ...prev, margin: e.target.value as any }))}
+                            onChange={(e) => updateOption('margin', e.target.value as any)}
                             className="w-full bg-zinc-900 border border-zinc-800 rounded px-2.5 py-1.5 text-white text-xs outline-none"
                           >
                             <option value="none">No Margin</option>
@@ -803,7 +804,7 @@ export default function ImageToPDF() {
                           ] as const).map(mode => (
                             <button
                               key={mode.id}
-                              onClick={() => setOptions(prev => ({ ...prev, stretchMode: mode.id }))}
+                              onClick={() => updateOption('stretchMode', mode.id)}
                               className={`py-1.5 rounded border text-center transition-colors cursor-pointer ${
                                 options.stretchMode === mode.id
                                   ? 'bg-brand/10 border-brand text-brand'
@@ -845,7 +846,7 @@ export default function ImageToPDF() {
                           max="1.0"
                           step="0.05"
                           value={options.quality}
-                          onChange={(e) => setOptions(prev => ({ ...prev, quality: parseFloat(e.target.value) }))}
+                          onChange={(e) => updateOption('quality', parseFloat(e.target.value))}
                           className="w-full accent-brand bg-zinc-900 rounded-lg appearance-none h-1.5 cursor-pointer"
                         />
                       </div>
@@ -865,7 +866,7 @@ export default function ImageToPDF() {
                 <div className="border border-zinc-900 rounded bg-zinc-950/10">
                   <button
                     onClick={() => setExpandedOptionSection(expandedOptionSection === 'metadata' ? 'watermark' : 'metadata')}
-                    className="w-full px-4 py-3 flex items-center justify-between text-left border-b border-zinc-950 bg-zinc-950/30 hover:bg-zinc-950/40 transition-colors"
+                    className="w-full px-4 py-3 flex items-center justify-between text-left border-b border-zinc-950 bg-zinc-950/30 hover:bg-zinc-900/40 transition-colors"
                   >
                     <div className="flex items-center gap-2">
                       <FileText className="w-3.5 h-3.5 text-brand" />
@@ -881,7 +882,7 @@ export default function ImageToPDF() {
                         <input
                           type="text"
                           value={options.title}
-                          onChange={(e) => setOptions(prev => ({ ...prev, title: e.target.value }))}
+                          onChange={(e) => updateOption('title', e.target.value)}
                           className="w-full bg-zinc-900 border border-zinc-800 rounded px-2.5 py-1.5 text-white text-xs outline-none"
                         />
                       </div>
@@ -892,7 +893,7 @@ export default function ImageToPDF() {
                           <input
                             type="text"
                             value={options.author}
-                            onChange={(e) => setOptions(prev => ({ ...prev, author: e.target.value }))}
+                            onChange={(e) => updateOption('author', e.target.value)}
                             className="w-full bg-zinc-900 border border-zinc-800 rounded px-2.5 py-1.5 text-white text-xs outline-none"
                           />
                         </div>
@@ -901,7 +902,7 @@ export default function ImageToPDF() {
                           <input
                             type="text"
                             value={options.subject}
-                            onChange={(e) => setOptions(prev => ({ ...prev, subject: e.target.value }))}
+                            onChange={(e) => updateOption('subject', e.target.value)}
                             className="w-full bg-zinc-900 border border-zinc-800 rounded px-2.5 py-1.5 text-white text-xs outline-none"
                           />
                         </div>
@@ -929,7 +930,7 @@ export default function ImageToPDF() {
                         <span className="text-[9px] font-mono uppercase text-zinc-500 block">Watermark System Type</span>
                         <div className="grid grid-cols-2 gap-2">
                           <button
-                            onClick={() => setOptions(prev => ({ ...prev, watermarkType: 'none' }))}
+                            onClick={() => updateOption('watermarkType', 'none')}
                             className={`py-1.5 rounded border text-xs text-center font-bold tracking-tight transition-all cursor-pointer ${
                               options.watermarkType === 'none'
                                 ? 'bg-zinc-900 border-zinc-700 text-zinc-300'
@@ -939,7 +940,7 @@ export default function ImageToPDF() {
                             Disable Overlay
                           </button>
                           <button
-                            onClick={() => setOptions(prev => ({ ...prev, watermarkType: 'text' }))}
+                            onClick={() => updateOption('watermarkType', 'text')}
                             className={`py-1.5 rounded border text-xs text-center font-bold tracking-tight transition-all cursor-pointer ${
                               options.watermarkType === 'text'
                                 ? 'bg-brand/10 border-brand text-brand'
@@ -958,7 +959,7 @@ export default function ImageToPDF() {
                             <input
                               type="text"
                               value={options.watermarkText}
-                              onChange={(e) => setOptions(prev => ({ ...prev, watermarkText: e.target.value }))}
+                              onChange={(e) => updateOption('watermarkText', e.target.value)}
                               className="w-full bg-zinc-900 border border-zinc-800 rounded px-2.5 py-1.5 text-white text-xs outline-none"
                             />
                           </div>
@@ -968,7 +969,7 @@ export default function ImageToPDF() {
                               <span className="text-[9px] font-mono uppercase text-zinc-500 block">Stamp Position</span>
                               <select
                                 value={options.watermarkPosition}
-                                onChange={(e) => setOptions(prev => ({ ...prev, watermarkPosition: e.target.value as any }))}
+                                onChange={(e) => updateOption('watermarkPosition', e.target.value as any)}
                                 className="w-full bg-zinc-900 border border-zinc-800 rounded px-2.5 py-1.5 text-white text-xs outline-none"
                               >
                                 <option value="center">Center</option>
@@ -983,7 +984,7 @@ export default function ImageToPDF() {
                               <span className="text-[9px] font-mono uppercase text-zinc-500 block">Stamp Color</span>
                               <select
                                 value={options.watermarkColor}
-                                onChange={(e) => setOptions(prev => ({ ...prev, watermarkColor: e.target.value }))}
+                                onChange={(e) => updateOption('watermarkColor', e.target.value)}
                                 className="w-full bg-zinc-900 border border-zinc-800 rounded px-2.5 py-1.5 text-white text-xs outline-none"
                               >
                                 <option value="#ef4444">Scarlet Red</option>
@@ -1007,7 +1008,7 @@ export default function ImageToPDF() {
                                 max="0.7"
                                 step="0.05"
                                 value={options.watermarkOpacity}
-                                onChange={(e) => setOptions(prev => ({ ...prev, watermarkOpacity: parseFloat(e.target.value) }))}
+                                onChange={(e) => updateOption('watermarkOpacity', parseFloat(e.target.value))}
                                 className="w-full accent-brand bg-zinc-900 rounded-lg appearance-none h-1 cursor-pointer"
                               />
                             </div>
@@ -1023,7 +1024,7 @@ export default function ImageToPDF() {
                                 max="90"
                                 step="5"
                                 value={options.watermarkRotation}
-                                onChange={(e) => setOptions(prev => ({ ...prev, watermarkRotation: parseInt(e.target.value) }))}
+                                onChange={(e) => updateOption('watermarkRotation', parseInt(e.target.value))}
                                 className="w-full accent-brand bg-zinc-900 rounded-lg appearance-none h-1 cursor-pointer"
                               />
                             </div>
