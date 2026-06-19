@@ -1305,7 +1305,15 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
             
             <AnimatePresence mode="wait">
              {activeTab === 'dashboard' && (
-              <Dashboard onTabChange={handleTabChange} />
+              <motion.div
+                key="dashboard"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                className="w-full"
+              >
+                <Dashboard onTabChange={handleTabChange} />
+              </motion.div>
             )}
 
             {activeTab === 'json-beautifier' && (
