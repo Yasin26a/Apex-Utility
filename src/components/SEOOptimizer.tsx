@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Sparkles, 
@@ -16,12 +16,7 @@ import {
   Sliders, 
   Gauge, 
   BookOpen, 
-  ChevronRight, 
-  FileText, 
   Cpu, 
-  FileDown,
-  Hash,
-  Lightbulb,
   CheckCircle2,
   Bookmark
 } from 'lucide-react';
@@ -608,18 +603,18 @@ export default function SEOOptimizer() {
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
         
         {/* Left Column: Input Editor & Focus parameters (7 Cols) */}
-        <div id="col-editor-pane" className="xl:col-span-7 space-y-6">
+        <div id="col-editor-pane" className="xl:col-span-7 space-y-6 animate-fadeIn">
           <div className="bg-[#0b0c10]/80 border border-brand-border/30 rounded-2xl overflow-hidden shadow-2xl">
             
             {/* Focus keyword header settings */}
-            <div className="p-5 border-b border-brand-border/30 bg-brand-surface/20 space-y-4">
+            <div className="p-4 sm:p-5 border-b border-brand-border/30 bg-brand-surface/20 space-y-4">
               <h2 className="text-xs font-mono uppercase text-gray-400 tracking-wider flex items-center gap-2">
                 <Sliders className="w-3.5 h-3.5 text-emerald-400" />
                 Target Keywords Configuration
               </h2>
               
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-                <div className="md:col-span-8">
+              <div className="flex flex-col lg:flex-row gap-4">
+                <div className="flex-1">
                   <label htmlFor="input-focus-kw" className="text-xs font-mono text-gray-400 block mb-1.5 uppercase">Focus Keyphrase</label>
                   <div className="relative">
                     <input 
@@ -628,44 +623,52 @@ export default function SEOOptimizer() {
                       value={focusKeyword}
                       onChange={(e) => setFocusKeyword(e.target.value)}
                       placeholder="e.g. UX design"
-                      className="w-full bg-[#0a0b0e] border border-brand-border/50 focus:border-emerald-500/50 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-emerald-500/40 pl-10"
+                      className="w-full bg-[#0a0b0e] border border-brand-border/50 focus:border-emerald-500/50 rounded-xl px-4 py-3 md:py-2.5 text-base md:text-sm text-white focus:outline-none focus:ring-1 focus:ring-emerald-500/40 pl-10 min-h-[44px] md:min-h-[38px] transition-all"
                     />
-                    <Search className="w-4 h-4 text-gray-500 absolute left-3.5 top-3.5" />
+                    <Search className="w-4 h-4 text-gray-500 absolute left-3.5 top-[14px] md:top-3.5" />
                   </div>
                 </div>
                 
-                <div className="md:col-span-4">
+                <div className="w-full lg:w-[240px] shrink-0">
                   <div className="flex justify-between items-center mb-1.5">
-                    <label className="text-xs font-mono text-gray-400 uppercase">Target Density</label>
+                    <label className="text-xs font-mono text-gray-400 uppercase">Target Density Bounds</label>
                     <button 
                       onClick={() => setShowDensityExplanation(!showDensityExplanation)}
-                      className="text-gray-500 hover:text-emerald-400"
+                      className="text-gray-500 hover:text-emerald-400 p-1"
+                      title="Learn about Keyword Density"
                     >
-                      <HelpCircle className="w-3 h-3" />
+                      <HelpCircle className="w-3.5 h-3.5" />
                     </button>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <input 
-                      id="num-density-min"
-                      type="number"
-                      step="0.1"
-                      min="0.1"
-                      max="10"
-                      value={targetDensityMin}
-                      onChange={(e) => setTargetDensityMin(parseFloat(e.target.value) || 0.1)}
-                      className="w-full bg-[#0a0b0e] border border-brand-border/50 focus:border-emerald-500/50 rounded-xl px-3 py-2 text-center text-sm text-white focus:outline-none"
-                    />
-                    <span className="text-xs font-mono text-gray-500">%</span>
-                    <input 
-                      id="num-density-max"
-                      type="number"
-                      step="0.1"
-                      min="0.1"
-                      max="10"
-                      value={targetDensityMax}
-                      onChange={(e) => setTargetDensityMax(parseFloat(e.target.value) || 10)}
-                      className="w-full bg-[#0a0b0e] border border-brand-border/50 focus:border-emerald-500/50 rounded-xl px-3 py-2 text-center text-sm text-white focus:outline-none"
-                    />
+                  
+                  {/* Stacked visually and optimized for great tap indexes */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[10px] font-mono text-gray-500 uppercase tracking-widest leading-none">Min %</span>
+                      <input 
+                        id="num-density-min"
+                        type="number"
+                        step="0.1"
+                        min="0.1"
+                        max="10"
+                        value={targetDensityMin}
+                        onChange={(e) => setTargetDensityMin(parseFloat(e.target.value) || 0.1)}
+                        className="w-full bg-[#0a0b0e] border border-brand-border/50 focus:border-emerald-500/50 rounded-xl px-3 py-3 md:py-2.5 text-center text-base md:text-sm text-white focus:outline-none min-h-[44px] md:min-h-[38px] transition-all"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[10px] font-mono text-gray-500 uppercase tracking-widest leading-none">Max %</span>
+                      <input 
+                        id="num-density-max"
+                        type="number"
+                        step="0.1"
+                        min="0.1"
+                        max="10"
+                        value={targetDensityMax}
+                        onChange={(e) => setTargetDensityMax(parseFloat(e.target.value) || 10)}
+                        className="w-full bg-[#0a0b0e] border border-brand-border/50 focus:border-emerald-500/50 rounded-xl px-3 py-3 md:py-2.5 text-center text-base md:text-sm text-white focus:outline-none min-h-[44px] md:min-h-[38px] transition-all"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -694,7 +697,7 @@ export default function SEOOptimizer() {
                 onChange={(e) => setText(e.target.value)}
                 placeholder="Enter or paste your markdown copywriting source code here..."
                 rows={16}
-                className="w-full bg-transparent p-6 text-sm text-gray-300 focus:outline-none focus:ring-0 leading-relaxed font-mono resize-y border-0 min-h-[420px]"
+                className="w-full bg-transparent p-4 sm:p-6 text-base md:text-sm text-gray-300 focus:outline-none focus:ring-0 leading-relaxed font-mono resize-y border-0 min-h-[420px]"
               />
               
               {/* Dynamic loading HUD overlay */}
@@ -742,63 +745,63 @@ export default function SEOOptimizer() {
           </div>
 
           {/* AI Assistance Enhancement Drawer Toolbar */}
-          <div className="bg-[#0b0c10]/80 border border-brand-border/30 rounded-2xl p-5 space-y-4 shadow-xl">
+          <div className="bg-[#0b0c10]/80 border border-brand-border/30 rounded-2xl p-4 sm:p-5 space-y-4 shadow-xl">
             <h3 className="text-xs font-mono uppercase text-gray-400 tracking-wider flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-emerald-400 animate-pulse" />
               Gemini Pro SEO Copilot
             </h3>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div className="flex flex-col sm:grid sm:grid-cols-2 gap-3.5">
               <button 
                 id="btn-ai-rewrite-kw"
                 onClick={() => triggerAIAction('rewrite_keyword')}
                 disabled={isLoading}
-                className="flex items-center justify-between p-3 border border-brand-border/60 hover:border-emerald-500/40 bg-brand-surface/40 hover:bg-emerald-500/[0.03] rounded-xl text-left group transition duration-200"
+                className="flex items-center justify-between p-4 md:p-3 border border-brand-border/60 hover:border-emerald-500/40 bg-brand-surface/40 hover:bg-emerald-500/[0.03] rounded-xl text-left group transition duration-205 min-h-[50px] cursor-pointer"
               >
                 <div className="space-y-0.5">
-                  <span className="text-xs font-medium text-white group-hover:text-emerald-400 transition">Keyword Optimization</span>
-                  <span className="text-[11px] text-gray-500 block">Integrates "{focusKeyword}" at healthy densities</span>
+                  <span className="text-sm md:text-xs font-medium text-white group-hover:text-emerald-400 transition">Keyword Optimization</span>
+                  <span className="text-[11px] text-gray-500 block leading-tight">Integrates "{focusKeyword}" at healthy densities</span>
                 </div>
-                <ArrowRight className="w-4 h-4 text-gray-500 group-hover:translate-x-1 group-hover:text-emerald-400 transition-all" />
+                <ArrowRight className="w-4 h-4 text-gray-500 group-hover:translate-x-1 group-hover:text-emerald-400 transition-all shrink-0 ml-2" />
               </button>
 
               <button 
                 id="btn-ai-readability"
                 onClick={() => triggerAIAction('improve_readability')}
                 disabled={isLoading}
-                className="flex items-center justify-between p-3 border border-brand-border/60 hover:border-emerald-500/40 bg-brand-surface/40 hover:bg-emerald-500/[0.03] rounded-xl text-left group transition duration-200"
+                className="flex items-center justify-between p-4 md:p-3 border border-brand-border/60 hover:border-emerald-500/40 bg-brand-surface/40 hover:bg-emerald-500/[0.03] rounded-xl text-left group transition duration-205 min-h-[50px] cursor-pointer"
               >
                 <div className="space-y-0.5">
-                  <span className="text-xs font-medium text-white group-hover:text-emerald-400 transition">Readability Boost</span>
-                  <span className="text-[11px] text-gray-500 block">Simplifies phrasing & metrics naturally</span>
+                  <span className="text-sm md:text-xs font-medium text-white group-hover:text-emerald-400 transition">Readability Boost</span>
+                  <span className="text-[11px] text-gray-500 block leading-tight">Simplifies phrasing & metrics naturally</span>
                 </div>
-                <ArrowRight className="w-4 h-4 text-gray-500 group-hover:translate-x-1 group-hover:text-emerald-400 transition-all" />
+                <ArrowRight className="w-4 h-4 text-gray-500 group-hover:translate-x-1 group-hover:text-emerald-400 transition-all shrink-0 ml-2" />
               </button>
 
               <button 
                 id="btn-ai-autofill-meta"
                 onClick={() => triggerAIAction('autofill_meta')}
                 disabled={isLoading}
-                className="flex items-center justify-between p-3 border border-brand-border/60 hover:border-emerald-500/40 bg-brand-surface/40 hover:bg-emerald-500/[0.03] rounded-xl text-left group transition duration-200"
+                className="flex items-center justify-between p-4 md:p-3 border border-brand-border/60 hover:border-emerald-500/40 bg-brand-surface/40 hover:bg-emerald-500/[0.03] rounded-xl text-left group transition duration-205 min-h-[50px] cursor-pointer"
               >
                 <div className="space-y-0.5">
-                  <span className="text-xs font-medium text-white group-hover:text-emerald-400 transition">Draft Metadata Snippets</span>
-                  <span className="text-[11px] text-gray-500 block">Generates Title & Meta Description via AI</span>
+                  <span className="text-sm md:text-xs font-medium text-white group-hover:text-emerald-400 transition">Draft Metadata Snippets</span>
+                  <span className="text-[11px] text-gray-500 block leading-tight">Generates Title & Meta Description via AI</span>
                 </div>
-                <ArrowRight className="w-4 h-4 text-gray-500 group-hover:translate-x-1 group-hover:text-emerald-400 transition-all" />
+                <ArrowRight className="w-4 h-4 text-gray-500 group-hover:translate-x-1 group-hover:text-emerald-400 transition-all shrink-0 ml-2" />
               </button>
 
               <button 
                 id="btn-ai-keyword-ideas"
                 onClick={() => triggerAIAction('suggest_keywords')}
                 disabled={isLoading}
-                className="flex items-center justify-between p-3 border border-brand-border/60 hover:border-emerald-500/40 bg-brand-surface/40 hover:bg-emerald-500/[0.03] rounded-xl text-left group transition duration-200"
+                className="flex items-center justify-between p-4 md:p-3 border border-brand-border/60 hover:border-emerald-500/40 bg-brand-surface/40 hover:bg-emerald-500/[0.03] rounded-xl text-left group transition duration-205 min-h-[50px] cursor-pointer"
               >
                 <div className="space-y-0.5">
-                  <span className="text-xs font-medium text-white group-hover:text-emerald-400 transition">Extract Search Topics</span>
-                  <span className="text-[11px] text-gray-500 block">Extracts 5 key themes with strategies</span>
+                  <span className="text-sm md:text-xs font-medium text-white group-hover:text-emerald-400 transition">Extract Search Topics</span>
+                  <span className="text-[11px] text-gray-500 block leading-tight">Extracts 5 key themes with strategies</span>
                 </div>
-                <ArrowRight className="w-4 h-4 text-gray-500 group-hover:translate-x-1 group-hover:text-emerald-400 transition-all" />
+                <ArrowRight className="w-4 h-4 text-gray-500 group-hover:translate-x-1 group-hover:text-emerald-400 transition-all shrink-0 ml-2" />
               </button>
             </div>
             
@@ -842,19 +845,19 @@ export default function SEOOptimizer() {
         </div>
 
         {/* Right Column: Real-time Analytics Scoreboards (5 Cols) */}
-        <div id="col-analytics-pane" className="xl:col-span-12 lg:xl:col-span-5 space-y-6">
+        <div id="col-analytics-pane" className="xl:col-span-5 space-y-6">
           
-          {/* Readability & Density Cards Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-6">
+          {/* Readability & Density Cards Grid Stacked Vertically */}
+          <div className="flex flex-col gap-6">
             
             {/* Flesch-Kincaid index metric cards */}
             <div className="bg-[#0b0c10]/80 border border-brand-border/30 rounded-2xl p-5 space-y-4 shadow-xl">
-              <div className="flex justify-between items-center">
+              <div className="flex justify-between items-center gap-2">
                 <h3 className="text-xs font-mono uppercase text-gray-400 tracking-wider flex items-center gap-2">
                   <BookOpen className="w-4 h-4 text-emerald-400" />
                   SEO Copy Readability
                 </h3>
-                <span className={`text-[10px] font-mono border rounded px-1.5 py-0.5 ${metrics.readabilityClr}`}>
+                <span className={`text-[10px] font-mono border rounded px-1.5 py-0.5 shrink-0 ${metrics.readabilityClr}`}>
                   {metrics.readabilityCategory}
                 </span>
               </div>
@@ -881,7 +884,7 @@ export default function SEOOptimizer() {
               </div>
 
               {/* Grade Level Diagnostic details */}
-              <div className="p-3.5 bg-brand-surface/40 hover:bg-brand-surface/70 border border-brand-border/50 rounded-xl flex items-center justify-between text-xs leading-none transition duration-150">
+              <div className="p-3.5 bg-brand-surface/40 hover:bg-brand-surface/70 border border-brand-border/50 rounded-xl flex items-center justify-between text-xs leading-none transition duration-150 min-h-[44px]">
                 <span className="text-gray-400 font-mono uppercase">Calculated Grade Level</span>
                 <span className="text-white font-mono font-medium">U.S. Grade {metrics.roundedGradeLevel}</span>
               </div>
@@ -889,12 +892,12 @@ export default function SEOOptimizer() {
 
             {/* Keyword Density index metric cards */}
             <div className="bg-[#0b0c10]/80 border border-brand-border/30 rounded-2xl p-5 space-y-4 shadow-xl">
-              <div className="flex justify-between items-center">
+              <div className="flex justify-between items-center gap-2">
                 <h3 className="text-xs font-mono uppercase text-gray-400 tracking-wider flex items-center gap-2">
                   <Search className="w-4 h-4 text-emerald-400" />
                   Keyword Density Gauge
                 </h3>
-                <span className={`text-[10px] font-mono border rounded px-1.5 py-0.5 ${metrics.densityClr}`}>
+                <span className={`text-[10px] font-mono border rounded px-1.5 py-0.5 shrink-0 ${metrics.densityClr}`}>
                   {metrics.roundedDensity}% Focus
                 </span>
               </div>
@@ -946,11 +949,11 @@ export default function SEOOptimizer() {
                   </div>
                   
                   {metrics.paragraphCount > 0 ? (
-                    <div className="grid grid-cols-5 sm:grid-cols-6 lg:grid-cols-5 xl:grid-cols-6 gap-2">
+                    <div className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-5 xl:grid-cols-6 gap-2">
                       {metrics.paragraphOccurrences.map((p, pIdx) => (
                         <div 
                           key={pIdx}
-                          className={`p-2.5 rounded-xl border text-center font-mono transition-all duration-150 flex flex-col justify-center items-center ${
+                          className={`p-3 sm:p-2.5 rounded-xl border text-center font-mono transition-all duration-150 flex flex-col justify-center items-center min-h-[48px] ${
                             p.count > 0 
                               ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300 shadow-md shadow-emerald-500/5' 
                               : 'bg-zinc-950/40 border-brand-border/10 text-zinc-500'
@@ -987,7 +990,7 @@ export default function SEOOptimizer() {
                         return (
                           <div 
                             key={fIdx} 
-                            className="p-2.5 rounded-xl bg-[#08090b] border border-brand-border/20 flex items-center justify-between transition-all duration-150 hover:border-brand-border/40"
+                            className="p-2.5 rounded-xl bg-[#08090b] border border-brand-border/20 flex items-center justify-between transition-all duration-150 hover:border-brand-border/40 min-h-[44px]"
                           >
                             <div className="space-y-0.5">
                               <span className="text-xs font-mono text-zinc-200 block font-medium">#{fIdx + 1} {item.word}</span>
@@ -1045,7 +1048,7 @@ export default function SEOOptimizer() {
           </div>
 
           {/* Social Snippets & Search Engine Previews (SERPs) */}
-          <div className="bg-[#0b0c10]/80 border border-brand-border/30 rounded-2xl p-5 space-y-4 shadow-xl">
+          <div className="bg-[#0b0c10]/80 border border-brand-border/30 rounded-2xl p-4 sm:p-5 space-y-4 shadow-xl">
             <h3 className="text-xs font-mono uppercase text-gray-400 tracking-wider flex items-center gap-2">
               <Share2 className="w-4 h-4 text-emerald-400" />
               Real-time Metadata Previews
@@ -1054,7 +1057,7 @@ export default function SEOOptimizer() {
             {/* Custom Inputs for Metadata */}
             <div className="space-y-4 pt-1">
               <div>
-                <div className="flex justify-between items-center mb-1">
+                <div className="flex justify-between items-center mb-1.5">
                   <label htmlFor="input-meta-title" className="text-xs font-mono text-gray-400 uppercase">SEO Title</label>
                   <span className={`text-[10px] font-mono ${currentMetaTitleLengthStatus.clr}`}>
                     {metaTitle.length} chars | {currentMetaTitleLengthStatus.label}
@@ -1066,15 +1069,15 @@ export default function SEOOptimizer() {
                   value={metaTitle}
                   onChange={(e) => setMetaTitle(e.target.value)}
                   placeholder="Draft an index title tag..."
-                  className="w-full bg-[#0a0b0e] border border-brand-border/50 focus:border-emerald-500/50 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-emerald-500/40"
+                  className="w-full bg-[#0a0b0e] border border-brand-border/50 focus:border-emerald-500/50 rounded-xl px-3.5 py-3 md:py-2.5 text-base md:text-sm text-white focus:outline-none focus:ring-1 focus:ring-emerald-500/40 min-h-[44px] md:min-h-[38px] transition-all"
                 />
-                <div className="h-1 bg-[#090a0d] rounded-full overflow-hidden mt-1 bg-brand-surface">
+                <div className="h-1 bg-[#090a0d] rounded-full overflow-hidden mt-2.5 bg-brand-surface">
                   <div className={`h-full ${currentMetaTitleLengthStatus.progressClr}`} style={{ width: `${currentMetaTitleLengthStatus.width}%` }} />
                 </div>
               </div>
 
               <div>
-                <div className="flex justify-between items-center mb-1">
+                <div className="flex justify-between items-center mb-1.5">
                   <label htmlFor="input-meta-desc" className="text-xs font-mono text-gray-400 uppercase">Meta Description</label>
                   <span className={`text-[10px] font-mono ${currentMetaDescriptionLengthStatus.clr}`}>
                     {metaDescription.length} chars | {currentMetaDescriptionLengthStatus.label}
@@ -1085,24 +1088,24 @@ export default function SEOOptimizer() {
                   value={metaDescription}
                   onChange={(e) => setMetaDescription(e.target.value)}
                   placeholder="Draft meta description for better SEO index conversions..."
-                  rows={2}
-                  className="w-full bg-[#0a0b0e] border border-brand-border/50 focus:border-emerald-500/50 rounded-xl px-3.5 py-2 text-sm text-gray-300 focus:outline-none focus:ring-1 focus:ring-emerald-500/40"
+                  rows={3}
+                  className="w-full bg-[#0a0b0e] border border-brand-border/50 focus:border-emerald-500/50 rounded-xl px-3.5 py-3 md:py-2.5 text-base md:text-sm text-gray-300 focus:outline-none focus:ring-1 focus:ring-emerald-500/40 min-h-[80px] transition-all"
                 />
-                <div className="h-1 bg-[#090a0d] rounded-full overflow-hidden mt-1 bg-brand-surface">
+                <div className="h-1 bg-[#090a0d] rounded-full overflow-hidden mt-2.5 bg-brand-surface">
                   <div className={`h-full ${currentMetaDescriptionLengthStatus.progressClr}`} style={{ width: `${currentMetaDescriptionLengthStatus.width}%` }} />
                 </div>
               </div>
             </div>
 
             {/* Selector bar for Google, Twitter Card, Facebook */}
-            <div className="flex border-b border-brand-border/30 pt-2">
+            <div className="flex flex-col sm:flex-row border-b border-brand-border/30 pt-2 gap-1 sm:gap-0">
               <button 
                 id="tab-prev-google"
                 onClick={() => setPreviewTab('google')}
-                className={`flex-1 py-2 text-center text-xs font-mono tracking-wider border-b-2 flex items-center justify-center gap-2 uppercase transition-all ${
+                className={`flex-1 py-3 text-center text-xs font-mono tracking-wider sm:border-b-2 border-r sm:border-r-0 border-brand-border/10 sm:border-transparent flex items-center justify-center gap-2.5 uppercase transition-all min-h-[44px] cursor-pointer rounded-t-lg sm:rounded-none ${
                   previewTab === 'google' 
-                    ? 'border-emerald-500 text-white font-medium bg-emerald-500/[0.02]' 
-                    : 'border-transparent text-gray-500 hover:text-gray-300'
+                    ? 'sm:border-emerald-500 text-white font-medium bg-emerald-500/10 sm:bg-emerald-500/[0.02] border border-emerald-500/20 sm:border-0' 
+                    : 'text-gray-400 hover:text-gray-250 hover:bg-zinc-950/20'
                 }`}
               >
                 <Globe className="w-3.5 h-3.5" />
@@ -1111,10 +1114,10 @@ export default function SEOOptimizer() {
               <button 
                 id="tab-prev-twitter"
                 onClick={() => setPreviewTab('twitter')}
-                className={`flex-1 py-2 text-center text-xs font-mono tracking-wider border-b-2 flex items-center justify-center gap-2 uppercase transition-all ${
+                className={`flex-1 py-3 text-center text-xs font-mono tracking-wider sm:border-b-2 border-r sm:border-r-0 border-brand-border/10 sm:border-transparent flex items-center justify-center gap-2.5 uppercase transition-all min-h-[44px] cursor-pointer rounded-t-lg sm:rounded-none ${
                   previewTab === 'twitter' 
-                    ? 'border-emerald-500 text-white font-medium bg-emerald-500/[0.02]' 
-                    : 'border-transparent text-gray-500 hover:text-gray-300'
+                    ? 'sm:border-emerald-500 text-white font-medium bg-emerald-500/10 sm:bg-emerald-500/[0.02] border border-emerald-500/20 sm:border-0' 
+                    : 'text-gray-400 hover:text-gray-250 hover:bg-zinc-950/20'
                 }`}
               >
                 <Twitter className="w-3.5 h-3.5" />
@@ -1123,10 +1126,10 @@ export default function SEOOptimizer() {
               <button 
                 id="tab-prev-facebook"
                 onClick={() => setPreviewTab('facebook')}
-                className={`flex-1 py-2 text-center text-xs font-mono tracking-wider border-b-2 flex items-center justify-center gap-2 uppercase transition-all ${
+                className={`flex-1 py-3 text-center text-xs font-mono tracking-wider sm:border-b-2 sm:border-transparent flex items-center justify-center gap-2.5 uppercase transition-all min-h-[44px] cursor-pointer rounded-t-lg sm:rounded-none ${
                   previewTab === 'facebook' 
-                    ? 'border-emerald-500 text-white font-medium bg-emerald-500/[0.02]' 
-                    : 'border-transparent text-gray-500 hover:text-gray-300'
+                    ? 'sm:border-emerald-500 text-white font-medium bg-emerald-500/10 sm:bg-emerald-500/[0.02] border border-emerald-500/20 sm:border-0' 
+                    : 'text-gray-400 hover:text-gray-250 hover:bg-zinc-950/20'
                 }`}
               >
                 <Facebook className="w-3.5 h-3.5" />
@@ -1209,11 +1212,11 @@ export default function SEOOptimizer() {
             </div>
             
             {/* Copy All Meta Data action button toolbar */}
-            <div className="flex gap-2.5">
+            <div className="flex flex-col sm:flex-row gap-2.5">
               <button 
                 id="btn-copy-meta-title"
                 onClick={() => copyToClipboard(metaTitle, 'title')}
-                className="flex-1 py-2 px-3 border border-brand-border/40 hover:border-brand-border/80 bg-brand-surface/40 hover:bg-brand-surface/80 rounded-xl text-xs font-mono text-gray-400 hover:text-white flex items-center justify-center gap-2 transition"
+                className="flex-1 py-3 px-4 border border-brand-border/40 hover:border-brand-border/80 bg-brand-surface/40 hover:bg-brand-surface/80 rounded-xl text-sm md:text-xs font-mono text-gray-300 hover:text-white flex items-center justify-center gap-2 transition min-h-[44px] cursor-pointer"
               >
                 {copiedField === 'title' ? (
                   <>
@@ -1231,7 +1234,7 @@ export default function SEOOptimizer() {
               <button 
                 id="btn-copy-meta-desc"
                 onClick={() => copyToClipboard(metaDescription, 'description')}
-                className="flex-1 py-2 px-3 border border-brand-border/40 hover:border-brand-border/80 bg-brand-surface/40 hover:bg-brand-surface/80 rounded-xl text-xs font-mono text-gray-400 hover:text-white flex items-center justify-center gap-2 transition"
+                className="flex-1 py-3 px-4 border border-brand-border/40 hover:border-brand-border/80 bg-brand-surface/40 hover:bg-brand-surface/80 rounded-xl text-sm md:text-xs font-mono text-gray-300 hover:text-white flex items-center justify-center gap-2 transition min-h-[44px] cursor-pointer"
               >
                 {copiedField === 'description' ? (
                   <>
@@ -1259,7 +1262,7 @@ export default function SEOOptimizer() {
               {metrics.checks.map((item, idx) => (
                 <div 
                   key={idx}
-                  className="flex items-start gap-3 p-3/5 bg-brand-surface/20 border border-brand-border/20 rounded-xl hover:bg-brand-surface/40 transition duration-100"
+                  className="flex items-start gap-3 p-3.5 bg-brand-surface/20 border border-brand-border/20 rounded-xl hover:bg-brand-surface/40 transition duration-100 min-h-[48px]"
                 >
                   <div className="pt-0.5 shrink-0">
                     {item.pass ? (
