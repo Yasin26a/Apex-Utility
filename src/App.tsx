@@ -912,12 +912,6 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
               Server: Online
             </span>
           </div>
-          <button 
-            onClick={() => handleTabChange('about-us')}
-            className="px-3.5 py-1.5 rounded-lg text-xs font-medium text-zinc-300 hover:text-white bg-zinc-950 border border-red-950/30 hover:border-brand/35 hover:bg-red-950/20 transition-all shadow-sm"
-          >
-            Documentation
-          </button>
         </div>
       </header>
 
@@ -3427,13 +3421,11 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
           </div>
           
           <div className="flex flex-wrap gap-4 text-xs font-medium justify-center">
-            <button onClick={() => handleTabChange('about-us')} className="hover:text-slate-300 transition-colors">About Us</button>
+            <button onClick={() => handleTabChange('about-us')} className="hover:text-slate-300 transition-colors">Documentation</button>
             <span className="text-slate-800">|</span>
             <button onClick={() => handleTabChange('privacy-policy')} className="hover:text-slate-300 transition-colors">Privacy Policy</button>
             <span className="text-slate-800">|</span>
             <button onClick={() => handleTabChange('terms-of-service')} className="hover:text-slate-300 transition-colors">Terms of Service</button>
-            <span className="text-slate-800">|</span>
-            <a href="/sitemap.xml" target="_blank" className="hover:text-slate-300 transition-colors">sitemap.xml</a>
           </div>
         </div>
       </footer>
