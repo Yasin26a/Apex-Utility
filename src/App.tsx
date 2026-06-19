@@ -1300,9 +1300,10 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
         </AnimatePresence>
 
         {/* Dynamic Content Panel */}
-        <main className="flex-1 p-4 sm:p-8 overflow-y-auto max-w-5xl mx-auto" id="main-content-window">
-          
-          <AnimatePresence mode="wait">
+        <div className="flex-1 overflow-y-auto flex flex-col" id="main-content-window">
+          <main className="flex-1 p-4 sm:p-8 max-w-5xl w-full mx-auto">
+            
+            <AnimatePresence mode="wait">
              {activeTab === 'dashboard' && (
               <Dashboard onTabChange={handleTabChange} />
             )}
@@ -3417,27 +3418,28 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
 
           </AnimatePresence>
         </main>
-      </div>
 
-      {/* Primary Footer */}
-      <footer className="bg-slate-950 border-t border-slate-850 px-6 py-6 text-center text-slate-500 text-xs mt-auto">
-        <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="space-y-1 text-center md:text-left">
-            <p className="font-medium text-slate-300">Apex Utility Labs © 2026. All rights reserved.</p>
-            <p className="text-[10px] text-slate-500">
-              Approved design format matching full search compliance indexes and consumer safety standards.
-            </p>
+        {/* Primary Footer */}
+        <footer className="bg-zinc-950/60 backdrop-blur border-t border-zinc-900/60 px-6 py-6 text-center text-zinc-500 text-xs mt-auto w-full">
+          <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="space-y-1 text-center md:text-left">
+              <p className="font-medium text-slate-300">Apex Utility Labs © 2026. All rights reserved.</p>
+              <p className="text-[10px] text-zinc-500">
+                Approved design format matching full search compliance indexes and consumer safety standards.
+              </p>
+            </div>
+            
+            <div className="flex flex-wrap gap-4 text-xs font-medium justify-center">
+              <button onClick={() => handleTabChange('about-us')} className="hover:text-slate-300 transition-colors">Documentation</button>
+              <span className="text-slate-800">|</span>
+              <button onClick={() => handleTabChange('privacy-policy')} className="hover:text-slate-300 transition-colors">Privacy Policy</button>
+              <span className="text-slate-800">|</span>
+              <button onClick={() => handleTabChange('terms-of-service')} className="hover:text-slate-300 transition-colors">Terms of Service</button>
+            </div>
           </div>
-          
-          <div className="flex flex-wrap gap-4 text-xs font-medium justify-center">
-            <button onClick={() => handleTabChange('about-us')} className="hover:text-slate-300 transition-colors">Documentation</button>
-            <span className="text-slate-800">|</span>
-            <button onClick={() => handleTabChange('privacy-policy')} className="hover:text-slate-300 transition-colors">Privacy Policy</button>
-            <span className="text-slate-800">|</span>
-            <button onClick={() => handleTabChange('terms-of-service')} className="hover:text-slate-300 transition-colors">Terms of Service</button>
-          </div>
-        </div>
-      </footer>
+        </footer>
+      </div>
+    </div>
 
       {/* Floating AI Supervisor Coach */}
       <AIAssistantSupervisor currentTab={activeTab} onTabChange={handleTabChange} />
