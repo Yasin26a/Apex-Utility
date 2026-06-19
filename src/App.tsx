@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   ShieldCheck, 
@@ -21,17 +21,24 @@ import {
   Search,
   Clock,
   Printer,
+  FileDown,
   Bookmark,
   BookmarkCheck,
   Activity,
   Image as ImageIcon,
   Video,
   Twitter,
-  Linkedin
+  Linkedin,
+  Headphones,
+  Volume2,
+  Play,
+  Square,
+  Pause
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ActiveTab } from './types';
 import { AT_LEAST_20_ARTICLES, Article } from './data/articles';
+import { jsPDF } from 'jspdf';
 import WebPConverter from './components/WebPConverter';
 import PDFJoiner from './components/PDFJoiner';
 import ContentPlanner from './components/ContentPlanner';
@@ -103,6 +110,14 @@ const getArticleCover = (category: string, id: string): string => {
 export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
+  const readerScrollRef = useRef<HTMLDivElement>(null);
+
+  // Web Speech synthesis state
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [speechRate, setSpeechRate] = useState(1);
+  const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [selectedVoiceName, setSelectedVoiceName] = useState<string>('');
 
   // Navigation and sidebar states
   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
@@ -376,6 +391,316 @@ export default function App() {
         document.body.removeChild(iframe);
       }
     }, 5000);
+  };
+
+  // --- Web Speech synthesis TTS controls ---
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      const loadVoices = () => {
+        const voices = window.speechSynthesis.getVoices();
+        // Look for English voices to provide a high-quality selection
+        const englishVoices = voices.filter(v => v.lang.toLowerCase().startsWith('en'));
+        const voicesList = englishVoices.length > 0 ? englishVoices : voices;
+        setAvailableVoices(voicesList);
+        
+        if (voicesList.length > 0) {
+          const defaultVoice = voicesList.find(v => v.name.toLowerCase().includes('google') || v.name.toLowerCase().includes('natural')) || voicesList[0];
+          setSelectedVoiceName(defaultVoice.name);
+        }
+      };
+      
+      loadVoices();
+      if (window.speechSynthesis.onvoiceschanged !== undefined) {
+        window.speechSynthesis.onvoiceschanged = loadVoices;
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      setIsPaused(false);
+    }
+  }, [readingArticle]);
+
+  const handleToggleSpeak = () => {
+    if (!readingArticle) return;
+    
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+      alert("Web Speech synthesis is not supported on this device/browser structure.");
+      return;
+    }
+
+    if (window.speechSynthesis.speaking) {
+      if (isPaused) {
+        window.speechSynthesis.resume();
+        setIsSpeaking(true);
+        setIsPaused(false);
+      } else {
+        window.speechSynthesis.pause();
+        setIsSpeaking(false);
+        setIsPaused(true);
+      }
+      return;
+    }
+
+    const titleText = readingArticle.title;
+    const categoryText = `Category is ${readingArticle.category}.`;
+    const summaryText = `Expert Summary: ${readingArticle.summary}.`;
+    const contentText = readingArticle.content.map(p => {
+      if (p.startsWith('###')) return p.replace('###', '').trim() + '.';
+      if (p.startsWith('```')) return 'A technical code sample is provided in the document.';
+      return p;
+    }).join(' ');
+
+    const fullNarration = `${titleText}. ${categoryText} ${summaryText} ${contentText}`;
+
+    const utterance = new SpeechSynthesisUtterance(fullNarration);
+    
+    // Choose selected voice
+    if (selectedVoiceName) {
+      const voice = availableVoices.find(v => v.name === selectedVoiceName);
+      if (voice) {
+        utterance.voice = voice;
+      }
+    }
+
+    utterance.rate = speechRate;
+
+    utterance.onend = () => {
+      setIsSpeaking(false);
+      setIsPaused(false);
+    };
+
+    utterance.onerror = (e) => {
+      console.error("Speech utterance error event:", e);
+      setIsSpeaking(false);
+      setIsPaused(false);
+    };
+
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utterance);
+    setIsSpeaking(true);
+    setIsPaused(false);
+  };
+
+  const handleStopSpeak = () => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      setIsPaused(false);
+    }
+  };
+
+  // Download Article directly as structured document PDF offline using jsPDF (no browser print needed!)
+  const handleDownloadPDF = (art: Article) => {
+    const doc = new jsPDF('p', 'pt', 'letter');
+    const pageWidth = 612;
+    const pageHeight = 792;
+    const margin = 54;
+    const maxW = pageWidth - margin * 2; // 504 pt
+    
+    let y = margin;
+
+    // Helper: Page decorations & header running banner
+    const drawRunningHeader = () => {
+      doc.setFont('Helvetica', 'bold');
+      doc.setFontSize(7);
+      doc.setTextColor(207, 21, 68); // #cf1544
+      doc.text("APEX UTILITY LABS • SEO & ADSENSE PUBLISHING RESOURCE", margin, 38);
+      
+      doc.setLineWidth(1.5);
+      doc.setDrawColor(207, 21, 68);
+      doc.line(margin, 46, pageWidth - margin, 46);
+    };
+
+    // Draw header on Page 1
+    drawRunningHeader();
+    y = 75; // position below header banner
+
+    // Main Article Title
+    doc.setFont('Helvetica', 'bold');
+    doc.setFontSize(18);
+    doc.setTextColor(0, 0, 0);
+    const titleLines = doc.splitTextToSize(art.title, maxW);
+    titleLines.forEach((line: string) => {
+      doc.text(line, margin, y);
+      y += 22;
+    });
+    y += 4;
+
+    // Metadata section box (shaded rect)
+    doc.setFillColor(248, 250, 252); // #f8fafc slate-50
+    doc.rect(margin, y, maxW, 32, 'F');
+    doc.setFont('Helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(85, 85, 85);
+    doc.text(`Category: ${art.category}   |   Date: ${art.publishDate}`, margin + 12, y + 19);
+    doc.text(`Read Time: ${art.readTime}   |   Length: ${art.wordCount} words`, margin + 280, y + 19);
+    
+    y += 44;
+
+    // Expert Summary box (special tinted background and red strip)
+    const summaryText = `Expert Summary: ${art.summary}`;
+    doc.setFont('Helvetica', 'italic');
+    doc.setFontSize(9);
+    const summaryLines = doc.splitTextToSize(summaryText, maxW - 24);
+    const summaryHeight = 16 + summaryLines.length * 13;
+    
+    doc.setFillColor(252, 248, 242); // warm cream
+    doc.rect(margin, y, maxW, summaryHeight, 'F');
+    // Draw red bar strip on left
+    doc.setFillColor(207, 21, 68);
+    doc.rect(margin, y, 3, summaryHeight, 'F');
+    
+    doc.setTextColor(51, 51, 51);
+    summaryLines.forEach((line: string, idx: number) => {
+      doc.text(line, margin + 14, y + 14 + idx * 13);
+    });
+
+    y += summaryHeight + 20;
+
+    // Render each article content paragraph sequentially
+    art.content.forEach((paragraph) => {
+      // 1. Heading 2 (e.g. starting with ###)
+      if (paragraph.startsWith('###')) {
+        const h2Text = paragraph.replace('###', '').trim();
+        const hLines = doc.splitTextToSize(h2Text, maxW);
+        const headingHeight = hLines.length * 16 + 12;
+        
+        // Ensure page space
+        if (y + headingHeight > pageHeight - margin - 30) {
+          doc.addPage();
+          drawRunningHeader();
+          y = 75;
+        } else {
+          y += 8;
+        }
+        
+        doc.setFont('Helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.setTextColor(17, 17, 17);
+        hLines.forEach((line: string) => {
+          doc.text(line, margin, y);
+          y += 16;
+        });
+        
+        // Underline line
+        doc.setDrawColor(226, 232, 240); // slate-200
+        doc.setLineWidth(1);
+        doc.line(margin, y - 6, pageWidth - margin, y - 6);
+        y += 6;
+      }
+      // 2. Numbered Listing item
+      else if (paragraph.match(/^[0-9]\./)) {
+        const listLines = doc.splitTextToSize(paragraph, maxW - 16);
+        const listHeight = listLines.length * 14 + 10;
+        
+        if (y + listHeight > pageHeight - margin - 30) {
+          doc.addPage();
+          drawRunningHeader();
+          y = 75;
+        }
+        
+        doc.setFont('Helvetica', 'bold');
+        doc.setFontSize(9.5);
+        doc.setTextColor(34, 34, 34);
+        listLines.forEach((line: string) => {
+          doc.text(line, margin + 16, y);
+          y += 14;
+        });
+        y += 4;
+      }
+      // 3. Monospace Code Snippet
+      else if (paragraph.startsWith('```')) {
+        const cleanCode = paragraph.replace(/```[a-z]*/g, '').trim();
+        const codeLines = doc.splitTextToSize(cleanCode, maxW - 24);
+        
+        // Loop through code lines to render page by page
+        let lineIdx = 0;
+        while (lineIdx < codeLines.length) {
+          if (y > pageHeight - margin - 40) {
+            doc.addPage();
+            drawRunningHeader();
+            y = 75;
+          }
+          
+          // Calculate how many lines we can place on this page
+          const maxLinesOnPage = Math.floor((pageHeight - margin - 30 - y) / 11);
+          const linesToRender = Math.min(maxLinesOnPage, codeLines.length - lineIdx);
+          
+          if (linesToRender > 0) {
+            const blockH = linesToRender * 11 + 10;
+            // Draw background and outline first!
+            doc.setFillColor(244, 246, 248);
+            doc.rect(margin, y - 6, maxW, blockH, 'F');
+            doc.setDrawColor(225, 228, 230);
+            doc.setLineWidth(0.5);
+            doc.rect(margin, y - 6, maxW, blockH, 'S');
+            
+            // Draw text over background!
+            doc.setFont('Courier', 'normal');
+            doc.setFontSize(8);
+            doc.setTextColor(207, 21, 68);
+            
+            for (let i = 0; i < linesToRender; i++) {
+              doc.text(codeLines[lineIdx + i], margin + 12, y + i * 11 + 4);
+            }
+            
+            y += blockH + 6;
+            lineIdx += linesToRender;
+          } else {
+            // No lines fit on this page, force add page next iteration
+            doc.addPage();
+            drawRunningHeader();
+            y = 75;
+          }
+        }
+        y += 6;
+      }
+      // 4. Regular Paragraph Text
+      else {
+        const pLines = doc.splitTextToSize(paragraph, maxW);
+        doc.setFont('Helvetica', 'normal');
+        doc.setFontSize(10);
+        doc.setTextColor(51, 51, 51);
+        
+        pLines.forEach((line: string) => {
+          if (y > pageHeight - margin - 30) {
+            doc.addPage();
+            drawRunningHeader();
+            y = 75;
+          }
+          
+          doc.setFont('Helvetica', 'normal');
+          doc.setFontSize(10);
+          doc.setTextColor(51, 51, 51);
+          doc.text(line, margin, y);
+          y += 14;
+        });
+        y += 6;
+      }
+    });
+
+    // Uniformly layout footers with total counting on all resulting document pages
+    const pageCount = doc.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setDrawColor(220, 224, 230);
+      doc.setLineWidth(0.5);
+      doc.line(margin, 742, pageWidth - margin, 742);
+      
+      doc.setFont('Helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(119, 119, 119);
+      doc.text("APEX Utility Labs • Clean Search Spider Schema Certified", margin, 755);
+      doc.text(`Page ${i} of ${pageCount}`, 510, 755);
+    }
+
+    // Trigger vector download stream
+    const fileName = art.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '.pdf';
+    doc.save(fileName);
   };
 
   // Synchronize router location with active tab
@@ -3245,6 +3570,7 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
 
                       {/* Modal dynamic detailed contents body scroll area - ALL ITEMS SCROLL SEAMLESSLY */}
                       <div 
+                        ref={readerScrollRef}
                         className={`p-4 sm:p-10 overflow-y-auto space-y-6 flex-1 transition-colors duration-200 ${
                           readTheme === 'sepia' 
                             ? 'bg-[#140e0c] text-[#ece4db]' 
@@ -3364,6 +3690,148 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                           </div>
                         </div>
 
+                        {/* Voice-to-Text / Audio Narration Engine controller */}
+                        <div className={`p-4 rounded-xl border flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between text-xs transition-colors ${
+                          readTheme === 'sepia'
+                            ? 'bg-[#1e1715] border-[#ece4db]/10 text-[#ece4db]'
+                            : readTheme === 'parchment'
+                            ? 'bg-[#FAF6EE] border-stone-200 text-[#1c1917]'
+                            : 'bg-slate-900/60 border-slate-850/60 text-slate-100'
+                        }`}>
+                          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3.5 flex-1">
+                            {/* Listening / Audio Indicator with custom styles */}
+                            <div className="flex items-center gap-2">
+                              <div className={`p-2 rounded-lg ${
+                                readTheme === 'parchment'
+                                  ? 'bg-rose-500/10 border border-rose-500/20 text-rose-600'
+                                  : 'bg-rose-500/10 border border-rose-500/20 text-rose-400'
+                              }`}>
+                                <Headphones className={`w-4 h-4 ${isSpeaking ? 'animate-bounce' : ''}`} />
+                              </div>
+                              <div>
+                                <h4 className={`font-extrabold text-[11px] uppercase tracking-wider ${
+                                  readTheme === 'parchment' ? 'text-rose-600' : 'text-rose-400'
+                                }`}>Voice-to-Text Narration</h4>
+                                <p className={`text-[10px] sm:text-xs ${readTheme === 'parchment' ? 'text-[#1c1917]/70' : 'text-slate-400'}`}>
+                                  {isSpeaking ? (
+                                    <span className="text-emerald-400 flex items-center gap-1">
+                                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Playing Audio Guide...
+                                    </span>
+                                  ) : isPaused ? (
+                                    <span className="text-amber-400">Narration Paused</span>
+                                  ) : (
+                                    <span>Synthesized audio narration reader</span>
+                                  )}
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* Waveform Equalizer simulation (only if speaking) */}
+                            {isSpeaking && (
+                              <div className="hidden sm:flex items-end gap-0.5 h-5 px-1 pb-1">
+                                <span className="w-0.5 bg-rose-500 animate-[bounce_0.8s_infinite] h-2" style={{ animationDelay: '0.1s' }} />
+                                <span className="w-0.5 bg-rose-500 animate-[bounce_0.5s_infinite] h-4" style={{ animationDelay: '0.3s' }} />
+                                <span className="w-0.5 bg-rose-500 animate-[bounce_0.7s_infinite] h-3" style={{ animationDelay: '0.2s' }} />
+                                <span className="w-0.5 bg-rose-500 animate-[bounce_0.6s_infinite] h-5" style={{ animationDelay: '0s' }} />
+                                <span className="w-0.5 bg-rose-500 animate-[bounce_0.9s_infinite] h-1" style={{ animationDelay: '0.4s' }} />
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Voice configurations and player actions */}
+                          <div className="flex flex-wrap items-center gap-3.5">
+                            {/* Available Voices Dropdown selection */}
+                            {availableVoices.length > 0 && (
+                              <div className="flex items-center gap-1.5 shrink-0">
+                                <span className={`text-[10px] font-mono uppercase font-bold tracking-wider ${
+                                  readTheme === 'parchment' ? 'text-stone-500' : 'text-slate-400'
+                                }`}>Voice:</span>
+                                <select
+                                  value={selectedVoiceName}
+                                  onChange={(e) => {
+                                    setSelectedVoiceName(e.target.value);
+                                    handleStopSpeak(); // restart cleanly
+                                  }}
+                                  className={`text-[10px] font-bold p-1 rounded border outline-none max-w-[130px] sm:max-w-[160px] ${
+                                    readTheme === 'sepia'
+                                      ? 'bg-black/40 border-[#ece4db]/20 text-[#ece4db]'
+                                      : readTheme === 'parchment'
+                                      ? 'bg-stone-100 border-stone-300 text-stone-900'
+                                      : 'bg-slate-950 border-slate-800 text-slate-100'
+                                  }`}
+                                >
+                                  {availableVoices.map((voice) => (
+                                    <option key={voice.name} value={voice.name} className="bg-slate-950 text-slate-100">
+                                      {voice.name.replace(/Microsoft|Google|Apple/gi, '').trim()} ({voice.lang})
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+                            )}
+
+                            {/* Speed Rate configuration slider */}
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              <span className={`text-[10px] font-mono uppercase font-bold tracking-wider ${
+                                readTheme === 'parchment' ? 'text-stone-500' : 'text-slate-400'
+                              }`}>Speed:</span>
+                              <div className="flex items-center gap-1">
+                                <input
+                                  type="range"
+                                  min="0.5"
+                                  max="2"
+                                  step="0.25"
+                                  value={speechRate}
+                                  onChange={(e) => {
+                                    setSpeechRate(parseFloat(e.target.value));
+                                  }}
+                                  className="w-16 accent-rose-500 h-1"
+                                />
+                                <span className="font-mono text-[10px] font-bold shrink-0">{speechRate}x</span>
+                              </div>
+                            </div>
+
+                            {/* Control button actions */}
+                            <div className="flex items-center gap-1.5">
+                              <button
+                                onClick={handleToggleSpeak}
+                                className={`px-2.5 py-1.5 rounded-lg text-[10px] font-bold transition-all flex items-center gap-1 cursor-pointer ${
+                                  isSpeaking 
+                                    ? 'bg-amber-500 text-black hover:bg-amber-400' 
+                                    : 'bg-rose-500 hover:bg-rose-600 text-white shadow'
+                                }`}
+                                title={isSpeaking ? "Pause Narration" : "Listen / Read Aloud"}
+                              >
+                                {isSpeaking ? (
+                                  <>
+                                    <Pause className="w-3 h-3 fill-current" />
+                                    <span>Pause</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Play className="w-3 h-3 fill-current" />
+                                    <span>{isPaused ? "Resume" : "Listen Aloud"}</span>
+                                  </>
+                                )}
+                              </button>
+
+                              {(isSpeaking || isPaused) && (
+                                <button
+                                  onClick={handleStopSpeak}
+                                  className={`px-2.5 py-1.5 rounded-lg text-[10px] font-bold transition-all flex items-center gap-1 cursor-pointer ${
+                                    readTheme === 'parchment' 
+                                      ? 'bg-stone-200 text-stone-900 hover:bg-stone-300'
+                                      : 'bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 hover:text-white'
+                                  }`}
+                                  title="Stop Narration"
+                                >
+                                  <Square className="w-3 h-3 fill-current" />
+                                  <span>Stop</span>
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
                         {/* 3. Cover Photo */}
                         <div className="w-full h-48 sm:h-80 rounded-xl overflow-hidden border border-slate-850/40 relative shadow-2xl group shrink-0">
                           <img 
@@ -3434,6 +3902,93 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                             );
                           })}
                         </div>
+
+                        {/* Related Articles Suggested in Same Category */}
+                        {(() => {
+                          const relatedList = [
+                            ...AT_LEAST_20_ARTICLES.filter(art => art.category === readingArticle.category && art.id !== readingArticle.id),
+                            ...AT_LEAST_20_ARTICLES.filter(art => art.id !== readingArticle.id)
+                          ].filter((item, index, self) => self.findIndex(t => t.id === item.id) === index).slice(0, 3);
+                          
+                          return (
+                            <div className={`mt-10 pt-8 border-t transition-colors ${
+                              readTheme === 'parchment' ? 'border-stone-200' : 'border-slate-850/50'
+                            }`}>
+                              <div className="flex items-center gap-2 mb-4">
+                                <Compass className="w-4 h-4 text-rose-500" />
+                                <h4 className={`text-sm sm:text-base font-extrabold uppercase tracking-tight ${
+                                  readTheme === 'parchment' ? 'text-stone-900' : 'text-slate-100'
+                                }`}>
+                                  Related Articles
+                                </h4>
+                              </div>
+                              <p className={`text-xs -mt-3 mb-5 ${
+                                readTheme === 'parchment' ? 'text-stone-600' : 'text-slate-400'
+                              }`}>
+                                Handpicked additions from our target academies to enrich your compliance reading trail.
+                              </p>
+
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                {relatedList.map((art) => (
+                                  <button
+                                    key={art.id}
+                                    onClick={() => {
+                                      setReadingArticle(art);
+                                      readerScrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+                                    }}
+                                    className={`group text-left rounded-xl overflow-hidden border transition-all duration-300 p-3 hover:-translate-y-1 hover:shadow-lg flex flex-col justify-between ${
+                                      readTheme === 'sepia'
+                                        ? 'bg-[#1a1412] border-[#ece4db]/10 hover:border-[#ece4db]/25 text-[#ece4db]'
+                                        : readTheme === 'parchment'
+                                        ? 'bg-stone-50/50 border-stone-200 hover:border-stone-350 hover:bg-stone-50 text-stone-900'
+                                        : 'bg-slate-900/60 border-slate-850 hover:border-rose-500/30 hover:bg-slate-900 text-slate-100'
+                                    }`}
+                                  >
+                                    <div className="space-y-2.5 w-full">
+                                      {/* Cover frame */}
+                                      <div className="w-full h-24 rounded-lg overflow-hidden border border-slate-800/10 dark:border-white/5 relative bg-slate-950/20">
+                                        <img
+                                          src={getArticleCover(art.category, art.id)}
+                                          alt={art.title}
+                                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                          referrerPolicy="no-referrer"
+                                        />
+                                      </div>
+
+                                      {/* Tag and category metadata */}
+                                      <span className="inline-block px-1.5 py-0.5 bg-rose-500/10 border border-rose-500/20 text-rose-400 text-[9px] font-mono font-bold tracking-wide uppercase rounded">
+                                        {art.category}
+                                      </span>
+
+                                      {/* Heading title */}
+                                      <h5 className={`font-bold text-xs sm:text-sm line-clamp-2 leading-snug group-hover:text-rose-400 transition-colors ${
+                                        readTheme === 'parchment' ? 'text-stone-900' : 'text-slate-200'
+                                      }`}>
+                                        {art.title}
+                                      </h5>
+                                    </div>
+
+                                    {/* Read time and action */}
+                                    <div className={`mt-4 pt-2.5 border-t w-full flex items-center justify-between text-[10px] sm:text-xs font-mono ${
+                                      readTheme === 'sepia'
+                                        ? 'border-[#ece4db]/5 text-[#ece4db]/60'
+                                        : readTheme === 'parchment'
+                                        ? 'border-stone-200 text-stone-550'
+                                        : 'border-slate-850/50 text-slate-400'
+                                    }`}>
+                                      <span className="flex items-center gap-1">
+                                        <Clock className="w-3 text-rose-500/70" /> {art.readTime}
+                                      </span>
+                                      <span className="text-rose-400 group-hover:translate-x-1 transition-transform inline-flex items-center gap-0.5 font-bold uppercase text-[9px] tracking-wider">
+                                        Read Now <ArrowRight className="w-2.5 h-2.5" />
+                                      </span>
+                                    </div>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        })()}
 
                         {/* Quick Share Section */}
                         <div className={`mt-8 p-4 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 border transition-colors ${
@@ -3515,6 +4070,12 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                                 <FileText className="w-3.5 h-3.5" /> Launch PDF Tool
                               </button>
                             )}
+                             <button
+                              onClick={() => handleDownloadPDF(readingArticle)}
+                              className="flex-1 md:flex-initial py-2.5 px-4 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 border border-indigo-500/20 rounded-lg text-xs font-bold transition-colors inline-flex items-center justify-center gap-1.5"
+                            >
+                              <FileDown className="w-3.5 h-3.5" /> Download as PDF
+                            </button>
                             <button
                               onClick={() => handlePrintArticle(readingArticle)}
                               className="flex-1 md:flex-initial py-2.5 px-4 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 rounded-lg text-xs font-bold transition-colors inline-flex items-center justify-center gap-1.5"
