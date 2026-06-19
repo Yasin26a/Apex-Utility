@@ -3223,124 +3223,158 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                     <motion.div
                       initial={{ opacity: 0, scale: 0.98, y: 15 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
-                      className="bg-slate-950 max-w-4xl w-full h-full md:h-auto md:max-h-[92vh] rounded-none md:rounded-2xl border-0 md:border border-slate-800 overflow-hidden shadow-2xl flex flex-col my-0 md:my-4 transition-all"
+                      className="bg-slate-950 max-w-4xl w-full h-full md:h-auto md:max-h-[92vh] rounded-none md:rounded-2xl border-0 md:border border-slate-800 overflow-hidden shadow-2xl flex flex-col my-0 md:my-4 transition-all relative"
                     >
-                      {/* Modal title bar */}
-                      <div className="bg-slate-900 border-b border-slate-800 p-4 sm:p-6 flex justify-between items-start gap-3 sm:gap-4 relative overflow-hidden shrink-0">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/5 rounded-full blur-3xl pointer-events-none" />
-                        <div className="space-y-1.5 sm:space-y-2 min-w-0 relative z-10">
+                      {/* Quiet Floating Close Button (X) */}
+                      <button
+                        onClick={() => setReadingArticle(null)}
+                        className={`absolute top-4 right-4 z-50 p-2 text-xs font-mono font-bold uppercase rounded-lg border backdrop-blur-md shadow-lg transition-all duration-200 flex items-center justify-center gap-1 ${
+                          readTheme === 'sepia'
+                            ? 'bg-[#1a1412]/80 border-[#ece4db]/10 text-[#ece4db] hover:bg-[#1a1412] hover:border-[#ece4db]/30'
+                            : readTheme === 'parchment'
+                            ? 'bg-[#FAF6EE]/80 border-[#1c1917]/10 text-[#1c1917] hover:bg-[#FAF6EE] hover:border-[#1c1917]/30'
+                            : 'bg-black/80 border-slate-800 text-slate-300 hover:text-white hover:bg-slate-900 hover:border-slate-700'
+                        }`}
+                        title="Close (ESC)"
+                      >
+                        <X className="w-4 h-4" />
+                        <span className="text-[10px] hidden sm:inline">ESC</span>
+                      </button>
+
+                      {/* Modal dynamic detailed contents body scroll area - ALL ITEMS SCROLL SEAMLESSLY */}
+                      <div 
+                        className={`p-4 sm:p-10 overflow-y-auto space-y-6 flex-1 transition-colors duration-200 ${
+                          readTheme === 'sepia' 
+                            ? 'bg-[#140e0c] text-[#ece4db]' 
+                            : readTheme === 'parchment'
+                            ? 'bg-[#FAF6EE] text-[#1c1917]'
+                            : 'bg-slate-950 text-slate-100'
+                        }`}
+                      >
+                        {/* 1. Header Information */}
+                        <div className="space-y-3 pt-6 sm:pt-4 pb-2 border-b border-rose-500/10">
                           <div className="flex flex-wrap items-center gap-2">
                             <span className="px-2.5 py-0.5 bg-rose-500/10 border border-rose-500/20 text-rose-400 text-[10px] font-mono font-bold tracking-wide uppercase rounded">
                               {readingArticle.category}
                             </span>
-                            <span className="text-xs text-slate-400 font-mono flex items-center gap-1.5 bg-[#09090d]/60 px-2 py-0.5 rounded border border-slate-850">
+                            <span className={`text-xs font-mono flex items-center gap-1.5 px-2 py-0.5 rounded border ${
+                              readTheme === 'sepia'
+                                ? 'bg-black/40 border-[#ece4db]/15 text-[#ece4db]/70'
+                                : readTheme === 'parchment'
+                                ? 'bg-[#f4f0ea]/70 border-[#1c1917]/15 text-[#1c1917]/70'
+                                : 'bg-slate-900/60 border-slate-850 text-slate-400'
+                            }`}>
                               <Clock className="w-3.5 h-3.5 text-rose-400" /> {readingArticle.readTime} ({readingArticle.wordCount} words)
                             </span>
                           </div>
-                          <h3 className="font-extrabold text-white text-base sm:text-2xl leading-snug tracking-tight">
+                          
+                          <h3 className={`font-extrabold text-xl sm:text-3xl leading-tight tracking-tight ${
+                            readTheme === 'parchment' ? 'text-stone-900 font-sans' : 'text-white'
+                          }`}>
                             {readingArticle.title}
                           </h3>
                         </div>
-                        <button
-                          onClick={() => setReadingArticle(null)}
-                          className="p-1.5 px-3 bg-slate-950 hover:bg-slate-800 text-slate-400 hover:text-white rounded-lg border border-slate-800 transition-colors shrink-0 text-xs font-mono font-bold hover:border-rose-500/30"
-                          title="Close (ESC)"
-                        >
-                          ESC
-                        </button>
-                      </div>
 
-                      {/* Modal Controls Bar */}
-                      <div className="bg-slate-900/40 border-b border-slate-850 px-4 sm:px-6 py-2.5 sm:py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs z-10 shrink-0">
-                        <div className="flex flex-wrap items-center gap-3 sm:gap-4">
-                          {/* Font Family */}
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-[10px] text-slate-500 font-mono uppercase font-bold">Font:</span>
-                            <div className="flex rounded-md bg-slate-950 p-0.5 border border-slate-800">
-                              {(['sans', 'serif', 'mono'] as const).map((f) => (
-                                <button
-                                  key={f}
-                                  onClick={() => setReadFontFamily(f)}
-                                  className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold transition-all ${
-                                    readFontFamily === f
-                                      ? 'bg-rose-500 text-white font-black'
-                                      : 'text-slate-400 hover:text-white'
-                                  }`}
-                                >
-                                  {f}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-
-                          {/* Font Size */}
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-[10px] text-slate-500 font-mono uppercase font-bold">Size:</span>
-                            <div className="flex rounded-md bg-slate-950 p-0.5 border border-slate-800">
-                              {(['sm', 'base', 'lg', 'xl'] as const).map((sz) => (
-                                <button
-                                  key={sz}
-                                  onClick={() => setReadFontSize(sz)}
-                                  className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold transition-all ${
-                                    readFontSize === sz
-                                      ? 'bg-rose-500 text-white font-black'
-                                      : 'text-slate-400 hover:text-white'
-                                  }`}
-                                >
-                                  {sz}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Theme Preset */}
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-[10px] text-slate-500 font-mono uppercase font-bold">Mode:</span>
-                          <div className="flex rounded-md bg-slate-950 p-0.5 border border-slate-800">
-                            {[
-                              { id: 'slate', name: 'Slate' },
-                              { id: 'sepia', name: 'Sepia' },
-                              { id: 'parchment', name: 'Parch' }
-                            ].map((thm) => (
-                              <button
-                                key={thm.id}
-                                onClick={() => setReadTheme(thm.id as any)}
-                                className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all ${
-                                  readTheme === thm.id
-                                    ? 'bg-rose-500 text-white font-black'
-                                    : 'text-slate-400 hover:text-white'
-                                }`}
-                              >
-                                {thm.name}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Modal dynamic detailed contents body scroll area */}
-                      <div 
-                        className={`p-4 sm:p-8 overflow-y-auto space-y-5 flex-1 transition-colors duration-200 ${
-                          readTheme === 'sepia' 
-                            ? 'bg-[#1a1412] text-[#f1ebe5]' 
+                        {/* 2. Interactive Reader Option Dashboard */}
+                        <div className={`p-4 rounded-xl flex flex-col md:flex-row gap-4 items-start md:items-center justify-between text-xs transition-colors ${
+                          readTheme === 'sepia'
+                            ? 'bg-[#1a1412] border border-[#ece4db]/5'
                             : readTheme === 'parchment'
-                            ? 'bg-[#f4f0ea] text-[#1c1917]'
-                            : 'bg-slate-950 text-slate-100'
-                        }`}
-                      >
-                        {/* Cover Splash Photo */}
-                        <div className="w-full h-48 sm:h-72 rounded-xl overflow-hidden border border-slate-850/40 relative mb-5 shadow-2xl group shrink-0">
+                            ? 'bg-[#FAF6EE] border border-stone-200'
+                            : 'bg-slate-900/40 border border-slate-850'
+                        }`}>
+                          <div className="flex flex-wrap items-center gap-4">
+                            {/* Font Type Selection */}
+                            <div className="flex items-center gap-1.5">
+                              <span className={`text-[10px] font-mono uppercase font-bold tracking-wider ${
+                                readTheme === 'parchment' ? 'text-stone-500' : 'text-slate-400'
+                              }`}>Font:</span>
+                              <div className={`flex rounded-md p-0.5 border ${
+                                readTheme === 'parchment' ? 'bg-stone-200/50 border-stone-350' : 'bg-slate-950 border-slate-800'
+                              }`}>
+                                {(['sans', 'serif', 'mono'] as const).map((f) => (
+                                  <button
+                                    key={f}
+                                    onClick={() => setReadFontFamily(f)}
+                                    className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold transition-all ${
+                                      readFontFamily === f
+                                        ? 'bg-rose-500 text-white font-black shadow'
+                                        : readTheme === 'parchment' ? 'text-stone-655 hover:text-stone-900' : 'text-slate-400 hover:text-white'
+                                    }`}
+                                  >
+                                    {f}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+
+                            {/* Font Size Selection */}
+                            <div className="flex items-center gap-1.5">
+                              <span className={`text-[10px] font-mono uppercase font-bold tracking-wider ${
+                                readTheme === 'parchment' ? 'text-stone-500' : 'text-slate-400'
+                              }`}>Size:</span>
+                              <div className={`flex rounded-md p-0.5 border ${
+                                readTheme === 'parchment' ? 'bg-stone-200/50 border-stone-350' : 'bg-slate-950 border-slate-800'
+                              }`}>
+                                {(['sm', 'base', 'lg', 'xl'] as const).map((sz) => (
+                                  <button
+                                    key={sz}
+                                    onClick={() => setReadFontSize(sz)}
+                                    className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold transition-all ${
+                                      readFontSize === sz
+                                        ? 'bg-rose-500 text-white font-black shadow'
+                                        : readTheme === 'parchment' ? 'text-stone-655 hover:text-stone-900' : 'text-slate-400 hover:text-white'
+                                    }`}
+                                  >
+                                    {sz}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Theme Selection */}
+                          <div className="flex items-center gap-1.5">
+                            <span className={`text-[10px] font-mono uppercase font-bold tracking-wider ${
+                              readTheme === 'parchment' ? 'text-stone-500' : 'text-slate-400'
+                            }`}>Theme:</span>
+                            <div className={`flex rounded-md p-0.5 border ${
+                              readTheme === 'parchment' ? 'bg-stone-200/50 border-stone-350' : 'bg-slate-950 border-slate-800'
+                            }`}>
+                              {[
+                                { id: 'slate', name: 'Slate' },
+                                { id: 'sepia', name: 'Sepia' },
+                                { id: 'parchment', name: 'Parch' }
+                              ].map((thm) => (
+                                <button
+                                  key={thm.id}
+                                  onClick={() => setReadTheme(thm.id as any)}
+                                  className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all ${
+                                    readTheme === thm.id
+                                      ? 'bg-rose-500 text-white font-black shadow'
+                                      : readTheme === 'parchment' ? 'text-stone-655 hover:text-[#1c1917]' : 'text-slate-400 hover:text-white'
+                                  }`}
+                                >
+                                  {thm.name}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* 3. Cover Photo */}
+                        <div className="w-full h-48 sm:h-80 rounded-xl overflow-hidden border border-slate-850/40 relative shadow-2xl group shrink-0">
                           <img 
                             src={getArticleCover(readingArticle.category, readingArticle.id)} 
                             alt={readingArticle.title} 
-                            className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-700 ease-out"
+                            className="w-full h-full object-cover group-hover:scale-[1.01] transition-transform duration-700 ease-out"
                             referrerPolicy="no-referrer"
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-50" />
                         </div>
 
-                        <div className={`space-y-5 ${
+                        {/* 4. Article Paragraphs */}
+                        <div className={`space-y-6 ${
                           readFontFamily === 'serif' 
                             ? 'font-serif' 
                             : readFontFamily === 'mono'
@@ -3360,9 +3394,9 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                               return (
                                 <h4 
                                   key={i} 
-                                  className={`font-bold mt-6 pt-3 border-b pb-1.5 flex items-center gap-2 ${
+                                  className={`font-semibold mt-8 pt-4 border-b pb-1.5 flex items-center gap-2 ${
                                     readTheme === 'parchment' 
-                                      ? 'text-stone-900 border-stone-300' 
+                                      ? 'text-stone-900 border-stone-200' 
                                       : 'text-white border-slate-900'
                                   }`}
                                 >
@@ -3377,7 +3411,7 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                               return (
                                 <div key={i} className="pl-5 mt-2.5">
                                   <p className={`font-semibold ${
-                                    readTheme === 'parchment' ? 'text-stone-800' : 'text-slate-200'
+                                    readTheme === 'parchment' ? 'text-stone-900' : 'text-slate-200'
                                   }`}>{paragraph}</p>
                                 </div>
                               );
@@ -3386,7 +3420,7 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                               // Extract code representation
                               const cleanCode = paragraph.replace(/```[a-z]*/g, '').trim();
                               return (
-                                <pre key={i} className="p-4 bg-slate-900 rounded-xl border border-slate-800 overflow-x-auto text-xs sm:text-sm font-mono text-rose-300 leading-normal my-4 shadow-inner">
+                                <pre key={i} className="p-4 bg-[#09090d] rounded-xl border border-slate-850 overflow-x-auto text-xs sm:text-sm font-mono text-rose-300 leading-normal my-4 shadow-inner">
                                   <code>{cleanCode}</code>
                                 </pre>
                               );
@@ -3398,61 +3432,65 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                             );
                           })}
                         </div>
-                      </div>
 
-                      {/* Modal buttons footer */}
-                      <div className="bg-slate-900 p-5 border-t border-slate-850 flex flex-col md:flex-row items-center justify-between gap-4 shrink-0 transition-colors">
-                        <div className="text-[11px] font-mono text-slate-400">
-                          Published: {readingArticle.publishDate} • Interactive E-Reader Mode
-                        </div>
-                        <div className="flex flex-wrap gap-2 w-full md:w-auto">
-                          {readingArticle.id.includes('pdf') && (
-                            <button
-                              onClick={() => { setReadingArticle(null); handleTabChange('compress-pdf'); }}
-                              className="flex-1 md:flex-initial py-2 px-3 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 rounded-lg text-xs font-bold transition-colors inline-flex items-center justify-center gap-1.5"
-                            >
-                              <FileText className="w-3.5 h-3.5" /> Launch PDF Tool
-                            </button>
-                          )}
-                          <button
-                            onClick={() => handlePrintArticle(readingArticle)}
-                            className="flex-1 md:flex-initial py-2 px-3.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 rounded-lg text-xs font-bold transition-colors inline-flex items-center justify-center gap-1.5"
-                          >
-                            <Printer className="w-3.5 h-3.5" /> Print Article to PDF
-                          </button>
-                          <button
-                            onClick={() => toggleBookmark(readingArticle.id)}
-                            className={`flex-1 md:flex-initial py-2 px-3.5 rounded-lg text-xs font-bold transition-all inline-flex items-center justify-center gap-1.5 border ${
-                              bookmarkedIds.includes(readingArticle.id)
-                                ? 'bg-rose-500/10 border-rose-500/20 text-rose-400'
-                                : 'bg-slate-950 hover:bg-slate-800 text-slate-300 border-slate-800'
-                            }`}
-                          >
-                            {bookmarkedIds.includes(readingArticle.id) ? (
-                              <>
-                                <BookmarkCheck className="w-3.5 h-3.5 text-rose-500 fill-rose-500/20" /> Added
-                              </>
-                            ) : (
-                              <>
-                                <Bookmark className="w-3.5 h-3.5" /> Read Later
-                              </>
+                        {/* 5. In-Flow Action Buttons (Footer elements merged seamlessly) */}
+                        <div className={`mt-12 pt-6 border-t flex flex-col md:flex-row items-center justify-between gap-4 transition-colors ${
+                          readTheme === 'parchment' ? 'border-stone-200' : 'border-slate-900'
+                        }`}>
+                          <div className={`text-[11px] font-mono ${
+                            readTheme === 'parchment' ? 'text-stone-550' : 'text-slate-400'
+                          }`}>
+                            Published: {readingArticle.publishDate} • Complete Reading Guide
+                          </div>
+                          <div className="flex flex-wrap gap-2 w-full md:w-auto">
+                            {readingArticle.id.includes('pdf') && (
+                              <button
+                                onClick={() => { setReadingArticle(null); handleTabChange('compress-pdf'); }}
+                                className="flex-1 md:flex-initial py-2.5 px-4 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 rounded-lg text-xs font-bold transition-colors inline-flex items-center justify-center gap-1.5"
+                              >
+                                <FileText className="w-3.5 h-3.5" /> Launch PDF Tool
+                              </button>
                             )}
-                          </button>
-                          <button
-                            onClick={() => {
-                              navigator.clipboard.writeText(`https://apexutility.live/guides#${readingArticle.id}`);
-                              alert("Article deep link copied to clipboard successfully!");
-                            }}
-                            className="flex-1 md:flex-initial py-2 px-3.5 bg-slate-950 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-lg text-xs font-bold transition-colors inline-flex items-center justify-center gap-1.5"
-                          >
-                            <Copy className="w-3.5 h-3.5" /> Copy Link
-                          </button>
-                          <button
-                            onClick={() => setReadingArticle(null)}
-                            className="flex-1 md:flex-initial py-2 px-4.5 bg-slate-100 hover:bg-white text-slate-950 rounded-lg text-xs font-bold transition-colors"
-                          >
-                            Close
-                          </button>
+                            <button
+                              onClick={() => handlePrintArticle(readingArticle)}
+                              className="flex-1 md:flex-initial py-2.5 px-4 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 rounded-lg text-xs font-bold transition-colors inline-flex items-center justify-center gap-1.5"
+                            >
+                              <Printer className="w-3.5 h-3.5" /> Print to PDF
+                            </button>
+                            <button
+                              onClick={() => toggleBookmark(readingArticle.id)}
+                              className={`flex-1 md:flex-initial py-2.5 px-4 rounded-lg text-xs font-bold transition-all inline-flex items-center justify-center gap-1.5 border ${
+                                bookmarkedIds.includes(readingArticle.id)
+                                  ? 'bg-rose-500/10 border-rose-500/20 text-rose-400'
+                                  : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border-slate-805'
+                              }`}
+                            >
+                              {bookmarkedIds.includes(readingArticle.id) ? (
+                                <>
+                                  <BookmarkCheck className="w-3.5 h-3.5 text-rose-500 fill-rose-500/20" /> Added
+                                </>
+                              ) : (
+                                <>
+                                  <Bookmark className="w-3.5 h-3.5" /> Read Later
+                                </>
+                              )}
+                            </button>
+                            <button
+                              onClick={() => {
+                                navigator.clipboard.writeText(`https://apexutility.live/guides#${readingArticle.id}`);
+                                alert("Article deep link copied to clipboard successfully!");
+                              }}
+                              className="flex-1 md:flex-initial py-2.5 px-4 bg-slate-905 hover:bg-slate-800 text-slate-300 border border-slate-805 rounded-lg text-xs font-bold transition-colors inline-flex items-center justify-center gap-1.5"
+                            >
+                              <Copy className="w-3.5 h-3.5" /> Copy Link
+                            </button>
+                            <button
+                              onClick={() => setReadingArticle(null)}
+                              className="flex-1 md:flex-initial py-2.5 px-5 bg-slate-100 hover:bg-white text-slate-950 rounded-lg text-xs font-bold transition-colors"
+                            >
+                              Close Reader
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </motion.div>
