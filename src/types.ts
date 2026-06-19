@@ -22,6 +22,7 @@ export type ActiveTab =
   | 'regex-tester'
   | 'csv-json-converter'
   | 'image-compressor'
+  | 'quick-image-optimizer'
   | 'rich-text-stats'
   | 'audio-trimmer'
   | 'ai-transcriber'

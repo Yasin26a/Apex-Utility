@@ -3,7 +3,8 @@ import {
   BookOpen, Search, Clock, ArrowRight, Tag, HelpCircle, 
   Terminal, Sparkles, User, Calendar, ExternalLink, ThumbsUp, 
   ChevronRight, ArrowLeft, Bookmark, Heart, Share2, MessageSquare,
-  QrCode, FileCode, Wand2, Shield, Zap, TrendingUp
+  QrCode, FileCode, Wand2, Shield, Zap, TrendingUp,
+  Volume2, VolumeX, Pause, Play, Square, Eye, EyeOff
 } from 'lucide-react';
 import { ActiveTab } from '../types';
 
@@ -20,6 +21,7 @@ export interface Article {
   relatedTool: ActiveTab;
   tags: string[];
   content: React.ReactNode;
+  image?: string;
 }
 
 interface GuidesProps {
@@ -55,12 +57,125 @@ export default function Guides({ onTabChange }: GuidesProps) {
     'ai-pdf-analysis': 67,
     'csv-json-tabular': 52,
     'local-image-crop': 59,
-    'adsense-approval-strategy': 88
+    'adsense-approval-strategy': 88,
+    'edge-computing-runtimes': 56,
+    'web-vitals-inp': 44,
+    'frontend-ai-inference': 71,
+    'css-container-queries': 38,
+    'http3-and-quic': 49,
+    'passkey-architecture': 82,
+    'dom-scraping-crawler': 63,
+    'git-rebase-interactive': 39,
+    'indexeddb-vs-localstorage': 47,
+    'micro-frontends-mfe': 51,
+    'typescript-meta-programming': 68,
+    'color-accessibility-contrast': 33,
+    'svg-rendering-viewport': 42,
+    'exif-privacy-implications': 79,
+    'structured-seo-metadata': 58,
+    'dns-sec-overview': 36,
+    'base64-encoding-pitfalls': 45,
+    'regular-expression-backtracking': 61,
+    'wav-pcm-structure': 53,
+    'lcp-seo-images': 69
   });
   const [userLiked, setUserLiked] = useState<Record<string, boolean>>({});
   const [suggestionName, setSuggestionName] = useState('');
   const [suggestionTopic, setSuggestionTopic] = useState('');
   const [submittedSuggestion, setSubmittedSuggestion] = useState(false);
+
+  // States for polished reading experience
+  const [fontSize, setFontSize] = useState<'sm' | 'base' | 'lg' | 'xl'>('base');
+  const [fontFamily, setFontFamily] = useState<'sans' | 'serif' | 'mono'>('sans');
+  const [theme, setTheme] = useState<'slate' | 'sepia' | 'parchment'>('slate');
+  const [isDistractionFree, setIsDistractionFree] = useState(false);
+  const [speechRate, setSpeechRate] = useState<number>(1.0);
+  const [speakingArticleId, setSpeakingArticleId] = useState<string | null>(null);
+  const [isSpeechPaused, setIsSpeechPaused] = useState(false);
+
+  const extractTextFromNode = (node: React.ReactNode): string => {
+    if (node == null) return '';
+    if (typeof node === 'string' || typeof node === 'number') {
+      return String(node) + ' ';
+    }
+    if (Array.isArray(node)) {
+      return node.map(extractTextFromNode).join(' ');
+    }
+    if (React.isValidElement(node)) {
+      const type = node.type;
+      if (type === 'pre' || type === 'code' || type === 'style' || type === 'script') {
+        return '';
+      }
+      const props = node.props as any;
+      if (props && props.children) {
+        return extractTextFromNode(props.children);
+      }
+    }
+    return '';
+  };
+
+  const speakArticle = (article: Article) => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+
+      if (speakingArticleId === article.id && !isSpeechPaused) {
+        setSpeakingArticleId(null);
+        setIsSpeechPaused(false);
+        return;
+      }
+
+      setSpeakingArticleId(article.id);
+      setIsSpeechPaused(false);
+
+      const parsedText = extractTextFromNode(article.content);
+      const textToSpeak = `${article.title}. Written by ${article.author}. ${article.excerpt}. ${parsedText}`;
+
+      const utterance = new SpeechSynthesisUtterance(textToSpeak);
+      utterance.rate = speechRate;
+      
+      utterance.onend = () => {
+        setSpeakingArticleId(null);
+        setIsSpeechPaused(false);
+      };
+
+      utterance.onerror = () => {
+        setSpeakingArticleId(null);
+        setIsSpeechPaused(false);
+      };
+
+      window.speechSynthesis.speak(utterance);
+    } else {
+      alert('Text-to-speech is not supported in this browser.');
+    }
+  };
+
+  const pauseSpeech = () => {
+    if ('speechSynthesis' in window) {
+      if (window.speechSynthesis.speaking) {
+        if (window.speechSynthesis.paused) {
+          window.speechSynthesis.resume();
+          setIsSpeechPaused(false);
+        } else {
+          window.speechSynthesis.pause();
+          setIsSpeechPaused(true);
+        }
+      }
+    }
+  };
+
+  const stopSpeech = () => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      setSpeakingArticleId(null);
+      setIsSpeechPaused(false);
+    }
+  };
+
+  const handleBackToIndex = () => {
+    stopSpeech();
+    setSelectedArticleId(null);
+    setIsDistractionFree(false);
+  };
 
   const handleLike = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -83,6 +198,46 @@ export default function Guides({ onTabChange }: GuidesProps) {
         setSubmittedSuggestion(false);
       }, 2500);
     }
+  };
+
+  const getArticleCover = (art: { id: string; title: string; topic: string; tags: string[] }): string => {
+    const text = `${art.id} ${art.title} ${art.topic} ${art.tags.join(' ')}`.toLowerCase();
+    
+    if (text.includes('pet') || text.includes('cat') || text.includes('dog') || text.includes('animal') || text.includes('cozy')) {
+      return 'https://images.unsplash.com/photo-1415369629372-26f2fe60c467?auto=format&fit=crop&w=800&q=80';
+    }
+    if (text.includes('pdf') || text.includes('document')) {
+      return 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80';
+    }
+    if (text.includes('security') || text.includes('encryption') || text.includes('password') || text.includes('passkey') || text.includes('privacy') || text.includes('dns-sec') || text.includes('meta')) {
+      return 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=800&q=80';
+    }
+    if (text.includes('seo') || text.includes('sitemap') || text.includes('adsense') || text.includes('crawling') || text.includes('search')) {
+      return 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80';
+    }
+    if (text.includes('ai') || text.includes('inference') || text.includes('machine learning') || text.includes('gpt')) {
+      return 'https://images.unsplash.com/photo-1677442136019-21780efad99a?auto=format&fit=crop&w=800&q=80';
+    }
+    if (text.includes('image') || text.includes('webp') || text.includes('png') || text.includes('crop') || text.includes('raster') || text.includes('svg') || text.includes('graphics')) {
+      return 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=800&q=80';
+    }
+    if (text.includes('audio') || text.includes('wav') || text.includes('pcm') || text.includes('voice') || text.includes('music')) {
+      return 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=80';
+    }
+    if (text.includes('color') || text.includes('palette') || text.includes('harmony')) {
+      return 'https://images.unsplash.com/photo-1500462963774-f59a9347def1?auto=format&fit=crop&w=800&q=80';
+    }
+    if (text.includes('code') || text.includes('typescript') || text.includes('javascript') || text.includes('git') || text.includes('json') || text.includes('ast') || text.includes('indexeddb') || text.includes('localstorage') || text.includes('dom') || text.includes('micro')) {
+      return 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80';
+    }
+    if (text.includes('network') || text.includes('http') || text.includes('quic') || text.includes('edge') || text.includes('dns') || text.includes('infrastructure')) {
+      return 'https://images.unsplash.com/photo-1544383835-bda2bc66a55d?auto=format&fit=crop&w=800&q=80';
+    }
+    if (text.includes('math') || text.includes('algorithm') || text.includes('matrix') || text.includes('complexity') || text.includes('time') || text.includes('regex') || text.includes('expression')) {
+      return 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&w=800&q=80';
+    }
+    
+    return 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80';
   };
 
   const articles: Article[] = [
@@ -1669,6 +1824,638 @@ export default function Guides({ onTabChange }: GuidesProps) {
           </ul>
         </div>
       )
+    },
+    {
+      id: 'edge-computing-runtimes',
+      title: 'How Edge Computing Runtimes are Redefining Serverless Latency',
+      excerpt: 'Understand how lightweight V8 isolate runtimes bypass heavy virtual machines and container boot times, shrinking startup cold-start delays down to single-digit milliseconds.',
+      topic: 'System Engineering',
+      icon: Terminal,
+      readTime: '4 min read',
+      date: 'June 18, 2026',
+      author: 'APEX EDGE',
+      role: 'Lead Cloud Engineer',
+      relatedTool: 'batch-processor',
+      tags: ['Serverless', 'V8 Engine', 'Edge Runtimes', 'Cloud Performance'],
+      content: (
+        <div className="space-y-6 font-sans text-sm text-zinc-300 leading-relaxed text-justify">
+          <p>
+            Traditional cloud serverless platforms spun up heavy virtual instances or virtual machines to isolate customer workloads. While secure, this introduced significant <strong>cold-start latency</strong> whenever a function had to boot up from scratch.
+          </p>
+          <p>
+            Edge runtimes bypass this issue entirely by utilizing <strong>V8 Isolates</strong>. Instead of spawning an entire operating system process, a single runtime process hosts thousands of isolated contexts, reducing startup times down to under 5 milliseconds.
+          </p>
+          <div className="p-4 bg-zinc-950 rounded-xl border border-zinc-900 font-mono text-[11px] text-zinc-400 space-y-1">
+            <div className="text-zinc-200 uppercase tracking-widest font-extrabold text-[9px] mb-1 text-brand">Edge Runtime Benchmark</div>
+            <div>[V8 Isolate Startup]: 1.2 ms - (Warm & ready)</div>
+            <div>[Traditional VM Cold Boot]: 410.8 ms - (Loading OS limits)</div>
+            <div>[Network Handshake Round-trip]: Over-the-air latency reduced by 70%</div>
+          </div>
+          <h3 className="font-heading text-xs font-black text-white uppercase tracking-wider mt-4">Core Principles of Isolate Scaling</h3>
+          <ul className="list-disc pl-5 space-y-1.5 text-zinc-400">
+            <li><strong>Memory Efficiency:</strong> Isolates share process-wide memory structures, lowering overhead drastically compared to traditional virtualization.</li>
+            <li><strong>Instant Concurrency:</strong> Spin up hundreds of secure request threads simultaneously without triggering host core saturation.</li>
+            <li><strong>Localized Routing:</strong> By operating on globally distributed edge networks, user transactions resolve at the nearest geographic node.</li>
+          </ul>
+        </div>
+      )
+    },
+    {
+      id: 'web-vitals-inp',
+      title: 'Mastering Interaction to Next Paint (INP): The New Core Web Vital',
+      excerpt: 'Step-by-step optimization techniques to replace First Input Delay (FID) with Interaction to Next Paint, keeping main loops non-blocking for visual responsiveness.',
+      topic: 'Performance Engineering',
+      icon: Zap,
+      relatedTool: 'seo-optimizer',
+      readTime: '5 min read',
+      date: 'June 18, 2026',
+      author: 'SEARCH TEAM',
+      role: 'SEO Technologist',
+      tags: ['SEO', 'Core Web Vitals', 'INP', 'Web Performance'],
+      content: (
+        <div className="space-y-6 font-sans text-sm text-zinc-300 leading-relaxed text-justify">
+          <p>
+            Google replaced the old First Input Delay (FID) metric with <strong>Interaction to Next Paint (INP)</strong>. Where FID only measured the delay of the first interaction, INP tracks the latency of all visual feedback interactions throughout the lifetime of the session.
+          </p>
+          <p>
+            To keep your INP scores well within the "Good" threshold (under 200ms), you must ensure long-running JavaScript execution does not block the browser's main rendering thread.
+          </p>
+          <div className="p-4 bg-zinc-950 rounded-xl border border-zinc-900 font-mono text-[11px] text-zinc-400 space-y-1">
+            <div className="text-zinc-250 font-bold text-white mb-1">Yielding Code Pattern</div>
+            <div className="text-emerald-400">// Yield to main thread to allow browser frame draws</div>
+            <div>function performLongTask() &#123;</div>
+            <div>  for (let block of tasks) &#123;</div>
+            <div>    process(block);</div>
+            <div>    await new Promise(r =&gt; setTimeout(r, 0));</div>
+            <div>  &#125;</div>
+            <div>&#125;</div>
+          </div>
+          <h3 className="font-heading text-xs font-black text-white uppercase tracking-wider mt-4">INP Optimization Checklist</h3>
+          <ol className="list-decimal pl-5 space-y-2 text-zinc-400">
+            <li><strong>Avoid Heavy Layout Thrashing:</strong> Do not read and modify element style layouts sequentially in a single loop execution.</li>
+            <li><strong>Web Worker Offloads:</strong> Spin up heavy numeric operations, parsing structures, or image transforms onto separate background threads.</li>
+            <li><strong>Optimize Touch Feedback:</strong> Trigger visual CSS changes immediately upon action triggers, even if deep async requests are still pending.</li>
+          </ol>
+        </div>
+      )
+    },
+    {
+      id: 'frontend-ai-inference',
+      title: 'In-Browser AI Inference with transformers.js and WebGPU',
+      excerpt: 'Explore how compiled model runtimes execute text generation, sentiment analysis, and embedding pipelines directly in client browsers via hardware acceleration.',
+      topic: 'Machine Learning',
+      icon: Sparkles,
+      relatedTool: 'ai-writer',
+      readTime: '4 min read',
+      date: 'June 17, 2026',
+      author: 'NEURAL CREST',
+      role: 'AI Researcher',
+      tags: ['Transformers', 'WebGPU', 'Local ML', 'Inference'],
+      content: (
+        <div className="space-y-6 font-sans text-sm text-zinc-300 leading-relaxed text-justify">
+          <p>
+            With modern browser support for <strong>WebGPU</strong>, heavy neural networks can now run directly inside browser memory spaces. This shifts computational loads completely off API servers, enabling absolute compliance with local user privacy regulations.
+          </p>
+          <p>
+            Libraries like <code>transformers.js</code> use ONNX Runtime environments compiled with WebAssembly and WebGPU bindings to run text, vision, and audio models on local computer resources.
+          </p>
+          <blockquote className="border-l-2 border-brand pl-4 py-1 italic text-xs text-zinc-400">
+            "By taking advantage of client-side GPUs, we are entering an era of zero-cost, hyper-private intelligence that runs completely in isolation from central server queues."
+          </blockquote>
+          <h3 className="font-heading text-xs font-black text-white uppercase tracking-wider mt-4">Local Model Loading Lifecycle</h3>
+          <ol className="list-decimal pl-5 space-y-1 text-zinc-400">
+            <li><strong>Fetch Quantized Model:</strong> Retrieve space-saving 4-bit weights from caching networks to minimize load payloads.</li>
+            <li><strong>Bind WebGPU Buffers:</strong> Initialize graphics memory pipelines for rapid tensor multiplication.</li>
+            <li><strong>Pipelined Tokenization:</strong> Streamline incoming strings into model-ready integers locally before running model execution.</li>
+          </ol>
+        </div>
+      )
+    },
+    {
+      id: 'css-container-queries',
+      title: 'Beyond Media Queries: Unleashing Container Queries for Modular UIs',
+      excerpt: 'Transition from global layout-level sizing rules to component-specific styling constraints based entirely on parent container element slot sizes.',
+      topic: 'Frontend Design',
+      icon: Wand2,
+      relatedTool: 'color-palette',
+      readTime: '3 min read',
+      date: 'June 16, 2026',
+      author: 'UI LABS',
+      role: 'Senior Designer',
+      tags: ['CSS Layouts', 'Container Queries', 'Tailwind', 'Refactoring'],
+      content: (
+        <div className="space-y-6 font-sans text-sm text-zinc-300 leading-relaxed text-justify">
+          <p>
+            For a long time, responsive layouts relied entirely on global viewport viewport dimensions using media queries. This became problematic when inserting a component into a narrow sidebar card context, as viewport styling doesn't know container boundaries.
+          </p>
+          <p>
+            <strong>Container Queries</strong> solve this by letting you define look-and-feel styles relative to parent container sizes rather than general viewport heights or widths.
+          </p>
+          <div className="p-4 bg-zinc-950 rounded-xl border border-zinc-900 font-mono text-[11px] text-zinc-400 space-y-1">
+            <div className="text-zinc-200 uppercase tracking-widest font-extrabold text-[9px] mb-1 text-brand">Tailwind & CSS Usage</div>
+            <div>.card-wrapper &#123; container-type: inline-size; &#125;</div>
+            <div>@container (min-width: 400px) &#123;</div>
+            <div>  .card-element &#123; flex-direction: row; &#125;</div>
+            <div>&#125;</div>
+          </div>
+          <p>
+            Using these dynamic rules, you can drop standard cards or widgets anywhere—from layouts with a massive grid width to micro sidebars—and the element automatically adjusts its spacing, buttons, and titles cleanly.
+          </p>
+        </div>
+      )
+    },
+    {
+      id: 'http3-and-quic',
+      title: 'Why HTTP/3 and QUIC are Replacing TCP for High-Frequency Actions',
+      excerpt: 'An review of UDP-based QUIC channels, explain stream multiplexing and fast mobile-network handovers, bypassing head-of-line networking bottlenecks.',
+      topic: 'Networking',
+      icon: Zap,
+      relatedTool: 'batch-processor',
+      readTime: '4 min read',
+      date: 'June 15, 2026',
+      author: 'APEX OPS',
+      role: 'Network Architect',
+      tags: ['HTTP3', 'QUIC', 'Network Protocols', 'Performance'],
+      content: (
+        <div className="space-y-6 font-sans text-sm text-zinc-300 leading-relaxed text-justify">
+          <p>
+            Legacy HTTP/2 runs multiple logical streams over a single TCP pipeline. If one packet of data in that pipeline gets lost during transmission, the entire connection halts until that lost block is resent. This is called <strong>Head-of-Line (HoL) Blocking</strong>.
+          </p>
+          <p>
+            <strong>HTTP/3</strong> solves this problem by using <strong>QUIC</strong>, a transport protocol built on top of UDP. Every connection stream in QUIC is independent. A lost packet in one stream doesn't slow down the delivery rate of other streams.
+          </p>
+          <h3 className="font-heading text-xs font-black text-white uppercase tracking-wider mt-4">Key Benefits of HTTP/3</h3>
+          <ul className="list-disc pl-5 space-y-1.5 text-zinc-400">
+            <li><strong>One-Trip Handshakes:</strong> Group cryptographic handshakes with transport configurations for much faster connections.</li>
+            <li><strong>Zero-RTT Reconnections:</strong> Clients moving between network stations (like Wi-Fi to cellular) keep their download queues active without resetting connections.</li>
+            <li><strong>Granular Multiplexing:</strong> Stream multiple small elements concurrently, making page assets load quickly.</li>
+          </ul>
+        </div>
+      )
+    },
+    {
+      id: 'passkey-architecture',
+      title: 'Implementing Passkeys: Public-Key Cryptography for Passwordless Auth',
+      excerpt: 'Deconstruct WebAuthn specifications and biometric-validated public-private key challenges, eliminating standard password database vulnerabilities.',
+      topic: 'Security & Identity',
+      icon: Shield,
+      relatedTool: 'password-generator',
+      readTime: '5 min read',
+      date: 'June 15, 2026',
+      author: 'SECURE CORE',
+      role: 'Cryptography Expert',
+      tags: ['Passkeys', 'WebAuthn', 'Security', 'FIDO2'],
+      content: (
+        <div className="space-y-6 font-sans text-sm text-zinc-300 leading-relaxed text-justify">
+          <p>
+            Passwords remain a weak link in online security. Simple passwords are vulnerable to brute-force attacks, while repeating the same password across multiple sites allows single breaches to compromise multiple accounts.
+          </p>
+          <p>
+            <strong>Passkeys</strong> replace passwords with public-key cryptography. When registering, your device generates a public-private keypair. The public key goes to the server, while the private key remains locked on your device.
+          </p>
+          <div className="p-4 bg-zinc-950 rounded-xl border border-zinc-900 font-mono text-[11px] text-zinc-400 space-y-1">
+            <div className="text-zinc-200 uppercase tracking-widest font-extrabold text-[9px] mb-1 text-brand">Cryptographic Process flow</div>
+            <div>[SERVER]: Generate asymmetric randomly-seeded challenge string</div>
+            <div>[DEVICE]: Authenticate via FaceID/TouchID {"->"} Decrypt secure enclave</div>
+            <div>[DEVICE]: Sign the challenge with your private key</div>
+            <div>[SERVER]: Validate with your public key {"->"} Authenticate user</div>
+          </div>
+          <p>
+            This setup prevents phishing attacks since a malicious site cannot intercept or guess your credentials. Without your physical device, harvesting passkey data from servers is impossible.
+          </p>
+        </div>
+      )
+    },
+    {
+      id: 'dom-scraping-crawler',
+      title: 'Evading Bot Detection: Ethical Web Scraping and DOM Reconstruction',
+      excerpt: 'Learn standard browser fingerprint shielding and DOM tree serialization patterns to parse search targets without triggering cloud firewall bans.',
+      topic: 'Data Engineering',
+      icon: Terminal,
+      relatedTool: 'seo-inspect',
+      readTime: '4 min read',
+      date: 'June 14, 2026',
+      author: 'SCRAPE LABS',
+      role: 'Data Harvester',
+      tags: ['Web Scraping', 'Metadata', 'Puppeteer', 'Crawling'],
+      content: (
+        <div className="space-y-6 font-sans text-sm text-zinc-300 leading-relaxed text-justify">
+          <p>
+            Modern edge networks protect backends by blocking automated search bot requests. Simple node-fetch scrapers can trigger security firewalls because they lack standard browser characteristics, such as canvas footprints or complete HTTP header configurations.
+          </p>
+          <p>
+            To scrape ethically and prevent triggers, run queries in headless setups that utilize complete <strong>system browser configurations</strong>.
+          </p>
+          <h3 className="font-heading text-xs font-black text-white uppercase tracking-wider mt-4">Anti-Blocking Measures</h3>
+          <ul className="list-disc pl-5 space-y-1.5 text-zinc-400">
+            <li><strong>Randomize Agent Signatures:</strong> Rotate browser strings, screen aspect proportions, and network headers.</li>
+            <li><strong>Keep Slower Request Cadences:</strong> Avoid flooding APIs; add randomized wait timers between operations.</li>
+            <li><strong>Handle Dynamic JS Logic:</strong> Wait for single-page frameworks to finish updating elements before extracting text nodes.</li>
+          </ul>
+        </div>
+      )
+    },
+    {
+      id: 'git-rebase-interactive',
+      title: 'Demystifying Git Rebase Interactive: Squashing Logs Like a Pro',
+      excerpt: 'A clean developer workflow highlighting git rebase commands to clean up intermediate local commits before opening review PRs.',
+      topic: 'Developer Workflows',
+      icon: FileCode,
+      relatedTool: 'code-snapshot',
+      readTime: '3 min read',
+      date: 'June 13, 2026',
+      author: 'GIT ARCHITECT',
+      role: 'DevOps Lead',
+      tags: ['Git', 'VCS', 'Terminal', 'Developer Workflows'],
+      content: (
+        <div className="space-y-6 font-sans text-sm text-zinc-300 leading-relaxed text-justify">
+          <p>
+            A messy commit history—filled with logs like "fix typo style" or "test again"—makes reviewing pull requests difficult. It also dilutes git-blame tracks, making bugs harder to trace.
+          </p>
+          <p>
+            Using <code>git rebase -i HEAD~N</code>, you can review your last N commits, squash minor adjustments into clean changesets, and rewrite messages prior to pushing your work to production branches.
+          </p>
+          <div className="p-4 bg-zinc-950 rounded-xl border border-zinc-900 font-mono text-[11px] text-zinc-400 space-y-1">
+            <div className="text-zinc-200 uppercase tracking-widest font-extrabold text-[9px] mb-1 text-brand">Interactive Rebase Editor</div>
+            <div>pick a1b2c3d Refactored form layout</div>
+            <div>squash e5f6g7h typo fix in utility input</div>
+            <div>squash i9j0k1l added margins inline</div>
+            <div># Commits are combined into a clean, searchable logical block</div>
+          </div>
+          <p>
+            This clean workflow produces legible git histories, making team collaborations much simpler and project rollback scenarios straightforward to trace.
+          </p>
+        </div>
+      )
+    },
+    {
+      id: 'indexeddb-vs-localstorage',
+      title: 'IndexedDB vs LocalStorage: Managing Megabytes of Client Data',
+      excerpt: 'Compare synchronous 5MB LocalStorage buffers with transactional asynchronous IndexedDB space, managing substantial offline data stores in standard apps.',
+      topic: 'State & Storage',
+      icon: FileCode,
+      relatedTool: 'private-sketchpad',
+      readTime: '4 min read',
+      date: 'June 13, 2026',
+      author: 'LOCAL DATA',
+      role: 'Browser Storage Specialist',
+      tags: ['IndexedDB', 'LocalStorage', 'Offline Storage', 'Data Storage'],
+      content: (
+        <div className="space-y-6 font-sans text-sm text-zinc-300 leading-relaxed text-justify">
+          <p>
+            For simple string storage, <code>localStorage</code> is handy. However, it blocks the main rendering thread because its operations are synchronous. It also has a strict 5MB size limit that cannot be expanded.
+          </p>
+          <p>
+            <strong>IndexedDB</strong> provides a durable, asynchronous transactional database that runs on a separate browser service thread. It handles complex indexing, structural queries, and large storage files (often up to 50% of available disk space).
+          </p>
+          <h3 className="font-heading text-xs font-black text-white uppercase tracking-wider mt-4">Storage Matrix Comparison</h3>
+          <ul className="list-disc pl-5 space-y-1.5 text-zinc-400">
+            <li><strong>Thread Blocking:</strong> LocalStorage is synchronous and halts rendering. IndexedDB is asynchronous, keeping UI rendering smooth.</li>
+            <li><strong>Payload Limits:</strong> LocalStorage caps out at ~5MB. IndexedDB scales dynamically with physical physical drive capacity.</li>
+            <li><strong>Schema Query Handling:</strong> LocalStorage only handles basic string key-value pairs. IndexedDB supports robust indexes, database cursors, and schema upgrades.</li>
+          </ul>
+        </div>
+      )
+    },
+    {
+      id: 'micro-frontends-mfe',
+      title: 'Micro-Frontends: Module Federation Architectures for High-Scale Apps',
+      excerpt: 'How multi-team engineering organizations develop, bundle, and deploy decoupled applications using federated modular imports during runtime.',
+      topic: 'Architecture',
+      icon: BookOpen,
+      relatedTool: 'dashboard',
+      readTime: '4 min read',
+      date: 'June 12, 2026',
+      author: 'APEX GROUP',
+      role: 'Principal System Analyst',
+      tags: ['Micro-Frontends', 'Webpack Federation', 'Software Scaling', 'Bundling'],
+      content: (
+        <div className="space-y-6 font-sans text-sm text-zinc-300 leading-relaxed text-justify">
+          <p>
+            As software platforms grow, managing large, monolithic frontends can slow down deployment queues. Different teams can run into merge conflicts, and a single page failure can compromise the entire layout of the system.
+          </p>
+          <p>
+            <strong>Micro-Frontends</strong> split your UI into modular, independent apps. Using Module Federation, a main container app dynamically imports remote UI blocks at runtime from different host domains.
+          </p>
+          <blockquote className="border-l-2 border-brand/50 pl-4 py-1 text-xs italic text-zinc-400">
+            "By adopting runtime federation, development teams can deploy features independently at their own pace, boosting velocity while maintaining uniform UI styling."
+          </blockquote>
+          <p>
+            This architecture simplifies development, helps prevent global scope collisions through CSS modularity, and allows teams to choose the frameworks that best fit their workflow.
+          </p>
+        </div>
+      )
+    },
+    {
+      id: 'typescript-meta-programming',
+      title: 'Advanced TypeScript Meta-Programming: Generics and Conditional Types',
+      excerpt: 'Master type-safe programmatic transformations using conditional types, type mapping, and the TypeScript infer keyword to enforce strict validation compile-time safety.',
+      topic: 'Programming Language',
+      icon: FileCode,
+      relatedTool: 'json-diff',
+      readTime: '5 min read',
+      date: 'June 12, 2026',
+      author: 'TS EXPERT',
+      role: 'Architect',
+      tags: ['TypeScriptTypeSystems', 'Generics', 'Metaprogramming', 'Code Quality'],
+      content: (
+        <div className="space-y-6 font-sans text-sm text-zinc-300 leading-relaxed text-justify">
+          <p>
+            TypeScript's true power lies in its advanced type system. By going beyond simple declarations, you can write conditional types that dynamically adjust based on the data passed to them.
+          </p>
+          <p>
+            By using conditional statements with the <code>infer</code> keyword, you can extract inner types, map object structures, and resolve complex API payloads at compile time.
+          </p>
+          <div className="p-4 bg-zinc-950 rounded-xl border border-zinc-900 font-mono text-[11px] text-zinc-400 space-y-1">
+            <div className="text-zinc-200 uppercase tracking-widest font-extrabold text-[9px] mb-1 text-brand">Advanced Type Syntax</div>
+            <div>type FlattenType&lt;T&gt; = T extends Array&lt;infer U&gt; ? U : T;</div>
+            <div>// If array type is passed, returns inner element interface</div>
+            <div>type Element = FlattenType&lt;string[]&gt;; // Resolves to: string</div>
+          </div>
+          <p>
+            Implementing these techniques allows you to build highly reusable, type-safe API clients, form systems, and state managers that capture errors at compile time before your code ever hits production.
+          </p>
+        </div>
+      )
+    },
+    {
+      id: 'color-accessibility-contrast',
+      title: 'Designing and Testing WCAG-Compliant High-Contrast Color Palettes',
+      excerpt: 'A practical review of relative luminance values and WCAG 4.5:1 ratios, helping designers build accessible web interfaces that meet strict compliance targets.',
+      topic: 'UI/UX Design',
+      icon: Wand2,
+      relatedTool: 'color-palette',
+      readTime: '4 min read',
+      date: 'June 11, 2026',
+      author: 'CONTRAST LABS',
+      role: 'Accessibility Lead',
+      tags: ['A11y', 'WCAG Standards', 'Luminance', 'Contrast Ratio'],
+      content: (
+        <div className="space-y-6 font-sans text-sm text-zinc-300 leading-relaxed text-justify">
+          <p>
+            Web accessibility is a critical requirement for modern public applications. Design choices should protect color contrast ratios to ensure content remains readable for individuals with visual impairments.
+          </p>
+          <p>
+            Under WCAG 2.1 AA standards, standard text requires a minimum contrast ratio of <strong>4.5:1</strong> against its background. For larger display elements, this requirement drops slightly to <strong>3:1</strong>.
+          </p>
+          <div className="p-4 bg-zinc-950 rounded-xl border border-zinc-900 font-mono text-[11px] text-zinc-400 space-y-1">
+            <div className="text-zinc-200 uppercase tracking-widest font-extrabold text-[9px] mb-1 text-brand">WCAG Target Matrix</div>
+            <div>- Normal Text (under 18pt): 4.5:1 (AA) | 7.0:1 (AAA)</div>
+            <div>- Large Text (over 18pt or bold 14pt): 3.0:1 (AA) | 4.5:1 (AAA)</div>
+            <div>- UI Controls & Graphics: 3.0:1 minimum ratio requirement</div>
+          </div>
+          <p>
+            When designing elements, use relative luminance tools to calculate the difference between background and foreground colors. This helps avoid low-contrast setups that are difficult to read, especially in high-glare environments.
+          </p>
+        </div>
+      )
+    },
+    {
+      id: 'svg-rendering-viewport',
+      title: 'Understanding the SVG ViewBox: Responsive Vector Rendering Pipelines',
+      excerpt: 'Take full control of XML-based vector graphic layouts by mastering responsive canvas, viewBox constraints, and aspect ratio scaling parameters.',
+      topic: 'Vector Graphics',
+      icon: QrCode,
+      relatedTool: 'svg-rasterizer',
+      readTime: '4 min read',
+      date: 'June 10, 2026',
+      author: 'VECTOR GEEK',
+      role: 'Graphics Designer',
+      tags: ['SVG', 'ViewBox', 'Responsive Vectors', 'Graphic Pipelines'],
+      content: (
+        <div className="space-y-6 font-sans text-sm text-zinc-300 leading-relaxed text-justify">
+          <p>
+            An SVG viewPort is the visible crop area, while the <code>viewBox</code> attribute defines the internal coordinate system used to render your vectors.
+          </p>
+          <p>
+            Mastering the <code>viewBox="min-x min-y width height"</code> values is key to building responsive vector illustrations that scale smoothly across all screen sizes.
+          </p>
+          <div className="p-4 bg-zinc-950 rounded-xl border border-zinc-900 font-mono text-[11px] text-zinc-400 space-y-1">
+            <div className="text-zinc-200 uppercase tracking-widest font-extrabold text-[9px] mb-1 text-brand">SVG Viewbox Syntax</div>
+            <div>&lt;svg width="100%" height="auto" viewBox="0 0 100 100"&gt;</div>
+            <div>  &lt;circle cx="50" cy="50" r="40" /&gt;</div>
+            <div>&lt;/svg&gt;</div>
+          </div>
+          <p>
+            Using clean, relative internal coordinates instead of hardcoded pixel sizes allows your icons and illustrations to scale smoothly without layout shifts.
+          </p>
+        </div>
+      )
+    },
+    {
+      id: 'exif-privacy-implications',
+      title: 'EXIF Location Exploits: The Security Risks of Unstripped Metadata Uploads',
+      excerpt: 'Explore the security risks of publishing raw user photography containing hidden geographical coordinates, camera details, and timestamp metadata.',
+      topic: 'Cybersecurity',
+      icon: Shield,
+      relatedTool: 'exif-stripper',
+      readTime: '5 min read',
+      date: 'June 09, 2026',
+      author: 'CYBER GUARD',
+      role: 'Infosec Researcher',
+      tags: ['EXIF Metadata', 'Information Security', 'Metadata Extraction', 'Privacy'],
+      content: (
+        <div className="space-y-6 font-sans text-sm text-zinc-300 leading-relaxed text-justify">
+          <p>
+            Every snapshot taken by a modern smartphone or digital camera embeds hidden digital indicators known as <strong>EXIF metadata</strong> inside the file header.
+          </p>
+          <p>
+            This metadata contains sensitive information of which users are often unaware, including the precise camera model, exact capture timestamp, and highly accurate GPS coordinates.
+          </p>
+          <blockquote className="border-l-2 border-red-500/50 pl-4 py-1 text-xs italic text-zinc-400">
+            "Uploading unstripped photo assets directly to public forums or classified listings exposes precise coordinate locations, introducing significant privacy risks."
+          </blockquote>
+          <p>
+            To protect user privacy, configure your upload pipelines to strip out non-essential EXIF, GPS, and device details before storing or processing imagery.
+          </p>
+        </div>
+      )
+    },
+    {
+      id: 'structured-seo-metadata',
+      title: 'JSON-LD Schema Markup: Forcing Rich Snippets on Search Engine Result Pages',
+      excerpt: 'A practical review of JSON-LD schema definitions, helping search engine spiders index your sites to render elegant visual search results.',
+      topic: 'Technical SEO',
+      icon: TrendingUp,
+      relatedTool: 'schema-generator',
+      readTime: '4 min read',
+      date: 'June 09, 2026',
+      author: 'MARK REID',
+      role: 'SEO Architect',
+      tags: ['JSON-LD', 'Schema', 'Rich Snippets', 'Indexed Authority'],
+      content: (
+        <div className="space-y-6 font-sans text-sm text-zinc-300 leading-relaxed text-justify">
+          <p>
+            Simply hosting content isn't always enough to stand out in search results. Crawling spiders use structured schemas to understand the context and purpose of your pages.
+          </p>
+          <p>
+            Using <strong>JSON-LD Schema</strong> markup, you can provide explicit context about your products, articles, or services directly in the head header coordinates of your pages.
+          </p>
+          <div className="p-4 bg-zinc-950 rounded-xl border border-zinc-900 font-mono text-[11px] text-zinc-400 space-y-1">
+            <div className="text-zinc-200 uppercase tracking-widest font-extrabold text-[9px] mb-1 text-brand">Schema Structure example</div>
+            <div>&#123;</div>
+            <div>  "@context": "https://schema.org",</div>
+            <div>  "@type": "SoftwareApplication",</div>
+            <div>  "name": "Apex Tool Hub",</div>
+            <div>  "operatingSystem": "All Platforms"</div>
+            <div>&#125;</div>
+          </div>
+          <p>
+            Adding these structured markup scripts enables Google and other search engines to render rich search results, including review stars and FAQ accordions, which help boost organic click-through rates.
+          </p>
+        </div>
+      )
+    },
+    {
+      id: 'dns-sec-overview',
+      title: 'Understanding DNSSEC: Securing Public Hostnames Against Spoofing Attacks',
+      excerpt: 'Learn how DNS Security Extensions protect site authority by cryptographically signing records, mitigating malicious DNS cache poisoning redirections.',
+      topic: 'Web Infrastructure',
+      icon: Shield,
+      relatedTool: 'sitemap-seo',
+      readTime: '3 min read',
+      date: 'June 08, 2026',
+      author: 'APEX OPS',
+      role: 'Site Reliability Pioneer',
+      tags: ['DNSSEC', 'DNS Security', 'Cryptography', 'Caching'],
+      content: (
+        <div className="space-y-6 font-sans text-sm text-zinc-300 leading-relaxed text-justify">
+          <p>
+            Standard DNS queries operate without cryptographic session security. This makes pages vulnerable to <strong>DNS Cache Poisoning</strong>, where attack networks inject fraudulent destination IP mappings to intercept incoming traffic.
+          </p>
+          <p>
+            <strong>DNSSEC</strong> solves this by signing your domain's DNS records with public-key cryptography. This allows browsers to verify that the destination IP address has not been modified in transit.
+          </p>
+          <h3 className="font-heading text-xs font-black text-white uppercase tracking-wider mt-4">Key DNSSEC Records</h3>
+          <ul className="list-disc pl-5 space-y-1.5 text-zinc-400">
+            <li><strong>RRSIG:</strong> Holds a cryptographic signature verifying the record set.</li>
+            <li><strong>DNSKEY:</strong> Contains the public key resolvers use to verify signatures.</li>
+            <li><strong>DS (Delegation Signer):</strong> Anchors validation securely inside your Parent TLD registry.</li>
+          </ul>
+        </div>
+      )
+    },
+    {
+      id: 'base64-encoding-pitfalls',
+      title: 'Under the Radar: Big O Costs of Base64-Encoding Huge Binary Assets',
+      excerpt: 'Examine the rendering performance trade-offs of embedding base64-encoded strings directly inside client HTML nodes and stylesheets.',
+      topic: 'Algorithms & Complexity',
+      icon: Terminal,
+      relatedTool: 'base64-converter',
+      readTime: '3 min read',
+      date: 'June 07, 2026',
+      author: 'ALGO BOT',
+      role: 'Computational Analyst',
+      tags: ['Base64', 'Binary streams', 'Memory Overhead', 'JSON Performance'],
+      content: (
+        <div className="space-y-6 font-sans text-sm text-zinc-300 leading-relaxed text-justify">
+          <p>
+            While converting images or PDFs to base64 strings is a quick way to inline assets without fetching external paths, it introduces a hidden performance cost.
+          </p>
+          <p>
+            Converting binary data into 6-bit Base64 character sets increases the file weight by approximately <strong>33%</strong>. This adds significant overhead to your network transfer payloads.
+          </p>
+          <blockquote className="border-l-2 border-brand/50 pl-4 py-1 text-xs italic text-zinc-400">
+            "Embedding sprawling Base64 inline strings inside critical stylesheet blocks blocks early HTML rendering, delaying first-paint paints and lowering Core Web Vitals scores."
+          </blockquote>
+          <p>
+            For large files, prefer streaming formats like <code>Blob URLs</code> or standard external assets to keep browser execution light and responsive.
+          </p>
+        </div>
+      )
+    },
+    {
+      id: 'regular-expression-backtracking',
+      title: 'Catastrophic Backtracking: Debugging Slow Regular Expressions in JavaScript',
+      excerpt: 'Discover how nested quantifiers lead to exponential engine loops, causing browser engines to freeze when parsing long, complex text sequences.',
+      topic: 'Text Parsing',
+      icon: HelpCircle,
+      relatedTool: 'regex-tester',
+      readTime: '4 min read',
+      date: 'June 06, 2026',
+      author: 'PARSER LABS',
+      role: 'Security Engineer',
+      tags: ['RegEx', 'Backtracking', 'DDoS Prevention', 'Performance Tuning'],
+      content: (
+        <div className="space-y-6 font-sans text-sm text-zinc-300 leading-relaxed text-justify">
+          <p>
+            Regular expression engines often process strings by working backward when a match fails. When using nested quantifiers (like <code>(a+)+</code>), this can cause the engine to search millions of possible combinations.
+          </p>
+          <p>
+            On long, non-matching input strings, this excessive processing can lead to **Catastrophic Backtracking**, locking up the engine thread and freezing your application.
+          </p>
+          <div className="p-4 bg-zinc-950 rounded-xl border border-zinc-900 font-mono text-[11px] text-zinc-400 space-y-1">
+            <div className="text-zinc-200 uppercase tracking-widest font-extrabold text-[9px] mb-1 text-brand">Vulnerable Pattern Warn</div>
+            <div>Pattern: /^(A+)*B/ - (Nested quantifiers)</div>
+            <div>Input: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAC" - (No B terminal)</div>
+            <div>Calculations required: Exponential! Browser tab crash risks.</div>
+          </div>
+          <p>
+            To prevent these performance bottlenecks, keep your patterns simple and avoid nesting multiple greedy stars or plus quantifiers inside your search expressions.
+          </p>
+        </div>
+      )
+    },
+    {
+      id: 'wav-pcm-structure',
+      title: 'Deconstructing WAV/PCM Bitstreams for Client-Side Audio Splices',
+      excerpt: 'Learn how browsers parse WAV header chunks and raw PCM samples to edit, splice, and export custom audio segments completely offline.',
+      topic: 'Audio Systems',
+      icon: BookOpen,
+      relatedTool: 'audio-trimmer',
+      readTime: '4 min read',
+      date: 'June 05, 2026',
+      author: 'BEAT ENGINEER',
+      role: 'Audio DSP Developer',
+      tags: ['Audio Trimming', 'PCM Slices', 'Web Audio API', 'Waveform Rendering'],
+      content: (
+        <div className="space-y-6 font-sans text-sm text-zinc-300 leading-relaxed text-justify">
+          <p>
+            WAV audio files use structural groupings called **chunks**. The file begins with a **RIFF header** that defines the file size, followed by **fmt chunks** containing sample rates and bit depths, and finally the **data chunk** containing raw audio samples.
+          </p>
+          <p>
+            To edit audio files directly in the browser, parse these headers using JavaScript arrays, isolate the target audio range, and save the trimmed data into a new WAV file.
+          </p>
+          <h3 className="font-heading text-xs font-black text-white uppercase tracking-wider mt-4">WAV Header Offset Reference</h3>
+          <ul className="list-disc pl-5 space-y-1 text-zinc-400">
+            <li><strong>Bytes 0-3:</strong> "RIFF" signature verification.</li>
+            <li><strong>Bytes 22-23:</strong> Audio channels count (1 for mono, 2 for stereo).</li>
+            <li><strong>Bytes 24-27:</strong> Audio sampling rate (e.g. 44100 Hz, 48000 Hz).</li>
+          </ul>
+        </div>
+      )
+    },
+    {
+      id: 'lcp-seo-images',
+      title: 'Forcing LCP Optimization by Preloading Hero Assets in HTML Headers',
+      excerpt: 'Optimize Largest Contentful Paint metrics by explicitly preloading hero imagery in HTML headers, reducing visual shift delays.',
+      topic: 'SEO Performance',
+      icon: Sparkles,
+      relatedTool: 'quick-image-optimizer',
+      readTime: '3 min read',
+      date: 'June 04, 2026',
+      author: 'CORE WEB DEV',
+      role: 'SEO Optimization Expert',
+      tags: ['LCP preloading', 'Hero imagery', 'HTML headers', 'Core Web Vitals'],
+      content: (
+        <div className="space-y-6 font-sans text-sm text-zinc-300 leading-relaxed text-justify">
+          <p>
+            A high **Largest Contentful Paint (LCP)** score often occurs when the browser has to wait for stylesheets and script files to finish loading before it can find and render the main hero image.
+          </p>
+          <p>
+            To address this bottleneck, configure your HTML headers to proactively prefetch your main visual assets.
+          </p>
+          <div className="p-4 bg-zinc-950 rounded-xl border border-zinc-900 font-mono text-[11px] text-zinc-400 space-y-1">
+            <div className="text-zinc-250 font-bold text-white mb-1">HTML Preload Element</div>
+            <div>&lt;link rel="preload" fetchpriority="high"</div>
+            <div>      as="image" type="image/webp"</div>
+            <div>      href="/assets/seo_hero_banner.webp" /&gt;</div>
+          </div>
+          <p>
+            Instructing the browser to prioritize download queues for key elements can help slash visual layout shifts, significantly improving organic indexing scores.
+          </p>
+        </div>
+      )
     }
   ];
 
@@ -1751,81 +2538,304 @@ export default function Guides({ onTabChange }: GuidesProps) {
 
       {currentArticle ? (
         /* Full Article View */
-        <div className="space-y-6">
+        <div className={`space-y-6 ${isDistractionFree ? 'max-w-3xl mx-auto py-4' : ''}`}>
+          {/* Dynamic Typographical Overrides */}
+          <style>{`
+            .polished-container-${currentArticle.id} {
+              background-color: ${theme === 'sepia' ? '#fbf0d9' : theme === 'parchment' ? '#fcfbf7' : '#09090d'} !important;
+              color: ${theme === 'sepia' ? '#4a3c31' : theme === 'parchment' ? '#1c1c1a' : '#d4d4d8'} !important;
+              border-color: ${theme === 'sepia' ? '#e6cca3' : theme === 'parchment' ? '#e2dfd5' : 'rgba(255, 255, 255, 0.05)'} !important;
+            }
+            .polished-container-${currentArticle.id} p,
+            .polished-container-${currentArticle.id} li {
+              font-family: ${fontFamily === 'serif' ? '"Georgia", "Cambria", serif' : fontFamily === 'mono' ? '"JetBrains Mono", monospace' : 'inherit'} !important;
+              font-size: ${fontSize === 'sm' ? '12.5px' : fontSize === 'base' ? '14.5px' : fontSize === 'lg' ? '16.5px' : '19px'} !important;
+              line-height: ${fontSize === 'xl' ? '1.85' : '1.75'} !important;
+              color: ${theme === 'sepia' ? '#544335' : theme === 'parchment' ? '#242422' : '#d4d4d8'} !important;
+            }
+            .polished-container-${currentArticle.id} strong {
+              color: ${theme === 'sepia' ? '#2c1a0c' : theme === 'parchment' ? '#0a0a09' : '#ffffff'} !important;
+            }
+            .polished-container-${currentArticle.id} blockquote {
+              border-left-color: ${theme === 'sepia' ? '#c2a672' : theme === 'parchment' ? '#a29e92' : 'var(--theme-glow)'} !important;
+              color: ${theme === 'sepia' ? '#6e5d4f' : theme === 'parchment' ? '#4c4c47' : '#94a3b8'} !important;
+            }
+            .polished-title-${currentArticle.id} {
+              color: ${theme === 'sepia' ? '#3d2b1f' : theme === 'parchment' ? '#0f0f0e' : '#ffffff'} !important;
+              font-family: ${fontFamily === 'serif' ? '"Georgia", "Cambria", serif' : 'inherit'} !important;
+            }
+            .polished-meta-${currentArticle.id} {
+              color: ${theme === 'sepia' ? '#8a796c' : theme === 'parchment' ? '#686862' : '#71717a'} !important;
+            }
+            .polished-divider-${currentArticle.id} {
+              border-color: ${theme === 'sepia' ? '#edd9b5' : theme === 'parchment' ? '#eae6da' : '#1e1e2d'} !important;
+            }
+          `}</style>
+
+          {/* Quick Immersion Alert Bar */}
+          {isDistractionFree && (
+            <div className="flex items-center justify-between gap-3 px-4 py-2.5 bg-purple-950/25 border border-purple-900/60 rounded-xl text-xs font-heading font-black tracking-wider text-purple-300 uppercase animate-fade-in">
+              <span className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-purple-450 animate-ping" />
+                <span>Immersive Reading Bubble Active &bull; All Distractions Stripped</span>
+              </span>
+              <button 
+                onClick={() => setIsDistractionFree(false)}
+                className="px-2.5 py-1 bg-purple-800 text-white rounded hover:bg-purple-700 transition-all text-[9px] cursor-pointer"
+              >
+                Restore Full Layout
+              </button>
+            </div>
+          )}
+
           {/* Back button and Meta info */}
           <div className="flex flex-wrap items-center justify-between gap-4">
             <button
-              onClick={() => setSelectedArticleId(null)}
+              onClick={handleBackToIndex}
               className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-zinc-900 bg-zinc-950/60 text-zinc-400 hover:text-brand hover:border-brand/40 text-xs font-heading font-extrabold tracking-wider uppercase transition-all cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Back to Knowledge Index</span>
             </button>
 
-            <div className="flex items-center gap-2 text-xs font-mono text-zinc-500 bg-zinc-950/40 px-3/1 border border-zinc-950 rounded-full py-1">
+            <div className="flex items-center gap-2 text-xs font-mono text-zinc-500 bg-zinc-950/40 border border-zinc-900/60 rounded-full py-1 px-3">
               <Calendar className="w-3.5 h-3.5" />
               <span>Published: {currentArticle.date}</span>
             </div>
           </div>
 
+          {/* Typography configuration bar & TTS Narrator Panel */}
+          <div className="bg-zinc-950 border border-zinc-900 rounded-xl p-4 flex flex-col xl:flex-row xl:items-center justify-between gap-4 text-xs font-mono text-zinc-400 shadow-xl">
+            {/* Left side: View and custom controls */}
+            <div className="flex flex-wrap items-center gap-5">
+              {/* Theme Selector */}
+              <div className="space-y-1.5 flex flex-col">
+                <span className="text-[9px] text-zinc-500 font-extrabold uppercase tracking-widest">THEME STYLE</span>
+                <div className="flex gap-1 bg-[#09090d] border border-zinc-900 p-1 rounded-lg">
+                  <button
+                    onClick={() => setTheme('slate')}
+                    className={`px-2.5 py-1 rounded text-[9px] uppercase font-bold transition-all cursor-pointer ${theme === 'slate' ? 'bg-brand text-zinc-950' : 'hover:text-white'}`}
+                  >
+                    Carbon
+                  </button>
+                  <button
+                    onClick={() => setTheme('sepia')}
+                    className={`px-2.5 py-1 rounded text-[9px] uppercase font-bold transition-all cursor-pointer ${theme === 'sepia' ? 'bg-[#f5e6cc] text-[#4d3824]' : 'hover:text-white'}`}
+                  >
+                    Sepia
+                  </button>
+                  <button
+                    onClick={() => setTheme('parchment')}
+                    className={`px-2.5 py-1 rounded text-[9px] uppercase font-bold transition-all cursor-pointer ${theme === 'parchment' ? 'bg-[#f5f2eb] text-[#1a1a1a]' : 'hover:text-white'}`}
+                  >
+                    Parchment
+                  </button>
+                </div>
+              </div>
+
+              {/* Font Family Selector */}
+              <div className="space-y-1.5 flex flex-col">
+                <span className="text-[9px] text-zinc-500 font-extrabold uppercase tracking-widest">TYPEFACE PRESET</span>
+                <div className="flex gap-1 bg-[#09090d] border border-zinc-900 p-1 rounded-lg">
+                  <button
+                    onClick={() => setFontFamily('sans')}
+                    className={`px-2.5 py-1 rounded text-[9px] uppercase font-bold transition-all cursor-pointer ${fontFamily === 'sans' ? 'bg-brand text-zinc-950' : 'hover:text-white'}`}
+                  >
+                    Sans
+                  </button>
+                  <button
+                    onClick={() => setFontFamily('serif')}
+                    className={`px-2.5 py-1 rounded text-[9px] uppercase font-bold transition-all cursor-pointer ${fontFamily === 'serif' ? 'bg-brand text-zinc-950' : 'hover:text-white'}`}
+                  >
+                    Serif
+                  </button>
+                  <button
+                    onClick={() => setFontFamily('mono')}
+                    className={`px-2.5 py-1 rounded text-[9px] uppercase font-bold transition-all cursor-pointer ${fontFamily === 'mono' ? 'bg-brand text-zinc-950' : 'hover:text-white'}`}
+                  >
+                    Mono
+                  </button>
+                </div>
+              </div>
+
+              {/* Size scale buttons */}
+              <div className="space-y-1.5 flex flex-col">
+                <span className="text-[9px] text-zinc-500 font-extrabold uppercase tracking-widest">FONT SCALE</span>
+                <div className="flex gap-1 bg-[#09090d] border border-zinc-900 p-1 rounded-lg">
+                  {(['sm', 'base', 'lg', 'xl'] as const).map((sz) => (
+                    <button
+                      key={sz}
+                      onClick={() => setFontSize(sz)}
+                      className={`px-2.5 py-1 rounded text-[9px] uppercase font-bold transition-all cursor-pointer ${fontSize === sz ? 'bg-brand text-zinc-950 font-extrabold' : 'hover:text-white'}`}
+                    >
+                      {sz === 'base' ? 'MED' : sz.toUpperCase()}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Distraction Free toggle */}
+              <div className="space-y-1.5 flex flex-col">
+                <span className="text-[9px] text-zinc-500 font-extrabold uppercase tracking-widest">LAYOUT MODE</span>
+                <button
+                  onClick={() => setIsDistractionFree(!isDistractionFree)}
+                  className={`px-3 py-1.5 rounded-lg border font-bold text-[9px] uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer ${
+                    isDistractionFree 
+                      ? 'bg-purple-950/20 border-purple-500/50 text-purple-300 shadow-inner' 
+                      : 'bg-[#09090d] border-zinc-900 hover:border-zinc-800'
+                  }`}
+                >
+                  {isDistractionFree ? <EyeOff className="w-3.5 h-3.5 text-purple-400 animate-pulse" /> : <Eye className="w-3.5 h-3.5 text-zinc-500" />}
+                  <span>{isDistractionFree ? "DEACTIVATE FOCUS" : "FOCUS MODE"}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Right side: High-Performance offline TTS Narrator */}
+            <div className="flex flex-col space-y-1.5 shrink-0">
+              <span className="text-[9px] text-zinc-500 font-extrabold uppercase tracking-widest">AUDIO NARRATOR TOOL</span>
+              <div className="flex flex-wrap items-center gap-2 bg-[#09090d] border border-zinc-900 p-1 rounded-lg">
+                {speakingArticleId === currentArticle.id ? (
+                  <>
+                    <button
+                      onClick={pauseSpeech}
+                      className="px-2 py-1 bg-yellow-950/20 text-yellow-300 border border-yellow-800/40 rounded text-[9px] font-bold flex items-center gap-1 cursor-pointer hover:bg-yellow-900/30 transition-all"
+                    >
+                      <Pause className="w-3 h-3" />
+                      <span>{isSpeechPaused ? "RESUME" : "PAUSE"}</span>
+                    </button>
+                    <button
+                      onClick={stopSpeech}
+                      className="px-2 py-1 bg-red-950/20 text-red-300 border border-red-800/40 rounded text-[9px] font-bold flex items-center gap-1 cursor-pointer hover:bg-red-900/30 transition-all"
+                    >
+                      <Square className="w-3 h-3 fill-current" />
+                      <span>STOP</span>
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => speakArticle(currentArticle)}
+                    className="px-2.5 py-1 bg-brand text-zinc-950 hover:bg-brand-hover hover:text-white hover:scale-[1.02] transition-all rounded text-[9px] font-bold flex items-center gap-1 cursor-pointer"
+                  >
+                    <Play className="w-3 h-3 fill-current" />
+                    <span>SPEAK ARTICLE</span>
+                  </button>
+                )}
+
+                {/* Speed Rates multiplier */}
+                <div className="flex gap-0.5 border-l border-zinc-900 ml-1.5 pl-1.5">
+                  {([0.75, 1.0, 1.25, 1.5] as const).map((r) => (
+                    <button
+                      key={r}
+                      onClick={() => {
+                        setSpeechRate(r);
+                        if (speakingArticleId === currentArticle.id && !isSpeechPaused) {
+                          speakArticle(currentArticle);
+                        }
+                      }}
+                      className={`px-1.5 py-0.5 rounded text-[8.5px] font-bold transition-all ${speechRate === r ? 'bg-zinc-800 text-white font-black' : 'text-zinc-500 hover:text-zinc-350'}`}
+                    >
+                      {r}x
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Article Card */}
-          <div className="beveled-panel bg-[#09090d]/95 p-6 md:p-10 border-brand-border/40 shadow-xl text-left relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 rounded-full blur-[80px] pointer-events-none -mr-16 -mt-16 bg-brand/5" />
+          <div className={`beveled-panel p-6 md:p-10 border shadow-2xl text-left relative overflow-hidden transition-all duration-300 polished-container-${currentArticle.id}`}>
+            {theme === 'slate' && (
+              <div className="absolute top-0 right-0 w-64 h-64 rounded-full blur-[80px] pointer-events-none -mr-16 -mt-16 bg-brand/5" />
+            )}
             
             <div className="space-y-6 relative z-10">
+              {/* Cover Banner Image */}
+              <div className="w-full h-48 sm:h-64 rounded-xl overflow-hidden border border-zinc-900/60 relative">
+                <img 
+                  src={currentArticle.image || getArticleCover(currentArticle)} 
+                  alt={currentArticle.title} 
+                  className="w-full h-full object-cover shadow-inner"
+                  referrerPolicy="no-referrer"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#09090d]/65 via-transparent to-transparent opacity-50" />
+              </div>
+
               {/* Author and Topic */}
-              <div className="flex items-center gap-3 border-b border-zinc-900/60 pb-4">
+              <div className={`flex items-center gap-3 border-b pb-4 polished-divider-${currentArticle.id}`}>
                 <div className="w-10 h-10 rounded-full bg-brand/10 border border-brand/20 flex items-center justify-center text-brand font-heading font-black text-sm uppercase shrink-0">
                   {currentArticle.author.split(' ').map(n => n[0]).join('')}
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-heading text-xs font-black text-white uppercase tracking-wider">
+                    <span className={`font-heading text-xs font-black uppercase tracking-wider polished-title-${currentArticle.id}`}>
                       {currentArticle.author}
                     </span>
                     <span className="text-[10px] bg-brand/10 border border-brand/20 px-1.5 py-0.5 rounded text-brand font-mono font-bold uppercase shrink-0">
                       {currentArticle.topic}
                     </span>
                   </div>
-                  <div className="font-sans text-[11px] text-zinc-500">{currentArticle.role} &bull; {currentArticle.readTime}</div>
+                  <div className={`font-sans text-[11px] polished-meta-${currentArticle.id}`}>{currentArticle.role} &bull; {currentArticle.readTime}</div>
                 </div>
               </div>
 
               {/* Title & Body */}
-              <div className="space-y-4">
-                <h2 className="font-heading text-xl sm:text-2xl font-black text-white tracking-wide uppercase leading-tight">
+              <div className="space-y-4 polished-article-section">
+                <h2 className={`font-heading text-xl sm:text-2xl font-black tracking-wide uppercase leading-tight polished-title-${currentArticle.id}`}>
                   {currentArticle.title}
                 </h2>
                 
+                {/* Narrator active warning */}
+                {speakingArticleId === currentArticle.id && (
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-brand/5 border border-brand/10 rounded-lg text-[10px] font-mono text-brand animate-pulse">
+                    <Volume2 className="w-3.5 h-3.5" />
+                    <span>AUDIO NARRATION IN PROGRESS (SPEED: {speechRate}x)</span>
+                  </div>
+                )}
+
                 {/* Human Written Core Paragraph Checkpoint */}
-                <div className="pt-2 border-t border-zinc-900/40">
+                <div className={`pt-2 border-t polished-divider-${currentArticle.id} polished-article-body`}>
                   {currentArticle.content}
                 </div>
               </div>
 
               {/* Tag Badges */}
-              <div className="flex flex-wrap gap-2 pt-6 border-t border-[#1e1e2d] mt-8">
+              <div className={`flex flex-wrap gap-2 pt-6 border-t mt-8 polished-divider-${currentArticle.id}`}>
                 {currentArticle.tags.map(t => (
-                  <span key={t} className="px-2.5 py-1 rounded bg-zinc-950 border border-zinc-900 text-zinc-400 font-mono text-[10px] uppercase">
+                  <span 
+                    key={t} 
+                    className="px-2.5 py-1 rounded font-mono text-[9px] uppercase border transition-all"
+                    style={{
+                      backgroundColor: theme === 'slate' ? '#09090d' : theme === 'sepia' ? '#eedbb5' : '#eae6da',
+                      borderColor: theme === 'slate' ? '#1e1e2d' : theme === 'sepia' ? '#e2cca4' : '#dfd9c8',
+                      color: theme === 'slate' ? '#a1a1aa' : theme === 'sepia' ? '#5a4635' : '#4a4a44'
+                    }}
+                  >
                     #{t}
                   </span>
                 ))}
               </div>
 
               {/* Action Board (Related Tool link & Likes count) */}
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-zinc-950/60 border border-zinc-900 p-4 rounded-xl mt-6">
+              <div className={`flex flex-col sm:flex-row items-center justify-between gap-4 border p-4 rounded-xl mt-6 transition-all ${
+                theme === 'slate' 
+                  ? 'bg-zinc-950/60 border-zinc-900' 
+                  : theme === 'sepia' 
+                    ? 'bg-[#eed9b3] border-[#e1c592]' 
+                    : 'bg-[#ebe5d6] border-[#dacfb7]'
+              }`}>
                 <div className="flex items-center gap-3.5 max-sm:text-center max-sm:flex-col text-left">
                   <div className="p-2.5 rounded-lg bg-brand/10 text-brand shrink-0">
                     <Terminal className="w-5 h-5 animate-pulse" />
                   </div>
                   <div className="text-left max-sm:text-center">
-                    <h4 className="font-heading text-xs font-black text-white uppercase tracking-wider">
+                    <h4 className="font-heading text-xs font-black uppercase tracking-wider text-inherit">
                       Launch companion app workspace:
                     </h4>
-                    <p className="font-sans text-[11px] text-zinc-400 mt-1 font-semibold text-brand">
+                    <p className={`font-sans text-[11px] mt-1 font-semibold ${theme === 'slate' ? 'text-brand' : 'text-zinc-800'}`}>
                       ⚡ {currentArticle.relatedTool.toUpperCase()} WORKSPACE
                     </p>
-                    <p className="font-sans text-[10px] text-zinc-500 mt-0.5">
+                    <p className={`font-sans text-[10px] mt-0.5 ${theme === 'slate' ? 'text-zinc-500' : 'text-zinc-650'}`}>
                       Redirect directly to this exact tool page to solve your task immediately.
                     </p>
                   </div>
@@ -1846,7 +2856,9 @@ export default function Guides({ onTabChange }: GuidesProps) {
                     className={`px-4 py-2 rounded-lg border transition-all font-heading text-[11px] font-black tracking-wider uppercase flex items-center justify-center gap-1.5 cursor-pointer ${
                       userLiked[currentArticle.id]
                         ? 'bg-[#10b981]/15 border-[#10b981]/40 text-[#10b981]'
-                        : 'bg-zinc-900 border-zinc-900/60 text-zinc-400 hover:text-white hover:border-zinc-800'
+                        : theme === 'slate' 
+                          ? 'bg-zinc-900 border-[#1c1c24] text-zinc-400 hover:text-white hover:border-zinc-800' 
+                          : 'bg-[#dfd7c5] border-[#dfd7c5] text-zinc-800 hover:bg-[#d5cca1]'
                     }`}
                   >
                     <Heart className={`w-3.5 h-3.5 ${userLiked[currentArticle.id] ? 'fill-current' : ''}`} />
@@ -2177,26 +3189,39 @@ export default function Guides({ onTabChange }: GuidesProps) {
                 <article
                   key={art.id}
                   onClick={() => setSelectedArticleId(art.id)}
-                  className="beveled-panel bg-[#09090d]/95 p-5 border-brand-border/30 hover:border-brand-border/60 transition-all duration-300 group cursor-pointer relative overflow-hidden flex flex-col justify-between min-h-[220px]"
+                  className="beveled-panel bg-[#09090d]/95 p-5 border-brand-border/30 hover:border-brand-border/60 transition-all duration-300 group cursor-pointer relative overflow-hidden flex flex-col justify-between min-h-[360px]"
                 >
                   <div className="absolute top-0 right-0 w-24 h-24 bg-brand/5 rounded-full blur-2xl pointer-events-none group-hover:scale-125 transition-all" />
                   
-                  <div className="space-y-3 relative z-10">
-                    {/* Topic and Read Time */}
-                    <div className="flex justify-between items-center text-[10px] font-mono text-zinc-500">
-                      <span className="bg-[#13131a] border border-[#232331] px-2 py-0.5 rounded text-brand/80 font-bold uppercase">
-                        {art.topic}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {art.readTime}
-                      </span>
-                    </div>
+                  <div className="space-y-4 relative z-10 flex-grow flex flex-col justify-between">
+                    <div>
+                      {/* Cover Photo */}
+                      <div className="w-full h-36 rounded-lg overflow-hidden border border-zinc-900/80 mb-3.5 relative shrink-0">
+                        <img 
+                          src={art.image || getArticleCover(art)} 
+                          alt={art.title} 
+                          className="w-full h-full object-cover group-hover:scale-[1.04] transition-all duration-550 ease-out"
+                          referrerPolicy="no-referrer"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#09090d]/80 via-transparent to-transparent opacity-60" />
+                      </div>
 
-                    {/* Title */}
-                    <h3 className="font-heading text-xs uppercase font-black text-white group-hover:text-brand transition-colors tracking-wide leading-relaxed">
-                      {art.title}
-                    </h3>
+                      {/* Topic and Read Time */}
+                      <div className="flex justify-between items-center text-[10px] font-mono text-zinc-500 mb-2">
+                        <span className="bg-[#13131a] border border-[#232331] px-2 py-0.5 rounded text-brand/80 font-bold uppercase">
+                          {art.topic}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {art.readTime}
+                        </span>
+                      </div>
+
+                      {/* Title */}
+                      <h3 className="font-heading text-xs uppercase font-black text-white group-hover:text-brand transition-colors tracking-wide leading-relaxed mb-1.5">
+                        {art.title}
+                      </h3>
+                    </div>
 
                     {/* Excerpt */}
                     <p className="font-sans text-xs text-zinc-400 group-hover:text-zinc-300 transition-colors leading-relaxed line-clamp-3">

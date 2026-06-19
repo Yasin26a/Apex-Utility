@@ -421,6 +421,19 @@ const DEFAULT_CARDS = [
     heightLevel: 2
   },
   {
+    id: 'quick-image-optimizer',
+    title: 'Quick Image Optimizer',
+    desc: 'Bulk resize, compress, and optimize custom image filenames simultaneously for SEO compliance, loading speed, and Core Web Vitals wins.',
+    tagline: '"parallel bulk media size compressor and layout dimensions batch scaler"',
+    category: 'Design & Signals',
+    categoryIcon: 'FileImage',
+    cardIcon: 'FileImage',
+    textClass: 'text-brand',
+    buttonLabel: 'Launch Quick Optimizer',
+    colSpan: 1,
+    heightLevel: 2
+  },
+  {
     id: 'rich-text-stats',
     title: 'Rich Text Statistics',
     desc: 'Detail character, word, sentence, and readability metrics for custom text inputs in real-time.',

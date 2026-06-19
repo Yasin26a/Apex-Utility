@@ -491,6 +491,26 @@ const SEO_METADATA: Record<ActiveTab, SEOHeaderContent> = {
       }
     }
   },
+  'quick-image-optimizer': {
+    title: "Quick Image Optimizer | Bulk Resize & Compress Images | Apex Suite",
+    description: "Resize, compress, and optimize multiple images simultaneously for SEO performance, Core Web Vitals wins, and instant loading speed.",
+    keywords: "bulk image optimizer, batch image compressor, seo filename optimizer, multiple image resizing, compress several images, webp bulk optimizer, core web vitals optimization",
+    ogTitle: "Bulk SEO Image & Speed Optimizer | Apex Suite",
+    ogDescription: "Bulk optimize, resize, and compress multiple images simultaneously with SEO-compliant lowercase filename sanitization.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Quick Image Optimizer",
+      "description": "Bulk image resizing and compression with SEO-aware formatting elements suitable for modern content publishers.",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
   'rich-text-stats': {
     title: "Rich Text Statistics & Content Analytics | Apex Core Suite",
     description: "Analyze characters, words, sentences, reading and speaking metrics with Flesch-Kincaid scale index testing. Completely secure and local text analytics dashboard.",

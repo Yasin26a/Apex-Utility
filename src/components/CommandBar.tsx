@@ -342,6 +342,19 @@ export default function CommandBar({ isOpen, onClose, onSelectTab, theme, onThem
       shortcut: '↵'
     },
     {
+      id: 'quick-image-optimizer',
+      category: 'Tools',
+      title: 'Quick Image Optimizer',
+      description: 'Bulk resize, compress, and optimize custom image filenames for SEO performance and speed optimization',
+      icon: FileImage,
+      keywords: ['quick image optimizer', 'seo image optimizer', 'bulk image compression', 'batch resize', 'multiple images', 'webp converter', 'seo filename conversion', 'compress multiple'],
+      action: () => {
+        onSelectTab('quick-image-optimizer');
+        onClose();
+      },
+      shortcut: '↵'
+    },
+    {
       id: 'case-converter',
       category: 'Tools',
       title: 'Apex Case Converter & Text Formatter',

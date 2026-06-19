@@ -271,6 +271,7 @@ export default function NavigationSidebar({ activeTab, onTabChange, isMobileOpen
     { id: 'regex-tester' as ActiveTab, label: t.navigation.regexTester, icon: Regex, description: t.navigation.regexTesterDesc },
     { id: 'csv-json-converter' as ActiveTab, label: t.navigation.csvJsonConverter, icon: ArrowLeftRight, description: t.navigation.csvJsonConverterDesc },
     { id: 'image-compressor' as ActiveTab, label: t.navigation.imageCompressor, icon: Shrink, description: t.navigation.imageCompressorDesc },
+    { id: 'quick-image-optimizer' as ActiveTab, label: t.navigation.quickImageOptimizer || 'Quick Image Optimizer', icon: FileImage, description: t.navigation.quickImageOptimizerDesc || 'Bulk resize, compress, and optimize custom image filenames for SEO compliance' },
     { id: 'rich-text-stats' as ActiveTab, label: t.navigation.richTextStats, icon: FileText, description: t.navigation.richTextStatsDesc },
     { id: 'audio-trimmer' as ActiveTab, label: t.navigation.audioTrimmer, icon: Volume2, description: t.navigation.audioTrimmerDesc },
     { id: 'ai-transcriber' as ActiveTab, label: t.navigation.aiTranscriber, icon: Mic, description: t.navigation.aiTranscriberDesc },

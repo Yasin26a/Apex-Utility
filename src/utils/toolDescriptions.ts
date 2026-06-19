@@ -190,6 +190,14 @@ export const TOOL_DEEP_DIVES: Record<ActiveTab, DeepDiveConfig> = {
       'Your files are processed locally via canvas memory buffers. High-resolution images, receipts, and personal photos are kept safe from server exposures.'
     ]
   },
+  'quick-image-optimizer': {
+    subtitle: 'Parallel Bulk Media Optimizer & Clean SEO Rename Deck',
+    paragraphs: [
+      'Squeeze the load weight of your galleries instantly. This optimizer scales, converts, compresses, and renames multiple images in parallel to give your publishing queue the ultimate page loading efficiency.',
+      'Enjoy advanced, automated filename cleanups that map spaces to hyphens and lowercase letters in accordance with Google canonical indexing best practices, preventing indexing delays or formatting mismatches.',
+      'Everything happens within raw web-assembly and HTML Canvas buffers locally. Zero images are posted to external api services, keeping proprietary stock designs completely confidential.'
+    ]
+  },
   'rich-text-stats': {
     subtitle: 'Multi-Lingual Text Metric Terminal & Style Checker',
     paragraphs: [
