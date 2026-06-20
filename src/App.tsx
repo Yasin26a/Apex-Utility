@@ -1376,7 +1376,7 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                   }`}
                 >
                   <FileCheck className="w-4 h-4" />
-                  <span>Viral Articles and Blogs</span>
+                  <span>Viral News and Articles</span>
                 </button>
 
                 <button
@@ -1585,7 +1585,7 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                       }`}
                     >
                       <FileCheck className="w-4 h-4" />
-                      <span>Viral Articles and Blogs</span>
+                      <span>Viral News and Articles</span>
                     </button>
 
                     <button
