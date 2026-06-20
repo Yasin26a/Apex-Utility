@@ -260,7 +260,7 @@ export default function BatchProcessor() {
           `${files.length} images optimization`,
           `Scale: ${(scaleFactor * 100).toFixed(0)}%, Q: ${quality}%`,
           'Multi-File Queue Output',
-          successItems[0].outputBlobUrl // fallback mock link for logger
+          successItems[0].outputBlobUrl || '' // fallback mock link for logger
         );
         window.dispatchEvent(new Event('apex_recent_ops_updated'));
       } else {

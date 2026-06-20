@@ -764,9 +764,9 @@ export default function PDFJoiner() {
                       <motion.div
                         key={page.id}
                         draggable
-                        onDragStart={(e) => handlePageDragStart(e, index)}
-                        onDragOver={(e) => handlePageDragOver(e, index)}
-                        onDrop={(e) => handlePageDrop(e, index)}
+                        onDragStart={(e: any) => handlePageDragStart(e, index)}
+                        onDragOver={(e: any) => handlePageDragOver(e, index)}
+                        onDrop={(e: any) => handlePageDrop(e, index)}
                         onDragEnd={handlePageDragEnd}
                         layoutId={page.id}
                         className={`beveled-panel bg-[#050508] border relative flex flex-col justify-between transition-all duration-200 select-none pb-2 ${

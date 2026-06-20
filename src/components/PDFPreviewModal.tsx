@@ -237,7 +237,7 @@ export default function PDFPreviewModal({ file, onClose, initialTab = 'annotatio
         imageSource,
         selectedLanguage,
         {
-          logger: (m) => {
+          logger: (m: any) => {
             if (m && m.status === 'recognizing text') {
               setOcrProgress({ status: 'Transcribing text grid...', progress: m.progress });
             } else if (m) {

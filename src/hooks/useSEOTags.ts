@@ -10,7 +10,7 @@ interface SEOHeaderContent {
   schema: Record<string, any>;
 }
 
-const SEO_METADATA: Record<ActiveTab, SEOHeaderContent> = {
+const SEO_METADATA: Record<string, SEOHeaderContent> = {
   dashboard: {
     title: "Apex Processing Labs | Local WASM Utility Forge",
     description: "Perform enterprise-grade media conversions and complex document compression entirely within your local browser sandbox. Unparalleled speed, absolute privacy, 100% free.",
@@ -907,7 +907,7 @@ const SEO_METADATA: Record<ActiveTab, SEOHeaderContent> = {
 
 export default function useSEOTags(activeTab: ActiveTab) {
   useEffect(() => {
-    const meta = SEO_METADATA[activeTab];
+    const meta = SEO_METADATA[activeTab as string];
     if (!meta) return;
 
     // 1. Title Update

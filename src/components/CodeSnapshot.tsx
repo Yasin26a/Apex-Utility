@@ -98,6 +98,7 @@ interface CodeHighlightTheme {
   builtin: string;
   boolean: string;
   operator: string;
+  [key: string]: string;
 }
 
 const HIGHLIGHT_THEMES: Record<string, CodeHighlightTheme> = {

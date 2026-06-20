@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutGrid, FileText, Image as ImageIcon, FileImage, Braces, Globe, Terminal, ShieldCheck, Settings, Search, Layers, Monitor, Trash2, Plus, Check, X, Sparkles, Download, Upload, QrCode, Scale, FileCode, Sliders, GitPullRequest, Hash, Palette, Signature, Gauge, Binary, Regex, ArrowLeftRight, Shrink, Database, Volume2, Mic, Eye, Video, PenTool, VolumeX, Music, Type, AlignLeft, Crop, Calendar } from 'lucide-react';
+import { LayoutGrid, FileText, Image as ImageIcon, FileImage, Braces, Globe, Terminal, ShieldCheck, Settings, Search, Layers, Monitor, Trash2, Plus, Check, X, Sparkles, Download, Upload, QrCode, Scale, FileCode, Sliders, GitPullRequest, Hash, Palette, Gauge, Binary, Regex, ArrowLeftRight, Shrink, Database, Volume2, Mic, Eye, Video, PenTool, VolumeX, Music, Type, AlignLeft, Crop, Calendar } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ActiveTab } from '../types';
 import { useLanguage } from '../context/LanguageContext';
@@ -265,7 +265,7 @@ export default function NavigationSidebar({ activeTab, onTabChange, isMobileOpen
     { id: 'json-diff' as ActiveTab, label: t.navigation.jsonDiff, icon: GitPullRequest, description: t.navigation.jsonDiffDesc },
     { id: 'secure-hash' as ActiveTab, label: t.navigation.secureHash, icon: Hash, description: t.navigation.secureHashDesc },
     { id: 'color-palette' as ActiveTab, label: t.navigation.colorPalette, icon: Palette, description: t.navigation.colorPaletteDesc },
-    { id: 'digital-signature' as ActiveTab, label: t.navigation.digitalSignature, icon: Signature, description: t.navigation.digitalSignatureDesc },
+    { id: 'digital-signature' as ActiveTab, label: t.navigation.digitalSignature, icon: PenTool, description: t.navigation.digitalSignatureDesc },
     { id: 'seo-optimizer' as ActiveTab, label: t.navigation.seoOptimizer, icon: Gauge, description: t.navigation.seoOptimizerDesc },
     { id: 'base64-converter' as ActiveTab, label: t.navigation.base64Converter, icon: Binary, description: t.navigation.base64ConverterDesc },
     { id: 'regex-tester' as ActiveTab, label: t.navigation.regexTester, icon: Regex, description: t.navigation.regexTesterDesc },

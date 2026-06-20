@@ -149,7 +149,7 @@ export default function JSONBeautifier() {
     setActiveSampleType(type);
     const chosen = SAMPLES[type];
     
-    setState(prev => ({
+    setState((prev: any) => ({
       ...prev,
       rawInput: JSON.stringify(chosen.payload, null, 2),
       beautifiedOutput: '',
@@ -166,7 +166,7 @@ export default function JSONBeautifier() {
 
   const handleFormat = () => {
     if (!state.rawInput.trim()) {
-      setState(prev => ({
+      setState((prev: any) => ({
         ...prev,
         isValid: false,
         errorMessage: 'Empty payload detected. Please feed raw unreadable JSON strings first.',
@@ -196,7 +196,7 @@ export default function JSONBeautifier() {
           const valid = validate(parsedData);
 
           if (valid) {
-            setState(prev => ({
+            setState((prev: any) => ({
               ...prev,
               beautifiedOutput: formatted,
               isValid: true,
@@ -204,7 +204,7 @@ export default function JSONBeautifier() {
             }));
             setValidationErrors([]);
           } else {
-            setState(prev => ({
+            setState((prev: any) => ({
               ...prev,
               beautifiedOutput: formatted,
               isValid: false,
@@ -214,7 +214,7 @@ export default function JSONBeautifier() {
           }
         } catch (schemaEx: any) {
           setSchemaError(schemaEx.message || 'JSON Schema is not valid JSON format.');
-          setState(prev => ({
+          setState((prev: any) => ({
             ...prev,
             beautifiedOutput: formatted,
             isValid: false,
@@ -224,7 +224,7 @@ export default function JSONBeautifier() {
         }
       } else {
         // No schema validation checked or schema is empty
-        setState(prev => ({
+        setState((prev: any) => ({
           ...prev,
           beautifiedOutput: formatted,
           isValid: true,
@@ -233,7 +233,7 @@ export default function JSONBeautifier() {
         setValidationErrors([]);
       }
     } catch (e: any) {
-      setState(prev => ({
+      setState((prev: any) => ({
         ...prev,
         beautifiedOutput: '',
         isValid: false,
@@ -411,7 +411,7 @@ export default function JSONBeautifier() {
 
             <textarea
               value={state.rawInput}
-              onChange={(e) => setState(prev => ({ ...prev, rawInput: e.target.value }))}
+              onChange={(e) => setState((prev: any) => ({ ...prev, rawInput: e.target.value }))}
               placeholder='Paste raw unreadable JSON telemetry datasets or configuration arrays...'
               className="w-full h-[280px] bg-[#050507] border border-zinc-900 rounded p-4 font-mono text-xs text-zinc-300 focus:outline-none focus:border-rose-900 resize-none transition-colors"
             />
@@ -596,7 +596,7 @@ export default function JSONBeautifier() {
           ].map((item) => (
             <button
               key={item.label}
-              onClick={() => setState(prev => ({ ...prev, tabSize: item.val as any }))}
+              onClick={() => setState((prev: any) => ({ ...prev, tabSize: item.val as any }))}
               className={`px-3 py-1.5 rounded font-mono text-[10px] border transition-all cursor-pointer ${
                 state.tabSize === item.val
                   ? 'bg-rose-500/10 border-rose-500 text-rose-400'

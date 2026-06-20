@@ -5,6 +5,7 @@ import {
   FileText, 
   Users, 
   Menu, 
+  MoreVertical,
   X, 
   LayoutDashboard, 
   Map, 
@@ -33,7 +34,9 @@ import {
   Volume2,
   Play,
   Square,
-  Pause
+  Pause,
+  Wifi,
+  WifiOff
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ActiveTab } from './types';
@@ -111,6 +114,37 @@ export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
   const readerScrollRef = useRef<HTMLDivElement>(null);
+
+  // Online/Offline local connectivity state
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [connectivityToast, setConnectivityToast] = useState<{ show: boolean; msg: string; type: 'online' | 'offline' }>({ show: false, msg: '', type: 'online' });
+
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOnline(true);
+      setConnectivityToast({ show: true, msg: 'Back online! Sync & server bridges restored.', type: 'online' });
+    };
+    const handleOffline = () => {
+      setIsOnline(false);
+      setConnectivityToast({ show: true, msg: 'Device disconnected. 100% local WASM processing remains active.', type: 'offline' });
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!connectivityToast.show) return;
+    const timer = setTimeout(() => {
+      setConnectivityToast(prev => ({ ...prev, show: false }));
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, [connectivityToast.show]);
 
   // Web Speech synthesis state
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -1271,10 +1305,11 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
         <div className="flex items-center gap-3">
           <button 
             onClick={() => setIsMobileSidebarOpen(true)}
-            className="md:hidden p-1.5 hover:bg-zinc-900 rounded-lg transition-colors text-zinc-400 hover:text-white"
+            className="p-1.5 hover:bg-zinc-900/60 rounded-lg transition-all text-zinc-400 hover:text-white border border-transparent hover:border-red-950/40 flex items-center justify-center cursor-pointer group shadow-inner"
             aria-label="Toggle Navigation Menu"
+            title="Open Control Panel"
           >
-            <Menu className="w-6 h-6" />
+            <MoreVertical className="w-6 h-6 text-brand animate-pulse" />
           </button>
           
           <div 
@@ -1296,20 +1331,56 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="hidden sm:flex items-center gap-1.5 bg-zinc-950 px-3 py-1.5 rounded-full border border-red-950/40">
-            <span className="w-2 h-2 rounded-full bg-brand inline-block animate-ping"></span>
-            <span className="text-xs font-mono text-red-400 font-medium tracking-wide">
-              Server: Online
+          <button
+            onClick={() => {
+              setReadingArticle(null);
+              handleTabChange('guides');
+            }}
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all duration-300 relative overflow-hidden group cursor-pointer ${
+              activeTab === 'guides'
+                ? 'bg-red-600 text-white shadow-[0_0_20px_rgba(239,68,68,0.7)] border border-red-400'
+                : 'bg-red-950/30 hover:bg-red-900/30 text-red-200 border border-red-500/80 shadow-[0_0_15px_rgba(239,68,68,0.4)] hover:shadow-[0_0_25px_rgba(239,68,68,0.7)]'
+            }`}
+            title="Viral News and Articles Hub"
+          >
+            <span className="w-2 h-2 rounded-full bg-red-500 animate-ping absolute left-1 top-1 sm:left-2 sm:top-2" />
+            <span className="relative pl-1 flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-red-400 group-hover:rotate-12 transition-transform opacity-90 group-hover:opacity-100" />
+              <span>Viral News &amp; Articles</span>
             </span>
-          </div>
+          </button>
+
+          {isOnline ? (
+            <div 
+              className="hidden sm:flex items-center gap-1.5 bg-zinc-950 px-3 py-1.5 rounded-full border border-emerald-950/40 cursor-default"
+              title="Your device has an active internet connection. Sync and documentation indexes operational."
+            >
+              <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-ping"></span>
+              <span className="text-[11px] font-mono text-emerald-400 font-semibold tracking-wide flex items-center gap-1">
+                <Wifi className="w-3 h-3 text-emerald-500 inline-block" />
+                <span>Cloud Sync Active</span>
+              </span>
+            </div>
+          ) : (
+            <div 
+              className="hidden sm:flex items-center gap-1.5 bg-amber-950/20 px-3 py-1.5 rounded-full border border-amber-500/30 cursor-help animate-pulse"
+              title="Connection lost. 100% of Apex Processing Tools execute entirely client-side using local high-performance WebAssembly!"
+            >
+              <span className="w-2 h-2 rounded-full bg-amber-500 inline-block animate-ping"></span>
+              <span className="text-[11px] font-mono text-amber-400 font-semibold tracking-wide flex items-center gap-1">
+                <WifiOff className="w-3 h-3 text-amber-500 inline-block" />
+                <span>Offline: WASM Active</span>
+              </span>
+            </div>
+          )}
         </div>
       </header>
 
       {/* Main Layout Area */}
       <div className="flex-1 flex relative overflow-hidden">
         
-        {/* Navigation Sidebar (Desktop view) */}
-        <aside className="hidden md:block w-72 bg-black border-r border-red-950/45 p-6 flex-shrink-0 flex flex-col justify-between h-full overflow-y-auto">
+        {/* Navigation Sidebar (Desktop view - Hidden, controlled by the 3-dot trigger drawer instead) */}
+        <aside className="hidden w-0 h-0 overflow-hidden flex-col justify-between h-full">
           <div className="space-y-6">
             <div>
               <p className="px-3 text-[11px] font-mono text-zinc-500 font-semibold tracking-widest uppercase mb-3">
@@ -1497,10 +1568,10 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
               {/* Backdrop */}
               <motion.div 
                 initial={{ opacity: 0 }}
-                animate={{ opacity: 0.5 }}
+                animate={{ opacity: 0.6 }}
                 exit={{ opacity: 0 }}
                 onClick={() => setIsMobileSidebarOpen(false)}
-                className="fixed inset-0 bg-black z-40 md:hidden"
+                className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
               />
               
               {/* Drawer */}
@@ -1509,7 +1580,7 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                 animate={{ x: 0 }}
                 exit={{ x: '-100%' }}
                 transition={{ type: 'tween', duration: 0.25 }}
-                className="fixed inset-y-0 left-0 w-80 max-w-[85vw] bg-black border-r border-red-950/45 p-6 z-50 flex flex-col justify-between md:hidden"
+                className="fixed inset-y-0 left-0 w-80 max-w-[85vw] bg-zinc-950 border-r border-red-950/45 p-6 z-50 flex flex-col justify-between shadow-2xl"
               >
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
@@ -4332,6 +4403,53 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
         </footer>
       </div>
     </div>
+
+      {/* Connectivity Alert Toast */}
+      <AnimatePresence>
+        {connectivityToast.show && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            className={`fixed bottom-6 right-6 z-50 max-w-sm rounded-2xl p-4 shadow-2xl border backdrop-blur-md flex gap-3 ${
+              connectivityToast.type === 'online'
+                ? 'bg-zinc-950/90 border-emerald-500/30 text-emerald-300'
+                : 'bg-zinc-950/90 border-amber-500/30 text-amber-300'
+            }`}
+          >
+            <div className={`mt-0.5 rounded-lg p-1.5 flex items-center justify-center ${
+              connectivityToast.type === 'online' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400'
+            }`}>
+              {connectivityToast.type === 'online' ? (
+                <Wifi className="w-5 h-5 animate-pulse" />
+              ) : (
+                <WifiOff className="w-5 h-5 animate-bounce" />
+              )}
+            </div>
+            
+            <div className="flex-1">
+              <h5 className="text-xs font-bold font-mono tracking-wider uppercase text-white">
+                {connectivityToast.type === 'online' ? 'Internet Reconnected' : 'Device Offline'}
+              </h5>
+              <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
+                {connectivityToast.msg}
+              </p>
+              {connectivityToast.type === 'offline' && (
+                <span className="inline-block mt-2 text-[10px] bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded-md font-mono">
+                  ⚡ WASM offline-first sandbox active
+                </span>
+              )}
+            </div>
+            
+            <button
+              onClick={() => setConnectivityToast(prev => ({ ...prev, show: false }))}
+              className="text-zinc-500 hover:text-white rounded-lg p-1 transition-colors self-start cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Floating AI Supervisor Coach */}
       <AIAssistantSupervisor currentTab={activeTab} onTabChange={handleTabChange} />

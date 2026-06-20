@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Search, Command, FileText, Image as ImageIcon, FileImage, Braces, Globe, LayoutGrid, Palette, ArrowRight, CornerDownLeft, Layers, Sparkles, ShieldCheck, QrCode, Scale, FileCode, Sliders, GitPullRequest, Hash, Signature, Gauge, Binary, Regex, ArrowLeftRight, Shrink, Type, AlignLeft, Crop, Calendar, BookOpen } from 'lucide-react';
+import { Search, Command, FileText, Image as ImageIcon, FileImage, Braces, Globe, LayoutGrid, Palette, ArrowRight, CornerDownLeft, Layers, Sparkles, ShieldCheck, QrCode, Scale, FileCode, Sliders, GitPullRequest, Hash, PenTool, Gauge, Binary, Regex, ArrowLeftRight, Shrink, Type, AlignLeft, Crop, Calendar, BookOpen } from 'lucide-react';
 import { ActiveTab } from '../types';
 
 interface CommandBarProps {
@@ -268,7 +268,7 @@ export default function CommandBar({ isOpen, onClose, onSelectTab, theme, onThem
       category: 'Tools',
       title: 'Apex Digital Signature Generator & Stylist',
       description: 'Create, styling-up, paint, sign, and download custom document signature vectors or png files completely offline',
-      icon: Signature,
+      icon: PenTool,
       keywords: ['signature', 'sign', 'digital signature', 'autograph', 'draw signature', 'text signature', 'ink', 'document signature', 'offline writer'],
       action: () => {
         onSelectTab('digital-signature');

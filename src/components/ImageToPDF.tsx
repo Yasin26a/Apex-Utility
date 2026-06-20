@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { addRecentOperation } from '../utils/recentOperations';
 import { jsPDF } from 'jspdf';
-import { usePresets } from '../context/PresetContext';
+import { usePresets, SettingsPreset } from '../context/PresetContext';
 
 interface LoadedImageItem {
   id: string;

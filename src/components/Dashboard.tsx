@@ -1106,9 +1106,9 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
           
           const camelKeyStr = toCamelCase(toolId);
           const camelKey = camelKeyStr as any;
-          const translatedTitle = t.navigation && t.navigation[camelKey] ? t.navigation[camelKey] : (card ? card.title : toolId);
+          const translatedTitle = t.navigation && (t.navigation as any)[camelKey] ? (t.navigation as any)[camelKey] : (card ? card.title : toolId);
 
-          let iconComponent = Sparkles;
+          let iconComponent: any = Sparkles;
           if (card && card.cardIcon && iconMap[card.cardIcon]) {
             iconComponent = iconMap[card.cardIcon];
           } else if (toolId === 'private-sketchpad') {
@@ -1357,11 +1357,11 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
   const getGridSpanClass = (span: number) => {
     switch (span) {
       case 1: return 'xl:col-span-1 lg:col-span-1 md:col-span-1 col-span-1';
-      case 2: return 'xl:col-span-2 lg:col-span-1 md:col-span-1 col-span-1';
-      case 3: return 'xl:col-span-3 lg:col-span-2 md:col-span-2 col-span-1';
-      case 4: return 'xl:col-span-4 lg:col-span-2 md:col-span-2 col-span-2';
-      case 5: return 'xl:col-span-5 lg:col-span-3 md:col-span-2 col-span-2';
-      case 6: return 'xl:col-span-6 lg:col-span-3 md:col-span-2 col-span-2';
+      case 2: return 'xl:col-span-2 lg:col-span-2 md:col-span-1 col-span-1';
+      case 3: return 'xl:col-span-3 lg:col-span-3 md:col-span-2 col-span-1';
+      case 4: return 'xl:col-span-3 lg:col-span-3 md:col-span-2 col-span-2';
+      case 5: return 'xl:col-span-3 lg:col-span-3 md:col-span-2 col-span-2';
+      case 6: return 'xl:col-span-3 lg:col-span-3 md:col-span-2 col-span-2';
       default: return 'xl:col-span-1 lg:col-span-1 md:col-span-1 col-span-1';
     }
   };
@@ -1899,7 +1899,7 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
         </div>
 
         {dashboardViewMode === 'grid' ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8 pb-12">
             {cards.map((card, index) => {
               const CategoryIcon = iconMap[card.categoryIcon] || Image;
               const CardIcon = iconMap[card.cardIcon] || Image;
@@ -2001,16 +2001,17 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
                         <div className="space-y-4" style={{ transformStyle: 'preserve-3d' }}>
                           {/* 3D Popping Icon Block */}
                           <div 
-                            className="w-12 h-12 rounded-lg bg-zinc-950/50 border border-zinc-850 flex items-center justify-center text-brand shadow-inner" 
+                            className="w-14 h-14 rounded-2xl bg-gradient-to-br from-zinc-900 via-zinc-950 to-black border-2 border-red-950/60 hover:border-brand/60 flex items-center justify-center text-brand shadow-lg shadow-brand/20 transition-all duration-300 relative group-hover:shadow-[0_0_15px_rgba(239,68,68,0.25)]" 
                             style={{ transform: 'translateZ(30px)', transformStyle: 'preserve-3d' }}
                           >
-                            <CardIcon className={`w-6 h-6 ${isAiWriter ? 'text-indigo-400 animate-pulse' : card.textClass}`} style={{ transform: 'translateZ(10px)' }} />
+                            <CardIcon className={`w-7 h-7 filter drop-shadow-[0_0_8px_rgba(239,68,68,0.3)] transition-all duration-300 group-hover:scale-110 ${isAiWriter ? 'text-indigo-400 animate-pulse' : card.textClass}`} style={{ transform: 'translateZ(10px)' }} />
+                            <div className="absolute inset-0 bg-brand/5 rounded-2xl blur-md -z-10 group-hover:bg-brand/10 transition-all duration-300" />
                           </div>
                           
                           {/* 3D Elevated Title & Description */}
                           <div style={{ transform: 'translateZ(20px)' }}>
-                            <h4 className="font-heading text-sm font-bold text-white">{localizedTitle}</h4>
-                            <p className="font-sans text-xs text-zinc-400 mt-1 leading-relaxed">
+                            <h4 className="font-heading text-lg font-extrabold text-white tracking-tight leading-snug group-hover:text-brand transition-colors duration-300">{localizedTitle}</h4>
+                            <p className="font-sans text-xs sm:text-sm text-zinc-400 mt-2 leading-relaxed">
                               {localizedDesc}
                             </p>
                           </div>

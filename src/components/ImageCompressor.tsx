@@ -239,13 +239,12 @@ export default function ImageCompressor() {
 
   // Automatically execute compression when compression presets change
   useEffect(() => {
-    if (image) {
-      const delayDebounceFn = setTimeout(() => {
-        runOfflineCompression();
-      }, 400);
+    if (!image) return;
+    const delayDebounceFn = setTimeout(() => {
+      runOfflineCompression();
+    }, 400);
 
-      return () => clearTimeout(delayDebounceFn);
-    }
+    return () => clearTimeout(delayDebounceFn);
   }, [image, quality, targetFormat, scaleFactor, customWidth, customHeight]);
 
   // Drag and drop event traps

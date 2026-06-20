@@ -1,6 +1,59 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <!-- Polyfills / Sandbox Compatibility Fixes -->
+    <script>
+      (function() {
+        // Fix for read-only sandboxed fetch getters
+        try {
+          var originalFetch = window.fetch;
+          var fetchStore = originalFetch;
+
+          function defineFetchOn(obj) {
+            Object.defineProperty(obj, 'fetch', {
+              get: function() {
+                return fetchStore;
+              },
+              set: function(val) {
+                fetchStore = val;
+              },
+              configurable: true,
+              enumerable: true
+            });
+          }
+
+          try {
+            defineFetchOn(window);
+          } catch (e1) {
+            try {
+              defineFetchOn(Window.prototype);
+            } catch (e2) {
+              console.warn('[Compatibility] Could not shadow window.fetch:', e2);
+            }
+          }
+
+          try {
+            if (typeof globalThis !== 'undefined' && globalThis !== window) {
+              Object.defineProperty(globalThis, 'fetch', {
+                get: function() { return fetchStore; },
+                set: function(val) { fetchStore = val; },
+                configurable: true,
+                enumerable: true
+              });
+            }
+          } catch (e3) {
+            // Ignore
+          }
+        } catch (e) {
+          console.warn('[Compatibility] Setup failed:', e);
+        }
+
+        // Fix for Vite React Fast Refresh preamble mismatch
+        if (typeof window !== 'undefined') {
+          window.__vite_plugin_react_preamble_installed__ = true;
+        }
+      })();
+    </script>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />

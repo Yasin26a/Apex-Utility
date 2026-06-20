@@ -82,6 +82,8 @@ export interface Translations {
     schemaGeneratorDesc?: string;
     contentGap?: string;
     contentGapDesc?: string;
+    quickImageOptimizer?: string;
+    quickImageOptimizerDesc?: string;
   };
   settings: {
     title: string;

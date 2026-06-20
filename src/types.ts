@@ -36,6 +36,7 @@ export type ActiveTab =
   | 'lorem-generator'
   | 'image-cropper'
   | 'date-calculator'
+  | 'seo-inspect'
   | 'privacy-policy'
   | 'terms-of-service'
   | 'about-us'
@@ -44,4 +45,12 @@ export type ActiveTab =
   | 'schema-generator'
   | 'content-gap'
   | 'keyword-cluster';
+
+export interface JSONBeautifierState {
+  rawInput: string;
+  beautifiedOutput: string;
+  tabSize: number | string;
+  isValid: boolean | null;
+  errorMessage: string | null;
+}
 

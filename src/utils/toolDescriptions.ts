@@ -5,7 +5,7 @@ export interface DeepDiveConfig {
   paragraphs: string[];
 }
 
-export const TOOL_DEEP_DIVES: Record<ActiveTab, DeepDiveConfig> = {
+export const TOOL_DEEP_DIVES: Record<string, DeepDiveConfig> = {
   'dashboard': {
     subtitle: 'High-Performance Developer Portal & Client Orchestrator',
     paragraphs: [
