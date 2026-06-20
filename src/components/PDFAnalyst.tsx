@@ -783,19 +783,34 @@ export default function PDFAnalyst() {
 
             {/* Simulated typing animation block when processing Gemini responses */}
             {isSending && (
-              <div className="flex justify-start">
-                <div className="max-w-[400px] rounded-lg rounded-tl-none border border-zinc-900 bg-[#0d0d12]/95 p-4 space-y-3">
-                  <div className="flex items-center justify-between font-mono text-[9px] uppercase tracking-wider text-zinc-550 select-none pb-1.5 border-b border-zinc-900/40">
+              <div className="flex justify-start w-full font-sans">
+                <div className="w-full max-w-[500px] rounded-lg rounded-tl-none border border-indigo-950/45 bg-[#0b0b10] p-4 space-y-4 animate-pulse">
+                  <div className="flex items-center justify-between font-mono text-[9px] uppercase tracking-wider text-indigo-400 select-none pb-2 border-b border-zinc-900/600">
                     <span className="flex items-center gap-1.5">
-                      <Loader2 className="w-3 h-3 text-indigo-400 animate-spin" />
-                      Streaming analysis tokens...
+                      <Sparkles className="w-3.5 h-3.5 text-indigo-400 animate-pulse" />
+                      Defragmenting page vectors...
                     </span>
+                    <span className="text-zinc-650">Gemini 3.5 Flash</span>
                   </div>
                   
-                  <div className="flex items-center gap-1 py-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-bounce" style={{ animationDelay: '0ms' }} />
-                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-bounce" style={{ animationDelay: '300ms' }} />
+                  {/* Shimmer skeleton lines representing styled content generation */}
+                  <div className="space-y-2.5">
+                    <div className="h-3.5 bg-zinc-800/80 rounded w-5/6 animate-pulse" />
+                    <div className="h-2.5 bg-zinc-850/60 rounded w-full animate-pulse" style={{ animationDelay: '75ms' }} />
+                    <div className="h-2.5 bg-zinc-850/60 rounded w-11/12 animate-pulse" style={{ animationDelay: '150ms' }} />
+                    <div className="h-2.5 bg-zinc-850/40 rounded w-4/5 animate-pulse" style={{ animationDelay: '225ms' }} />
+                  </div>
+
+                  {/* Bullet sub-elements showing detailed audit synthesis */}
+                  <div className="space-y-2 pt-2 border-t border-zinc-900/40">
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-indigo-500/30 shrink-0" />
+                      <div className="h-2 bg-zinc-850/75 rounded w-1/2" />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-indigo-500/30 shrink-0" />
+                      <div className="h-2 bg-zinc-850/75 rounded w-2/3" />
+                    </div>
                   </div>
                 </div>
               </div>

@@ -439,15 +439,27 @@ export default function AIAudioTranscriber() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="bg-indigo-500/5 dark:bg-indigo-400/5 border border-indigo-500/20 dark:border-indigo-500/10 rounded-2xl p-4 md:p-5 text-indigo-700 dark:text-indigo-400 space-y-2 text-center"
+                className="bg-indigo-500/[0.02] dark:bg-indigo-500/[0.01] border border-indigo-500/25 dark:border-indigo-500/10 rounded-2xl p-4 md:p-5 text-indigo-700 dark:text-indigo-400 space-y-4 text-center"
               >
-                <HelpCircle className="h-6 w-6 mx-auto animate-bounce mb-1 text-indigo-500 dark:text-indigo-400" />
-                <p className="text-sm font-medium">Analyzing Audio Waveforms</p>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
-                  {transcribeProgress}
-                </p>
-                <div className="w-full bg-zinc-200 dark:bg-zinc-800 h-1.5 rounded-full mt-3 overflow-hidden">
-                  <div className="bg-indigo-600 h-full w-2/3 animate-pulse rounded-full" />
+                {/* Premium dancing audio waveform visualization lines */}
+                <div className="flex items-center justify-center gap-1 py-1.5 bg-black/20 rounded-xl max-w-[180px] mx-auto border border-zinc-900">
+                  <div className="w-1.5 h-4 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
+                  <div className="w-1.5 h-8 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                  <div className="w-1.5 h-12 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '0.3s' }} />
+                  <div className="w-1.5 h-6 bg-brand/80 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }} />
+                  <div className="w-1.5 h-10 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '0.25s' }} />
+                  <div className="w-1.5 h-5 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '0.15s' }} />
+                </div>
+
+                <div className="space-y-1">
+                  <p className="text-xs font-bold uppercase tracking-wider font-mono text-indigo-400">Analyzing Target Audio Waveforms</p>
+                  <p className="text-[11px] text-zinc-500 dark:text-zinc-400 font-mono italic leading-relaxed">
+                    {transcribeProgress}
+                  </p>
+                </div>
+                
+                <div className="w-full bg-zinc-200 dark:bg-zinc-900/80 h-1 rounded-full overflow-hidden">
+                  <div className="bg-indigo-500 h-full w-4/5 animate-pulse rounded-full" />
                 </div>
               </motion.div>
             )}
@@ -496,16 +508,42 @@ export default function AIAudioTranscriber() {
             </div>
 
             {segments.length === 0 ? (
-              // EMPTY RESULTS TEMPLATE
-              <div className="py-16 flex flex-col items-center justify-center text-center text-zinc-400 dark:text-zinc-505">
-                <div className="p-4 rounded-full bg-zinc-50 dark:bg-zinc-950/30 text-zinc-400 mb-4">
-                  <Mic className="h-8 w-8" />
+              isTranscribing ? (
+                // ULTRA-PREMIUM SKELETON
+                <div className="space-y-6 py-4 animate-pulse">
+                  <div className="space-y-2 pb-4 border-b border-zinc-200/50 dark:border-zinc-800/40">
+                    <div className="h-4 bg-zinc-200 dark:bg-zinc-800/80 rounded w-1/4" />
+                    <div className="h-2.5 bg-zinc-150 dark:bg-zinc-850/60 rounded w-1/3" />
+                  </div>
+                  
+                  <div className="space-y-4">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="flex gap-4 p-4 rounded-xl border border-zinc-200/60 dark:border-zinc-800/40 bg-zinc-50/40 dark:bg-zinc-950/20">
+                        <div className="space-y-2 w-24 shrink-0 border-r border-zinc-200/50 dark:border-zinc-800/40 pr-3">
+                          <div className="h-3 bg-zinc-200 dark:bg-zinc-800 rounded w-16" />
+                          <div className="h-2 bg-zinc-150 dark:bg-zinc-850 rounded w-10" />
+                        </div>
+                        <div className="space-y-2.5 flex-1">
+                          <div className="h-2.5 bg-zinc-200 dark:bg-zinc-800 rounded w-full" />
+                          <div className="h-2.5 bg-zinc-200 dark:bg-zinc-800/80 rounded w-11/12" />
+                          <div className="h-2.5 bg-zinc-150 dark:bg-zinc-850/60 rounded w-4/5" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <h3 className="text-zinc-800 dark:text-zinc-200 text-sm font-semibold">No Transcript Available</h3>
-                <p className="text-xs text-zinc-400 dark:text-zinc-500 max-w-xs mt-1.5">
-                  Upload an audio file on the left workspace and trigger Gemini transcription to populate segment-by-segment speaker details here.
-                </p>
-              </div>
+              ) : (
+                // EMPTY RESULTS TEMPLATE
+                <div className="py-16 flex flex-col items-center justify-center text-center text-zinc-400 dark:text-zinc-505">
+                  <div className="p-4 rounded-full bg-zinc-50 dark:bg-zinc-950/30 text-zinc-400 mb-4">
+                    <Mic className="h-8 w-8" />
+                  </div>
+                  <h3 className="text-zinc-800 dark:text-zinc-200 text-sm font-semibold">No Transcript Available</h3>
+                  <p className="text-xs text-zinc-400 dark:text-zinc-500 max-w-xs mt-1.5">
+                    Upload an audio file on the left workspace and trigger Gemini transcription to populate segment-by-segment speaker details here.
+                  </p>
+                </div>
+              )
             ) : (
               // ACTIVE TRANSLATION VISUALIZATION
               <div className="space-y-4">

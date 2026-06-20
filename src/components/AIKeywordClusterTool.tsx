@@ -329,14 +329,33 @@ export default function AIKeywordClusterTool() {
 
       {/* Loading Block State */}
       {loading && (
-        <div className="bg-slate-900/60 border border-slate-850 rounded-2xl p-8 flex flex-col items-center justify-center text-center space-y-4">
-          <div className="relative">
-            <div className="w-12 h-12 rounded-full border-2 border-emerald-500/20 border-t-emerald-500 animate-spin" />
-            <Sparkles className="w-5 h-5 text-emerald-400 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-bounce" />
+        <div className="bg-slate-900/60 border border-slate-850 rounded-2xl p-6 md:p-8 space-y-6">
+          <div className="flex flex-col items-center justify-center text-center space-y-3">
+            <div className="relative">
+              <div className="w-12 h-12 rounded-full border-2 border-emerald-500/20 border-t-emerald-500 animate-spin" />
+              <Sparkles className="w-5 h-5 text-emerald-400 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+            </div>
+            <div className="space-y-1 max-w-sm">
+              <h4 className="text-sm font-bold font-mono text-slate-300">Clustering Search Engine Data</h4>
+              <p className="text-xs text-emerald-400 font-mono tracking-wider animate-pulse uppercase">{loadingStep || 'Analyzing semantic vectors...'}</p>
+            </div>
           </div>
-          <div className="space-y-1 max-w-sm">
-            <h4 className="text-sm font-bold font-mono text-slate-300">Clustering Search Engine Data</h4>
-            <p className="text-xs text-slate-500 animate-pulse">{loadingStep || 'Analyzing semantic vectors...'}</p>
+
+          {/* Polished, Animated Hub & Nodes Grid Skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-slate-850/60 animate-pulse">
+            {[1, 2, 3].map((clusterId) => (
+              <div key={clusterId} className="p-4 bg-slate-950/40 border border-slate-850/80 rounded-xl space-y-3">
+                <div className="flex items-center justify-between border-b border-slate-850/60 pb-2">
+                  <div className="h-4 bg-slate-800 rounded w-1/2" />
+                  <div className="h-3 bg-slate-800/60 rounded w-8" />
+                </div>
+                <div className="space-y-2">
+                  <div className="h-2.5 bg-slate-800/50 rounded w-full" />
+                  <div className="h-2.5 bg-slate-900 rounded w-11/12 animate-pulse" style={{ animationDelay: '100ms' }} />
+                  <div className="h-2.5 bg-slate-900/60 rounded w-4/5 animate-pulse" style={{ animationDelay: '200ms' }} />
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}

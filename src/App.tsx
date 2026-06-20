@@ -199,6 +199,30 @@ export default function App() {
     }
   }, [bookmarkedIds]);
 
+  // Automatically lock the active view route based on the subdomain
+  useEffect(() => {
+    const hostname = window.location.hostname; // e.g. "seo.yourdomain.com"
+    const subdomain = hostname.split('.')[0].toLowerCase();   // Action prefix e.g. "seo"
+    
+    const subdomainRoutes: Record<string, ActiveTab> = {
+      'transcribe': 'ai-transcriber',
+      'ai-transcribe': 'ai-transcriber',
+      'seo': 'seo-optimizer',
+      'trimmer': 'audio-trimmer',
+      'base64': 'base64-converter',
+      'snapshot': 'code-snapshot',
+      'colors': 'color-palette',
+      'shrinkpdf': 'compress-pdf',
+      'pdf-compressor': 'compress-pdf',
+      'record': 'video-recorder',
+      'dashboard': 'dashboard'
+    };
+
+    if (subdomainRoutes[subdomain]) {
+      setActiveTab(subdomainRoutes[subdomain]); 
+    }
+  }, []);
+
   const toggleBookmark = (id: string) => {
     setBookmarkedIds(prev => 
       prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
@@ -1236,6 +1260,10 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
     setPdfRestrictAnnotating(false);
   };
 
+  const sitemapDomainValue = targetUrl.replace(/^https?:\/\//, '').trim();
+  const sitemapDomainRegex = /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$/i;
+  const isValidSitemapDomain = sitemapDomainValue !== '' && sitemapDomainRegex.test(sitemapDomainValue);
+
   return (
     <div className="h-screen overflow-hidden bg-black text-zinc-100 flex flex-col font-sans selection:bg-brand selection:text-white">
       {/* Header Bar */}
@@ -2064,9 +2092,25 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                             value={targetUrl.replace(/^https?:\/\//, '')}
                             onChange={(e) => setTargetUrl(`https://${e.target.value}`)}
                             placeholder="yourdomain.com"
-                            className="w-full pl-16 pr-3.5 py-2.5 bg-slate-900 border border-slate-800 rounded-lg text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
+                            className={`w-full pl-16 pr-3.5 py-2.5 bg-slate-900 border rounded-lg text-sm text-slate-100 focus:outline-none focus:ring-2 transition-all ${
+                              sitemapDomainValue === '' 
+                                ? 'border-slate-800 focus:ring-rose-500/20 focus:border-rose-500' 
+                                : isValidSitemapDomain 
+                                  ? 'border-emerald-500/60 focus:ring-emerald-500/20 focus:border-emerald-500' 
+                                  : 'border-rose-500/60 focus:ring-rose-500/20 focus:border-rose-500'
+                            }`}
                           />
                         </div>
+                        {sitemapDomainValue !== '' && !isValidSitemapDomain && (
+                          <span className="text-[10px] text-rose-400 mt-1 block font-mono">
+                            ⚠️ Invalid domain format (use e.g. domain.com or sub.domain.org).
+                          </span>
+                        )}
+                        {sitemapDomainValue !== '' && isValidSitemapDomain && (
+                          <span className="text-[10px] text-emerald-400 mt-1 block font-mono">
+                            ✓ Domain format verified. Ready to calculate.
+                          </span>
+                        )}
                         <span className="text-[10px] text-slate-500 mt-1 block">Your new domain (e.g. bought on June 12, 2026).</span>
                       </div>
 
@@ -2106,8 +2150,8 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
 
                       <button
                         onClick={generateSitemapData}
-                        disabled={isGenerating}
-                        className="w-full bg-rose-500 hover:bg-rose-600 disabled:bg-rose-500/50 text-white font-medium text-sm py-2.5 rounded-lg text-center mt-2 transition-all"
+                        disabled={isGenerating || !isValidSitemapDomain}
+                        className="w-full bg-rose-500 hover:bg-rose-600 disabled:bg-rose-500/30 disabled:cursor-not-allowed text-white font-medium text-sm py-2.5 rounded-lg text-center mt-2 transition-all"
                       >
                         {isGenerating ? 'Generating Schema...' : 'Calculate XML Sitemap'}
                       </button>

@@ -465,21 +465,38 @@ export default function AIWriter() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="absolute inset-0 bg-[#060608]/95 flex flex-col items-center justify-center space-y-4 rounded-xl border border-zinc-900/40 z-20"
+                    className="absolute inset-0 bg-[#060608]/98 flex items-center justify-center rounded-xl border border-zinc-900/45 z-20"
                   >
-                    <div className="relative flex items-center justify-center">
-                      <div className="w-12 h-12 rounded-full border-2 border-brand/20 border-t-brand animate-spin" />
-                      <Bot className="w-5 h-5 text-brand absolute" />
-                    </div>
-                    <div className="text-center space-y-1.5">
-                      <p className="font-heading font-black text-xs text-white uppercase tracking-wider block">
-                        {state.isGenerating ? 'Drafting content matrix...' : 'Refining target grammar...'}
-                      </p>
-                      <p className="font-mono text-[9px] text-zinc-550 max-w-xs uppercase leading-relaxed tracking-widest">
-                        {state.isGenerating 
-                          ? 'Contacting server nodes & computing raw language vectors' 
-                          : 'Applying prompt filters locally across text buffers'}
-                      </p>
+                    <div className="w-full max-w-md p-6 space-y-5 animate-pulse text-left font-sans">
+                      <div className="flex items-center gap-3 border-b border-zinc-900/60 pb-3">
+                        <div className="w-8 h-8 rounded-full bg-brand/10 border border-brand/25 flex items-center justify-center shrink-0">
+                          <Bot className="w-4 h-4 text-brand animate-pulse" />
+                        </div>
+                        <div className="flex-1 space-y-1">
+                          <p className="font-mono text-[9px] font-semibold uppercase text-brand tracking-widest leading-none">
+                            {state.isGenerating ? 'Drafting content matrix...' : 'Refining target grammar...'}
+                          </p>
+                          <p className="font-mono text-[9px] text-zinc-500 uppercase tracking-wider leading-none">
+                            {state.isGenerating 
+                              ? 'Contacting server nodes & computing raw language vectors' 
+                              : 'Applying prompt filters locally across text buffers'}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Paragraph layout skeletons with glowing gradients */}
+                      <div className="space-y-3">
+                        <div className="h-3 bg-zinc-850/85 rounded w-full" />
+                        <div className="h-3 bg-zinc-850/75 rounded w-11/12" style={{ animationDelay: '50ms' }} />
+                        <div className="h-3 bg-zinc-850/75 rounded w-5/6" style={{ animationDelay: '100ms' }} />
+                        <div className="h-3 bg-zinc-850/60 rounded w-full" style={{ animationDelay: '150ms' }} />
+                        <div className="h-2.5 bg-zinc-900 rounded w-2/3" style={{ animationDelay: '200ms' }} />
+                      </div>
+
+                      <div className="space-y-2.5 pt-2 border-t border-zinc-900/30">
+                        <div className="h-3 bg-zinc-850/60 rounded w-11/12" style={{ animationDelay: '250ms' }} />
+                        <div className="h-3 bg-zinc-850/50 rounded w-4/5" style={{ animationDelay: '300ms' }} />
+                      </div>
                     </div>
                   </motion.div>
                 )}
