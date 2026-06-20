@@ -689,6 +689,139 @@ Tone Guidelines:
     res.send(xml);
   });
 
+  // -------------------------------------------------------------
+  // AI Header Generation and Metadata Storage Endpoints
+  // -------------------------------------------------------------
+
+  // Setup /headers static serving from public/headers
+  try {
+    const fs = await import('fs');
+    const path = await import('path');
+    const headersDir = path.join(process.cwd(), 'public/headers');
+    if (!fs.existsSync(headersDir)) {
+      fs.mkdirSync(headersDir, { recursive: true });
+    }
+    app.use('/headers', express.static(headersDir));
+  } catch (err) {
+    console.error('Error setting up static headers directory serving:', err);
+  }
+
+  // Get all generated AI article headers
+  app.get('/api/articles-images', async (req, res) => {
+    try {
+      const fs = await import('fs');
+      const path = await import('path');
+      const metadataPath = path.join(process.cwd(), 'public/headers/metadata.json');
+      
+      if (fs.existsSync(metadataPath)) {
+        const fileContent = fs.readFileSync(metadataPath, 'utf-8');
+        res.json(JSON.parse(fileContent));
+      } else {
+        res.json({});
+      }
+    } catch (err: any) {
+      console.error('Error fetching article images metadata:', err);
+      res.json({});
+    }
+  });
+
+  // Generate an AI header image using the Imagen API
+  app.post('/api/generate-article-image', async (req, res) => {
+    try {
+      const { articleId, prompt, articleTitle, articleTags } = req.body;
+      if (!articleId) {
+        res.status(400).json({ error: 'Article ID is required.' });
+        return;
+      }
+
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        res.status(500).json({ 
+          error: 'GEMINI_API_KEY is not configured on the server. Please check your Secret keys.' 
+        });
+        return;
+      }
+
+      // Initialize the modern GoogleGenAI client (no named client, direct inst.)
+      const ai = new GoogleGenAI({
+        apiKey: apiKey,
+        httpOptions: {
+          headers: {
+            'User-Agent': 'aistudio-build'
+          }
+        }
+      });
+
+      // Construct a premium descriptive prompt
+      let finalPrompt = prompt;
+      if (!finalPrompt) {
+        const tagsString = articleTags && articleTags.length > 0 ? articleTags.join(', ') : 'technology';
+        finalPrompt = `An ultra-premium, high-fidelity, highly detailed cinematic digital representation of raw concepts for the tech article titled "${articleTitle || articleId}". Relevant terms: ${tagsString}. Style: modern workspace, minimalist glowing neon vectors, beautiful deep slate canvas, ambient lighting, widescreen 16:9 banner layout suitable for a leading tech publisher's article cover header, 4k detail, clean with zero words, letters, or fonts.`;
+      }
+
+      console.log(`[Imagen API] Generating article header for ID "${articleId}" using prompt: "${finalPrompt}"`);
+
+      // Call generateImages as documented in the gemini-api skill
+      const response = await ai.models.generateImages({
+        model: 'imagen-3.0-generate-002',
+        prompt: finalPrompt,
+        config: {
+          numberOfImages: 1,
+          outputMimeType: 'image/jpeg',
+          aspectRatio: '16:9',
+        },
+      });
+
+      if (!response.generatedImages || response.generatedImages.length === 0) {
+        throw new Error('No images returned from standard Imagen API endpoints. Generative queue was empty.');
+      }
+
+      const imageObj = response.generatedImages[0].image;
+      if (!imageObj || !imageObj.imageBytes) {
+        throw new Error('Image bytes were empty or unresolved in the Google Imagen response payload.');
+      }
+      const base64Bytes = imageObj.imageBytes;
+      const buffer = Buffer.from(base64Bytes, 'base64');
+
+      const fs = await import('fs');
+      const path = await import('path');
+
+      // Double verify directory exists at runtime
+      const headersDir = path.join(process.cwd(), 'public/headers');
+      if (!fs.existsSync(headersDir)) {
+        fs.mkdirSync(headersDir, { recursive: true });
+      }
+
+      // Save the generated image
+      const imageFilename = `${articleId}.png`;
+      const imagePath = path.join(headersDir, imageFilename);
+      fs.writeFileSync(imagePath, buffer);
+
+      // Save to metadata mapping file
+      const metadataPath = path.join(headersDir, 'metadata.json');
+      let metadata: Record<string, string> = {};
+      if (fs.existsSync(metadataPath)) {
+        try {
+          const content = fs.readFileSync(metadataPath, 'utf-8');
+          metadata = JSON.parse(content);
+        } catch (e) {
+          metadata = {};
+        }
+      }
+      
+      const imageUrl = `/headers/${imageFilename}`;
+      metadata[articleId] = imageUrl;
+      
+      fs.writeFileSync(metadataPath, JSON.stringify(metadata, null, 2));
+
+      console.log(`[Imagen API] Saved generated AI header under "${imageUrl}"`);
+      res.json({ success: true, imageUrl, prompt: finalPrompt });
+    } catch (err: any) {
+      console.error('Error generating AI header via Imagen:', err);
+      res.status(500).json({ error: err.message || 'Verification and generation of standard Imagen visual failed.' });
+    }
+  });
+
   const isProd = process.env.NODE_ENV === 'production';
 
   if (!isProd) {

@@ -249,6 +249,8 @@ export default function App() {
       'shrinkpdf': 'compress-pdf',
       'pdf-compressor': 'compress-pdf',
       'record': 'video-recorder',
+      'news': 'guides',
+      'blog': 'guides',
       'dashboard': 'dashboard'
     };
 
@@ -764,8 +766,28 @@ export default function App() {
   // Synchronize router location with active tab
   useEffect(() => {
     const path = location.pathname.substring(1);
+    const hostname = window.location.hostname;
+    const subdomain = hostname.split('.')[0].toLowerCase();
+    const subdomainRoutes: Record<string, ActiveTab> = {
+      'transcribe': 'ai-transcriber',
+      'ai-transcribe': 'ai-transcriber',
+      'seo': 'seo-optimizer',
+      'trimmer': 'audio-trimmer',
+      'base64': 'base64-converter',
+      'snapshot': 'code-snapshot',
+      'colors': 'color-palette',
+      'shrinkpdf': 'compress-pdf',
+      'pdf-compressor': 'compress-pdf',
+      'record': 'video-recorder',
+      'news': 'guides',
+      'blog': 'guides',
+      'dashboard': 'dashboard'
+    };
+
     if (path) {
       setActiveTab(path as ActiveTab);
+    } else if (subdomainRoutes[subdomain]) {
+      setActiveTab(subdomainRoutes[subdomain]);
     } else {
       setActiveTab('dashboard');
     }
@@ -1350,29 +1372,7 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
             </span>
           </button>
 
-          {isOnline ? (
-            <div 
-              className="hidden sm:flex items-center gap-1.5 bg-zinc-950 px-3 py-1.5 rounded-full border border-emerald-950/40 cursor-default"
-              title="Your device has an active internet connection. Sync and documentation indexes operational."
-            >
-              <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-ping"></span>
-              <span className="text-[11px] font-mono text-emerald-400 font-semibold tracking-wide flex items-center gap-1">
-                <Wifi className="w-3 h-3 text-emerald-500 inline-block" />
-                <span>Cloud Sync Active</span>
-              </span>
-            </div>
-          ) : (
-            <div 
-              className="hidden sm:flex items-center gap-1.5 bg-amber-950/20 px-3 py-1.5 rounded-full border border-amber-500/30 cursor-help animate-pulse"
-              title="Connection lost. 100% of Apex Processing Tools execute entirely client-side using local high-performance WebAssembly!"
-            >
-              <span className="w-2 h-2 rounded-full bg-amber-500 inline-block animate-ping"></span>
-              <span className="text-[11px] font-mono text-amber-400 font-semibold tracking-wide flex items-center gap-1">
-                <WifiOff className="w-3 h-3 text-amber-500 inline-block" />
-                <span>Offline: WASM Active</span>
-              </span>
-            </div>
-          )}
+          {/* Status Indicator Bar Removed */}
         </div>
       </header>
 

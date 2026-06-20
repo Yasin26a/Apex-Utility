@@ -7,6 +7,7 @@ import {
   Volume2, VolumeX, Pause, Play, Square, Eye, EyeOff
 } from 'lucide-react';
 import { ActiveTab } from '../types';
+import { viralArticles } from '../data/viralArticles';
 
 export interface Article {
   id: string;
@@ -24,12 +25,48 @@ export interface Article {
   image?: string;
 }
 
+export const TAG_CATEGORIES = [
+  {
+    id: 'ai-automation',
+    name: 'AI & Automation',
+    icon: Sparkles,
+    color: 'border-purple-500/30 text-purple-400 bg-purple-500/5 hover:border-purple-500/60',
+    activeColor: 'bg-purple-500/20 border-purple-400 text-purple-300 shadow-[0_0_15px_rgba(168,85,247,0.15)]',
+    tags: ['Cursor AI', 'Anthropic', 'AI Code Generation', 'AI Agents', 'Automation', 'Human-in-the-loop', 'Mobile Agents', 'AlphaFold', 'Google DeepMind', 'Edge AI', 'Vector Databases', 'AI Hallucinations', 'Anthropic Mythos']
+  },
+  {
+    id: 'security-policy',
+    name: 'Cybersecurity & Policy',
+    icon: Shield,
+    color: 'border-red-500/30 text-red-400 bg-red-500/5 hover:border-red-500/60',
+    activeColor: 'bg-red-500/20 border-red-400 text-red-300 shadow-[0_0_15px_rgba(239,68,68,0.15)]',
+    tags: ['Cybersecurity Policies', 'Federal Mandate', 'Zero-Day Vulnerability', 'CVE Patching', 'Linux Kernel CVE', 'Root Escalation Exploit', 'Open Source Security', 'Social Media Ban', 'Age Verification', 'National Intelligence', 'DGSI', 'Palantir', 'France sovereign cloud', 'Western Alliances', 'Dirty Frag', 'Memory Management']
+  },
+  {
+    id: 'systems-hardware',
+    name: 'Systems & Hardware',
+    icon: Terminal,
+    color: 'border-cyan-500/30 text-cyan-400 bg-cyan-500/5 hover:border-cyan-500/60',
+    activeColor: 'bg-cyan-500/20 border-cyan-400 text-cyan-300 shadow-[0_0_15px_rgba(6,182,212,0.15)]',
+    tags: ['WASM Core', 'Local Computing', 'Sovereign Compute', 'Cloud Technology', 'Streaming Platforms', 'Roku Acquisition', 'Smart TV Technology', 'Memory Chip Shortage', 'Supply Chain Economics', 'Fox Corporation', 'Apple']
+  },
+  {
+    id: 'energy-sustainability',
+    name: 'Energy & Sustainability',
+    icon: Zap,
+    color: 'border-emerald-500/30 text-emerald-400 bg-emerald-500/5 hover:border-emerald-500/60',
+    activeColor: 'bg-emerald-500/20 border-emerald-400 text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.15)]',
+    tags: ['Grid Priority', 'Data Center Energy', 'SMR reactors', 'Green Nuclear Energy', 'Sodium Coolant', 'Polaris Reactor', 'Fusion Energy Solutions', 'Circular Plastics', 'Thermal Barcodes', 'Recycling Technology', 'Sustainable Polymers', 'TerraPower', 'Helion Fusion', 'Nuclear Regulatory Commission']
+  }
+];
+
 interface GuidesProps {
   onTabChange: (tab: ActiveTab) => void;
 }
 
 export default function Guides({ onTabChange }: GuidesProps) {
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [selectedArticleId, setSelectedArticleId] = useState<string | null>(null);
   const [likes, setLikes] = useState<Record<string, number>>({
@@ -89,9 +126,119 @@ export default function Guides({ onTabChange }: GuidesProps) {
   const [fontFamily, setFontFamily] = useState<'sans' | 'serif' | 'mono'>('sans');
   const [theme, setTheme] = useState<'slate' | 'sepia' | 'parchment'>('slate');
   const [isDistractionFree, setIsDistractionFree] = useState(false);
+  const [columnsCount, setColumnsCount] = useState<'1' | '2' | '3' | 'auto'>('auto');
   const [speechRate, setSpeechRate] = useState<number>(1.0);
   const [speakingArticleId, setSpeakingArticleId] = useState<string | null>(null);
   const [isSpeechPaused, setIsSpeechPaused] = useState(false);
+
+  // States for AI image generation integration with Imagen API
+  const [aiHeaders, setAiHeaders] = useState<Record<string, string>>({});
+  const [isGeneratingImage, setIsGeneratingImage] = useState<Record<string, boolean>>({});
+  const [generationError, setGenerationError] = useState<string | null>(null);
+  const [generationLogs, setGenerationLogs] = useState<string[]>([]);
+  const [batchActive, setBatchActive] = useState(false);
+  const [batchProgress, setBatchProgress] = useState(0);
+  const [batchTotal, setBatchTotal] = useState(0);
+
+  const handleCategorySelect = (categoryId: string | null) => {
+    setSelectedCategory(categoryId);
+    setSelectedTag(null);
+  };
+
+  const handleSelectRelated = (id: string) => {
+    setSelectedArticleId(id);
+    setTimeout(() => {
+      const barEl = document.getElementById('blog-subdomain-bar');
+      if (barEl) {
+        barEl.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }, 50);
+  };
+
+  React.useEffect(() => {
+    fetch('/api/articles-images')
+      .then(res => res.json())
+      .then(data => setAiHeaders(data))
+      .catch(err => console.error('Error loading AI headers metadata:', err));
+  }, []);
+
+  const handleGenerateAIHeader = async (artId: string, customPrompt?: string) => {
+    setIsGeneratingImage(prev => ({ ...prev, [artId]: true }));
+    setGenerationError(null);
+    const targetArticle = articles.find(a => a.id === artId);
+    if (!targetArticle) return;
+
+    try {
+      setGenerationLogs(prev => [...prev, `[IMAGEN] Connecting to premium Google GenAI model 'imagen-3.0-generate-002'...`]);
+      const res = await fetch('/api/generate-article-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          articleId: artId,
+          prompt: customPrompt || null,
+          articleTitle: targetArticle.title,
+          articleTags: targetArticle.tags
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to generate visual.');
+      }
+
+      setAiHeaders(prev => ({ ...prev, [artId]: data.imageUrl }));
+      setGenerationLogs(prev => [...prev, `[SUCCESS] Saved image metadata for "${artId}" -> ${data.imageUrl}`]);
+    } catch (err: any) {
+      console.error(err);
+      setGenerationError(err.message || 'Error occurred during generation.');
+      setGenerationLogs(prev => [...prev, `[ERROR] Failed for "${artId}": ${err.message}`]);
+    } finally {
+      setIsGeneratingImage(prev => ({ ...prev, [artId]: false }));
+    }
+  };
+
+  const handleGenerateAllAIHeaders = async () => {
+    if (batchActive) return;
+    setBatchActive(true);
+    setBatchTotal(viralArticles.length);
+    setBatchProgress(0);
+    setGenerationError(null);
+    setGenerationLogs([`[BATCH] Initializing AI Header Compilation sequence for ${viralArticles.length} articles...`]);
+    
+    // We'll process sequentially to avoid API timeouts
+    for (let i = 0; i < viralArticles.length; i++) {
+      const art = viralArticles[i];
+      setGenerationLogs(prev => [...prev, `[BATCH] [${i+1}/${viralArticles.length}] Requesting Imagen AI for "${art.title}"...`]);
+      
+      try {
+        const res = await fetch('/api/generate-article-image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            articleId: art.id,
+            articleTitle: art.title,
+            articleTags: art.tags
+          })
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || 'Connection timed out.');
+        }
+
+        setAiHeaders(prev => ({ ...prev, [art.id]: data.imageUrl }));
+        setGenerationLogs(prev => [...prev, `[BATCH] [SUCCESS] Completed "${art.title}" -> ${data.imageUrl}`]);
+      } catch (err: any) {
+        setGenerationLogs(prev => [...prev, `[BATCH] [ERROR] "${art.title}": ${err.message}`]);
+      }
+      
+      setBatchProgress(i + 1);
+    }
+    setBatchActive(false);
+    setGenerationLogs(prev => [...prev, `[BATCH] Compilation complete! All active headers stored in server metadata.`]);
+  };
 
   const extractTextFromNode = (node: React.ReactNode): string => {
     if (node == null) return '';
@@ -200,7 +347,8 @@ export default function Guides({ onTabChange }: GuidesProps) {
     }
   };
 
-  const getArticleCover = (art: { id: string; title: string; topic: string; tags: string[] }): string => {
+  const getArticleCover = (art: { id: string; title: string; topic: string; tags: string[]; image?: string }): string => {
+    if (art.image) return art.image;
     const text = `${art.id} ${art.title} ${art.topic} ${art.tags.join(' ')}`.toLowerCase();
     
     if (text.includes('pet') || text.includes('cat') || text.includes('dog') || text.includes('animal') || text.includes('cozy')) {
@@ -241,6 +389,7 @@ export default function Guides({ onTabChange }: GuidesProps) {
   };
 
   const articles: Article[] = [
+    ...viralArticles,
     {
       id: 'wasm-pdf',
       title: 'Under the Hood of Client-Side WASM PDF Compression',
@@ -2459,21 +2608,50 @@ export default function Guides({ onTabChange }: GuidesProps) {
     }
   ];
 
-  const filteredArticles = articles.filter(art => {
+  const mappedArticles = articles.map(art => {
+    if (aiHeaders[art.id]) {
+      return { ...art, image: aiHeaders[art.id] };
+    }
+    return art;
+  });
+
+  const filteredArticles = mappedArticles.filter(art => {
     const matchesSearch = 
       art.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       art.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
       art.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()));
     
-    if (selectedTag) {
-      return matchesSearch && art.tags.includes(selectedTag);
+    let matchesCategory = true;
+    if (selectedCategory) {
+      const categoryObj = TAG_CATEGORIES.find(c => c.id === selectedCategory);
+      if (categoryObj) {
+        matchesCategory = art.tags.some(tag => categoryObj.tags.includes(tag));
+      }
     }
-    return matchesSearch;
+
+    let matchesTag = true;
+    if (selectedTag) {
+      matchesTag = art.tags.includes(selectedTag);
+    }
+    
+    return matchesSearch && matchesCategory && matchesTag;
   });
 
-  const allTags = Array.from(new Set(articles.flatMap(art => art.tags)));
+  const allTags = React.useMemo(() => {
+    let baseTags = Array.from(new Set(mappedArticles.flatMap(art => art.tags)));
+    if (selectedCategory) {
+      const categoryObj = TAG_CATEGORIES.find(c => c.id === selectedCategory);
+      if (categoryObj) {
+        baseTags = baseTags.filter(t => categoryObj.tags.includes(t));
+      }
+    }
+    return baseTags;
+  }, [mappedArticles, selectedCategory]);
 
-  const currentArticle = articles.find(art => art.id === selectedArticleId);
+  const currentArticle = mappedArticles.find(art => art.id === selectedArticleId);
+  const isLongArticle = currentArticle
+    ? (currentArticle.readTime.toLowerCase().includes('min') && parseInt(currentArticle.readTime) >= 5)
+    : false;
 
   return (
     <div className="space-y-8 max-w-5xl mx-auto">
@@ -2486,16 +2664,16 @@ export default function Guides({ onTabChange }: GuidesProps) {
           </div>
           <div>
             <h4 className="font-heading text-xs font-black tracking-wider uppercase text-white flex items-center gap-1.5">
-              <span>Apex Blog Subdomain Live</span>
-              <span className="bg-brand/15 border border-brand/30 text-brand text-[8px] font-mono px-1.5 py-0.5 rounded uppercase font-bold animate-pulse">NEW REDIRECT</span>
+              <span>Apex News & Editorial Subdomain Live</span>
+              <span className="bg-brand/15 border border-brand/30 text-brand text-[8px] font-mono px-1.5 py-0.5 rounded uppercase font-bold animate-pulse">VIRAL ROUTING ACTIVE</span>
             </h4>
             <p className="font-sans text-[11px] text-zinc-400 mt-0.5 max-w-xl">
-              Host high-efficiency dynamic sitemaps, verify indexing pipelines, and read full editorial articles directly at <a href="https://blog.apexutility.live" target="_blank" rel="noopener noreferrer" className="text-brand font-bold hover:underline">blog.apexutility.live</a> to further boost search traffic.
+              Access the viral news loop, host high-efficiency dynamic sitemaps, verify indexing pipelines, and read full editorial articles directly at <a href="https://news.apexutility.live" target="_blank" rel="noopener noreferrer" className="text-brand font-bold hover:underline">news.apexutility.live</a> to further boost search traffic.
             </p>
           </div>
         </div>
         <a 
-          href="https://blog.apexutility.live" 
+          href="https://news.apexutility.live" 
           target="_blank" 
           rel="noopener noreferrer"
           className="px-3.5 py-1.5 bg-brand text-zinc-950 hover:bg-brand-hover hover:text-white transition-all font-heading text-[10px] font-black tracking-wider uppercase rounded-lg flex items-center gap-1.5 shrink-0 cursor-pointer shadow-md shadow-brand/10"
@@ -2569,6 +2747,55 @@ export default function Guides({ onTabChange }: GuidesProps) {
             }
             .polished-divider-${currentArticle.id} {
               border-color: ${theme === 'sepia' ? '#edd9b5' : theme === 'parchment' ? '#eae6da' : '#1e1e2d'} !important;
+            }
+
+            /* Responsive Multi-Column Engine for Long-form Content */
+            .polished-article-body {
+              column-count: 1 !important;
+              column-gap: 2.25rem !important;
+              column-fill: balance !important;
+            }
+            
+            @media (min-width: 768px) {
+              .polished-article-body {
+                column-count: ${
+                  columnsCount === '1' ? '1' :
+                  columnsCount === '2' ? '2' :
+                  columnsCount === '3' ? '2' :
+                  (isLongArticle ? '2' : '1')
+                } !important;
+              }
+            }
+            
+            @media (min-width: 1280px) {
+              .polished-article-body {
+                column-count: ${
+                  columnsCount === '1' ? '1' :
+                  columnsCount === '2' ? '2' :
+                  columnsCount === '3' ? '3' :
+                  (isLongArticle ? '2' : '1')
+                } !important;
+              }
+            }
+            
+            /* Prevent fragmenting elements half-way across columns */
+            .polished-article-body h2,
+            .polished-article-body h3,
+            .polished-article-body h4,
+            .polished-article-body h5,
+            .polished-article-body h6,
+            .polished-article-body blockquote,
+            .polished-article-body ul,
+            .polished-article-body ol,
+            .polished-article-body li,
+            .polished-article-body pre,
+            .polished-article-body figure,
+            .polished-article-body table,
+            .polished-article-body div.beveled-panel,
+            .polished-article-body div.bg-zinc-950,
+            .polished-article-body div.p-4 {
+              break-inside: avoid-column !important;
+              page-break-inside: avoid !important;
             }
           `}</style>
 
@@ -2674,6 +2901,22 @@ export default function Guides({ onTabChange }: GuidesProps) {
                 </div>
               </div>
 
+              {/* Columns Selector */}
+              <div className="space-y-1.5 flex flex-col">
+                <span className="text-[9px] text-zinc-500 font-extrabold uppercase tracking-widest">TEXT COLUMNS</span>
+                <div className="flex gap-1 bg-[#09090d] border border-zinc-900 p-1 rounded-lg">
+                  {(['1', '2', '3', 'auto'] as const).map((col) => (
+                    <button
+                      key={col}
+                      onClick={() => setColumnsCount(col)}
+                      className={`px-2.5 py-1 rounded text-[9px] uppercase font-bold transition-all cursor-pointer ${columnsCount === col ? 'bg-brand text-zinc-950 font-extrabold' : 'hover:text-white'}`}
+                    >
+                      {col === 'auto' ? 'AUTO ✨' : `${col} COL`}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               {/* Distraction Free toggle */}
               <div className="space-y-1.5 flex flex-col">
                 <span className="text-[9px] text-zinc-500 font-extrabold uppercase tracking-widest">LAYOUT MODE</span>
@@ -2743,8 +2986,14 @@ export default function Guides({ onTabChange }: GuidesProps) {
             </div>
           </div>
 
-          {/* Article Card */}
-          <div className={`beveled-panel p-6 md:p-10 border shadow-2xl text-left relative overflow-hidden transition-all duration-300 polished-container-${currentArticle.id}`}>
+          {/* Article Layout Controller Row: Main stream and related sidebar */}
+          <div className={`grid grid-cols-1 ${isDistractionFree ? 'max-w-4xl mx-auto' : 'lg:grid-cols-12'} gap-6 items-start w-full`}>
+            
+            {/* Main Content Column */}
+            <div className={`${isDistractionFree ? 'col-span-1' : 'lg:col-span-8'} space-y-6 w-full`}>
+              
+              {/* Article Card */}
+              <div className={`beveled-panel p-6 md:p-10 border shadow-2xl text-left relative overflow-hidden transition-all duration-300 polished-container-${currentArticle.id}`}>
             {theme === 'slate' && (
               <div className="absolute top-0 right-0 w-64 h-64 rounded-full blur-[80px] pointer-events-none -mr-16 -mt-16 bg-brand/5" />
             )}
@@ -2759,6 +3008,89 @@ export default function Guides({ onTabChange }: GuidesProps) {
                   referrerPolicy="no-referrer"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#09090d]/65 via-transparent to-transparent opacity-50" />
+              </div>
+
+              {/* AI HEADER GENERATOR TOOLKIT */}
+              <div className="bg-[#0e0e15]/85 border border-brand/20 p-5 rounded-xl space-y-3 text-left">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5 text-brand">
+                    <Wand2 className="w-4 h-4 text-brand animate-pulse" />
+                    <span className="font-heading text-[10px] font-black tracking-wider uppercase text-zinc-200">
+                      AI Imagen Co-Pilot
+                    </span>
+                  </div>
+                  {aiHeaders[currentArticle.id] ? (
+                    <span className="px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/35 text-emerald-400 font-mono text-[8px] font-bold uppercase rounded-md animate-pulse">
+                      ACTIVE AI HEADER
+                    </span>
+                  ) : (
+                    <span className="px-2 py-0.5 bg-zinc-900 border border-zinc-800 text-zinc-500 font-mono text-[8px] font-bold uppercase rounded-md">
+                      DEFAULT FALLBACK ACTIVE
+                    </span>
+                  )}
+                </div>
+                
+                <p className="font-sans text-[11px] text-zinc-400 leading-relaxed">
+                  Automatically generate or replace this article cover with a custom high-fidelity illustration compiled using Google's **Imagen 3** engine on the server.
+                </p>
+
+                <div className="flex flex-col gap-2">
+                  <div className="relative flex items-center">
+                    <span className="absolute left-2.5 font-mono text-[9px] text-[#ff7043] font-bold uppercase">PROMPT:</span>
+                    <input
+                      type="text"
+                      placeholder="Enter custom image generation prompt..."
+                      defaultValue={`An ultra-premium, highly detailed cinematic representation of ${currentArticle.title}. Minimalist glowing corporate vectors, beautiful deep slate canvas, ambient lighting, widescreen 16:9 banner layout suitable for a leading tech publisher's article cover, 4k detail, clean with zero words.`}
+                      id={`prompt-input-${currentArticle.id}`}
+                      className="w-full bg-zinc-950 border border-zinc-900/80 rounded-lg pl-14 pr-2 py-2 font-sans text-[11px] text-zinc-300 focus:outline-none focus:border-brand/40"
+                    />
+                  </div>
+                  
+                  <div className="flex items-center justify-between gap-3 pt-1">
+                    <button
+                      onClick={() => {
+                        const inputEl = document.getElementById(`prompt-input-${currentArticle.id}`) as HTMLInputElement;
+                        const customPrompt = inputEl ? inputEl.value : undefined;
+                        handleGenerateAIHeader(currentArticle.id, customPrompt);
+                      }}
+                      disabled={isGeneratingImage[currentArticle.id]}
+                      className="px-3.5 py-2 bg-brand text-zinc-950 hover:bg-brand-hover hover:text-white hover:scale-[1.01] active:scale-95 disabled:opacity-50 transition-all font-heading text-[10px] font-black tracking-wider uppercase rounded-lg flex items-center gap-1.5 cursor-pointer"
+                    >
+                      {isGeneratingImage[currentArticle.id] ? (
+                        <>
+                          <div className="w-3.5 h-3.5 border-2 border-zinc-950 border-t-transparent rounded-full animate-spin" />
+                          <span>COMPILING IMAGE...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="w-3.5 h-3.5" />
+                          <span>COMPILE ART HEADER</span>
+                        </>
+                      )}
+                    </button>
+
+                    {aiHeaders[currentArticle.id] && (
+                      <button
+                        onClick={() => {
+                          setAiHeaders(prev => {
+                            const copy = { ...prev };
+                            delete copy[currentArticle.id];
+                            return copy;
+                          });
+                        }}
+                        className="px-2.5 py-1 text-zinc-500 hover:text-zinc-300 font-mono text-[9px] hover:underline cursor-pointer"
+                      >
+                        RESET TO FALLBACK
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {generationError && (
+                  <p className="font-mono text-[9.5px] text-red-400 leading-snug">
+                    ERROR: {generationError}
+                  </p>
+                )}
               </div>
 
               {/* Author and Topic */}
@@ -2869,6 +3201,137 @@ export default function Guides({ onTabChange }: GuidesProps) {
             </div>
           </div>
         </div>
+
+        {/* Showcase Related Articles Sidebar (only if not distraction free!) */}
+        {!isDistractionFree && (
+          <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-24 w-full">
+            {(() => {
+              const currentTags = new Set(currentArticle.tags);
+              const related = mappedArticles
+                .filter(a => a.id !== currentArticle.id)
+                .map(a => {
+                  const shared = a.tags.filter(t => currentTags.has(t));
+                  return { ...a, shared, sharedCount: shared.length };
+                })
+                .filter(a => a.sharedCount > 0)
+                .sort((a, b) => b.sharedCount - a.sharedCount || (likes[b.id] || 0) - (likes[a.id] || 0))
+                .slice(0, 5);
+
+              // Adapt styling to active reader options theme
+              const isSlate = theme === 'slate';
+              const isSepia = theme === 'sepia';
+
+              const containerThemeClasses = isSlate 
+                ? 'bg-zinc-950/60 border-zinc-900 text-zinc-400' 
+                : isSepia 
+                  ? 'bg-[#eed9b3]/85 border-[#e1c592] text-[#4a3c31]' 
+                  : 'bg-[#ebe5d6]/85 border-[#dacfb7] text-[#1c1c1a]';
+
+              const panelHeaderClasses = isSlate
+                ? 'text-zinc-300 border-zinc-900 bg-zinc-950'
+                : isSepia
+                  ? 'text-[#2c1a0c] border-[#e1c592] bg-[#e7cf9e]'
+                  : 'text-[#0a0a09] border-[#dacfb7] bg-[#dfd7c5]';
+
+              const hoverThemeClasses = isSlate
+                ? 'bg-zinc-900/40 border-zinc-900/60 hover:bg-zinc-950 hover:border-brand/40 group'
+                : isSepia
+                  ? 'bg-[#eedbb5]/40 border-[#e1c592]/50 hover:bg-[#eed9b3] hover:border-[#b49866] group'
+                  : 'bg-[#eae6da]/40 border-[#dacfb7]/60 hover:bg-[#ebe5d6] hover:border-[#b5a990] group';
+
+              const titleThemeClasses = isSlate
+                ? 'text-zinc-200 group-hover:text-brand'
+                : isSepia
+                  ? 'text-[#2c1a0c] group-hover:text-[#5c2d15]'
+                  : 'text-[#0a0a09] group-hover:text-black';
+
+              const tagBadgeStyles = {
+                backgroundColor: isSlate ? 'rgba(255,255,255,0.04)' : isSepia ? '#fbf0d9' : '#fcfbf7',
+                borderColor: isSlate ? '#1e1e2d' : isSepia ? '#e2cca4' : '#dfd9c8',
+                color: isSlate ? '#a1a1aa' : isSepia ? '#5a4635' : '#4a4a44'
+              };
+
+              return (
+                <div className={`border rounded-xl p-4 md:p-5 text-left space-y-4 transition-all ${containerThemeClasses}`}>
+                  <div className={`p-3 rounded-lg border flex items-center justify-between gap-2 ${panelHeaderClasses}`}>
+                    <div className="flex items-center gap-2">
+                      <Tag className="w-4 h-4 text-brand" />
+                      <h4 className="font-heading text-xs font-black uppercase tracking-wider">
+                        Related Articles
+                      </h4>
+                    </div>
+                    <span className="font-mono text-[9px] font-bold px-1.5 py-0.5 rounded bg-black/20">
+                      {related.length} MATCHES
+                    </span>
+                  </div>
+
+                  {related.length === 0 ? (
+                    <div className="py-8 text-center text-[11px] opacity-60 italic">
+                      No other articles carry matching tags.
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {related.map(art => {
+                        return (
+                          <button
+                            key={art.id}
+                            onClick={() => handleSelectRelated(art.id)}
+                            className={`w-full border p-3 rounded-lg text-left transition-all duration-200 cursor-pointer flex flex-col gap-2.5 ${hoverThemeClasses}`}
+                          >
+                            <div className="flex gap-3 items-start w-full">
+                              {/* Thumbnail container */}
+                              <div className="w-[84px] h-[54px] shrink-0 rounded overflow-hidden border border-zinc-900/40 bg-zinc-900 relative">
+                                <img 
+                                  src={art.image || getArticleCover(art)} 
+                                  alt={art.title} 
+                                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                                  referrerPolicy="no-referrer"
+                                />
+                              </div>
+
+                              <div className="space-y-1 min-w-0 flex-grow">
+                                <h5 className={`font-heading text-[11px] font-black tracking-wide uppercase line-clamp-2 transition-colors ${titleThemeClasses}`}>
+                                  {art.title}
+                                </h5>
+                                <div className="flex items-center gap-2 text-[9px] opacity-65 font-sans">
+                                  <span className="flex items-center gap-0.5">
+                                    <Clock className="w-2.5 h-2.5" />
+                                    {art.readTime}
+                                  </span>
+                                  <span>&bull;</span>
+                                  <span className="flex items-center gap-0.5">
+                                    <Heart className="w-2.5 h-2.5 text-red-500" />
+                                    {likes[art.id] || 0}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Shared Tags list */}
+                            <div className="flex flex-wrap gap-1 border-t border-dashed border-zinc-900/10 pt-2 w-full">
+                              <span className="text-[8px] font-mono opacity-50 uppercase tracking-widest mr-1 self-center">Shared:</span>
+                              {art.shared.map(t => ( 
+                                <span 
+                                  key={t}
+                                  className="text-[8px] font-mono px-1.5 py-0.5 rounded border"
+                                  style={tagBadgeStyles}
+                                >
+                                  #{t}
+                                </span>
+                              ))}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+          </div>
+        )}
+      </div>
+    </div>
       ) : (
         /* Guides Catalog Listing */
         <div className="space-y-8">
@@ -3136,6 +3599,180 @@ export default function Guides({ onTabChange }: GuidesProps) {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* AI IMAGEN COVER ART GENERATOR INTEGRATION PANEL */}
+          <div className="beveled-panel p-6 bg-[#09090d]/90 border border-brand/20 rounded-xl text-left relative overflow-hidden mb-6">
+            <div className="absolute top-0 right-0 w-96 h-96 bg-brand/5 rounded-full blur-3xl pointer-events-none" />
+            
+            <div className="relative z-10 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <h3 className="font-heading text-xs font-black text-white uppercase tracking-wider flex items-center gap-1.5">
+                    <Sparkles className="w-4 h-4 text-brand animate-pulse" />
+                    <span>AI Imagen 3 Cover Art Compiler</span>
+                    <span className="bg-[#131219] border border-brand/25 text-brand text-[8px] font-mono font-bold px-2 py-0.5 rounded uppercase">Vertex AI Suite</span>
+                  </h3>
+                  <p className="font-sans text-xs text-zinc-400 leading-relaxed max-w-2xl">
+                    Generate and bundle high-fidelity 16:9 cinematic cover headers for the 20 featured viral articles on this station using the server-side Google Vertex Imagen 3 engine, mapping them permanently.
+                  </p>
+                </div>
+                
+                <div className="flex flex-wrap items-center gap-2 max-sm:w-full">
+                  <button
+                    onClick={handleGenerateAllAIHeaders}
+                    disabled={batchActive}
+                    className="px-3.5 py-2 bg-gradient-to-r from-brand to-brand-hover hover:from-brand-hover hover:to-brand text-zinc-950 font-heading text-[10.5px] font-black tracking-wider uppercase rounded-lg flex items-center gap-1.5 cursor-pointer hover:shadow-lg disabled:opacity-50 transition-all max-sm:w-full justify-center"
+                  >
+                    {batchActive ? (
+                      <>
+                        <div className="w-3.5 h-3.5 border-2 border-zinc-950 border-t-transparent rounded-full animate-spin" />
+                        <span>COMPILING ({batchProgress}/{batchTotal})...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Wand2 className="w-3.5 h-3.5" />
+                        <span>COMPILE ALL 20 COVERS</span>
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      fetch('/api/articles-images')
+                        .then(res => res.json())
+                        .then(data => {
+                          setAiHeaders(data);
+                          setGenerationLogs(prev => [...prev, `[METADATA] Force-reloaded saved header mappings (${Object.keys(data).length} active)`]);
+                        });
+                    }}
+                    className="px-3 py-2 bg-zinc-950 border border-zinc-900 text-zinc-400 hover:text-zinc-200 transition-all font-mono text-[9px] font-bold rounded-lg cursor-pointer"
+                  >
+                    SYNC STATUS
+                  </button>
+                </div>
+              </div>
+
+              {/* Status Bar info */}
+              <div className="flex items-center justify-between text-[10px] font-mono text-zinc-500 bg-[#050508] border border-zinc-950 p-2 rounded">
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  Imagen API status: ONLINE
+                </span>
+                <span>
+                  Compiled Headers Status: <strong className="text-emerald-400">{Object.keys(aiHeaders).length} / 20 Saved</strong>
+                </span>
+              </div>
+
+              {/* Progress bar if active */}
+              {batchActive && (
+                <div className="space-y-1">
+                  <div className="flex justify-between text-[10px] font-mono text-zinc-400">
+                    <span>Batch Compiling Cover Stack...</span>
+                    <span>{Math.round((batchProgress / batchTotal) * 100)}%</span>
+                  </div>
+                  <div className="w-full h-1.5 bg-zinc-950 rounded-full overflow-hidden border border-zinc-900">
+                    <div 
+                      className="bg-brand h-full transition-all duration-300"
+                      style={{ width: `${(batchProgress / batchTotal) * 100}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Scrollable logs screen representing real compile logs */}
+              {generationLogs.length > 0 && (
+                <div className="space-y-1.5">
+                  <div className="text-[9px] font-mono text-[#ff7043]/80 uppercase tracking-widest font-bold">Active Compiler Shell Logs</div>
+                  <div className="bg-black/80 border border-zinc-900/80 rounded-lg p-3 font-mono text-[10px] text-zinc-400 h-28 overflow-y-auto space-y-1 text-left select-text">
+                    {generationLogs.map((log, idx) => (
+                      <div 
+                        key={idx} 
+                        className={
+                          log.startsWith('[SUCCESS]') || log.includes('SUCCESS') ? 'text-emerald-400' :
+                          log.startsWith('[ERROR]') || log.includes('ERROR') ? 'text-red-400' :
+                          log.startsWith('[METADATA]') ? 'text-zinc-350 font-bold' : 'text-zinc-500'
+                        }
+                      >
+                        {log}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Tag-Based Categorization Hub */}
+          <div className="space-y-3.5 text-left border-t border-brand/10 pt-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-2">
+                  <Tag className="w-4 h-4 text-brand animate-pulse" />
+                  <h3 className="font-heading text-xs font-black text-white uppercase tracking-wider flex items-center gap-1.5">
+                    <span>Explore Curated Tag Categories</span>
+                    <span className="bg-brand/15 text-brand text-[8px] font-mono px-1.5 py-0.5 rounded font-bold uppercase border border-brand/20">INTELLIGENT ROUTING</span>
+                  </h3>
+                </div>
+                <p className="font-sans text-[11px] text-zinc-500">
+                  Select a core architectural layer to filter matching technical papers and active companion workspace controls dynamically.
+                </p>
+              </div>
+              {selectedCategory && (
+                <button
+                  onClick={() => handleCategorySelect(null)}
+                  className="px-2.5 py-1 bg-zinc-950 border border-zinc-900 hover:border-brand/35 text-zinc-500 hover:text-brand transition-all font-mono text-[9px] font-bold uppercase rounded-lg cursor-pointer"
+                >
+                  &times; Clear Category [{TAG_CATEGORIES.find(c => c.id === selectedCategory)?.name.toUpperCase()}]
+                </button>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {TAG_CATEGORIES.map(category => {
+                const Icon = category.icon;
+                const isActive = selectedCategory === category.id;
+                
+                // Calculate dynamic count of articles belonging to this category
+                const count = mappedArticles.filter(art => 
+                  art.tags.some(t => category.tags.includes(t))
+                ).length;
+
+                return (
+                  <button
+                    key={category.id}
+                    onClick={() => handleCategorySelect(isActive ? null : category.id)}
+                    className={`border p-4 rounded-xl text-left transition-all duration-300 cursor-pointer w-full group relative overflow-hidden flex flex-col justify-between min-h-[140px] ${
+                      isActive ? category.activeColor : `bg-[#09090d]/80 ${category.color}`
+                    }`}
+                  >
+                    {/* Background glow overlay on hover */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-brand/0 to-brand/[0.02] opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                    <div className="space-y-4 relative z-10 w-full flex-grow flex flex-col justify-between">
+                      <div className="flex items-center justify-between w-full">
+                        <div className={`p-2 rounded-lg border transition-all ${isActive ? 'bg-white/10 border-white/25 text-white' : 'bg-zinc-950 border-zinc-900 text-zinc-400 group-hover:text-brand'}`}>
+                          <Icon className="w-4 h-4" />
+                        </div>
+                        <span className="font-mono text-[9px] font-bold bg-[#000]/40 px-2 py-0.5 border border-zinc-900/60 rounded text-zinc-400">
+                          {count} {count === 1 ? 'guide' : 'guides'}
+                        </span>
+                      </div>
+
+                      <div className="space-y-1">
+                        <h4 className="font-heading text-[11px] font-black tracking-wider uppercase flex items-center gap-1">
+                          {category.name}
+                          <ChevronRight className="w-3 h-3 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all text-neutral-400" />
+                        </h4>
+                        <p className="font-sans text-[10.5px] text-zinc-500 leading-normal group-hover:text-zinc-400 transition-colors">
+                          Filter articles matching {category.id === 'ai-automation' ? 'Cognitive and Neural' : category.id === 'security-policy' ? 'Policy, Exploit and Audit' : category.id === 'systems-hardware' ? 'Core low-level and Host' : 'Sustainable Grid/Thermal'} systems.
+                        </p>
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
