@@ -1358,17 +1358,28 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
               setReadingArticle(null);
               handleTabChange('guides');
             }}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all duration-300 relative overflow-hidden group cursor-pointer ${
+            className={`inline-flex items-center gap-1 sm:gap-1.5 px-2.5 py-1 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-[9px] sm:text-[11px] font-bold uppercase tracking-wider transition-all duration-300 relative overflow-hidden group cursor-pointer border ${
               activeTab === 'guides'
-                ? 'bg-red-600 text-white shadow-[0_0_20px_rgba(239,68,68,0.7)] border border-red-400'
-                : 'bg-red-950/30 hover:bg-red-900/30 text-red-200 border border-red-500/80 shadow-[0_0_15px_rgba(239,68,68,0.4)] hover:shadow-[0_0_25px_rgba(239,68,68,0.7)]'
+                ? 'bg-red-600 text-white shadow-[0_0_20px_rgba(239,68,68,0.7)] border-red-400'
+                : 'bg-red-950/40 hover:bg-red-900/40 text-red-100 border-red-500/80 shadow-[0_0_15px_rgba(239,68,68,0.5)] hover:shadow-[0_0_25px_rgba(239,68,68,0.9)]'
             }`}
             title="Viral News and Articles Hub"
           >
-            <span className="w-2 h-2 rounded-full bg-red-500 animate-ping absolute left-1 top-1 sm:left-2 sm:top-2" />
-            <span className="relative pl-1 flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-red-400 group-hover:rotate-12 transition-transform opacity-90 group-hover:opacity-100" />
-              <span>Viral News &amp; Articles</span>
+            {/* Shimmer background effect */}
+            <span className="absolute inset-0 bg-gradient-to-r from-transparent via-red-500/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
+            
+            {/* Beacon Pulse Dot at top right */}
+            <span className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 flex h-1.5 w-1.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-red-500"></span>
+            </span>
+
+            <span className="relative flex items-center gap-1 sm:gap-1.5">
+              <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-red-400 animate-pulse group-hover:rotate-12 transition-transform opacity-95 group-hover:opacity-100" />
+              <span>
+                <span className="inline sm:hidden">Viral News</span>
+                <span className="hidden sm:inline">Viral News &amp; Articles</span>
+              </span>
             </span>
           </button>
 
