@@ -764,6 +764,38 @@ Tone Guidelines:
       xml += '  </url>\n';
     });
 
+    // 3. Add Apex Subdomains for indexing
+    const subdomains = [
+      'https://news.apexutility.live/',
+      'https://www.smallpdf.com.apexutility.live/',
+      'https://pdf.apexutility.live/',
+      'https://png.apexutility.live/',
+      'https://utility.apexutility.live/',
+      'https://jpg2pdf.com.apexutility.live/',
+      'https://json.apexutility.live/',
+      'https://ilovepdf.com.apexutility.live/',
+      'https://www.apexutility.live/',
+      'https://beta.apexutility.live/',
+      'https://apex.apexutility.live/',
+      'https://jpg.apexutility.live/',
+      'https://apexutility.com.apexutility.live/',
+      'https://ai.apexutility.live/',
+      'https://docs.apexutility.live/',
+      'https://image.apexutility.live/',
+      'https://blog.apexutility.live/',
+      'https://www.ilovepdf.com.apexutility.live/'
+    ];
+
+    subdomains.forEach(url => {
+      // Avoid duplicate of root URL if requested but normally they are all subdomains
+      xml += '  <url>\n';
+      xml += `    <loc>${url}</loc>\n`;
+      xml += `    <lastmod>${today}</lastmod>\n`;
+      xml += '    <changefreq>weekly</changefreq>\n';
+      xml += '    <priority>0.90</priority>\n';
+      xml += '  </url>\n';
+    });
+
     xml += '</urlset>';
 
     res.header('Content-Type', 'application/xml');
