@@ -863,11 +863,37 @@ export default function App() {
   </url>
 </urlset>`;
 
-      const robotDoc = `# Standard robots.txt for Apex Search Engines
+      let robotDoc = `# Standard robots.txt for Apex Search Engines
 User-agent: *
 Allow: /
+`;
 
-Sitemap: ${parsedUrl}/sitemap.xml`;
+      const subdomains = [
+        'https://news.apexutility.live/',
+        'https://www.smallpdf.com.apexutility.live/',
+        'https://pdf.apexutility.live/',
+        'https://png.apexutility.live/',
+        'https://utility.apexutility.live/',
+        'https://jpg2pdf.com.apexutility.live/',
+        'https://json.apexutility.live/',
+        'https://ilovepdf.com.apexutility.live/',
+        'https://www.apexutility.live/',
+        'https://beta.apexutility.live/',
+        'https://apex.apexutility.live/',
+        'https://jpg.apexutility.live/',
+        'https://apexutility.com.apexutility.live/',
+        'https://ai.apexutility.live/',
+        'https://docs.apexutility.live/',
+        'https://image.apexutility.live/',
+        'https://blog.apexutility.live/',
+        'https://www.ilovepdf.com.apexutility.live/'
+      ];
+
+      subdomains.forEach(sub => {
+        robotDoc += `Allow: ${sub}\n`;
+      });
+
+      robotDoc += `\nSitemap: ${parsedUrl}/sitemap.xml`;
 
       setGeneratedSitemap(sdoc);
       setRobotsTxt(robotDoc);
