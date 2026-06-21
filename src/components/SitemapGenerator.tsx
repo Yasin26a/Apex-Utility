@@ -127,7 +127,19 @@ export const APEX_SUBDOMAINS = [
   { url: 'https://docs.apexutility.live/', nickname: 'Apex Documentation Centre', priority: 0.85 },
   { url: 'https://image.apexutility.live/', nickname: 'Image Processor Hub', priority: 0.9 },
   { url: 'https://blog.apexutility.live/', nickname: 'Apex Official Blog', priority: 0.85 },
-  { url: 'https://www.ilovepdf.com.apexutility.live/', nickname: 'ILovePDF Mirror Portal', priority: 0.9 }
+  { url: 'https://www.ilovepdf.com.apexutility.live/', nickname: 'ILovePDF Mirror Portal', priority: 0.9 },
+  { url: 'https://seo.apexutility.live/', nickname: 'SEO & Indexing Analyzer', priority: 0.95 },
+  { url: 'https://qrcode.apexutility.live/', nickname: 'QR Code Engine', priority: 0.9 },
+  { url: 'https://regex.apexutility.live/', nickname: 'Regex Validation Suite', priority: 0.85 },
+  { url: 'https://audio.apexutility.live/', nickname: 'Audio Trimmer Labs', priority: 0.85 },
+  { url: 'https://video.apexutility.live/', nickname: 'Video Capture Studio', priority: 0.85 },
+  { url: 'https://dev.apexutility.live/', nickname: 'Base64 & Developer Tools', priority: 0.9 },
+  { url: 'https://tools.apexutility.live/', nickname: 'Unified Products Catalog', priority: 0.95 },
+  { url: 'https://api.apexutility.live/', nickname: 'JSON Rest API Gateway', priority: 0.9 },
+  { url: 'https://converter.apexutility.live/', nickname: 'Universal Unit Converter', priority: 0.85 },
+  { url: 'https://design.apexutility.live/', nickname: 'CSS Glassmorphism & Colors', priority: 0.85 },
+  { url: 'https://sketch.apexutility.live/', nickname: 'Local Ink Sketchpad', priority: 0.85 },
+  { url: 'https://secure.apexutility.live/', nickname: 'RSA Cryptography Engine', priority: 0.9 }
 ];
 
 export default function SitemapGenerator() {
@@ -1666,7 +1678,7 @@ export default function SitemapGenerator() {
                       <span>Apex Secure Subdomain Indexing Console</span>
                     </h4>
                     <p className="text-[11px] text-zinc-400 font-sans leading-relaxed">
-                      Configure search indexing paths for your network of 18 secure optimized subdomains on <span className="font-mono text-brand">apexutility.live</span>. Under standard Google Search Console protocols, configuring absolute location URLs directly inside your primary sitemap allows fast, automated cross-domain discovery and page indexing.
+                      Configure search indexing paths for your network of 30 secure optimized subdomains on <span className="font-mono text-brand">apexutility.live</span>. Under standard Google Search Console protocols, configuring absolute location URLs directly inside your primary sitemap allows fast, automated cross-domain discovery and page indexing.
                     </p>
                   </div>
 

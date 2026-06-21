@@ -783,7 +783,19 @@ Tone Guidelines:
       'https://docs.apexutility.live/',
       'https://image.apexutility.live/',
       'https://blog.apexutility.live/',
-      'https://www.ilovepdf.com.apexutility.live/'
+      'https://www.ilovepdf.com.apexutility.live/',
+      'https://seo.apexutility.live/',
+      'https://qrcode.apexutility.live/',
+      'https://regex.apexutility.live/',
+      'https://audio.apexutility.live/',
+      'https://video.apexutility.live/',
+      'https://dev.apexutility.live/',
+      'https://tools.apexutility.live/',
+      'https://api.apexutility.live/',
+      'https://converter.apexutility.live/',
+      'https://design.apexutility.live/',
+      'https://sketch.apexutility.live/',
+      'https://secure.apexutility.live/'
     ];
 
     subdomains.forEach(url => {

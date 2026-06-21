@@ -20,7 +20,19 @@ const APEX_SUBDOMAINS_ROOTS_ALLOW = [
   'https://docs.apexutility.live/',
   'https://image.apexutility.live/',
   'https://blog.apexutility.live/',
-  'https://www.ilovepdf.com.apexutility.live/'
+  'https://www.ilovepdf.com.apexutility.live/',
+  'https://seo.apexutility.live/',
+  'https://qrcode.apexutility.live/',
+  'https://regex.apexutility.live/',
+  'https://audio.apexutility.live/',
+  'https://video.apexutility.live/',
+  'https://dev.apexutility.live/',
+  'https://tools.apexutility.live/',
+  'https://api.apexutility.live/',
+  'https://converter.apexutility.live/',
+  'https://design.apexutility.live/',
+  'https://sketch.apexutility.live/',
+  'https://secure.apexutility.live/'
 ];
 
 export default function RobotsGenerator() {
@@ -176,7 +188,7 @@ export default function RobotsGenerator() {
                   <Globe className="w-3.5 h-3.5 text-brand" />
                   <span>Apex Optimized Subdomains</span>
                 </span>
-                <span className="text-[10px] text-zinc-500 font-mono">Explicitly index & Allow 18 secure utility subdomains</span>
+                <span className="text-[10px] text-zinc-500 font-mono">Explicitly index & Allow 30 secure utility subdomains</span>
               </div>
               <button
                 onClick={() => setIncludeApexSubdomains(!includeApexSubdomains)}
