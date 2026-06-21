@@ -39,9 +39,90 @@ async function createServer() {
   const app = express();
   const port = 3000;
 
-  // JSON and URL-encoded body parsers
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
+  // Disable X-Powered-By header to prevent fingerprinting/tech-profiling
+  app.disable('x-powered-by');
+
+  // Hardened Security Headers Middleware
+  app.use((req, res, next) => {
+    // Prevent browser MIME-sniffing
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    
+    // Enforce legacy Cross-Site Scripting (XSS) filters
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    
+    // Control referer details passed in outgoing link requests
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    
+    // Force HTTP Strict Transport Security (HSTS) in production
+    if (process.env.NODE_ENV === 'production') {
+      res.setHeader('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
+    }
+    
+    // Mitigate search frame hijack / clickjacking
+    // Allow local development and native AI Studio environments to preview
+    const host = req.headers.host || '';
+    const referer = req.headers.referer || '';
+    const isPlatformFrame = referer.includes('studio.google') || referer.includes('ai.studio') || host.includes('run.app') || host.includes('localhost');
+    
+    if (process.env.NODE_ENV === 'production' && !isPlatformFrame) {
+      res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+    }
+
+    next();
+  });
+
+  // Limit JSON and URL-encoded payload sizes to protect from Memory Exhaustion Attacks (DoS)
+  // Generous limit of 25mb configures large PDF manipulation tasks safety
+  app.use(express.json({ limit: '25mb' }));
+  app.use(express.urlencoded({ extended: true, limit: '25mb' }));
+
+  // -----------------------------------------------------------------
+  // High-Performance Native Sliding Window Rate Limiter
+  // -----------------------------------------------------------------
+  const rateLimitStore = new Map<string, { timestamps: number[] }>();
+  const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute window
+  const RATE_LIMIT_MAX_REQUESTS = 60; // Max 60 requests per minute per IP for developer routes
+
+  const ipRateLimiter = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    // Only rate limit API paths
+    if (!req.path.startsWith('/api/')) {
+      return next();
+    }
+    
+    // Safely extract client IP taking proxy layers into account
+    const rawIp = req.headers['x-forwarded-for'] as string || req.socket.remoteAddress || 'unknown-client';
+    const ip = rawIp.split(',')[0].trim();
+    const now = Date.now();
+    
+    if (!rateLimitStore.has(ip)) {
+      rateLimitStore.set(ip, { timestamps: [now] });
+      return next();
+    }
+    
+    const clientRecord = rateLimitStore.get(ip)!;
+    
+    // Prune entries older than the sliding window limits
+    clientRecord.timestamps = clientRecord.timestamps.filter(ts => (now - ts) < RATE_LIMIT_WINDOW_MS);
+    
+    if (clientRecord.timestamps.length >= RATE_LIMIT_MAX_REQUESTS) {
+      const oldestRemaining = clientRecord.timestamps[0];
+      const timeElapsed = now - oldestRemaining;
+      const cooldownSeconds = Math.ceil((RATE_LIMIT_WINDOW_MS - timeElapsed) / 1000);
+      
+      console.warn(`[Security Patrol] Rate limit exceeded by IP: ${ip} on path ${req.path}`);
+      res.status(429).json({
+        error: 'Too many requests. For security and quota limits, please wait a minute and try again.',
+        retryAfterSeconds: Math.max(1, cooldownSeconds)
+      });
+      return;
+    }
+    
+    clientRecord.timestamps.push(now);
+    next();
+  };
+
+  // Bind the security rate-limiter middleware of state requests
+  app.use('/api/', ipRateLimiter);
 
   // API Content Planner Endpoint using Gemini 3.5 Flash
   app.post('/api/content-planner', async (req, res) => {
