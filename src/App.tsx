@@ -88,6 +88,11 @@ import PrivateSketchpad from './components/PrivateSketchpad';
 import SEOInspect from './components/SEOInspect';
 import AIWriter from './components/AIWriter';
 import CSSGlassShadowGenerator from './components/CSSGlassShadowGenerator';
+import RobotsGenerator from './components/RobotsGenerator';
+import DNSLookup from './components/DNSLookup';
+import UserAgentAnalyzer from './components/UserAgentAnalyzer';
+import HTMLMarkdownConverter from './components/HTMLMarkdownConverter';
+import MetaTagsOptimizer from './components/MetaTagsOptimizer';
 
 const getArticleCover = (category: string, id: string): string => {
   const cat = category?.toLowerCase() || '';
@@ -4391,6 +4396,66 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
                 </div>
 
                 <VideoRecorder />
+              </motion.div>
+            )}
+
+            {activeTab === 'robots-txt' && (
+              <motion.div
+                key="robots-txt"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                className="space-y-6"
+              >
+                <RobotsGenerator />
+              </motion.div>
+            )}
+
+            {activeTab === 'dns-lookup' && (
+              <motion.div
+                key="dns-lookup"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                className="space-y-6"
+              >
+                <DNSLookup />
+              </motion.div>
+            )}
+
+            {activeTab === 'user-agent' && (
+              <motion.div
+                key="user-agent"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                className="space-y-6"
+              >
+                <UserAgentAnalyzer />
+              </motion.div>
+            )}
+
+            {activeTab === 'html-markdown' && (
+              <motion.div
+                key="html-markdown"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                className="space-y-6"
+              >
+                <HTMLMarkdownConverter />
+              </motion.div>
+            )}
+
+            {activeTab === 'meta-tags' && (
+              <motion.div
+                key="meta-tags"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                className="space-y-6"
+              >
+                <MetaTagsOptimizer />
               </motion.div>
             )}
 

@@ -45,7 +45,12 @@ export type ActiveTab =
   | 'schema-generator'
   | 'content-gap'
   | 'keyword-cluster'
-  | 'css-generator';
+  | 'css-generator'
+  | 'robots-txt'
+  | 'dns-lookup'
+  | 'user-agent'
+  | 'html-markdown'
+  | 'meta-tags';
 
 export interface JSONBeautifierState {
   rawInput: string;

@@ -459,6 +459,71 @@ export default function CommandBar({ isOpen, onClose, onSelectTab, theme, onThem
       shortcut: '↵'
     },
     {
+      id: 'robots-txt',
+      category: 'Tools',
+      title: 'Robots.txt Generator & Validator',
+      description: 'Create and validate SEO-friendly instructions for web search spiders and crawlers',
+      icon: FileCode,
+      keywords: ['robots', 'seo', 'crawlers', 'googlebot', 'spider', 'validator', 'robots.txt'],
+      action: () => {
+        onSelectTab('robots-txt');
+        onClose();
+      },
+      shortcut: '↵'
+    },
+    {
+      id: 'dns-lookup',
+      category: 'Tools',
+      title: 'Dynamic DNS Registry Resolver',
+      description: 'Extract and inspect global nameserver DNS records (A, AAAA, MX, TXT)',
+      icon: Globe,
+      keywords: ['dns', 'lookup', 'mx', 'txt', 'domain', 'ip address', 'nameserver'],
+      action: () => {
+        onSelectTab('dns-lookup');
+        onClose();
+      },
+      shortcut: '↵'
+    },
+    {
+      id: 'user-agent',
+      category: 'Tools',
+      title: 'User-Agent Parser & Client Info',
+      description: 'Analyze and decode standard browser Client User-Agent metadata strings',
+      icon: Terminal,
+      keywords: ['user agent', 'browser', 'os', 'screen', 'cookies', 'engine'],
+      action: () => {
+        onSelectTab('user-agent');
+        onClose();
+      },
+      shortcut: '↵'
+    },
+    {
+      id: 'html-markdown',
+      category: 'Tools',
+      title: 'HTML &lt;&gt; Markdown Converter',
+      description: 'Directly parse and translate Markdown styling into HTML tags or vice versa',
+      icon: FileText,
+      keywords: ['markdown', 'html', 'converter', 'translate', 'coder'],
+      action: () => {
+        onSelectTab('html-markdown');
+        onClose();
+      },
+      shortcut: '↵'
+    },
+    {
+      id: 'meta-tags',
+      category: 'Tools',
+      title: 'Meta Tags Rich Snippet Optimizer',
+      description: 'Preview Open Graph and SEO tags simulations for Google, Facebook, and Twitter/X',
+      icon: Sliders,
+      keywords: ['meta', 'tags', 'seo', 'open graph', 'social', 'snippet', 'google', 'twitter'],
+      action: () => {
+        onSelectTab('meta-tags');
+        onClose();
+      },
+      shortcut: '↵'
+    },
+    {
       id: 'theme-crimson',
       category: 'Aesthetics',
       title: 'Switch to Obsidian Crimson Mode',

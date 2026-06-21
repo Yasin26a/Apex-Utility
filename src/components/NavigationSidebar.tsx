@@ -287,6 +287,11 @@ export default function NavigationSidebar({ activeTab, onTabChange, isMobileOpen
     { id: 'content-planner' as ActiveTab, label: t.navigation.contentPlanner || 'AI Content Planner', icon: Sparkles, description: t.navigation.contentPlannerDesc || 'Analyze search intent, LSI keywords and generate outlines' },
     { id: 'schema-generator' as ActiveTab, label: t.navigation.schemaGenerator || 'JSON-LD Schema Generator', icon: Braces, description: t.navigation.schemaGeneratorDesc || 'Generate search-optimized JSON-LD schema markup templates or let AI extract microdata automatically' },
     { id: 'content-gap' as ActiveTab, label: t.navigation.contentGap || 'Competitor Content-Gap Analyzer', icon: ArrowLeftRight, description: t.navigation.contentGapDesc || 'Unveil missing keyword opportunities and head-to-head structural topical gaps vs competitors' },
+    { id: 'robots-txt' as ActiveTab, label: 'Robots.txt Generator', icon: FileCode, description: 'Create and validate SEO-friendly web spider crawler instructions' },
+    { id: 'dns-lookup' as ActiveTab, label: 'Dynamic DNS Resolver', icon: Globe, description: 'Extract and inspect global nameserver DNS registry records' },
+    { id: 'user-agent' as ActiveTab, label: 'User-Agent Parser', icon: Terminal, description: 'Deconstruct and identify active browser client-agent strings' },
+    { id: 'html-markdown' as ActiveTab, label: 'HTML &lt;&gt; Markdown', icon: FileText, description: 'Seamlessly convert markup between Markdown syntax and HTML tags' },
+    { id: 'meta-tags' as ActiveTab, label: 'Meta Tags Optimizer', icon: Sliders, description: 'Preview page meta tags snippets for Google, Facebook, and Twitter' },
   ];
 
   return (
