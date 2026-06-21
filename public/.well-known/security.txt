@@ -1,0 +1,8 @@
+# Security Policy for Apex Utility Labs (apexutility.live)
+# Adhering to RFC 9116 security.txt standard
+
+Contact: mailto:Yasinalam67@gmail.com
+Expires: 2027-06-20T12:00:00.000Z
+Preferred-Languages: en
+Canonical: https://apexutility.live/.well-known/security.txt
+Canonical: https://apexutility.live/security.txt
