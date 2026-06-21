@@ -87,6 +87,7 @@ import DateCalculator from './components/DateCalculator';
 import PrivateSketchpad from './components/PrivateSketchpad';
 import SEOInspect from './components/SEOInspect';
 import AIWriter from './components/AIWriter';
+import CSSGlassShadowGenerator from './components/CSSGlassShadowGenerator';
 
 const getArticleCover = (category: string, id: string): string => {
   const cat = category?.toLowerCase() || '';
@@ -155,6 +156,7 @@ export default function App() {
 
   // Navigation and sidebar states
   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
+  const [cssZenMode, setCssZenMode] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isCopied, setIsCopied] = useState<string | null>(null);
 
@@ -1323,7 +1325,8 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
   return (
     <div className="h-screen overflow-hidden bg-black text-zinc-100 flex flex-col font-sans selection:bg-brand selection:text-white">
       {/* Header Bar */}
-      <header className="bg-[#050507]/95 backdrop-blur-md border-b border-red-950/45 sticky top-0 z-50 px-4 py-3 flex items-center justify-between">
+      {!(activeTab === 'css-generator' && cssZenMode) && (
+        <header className="bg-[#050507]/95 backdrop-blur-md border-b border-red-950/45 sticky top-0 z-50 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button 
             onClick={() => setIsMobileSidebarOpen(true)}
@@ -1386,6 +1389,7 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
           {/* Status Indicator Bar Removed */}
         </div>
       </header>
+      )}
 
       {/* Main Layout Area */}
       <div className="flex-1 flex relative overflow-hidden">
@@ -1764,7 +1768,7 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
 
         {/* Dynamic Content Panel */}
         <div className="flex-1 overflow-y-auto flex flex-col" id="main-content-window">
-          <main className="flex-1 p-4 sm:p-8 max-w-5xl w-full mx-auto">
+          <main className={`flex-1 ${activeTab === 'css-generator' && cssZenMode ? 'p-0 max-w-none w-full' : 'p-4 sm:p-8 max-w-5xl w-full mx-auto'}`}>
             
             <AnimatePresence mode="wait">
              {activeTab === 'dashboard' && (
@@ -4390,11 +4394,32 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
               </motion.div>
             )}
 
+            {/* Tab: CSS Glassmorphism & Shadow Generator */}
+            {activeTab === 'css-generator' && (
+              <motion.div
+                key="css-generator"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                className={cssZenMode ? "w-full" : "space-y-6"}
+              >
+                <CSSGlassShadowGenerator 
+                  onBack={() => {
+                    setCssZenMode(false);
+                    handleTabChange('dashboard');
+                  }} 
+                  clearInterface={cssZenMode}
+                  setClearInterface={setCssZenMode}
+                />
+              </motion.div>
+            )}
+
           </AnimatePresence>
         </main>
 
         {/* Primary Footer */}
-        <footer className="bg-zinc-950/60 backdrop-blur border-t border-zinc-900/60 px-6 py-6 text-center text-zinc-500 text-xs mt-auto w-full">
+        {!(activeTab === 'css-generator' && cssZenMode) && (
+          <footer className="bg-zinc-950/60 backdrop-blur border-t border-zinc-900/60 px-6 py-6 text-center text-zinc-500 text-xs mt-auto w-full">
           <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="space-y-1 text-center md:text-left">
               <p className="font-medium text-slate-300">Apex Utility Labs © 2026. All rights reserved.</p>
@@ -4412,6 +4437,7 @@ Sitemap: ${parsedUrl}/sitemap.xml`;
             </div>
           </div>
         </footer>
+        )}
       </div>
     </div>
 

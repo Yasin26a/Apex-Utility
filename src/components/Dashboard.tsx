@@ -96,6 +96,19 @@ function ThreeDTiltCard({
 
 const DEFAULT_CARDS = [
   {
+    id: 'css-generator',
+    title: 'CSS Glass & Shadow Generator',
+    desc: 'Design backdrop filters, interactive glass surfaces, and complex organic box-shadow layers with production-ready CSS and Tailwind exporters.',
+    tagline: '"interactive glassmorphism builder and soft ambient shadow tester offline"',
+    category: 'Design & Signals',
+    categoryIcon: 'Palette',
+    cardIcon: 'Layers',
+    textClass: 'text-violet-400 font-bold',
+    buttonLabel: 'Launch CSS Studio',
+    colSpan: 1,
+    heightLevel: 2
+  },
+  {
     id: 'webp-converter',
     title: 'WebP Image Converter',
     desc: 'Convert standard images (JPEG, PNG, GIF) into highly-optimized WebP files using Canvas API structures, with side-by-side comparative previews.',

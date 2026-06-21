@@ -44,7 +44,8 @@ export type ActiveTab =
   | 'content-planner'
   | 'schema-generator'
   | 'content-gap'
-  | 'keyword-cluster';
+  | 'keyword-cluster'
+  | 'css-generator';
 
 export interface JSONBeautifierState {
   rawInput: string;

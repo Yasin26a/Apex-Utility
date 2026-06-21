@@ -18,3 +18,29 @@ body {
   font-family: var(--font-sans);
   background-color: #000000; /* Pure black for modern black & red aesthetic */
 }
+
+/* Custom dark scrollbar styling to eliminate white scrollbar rails/tracks and match dark mode */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #000000 !important;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #27272a !important; /* zinc-800 */
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46 !important; /* zinc-750 */
+}
+
+html {
+  scrollbar-width: thin;
+  scrollbar-color: #27272a #000000;
+  color-scheme: dark; /* Force browser default scrollbars to respect dark mode */
+}
+
