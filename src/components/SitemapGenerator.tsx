@@ -126,7 +126,6 @@ export const APEX_SUBDOMAINS = [
   { url: 'https://ai.apexutility.live/', nickname: 'Apex GenAI Suite', priority: 0.95 },
   { url: 'https://docs.apexutility.live/', nickname: 'Apex Documentation Centre', priority: 0.85 },
   { url: 'https://image.apexutility.live/', nickname: 'Image Processor Hub', priority: 0.9 },
-  { url: 'https://docs.apexutility.live/', nickname: 'Apex Documentation Centre', priority: 0.85 }, // duplicated in request
   { url: 'https://blog.apexutility.live/', nickname: 'Apex Official Blog', priority: 0.85 },
   { url: 'https://www.ilovepdf.com.apexutility.live/', nickname: 'ILovePDF Mirror Portal', priority: 0.9 }
 ];
