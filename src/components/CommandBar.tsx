@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Search, Command, FileText, Image as ImageIcon, FileImage, Braces, Globe, LayoutGrid, Palette, ArrowRight, CornerDownLeft, Layers, Sparkles, ShieldCheck, QrCode, Scale, FileCode, Sliders, GitPullRequest, Hash, PenTool, Gauge, Binary, Regex, ArrowLeftRight, Shrink, Type, AlignLeft, Crop, Calendar, BookOpen } from 'lucide-react';
+import { Search, Command, FileText, Image as ImageIcon, FileImage, Braces, Globe, LayoutGrid, Palette, ArrowRight, CornerDownLeft, Layers, Sparkles, ShieldCheck, QrCode, Scale, FileCode, Sliders, GitPullRequest, Hash, PenTool, Gauge, Binary, Regex, ArrowLeftRight, Shrink, Type, AlignLeft, Crop, Calendar, BookOpen, Terminal } from 'lucide-react';
 import { ActiveTab } from '../types';
 
 interface CommandBarProps {

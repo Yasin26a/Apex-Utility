@@ -109,6 +109,28 @@ const DISCOVERED_APP_TABS = [
   { tab: 'meta-tags', path: '/meta-tags', defaultPriority: 0.85, defaultFreq: 'weekly' }
 ];
 
+export const APEX_SUBDOMAINS = [
+  { url: 'https://news.apexutility.live/', nickname: 'Apex News Network', priority: 0.8 },
+  { url: 'https://www.smallpdf.com.apexutility.live/', nickname: 'SmallPDF Mirror', priority: 0.9 },
+  { url: 'https://pdf.apexutility.live/', nickname: 'PDF Processing Engine', priority: 0.9 },
+  { url: 'https://png.apexutility.live/', nickname: 'PNG Optimization Hub', priority: 0.9 },
+  { url: 'https://utility.apexutility.live/', nickname: 'Apex Core Utility Engine', priority: 0.9 },
+  { url: 'https://jpg2pdf.com.apexutility.live/', nickname: 'JPG-to-PDF Converter', priority: 0.9 },
+  { url: 'https://json.apexutility.live/', nickname: 'JSON Sandbox Tools', priority: 0.9 },
+  { url: 'https://ilovepdf.com.apexutility.live/', nickname: 'ILovePDF Compressor', priority: 0.9 },
+  { url: 'https://www.apexutility.live/', nickname: 'Main Secure Portal', priority: 1.0 },
+  { url: 'https://beta.apexutility.live/', nickname: 'Apex Beta Labs', priority: 0.7 },
+  { url: 'https://apex.apexutility.live/', nickname: 'Apex System Control', priority: 0.8 },
+  { url: 'https://jpg.apexutility.live/', nickname: 'JPG Visual Optimizer', priority: 0.9 },
+  { url: 'https://apexutility.com.apexutility.live/', nickname: 'Commercial Portal', priority: 0.8 },
+  { url: 'https://ai.apexutility.live/', nickname: 'Apex GenAI Suite', priority: 0.95 },
+  { url: 'https://docs.apexutility.live/', nickname: 'Apex Documentation Centre', priority: 0.85 },
+  { url: 'https://image.apexutility.live/', nickname: 'Image Processor Hub', priority: 0.9 },
+  { url: 'https://docs.apexutility.live/', nickname: 'Apex Documentation Centre', priority: 0.85 }, // duplicated in request
+  { url: 'https://blog.apexutility.live/', nickname: 'Apex Official Blog', priority: 0.85 },
+  { url: 'https://www.ilovepdf.com.apexutility.live/', nickname: 'ILovePDF Mirror Portal', priority: 0.9 }
+];
+
 export default function SitemapGenerator() {
   const { t } = useLanguage();
   
@@ -141,11 +163,16 @@ export default function SitemapGenerator() {
   const [includeLastmod, setIncludeLastmod] = useState(true);
 
   // Bulk Paste Mode States
-  const [creationMode, setCreationMode] = useState<'single' | 'bulk' | 'auto'>('single');
+  const [creationMode, setCreationMode] = useState<'single' | 'bulk' | 'auto' | 'subdomains'>('single');
   const [bulkInput, setBulkInput] = useState('');
   const [bulkFreq, setBulkFreq] = useState<'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never'>('weekly');
   const [bulkPriority, setBulkPriority] = useState(0.8);
   const [bulkOverwrite, setBulkOverwrite] = useState(false);
+
+  // Subdomains Mode States
+  const [selectedSubdomains, setSelectedSubdomains] = useState<string[]>(() => APEX_SUBDOMAINS.map(s => s.url));
+  const [subdomainFreq, setSubdomainFreq] = useState<'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never'>('weekly');
+  const [subdomainOverwrite, setSubdomainOverwrite] = useState(false);
 
   // Dynamic Auto-discovery Mode States
   const [autoFreq, setAutoFreq] = useState<'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never'>('weekly');
@@ -956,6 +983,33 @@ export default function SitemapGenerator() {
     setTimeout(() => setCopiedNotice(null), 5000);
   };
 
+  const handleAddSubdomains = (overwrite: boolean) => {
+    const today = new Date().toISOString().split('T')[0];
+    const generated = APEX_SUBDOMAINS
+      .filter(sub => selectedSubdomains.includes(sub.url))
+      .map(sub => ({
+        id: `sub_${sub.url.replace(/[^a-zA-Z0-9]/g, '_')}_${Math.random().toString(36).substring(2, 6)}`,
+        path: sub.url,
+        changefreq: subdomainFreq,
+        priority: sub.priority,
+        lastmodEnabled: true,
+        lastmodDate: today
+      }));
+
+    if (overwrite) {
+      setRoutes(generated);
+    } else {
+      setRoutes(prev => {
+        const existingPaths = new Set(prev.map(r => r.path));
+        const filteredNew = generated.filter(r => !existingPaths.has(r.path));
+        return [...prev, ...filteredNew];
+      });
+    }
+
+    setCopiedNotice(`Successfully added ${generated.length} subdomain nodes (with absolute location protocols) into the sitemap configuration list.`);
+    setTimeout(() => setCopiedNotice(null), 5000);
+  };
+
   // XML Sitemap compilation block
   const generatedXml = useMemo(() => {
     const lines: string[] = [];
@@ -966,7 +1020,9 @@ export default function SitemapGenerator() {
       
       routes.forEach(route => {
         lines.push('  <url>');
-        lines.push(`    <loc>${cleanedBaseUrl}${route.path}</loc>`);
+        const isAbsolute = route.path.startsWith('http://') || route.path.startsWith('https://');
+        const locUrl = isAbsolute ? route.path : `${cleanedBaseUrl}${route.path}`;
+        lines.push(`    <loc>${locUrl}</loc>`);
         
         if (globalIncludeLastmod && route.lastmodEnabled) {
           lines.push(`    <lastmod>${route.lastmodDate}</lastmod>`);
@@ -988,7 +1044,9 @@ export default function SitemapGenerator() {
       let mini = '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
       routes.forEach(route => {
         mini += '<url>';
-        mini += `<loc>${cleanedBaseUrl}${route.path}</loc>`;
+        const isAbsolute = route.path.startsWith('http://') || route.path.startsWith('https://');
+        const locUrl = isAbsolute ? route.path : `${cleanedBaseUrl}${route.path}`;
+        mini += `<loc>${locUrl}</loc>`;
         if (globalIncludeLastmod && route.lastmodEnabled) {
           mini += `<lastmod>${route.lastmodDate}</lastmod>`;
         }
@@ -1283,6 +1341,18 @@ export default function SitemapGenerator() {
                   <Sparkles className="w-3.5 h-3.5" />
                   <span>Auto-Detect Routes</span>
                 </button>
+                <button
+                  type="button"
+                  onClick={() => setCreationMode('subdomains')}
+                  className={`px-4 py-2 text-xs font-heading font-bold uppercase tracking-wider flex items-center gap-1.5 cursor-pointer transition-all border-b-2 outline-none select-none ${
+                    creationMode === 'subdomains'
+                      ? 'border-brand text-brand'
+                      : 'border-transparent text-zinc-500 hover:text-zinc-300'
+                  }`}
+                >
+                  <Globe className="w-3.5 h-3.5" />
+                  <span>Apex Subdomains</span>
+                </button>
               </div>
 
               {creationMode === 'single' ? (
@@ -1500,7 +1570,7 @@ export default function SitemapGenerator() {
                     )}
                   </button>
                 </form>
-              ) : (
+              ) : creationMode === 'auto' ? (
                 /* Workspace Route Auto-Discovery */
                 <div className="p-4 rounded-lg bg-zinc-950 border border-zinc-900 space-y-4">
                   <div className="space-y-1.5 animate-fade-in">
@@ -1588,7 +1658,121 @@ export default function SitemapGenerator() {
                     </button>
                   </div>
                 </div>
-              )}
+              ) : creationMode === 'subdomains' ? (
+                /* Apex Subdomains panel */
+                <div className="p-4 rounded-lg bg-zinc-950 border border-zinc-900 space-y-4">
+                  <div className="space-y-1.5 animate-fade-in">
+                    <h4 className="text-xs font-heading font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+                      <Globe className="w-4 h-4 text-brand animate-pulse" />
+                      <span>Apex Secure Subdomain Indexing Console</span>
+                    </h4>
+                    <p className="text-[11px] text-zinc-400 font-sans leading-relaxed">
+                      Configure search indexing paths for your network of 18 secure optimized subdomains on <span className="font-mono text-brand">apexutility.live</span>. Under standard Google Search Console protocols, configuring absolute location URLs directly inside your primary sitemap allows fast, automated cross-domain discovery and page indexing.
+                    </p>
+                  </div>
+
+                  <div className="border border-zinc-900 rounded bg-[#060609] divide-y divide-zinc-900/60 max-h-64 overflow-y-auto pr-1">
+                    {APEX_SUBDOMAINS.map((sub, index) => {
+                      const isSelected = selectedSubdomains.includes(sub.url);
+                      return (
+                        <div key={index} className="p-2 flex items-center justify-between hover:bg-zinc-900/40 transition-colors">
+                          <label className="flex items-center gap-2.5 cursor-pointer select-none">
+                            <input
+                              type="checkbox"
+                              checked={isSelected}
+                              onChange={() => {
+                                if (isSelected) {
+                                  setSelectedSubdomains(selectedSubdomains.filter(url => url !== sub.url));
+                                } else {
+                                  setSelectedSubdomains([...selectedSubdomains, sub.url]);
+                                }
+                              }}
+                              className="rounded bg-zinc-900 border-zinc-850 text-brand focus:ring-0 w-3.5 h-3.5 cursor-pointer accent-brand"
+                            />
+                            <div className="flex flex-col">
+                              <span className="text-xs font-mono text-zinc-200 hover:text-white transition-colors">{sub.url}</span>
+                              <span className="text-[9px] text-zinc-500 font-sans">{sub.nickname}</span>
+                            </div>
+                          </label>
+                          <span className="px-1.5 py-0.5 rounded bg-brand/10 border border-brand/20 text-brand font-mono text-[9px] font-semibold">
+                            Priority {sub.priority.toFixed(2)}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Actions / settings */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-zinc-900 pt-3 text-xs">
+                    <div>
+                      <label className="text-[9px] font-mono text-zinc-500 uppercase block mb-1">Crawl Frequency</label>
+                      <select
+                        value={subdomainFreq}
+                        onChange={(e) => setSubdomainFreq(e.target.value as any)}
+                        className="w-full bg-zinc-900 border border-zinc-850 rounded px-2.5 py-1 text-xs text-zinc-300 focus:outline-none cursor-pointer font-mono"
+                      >
+                        <option value="always">Always</option>
+                        <option value="hourly">Hourly</option>
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                        <option value="yearly">Yearly</option>
+                        <option value="never">Never</option>
+                      </select>
+                      <p className="text-[9px] text-zinc-650 mt-1">Crawler checking cycle recommendation.</p>
+                    </div>
+
+                    <div className="flex flex-col justify-end">
+                      <div className="flex items-center justify-between text-xs text-zinc-500 pb-1">
+                        <span>Selected Subdomains:</span>
+                        <span className="font-mono text-zinc-300 font-bold">{selectedSubdomains.length} / {APEX_SUBDOMAINS.length}</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedSubdomains(APEX_SUBDOMAINS.map(s => s.url))}
+                          className="flex-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 font-mono text-[10px] py-1.5 rounded transition-all text-center border border-zinc-805 cursor-pointer uppercase font-bold"
+                        >
+                          Select All
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedSubdomains([])}
+                          className="flex-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-350 font-mono text-[10px] py-1.5 rounded transition-all text-center border border-zinc-805 cursor-pointer uppercase font-bold"
+                        >
+                          Deselect All
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex border-t border-zinc-900 pt-3 flex-col sm:flex-row justify-between items-center gap-3">
+                    <label className="flex items-center gap-2 cursor-pointer select-none self-start sm:self-auto">
+                      <input
+                        type="checkbox"
+                        checked={subdomainOverwrite}
+                        onChange={(e) => setSubdomainOverwrite(e.target.checked)}
+                        className="rounded bg-zinc-900 border-zinc-800 text-brand focus:ring-0 w-3.5 h-3.5 cursor-pointer accent-brand"
+                      />
+                      <span className="text-[10px] font-mono uppercase tracking-wide text-zinc-400 hover:text-white transition-colors">Replace existing pathways</span>
+                    </label>
+
+                    <button
+                      type="button"
+                      disabled={selectedSubdomains.length === 0}
+                      onClick={() => handleAddSubdomains(subdomainOverwrite)}
+                      className={`w-full sm:w-auto px-6 py-2 font-mono text-xs font-bold rounded flex items-center justify-center gap-1.5 cursor-pointer transition-all active:scale-[0.98] ${
+                        selectedSubdomains.length === 0
+                          ? 'bg-[#1a1215] border border-rose-950/40 text-rose-450 cursor-not-allowed'
+                          : 'bg-brand hover:bg-brand-hover text-zinc-950 hover:text-zinc-900'
+                      }`}
+                    >
+                      <ListPlus className="w-3.5 h-3.5 shrink-0 text-zinc-950" />
+                      <span>INJECT {selectedSubdomains.length} APEX SUBDOMAINS</span>
+                    </button>
+                  </div>
+                </div>
+              ) : null}
 
               {copiedNotice && (
                 <div className="text-[10px] font-mono text-rose-400 bg-rose-950/20 border border-rose-950/40 p-2 rounded text-center uppercase tracking-wider">
