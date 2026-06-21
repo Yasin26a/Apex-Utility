@@ -902,6 +902,106 @@ const SEO_METADATA: Record<string, SEOHeaderContent> = {
         "priceCurrency": "USD"
       }
     }
+  },
+  'robots-txt': {
+    title: "Robots.txt Generator & Validator | Apex SEO Suite",
+    description: "Generate SEO-compliant robots.txt files and validate crawler instructions for search engine spiders (Googlebot, Bingbot, Yandex).",
+    keywords: "robots.txt generator, search engine rules, crawler directives, googlebot settings, bingbot allow disallow, sitemap robots, validator",
+    ogTitle: "Robots.txt Generator & Validator | APEX Suite",
+    ogDescription: "Easily generate custom robots.txt directives and configure sitemap links to optimize how search engines crawl your web pages.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Robots.txt Generator & Validator",
+      "description": "Construct dynamic instructions and crawl delay parameters for major search spiders.",
+      "applicationCategory": "SEOApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
+  'dns-lookup': {
+    title: "Dynamic DNS Records Lookup & Name Finder | Apex Utility Suite",
+    description: "Extract active authoritative A, AAAA, MX, TXT, and CNAME logs from global nameservers with lightning-fast real-time resolution.",
+    keywords: "DNS lookup, nameservers resolver, query mx records, txt records finder, standard ip looker, digital security audits, sitemap tools",
+    ogTitle: "Dynamic DNS Records Lookup Tool | APEX Suite",
+    ogDescription: "Trace and extract complete IP address maps and nameserver assignments for any website, validating critical server paths instantly.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Dynamic DNS Records Lookup",
+      "description": "Lookup registry configurations and MX properties across global top-level nameservers.",
+      "applicationCategory": "UtilityApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
+  'user-agent': {
+    title: "User-Agent String Parser & Client Detector | Apex Suite",
+    description: "Deconstruct and decode raw browser User-Agent strings to identify active devices, platforms, operating systems, and host engines.",
+    keywords: "User-Agent parser, browser string detector, OS identifier, screen resolution layout, cookie support status, timezone query, clients diagnostic",
+    ogTitle: "User-Agent String Parser Tool | APEX Suite",
+    ogDescription: "Instantly parse and visualize diagnostic details about your current active browser and operating system environment.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "User-Agent String Parser & Client Detector",
+      "description": "Provides clean diagnostic metrics and parsed browser-agent configurations.",
+      "applicationCategory": "UtilityApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
+  'html-markdown': {
+    title: "HTML and Markdown Converter & Markup Translator | Apex Suite",
+    description: "Convert rich text formatting instantly between clean Markdown syntax layout rules and native HTML tags without backend delays.",
+    keywords: "HTML to markdown, markdown to html, syntax markup translator, code exporter, rich typography styler, website page building tools",
+    ogTitle: "HTML & Markdown Markup Translator | APEX Suite",
+    ogDescription: "Bidirectionally compile formatting to instantly output corresponding markdown structures or production-ready HTML elements.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "HTML & Markdown Markup Translator",
+      "description": "Translates styling templates between HTML tags and Markdown parameters.",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
+  'meta-tags': {
+    title: "Meta Tags Social Snippet & SERP Simulator | Apex SEO Suite",
+    description: "Test social image previews, optimize Open Graph templates, and simulate search snippet previews for Google, Facebook, and Twitter/X.",
+    keywords: "Meta tags optimizer, SERP snippet previewer, Facebook OG image preview, Twitter card debugger, canonical URL test, SEO titles customizer",
+    ogTitle: "Meta Tags Snippet & SERP Optimizer | APEX Suite",
+    ogDescription: "Visualize precisely how your digital content will look when shared online or indexed across major search engines.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Meta Tags Social Snippet Optimizer",
+      "description": "Simulates snippet layouts and constructs optimal header meta tags blocks.",
+      "applicationCategory": "SEOApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
   }
 };
 

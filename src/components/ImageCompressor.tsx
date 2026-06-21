@@ -83,11 +83,16 @@ export default function ImageCompressor() {
       if (image?.originalUrl) {
         URL.revokeObjectURL(image.originalUrl);
       }
+    };
+  }, [image]);
+
+  useEffect(() => {
+    return () => {
       if (compressedUrl) {
         URL.revokeObjectURL(compressedUrl);
       }
     };
-  }, [image, compressedUrl]);
+  }, [compressedUrl]);
 
   // Read files and gather original visual metrics
   const processImageFile = (file: File) => {
@@ -649,52 +654,68 @@ export default function ImageCompressor() {
               {compareMode === 'side-by-side' ? (
                 
                 /* Mode A: Side-by-Side screens comparative grids */
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   
                   {/* Left Side: Original */}
-                  <div className="space-y-1.5 relative group">
+                  <div className="space-y-1.5 relative group flex flex-col">
                     <span className="absolute top-3 left-3 px-2 py-0.5 bg-black/75 tracking-wider font-mono text-[9px] uppercase border border-brand-border/35 text-zinc-300 rounded-md shadow backdrop-blur-sm z-10">
                       Original
                     </span>
-                    <div className="border border-brand-border/20 rounded-xl bg-[#090b0e] p-2 aspect-[4/3] flex items-center justify-center overflow-hidden relative">
+                    <div 
+                      style={{ 
+                        aspectRatio: `${image.originalWidth} / ${image.originalHeight}`,
+                        maxHeight: '460px' 
+                      }}
+                      className="border border-brand-border/20 rounded-xl bg-[#090b0e] flex items-center justify-center overflow-hidden relative w-full mx-auto"
+                    >
                       <img
                         src={image.originalUrl}
                         alt="Original visual preview"
-                        className="max-w-full max-h-full object-contain rounded-lg"
+                        className="w-full h-full object-cover rounded-lg"
                         referrerPolicy="no-referrer"
                       />
                     </div>
-                    <div className="flex justify-between text-[10px] font-mono text-gray-500 px-1">
+                    <div className="flex justify-between text-[10px] font-mono text-gray-500 px-1 mt-auto pt-1.5">
                       <span>Ref Dimensions: {image.originalWidth} × {image.originalHeight}</span>
                       <span>Weight: {formatBytes(image.originalSize)}</span>
                     </div>
                   </div>
 
                   {/* Right Side: Optimised */}
-                  <div className="space-y-1.5 relative group">
+                  <div className="space-y-1.5 relative group flex flex-col">
                     <span className="absolute top-3 left-3 px-2 py-0.5 bg-black/75 tracking-wider font-mono text-[9px] uppercase border border-emerald-500/20 text-emerald-450 rounded-md shadow backdrop-blur-sm z-10">
                       Optimized
                     </span>
-                    <div className="border border-brand-border/20 rounded-xl bg-[#090b0e] p-2 aspect-[4/3] flex items-center justify-center overflow-hidden relative">
-                      {isProcessing ? (
-                        <div className="flex flex-col items-center justify-center space-y-2 font-mono text-xs text-gray-500 text-center">
-                          <RefreshCw className="w-6 h-6 animate-spin text-emerald-400" />
-                          <span>Generating compressed layers...</span>
+                    <div 
+                      style={{ 
+                        aspectRatio: `${image.originalWidth} / ${image.originalHeight}`,
+                        maxHeight: '460px' 
+                      }}
+                      className="border border-brand-border/20 rounded-xl bg-[#090b0e] flex items-center justify-center overflow-hidden relative w-full mx-auto"
+                    >
+                      {/* Show the existing compressed image if available */}
+                      {compressedUrl ? (
+                         <img
+                           src={compressedUrl}
+                           alt="Optimized visual preview"
+                           className="w-full h-full object-cover rounded-lg"
+                           referrerPolicy="no-referrer"
+                         />
+                      ) : !isProcessing ? (
+                        <div className="font-mono text-xs text-brand-text-dim text-center p-4">Awaiting processing configuration...</div>
+                      ) : null}
+
+                      {/* Overlap real-time loading spinner over the existing image or card block when processing */}
+                      {isProcessing && (
+                        <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center space-y-2 font-mono text-xs text-emerald-400 text-center rounded-lg backdrop-blur-xs z-10">
+                          <RefreshCw className="w-5 h-5 animate-spin text-emerald-400" />
+                          <span className="animate-pulse">Optimizing layers...</span>
                         </div>
-                      ) : compressedUrl ? (
-                        <img
-                          src={compressedUrl}
-                          alt="Optimized visual preview"
-                          className="max-w-full max-h-full object-contain rounded-lg"
-                          referrerPolicy="no-referrer"
-                        />
-                      ) : (
-                        <div className="font-mono text-xs text-brand-text-dim text-center">Awaiting processing configuration...</div>
                       )}
                     </div>
-                    <div className="flex justify-between text-[10px] font-mono text-gray-400 px-1">
-                      <span className="text-zinc-500">Optimized Size: {compressedWidth} × {compressedHeight}</span>
-                      <span className="text-emerald-400 font-semibold">{formatBytes(compressedSize)}</span>
+                    <div className="flex justify-between text-[10px] font-mono text-gray-400 px-1 mt-auto pt-1.5">
+                      <span className="text-zinc-500">Optimized Size: {compressedWidth > 0 ? `${compressedWidth} × ${compressedHeight}` : '--'}</span>
+                      <span className="text-emerald-400 font-semibold">{compressedSize > 0 ? formatBytes(compressedSize) : '--'}</span>
                     </div>
                   </div>
 
@@ -707,38 +728,40 @@ export default function ImageCompressor() {
                     ref={splitContainerRef}
                     onMouseMove={handleSplitMouseMove}
                     onTouchMove={handleSplitTouchMove}
-                    className="relative w-full aspect-[16/9] border border-brand-border/30 rounded-xl overflow-hidden bg-[#07080b] cursor-col-resize select-none"
+                    style={{ 
+                      aspectRatio: `${image.originalWidth} / ${image.originalHeight}`,
+                      maxHeight: '520px'
+                    }}
+                    className="relative w-full mx-auto border border-brand-border/30 rounded-xl overflow-hidden bg-[#07080b] cursor-col-resize select-none"
                   >
-                    {/* Background Original Image */}
+                    {/* Background: Optimized Image (falls back to original if not yet processed) */}
+                    <img
+                      src={compressedUrl || image.originalUrl}
+                      alt="Optimized overlay canvas"
+                      className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+                      referrerPolicy="no-referrer"
+                    />
+
+                    {/* Foreground: Original Image (clipped from 0% to splitPosition%) */}
                     <img
                       src={image.originalUrl}
                       alt="Original overlay canvas"
-                      className="absolute inset-0 w-full h-full object-contain pointer-events-none p-4"
+                      className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+                      style={{ clipPath: `polygon(0 0, ${splitPosition}% 0, ${splitPosition}% 100%, 0 100%)` }}
                       referrerPolicy="no-referrer"
                     />
+
+                    {/* ALWAYS VISIBLE Labels (placed in parent container) */}
                     <div className="absolute top-3 left-3 px-2 py-0.5 bg-black/60 font-mono text-[9px] uppercase border border-brand-border/30 text-white rounded pointer-events-none backdrop-blur-sm z-10">
                       Original
                     </div>
 
-                    {/* Foreground Slider Container which clips the compressed image */}
-                    {compressedUrl && (
-                      <div 
-                        className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden"
-                        style={{ clipPath: `polygon(0 0, ${splitPosition}% 0, ${splitPosition}% 100%, 0 100%)` }}
-                      >
-                        <div className="absolute inset-0 bg-[#07080b] p-4">
-                          <img
-                            src={compressedUrl}
-                            alt="Optimized overlay canvas"
-                            className="w-full h-full object-contain"
-                            referrerPolicy="no-referrer"
-                          />
-                        </div>
-                        <div className="absolute top-3 right-3 px-2 py-0.5 bg-emerald-500/80 font-mono text-[9px] uppercase border border-emerald-400 text-black font-semibold rounded backdrop-blur-sm z-10">
-                          Optimized
-                        </div>
-                      </div>
-                    )}
+                    <div className="absolute top-3 right-3 flex items-center gap-1.5 px-2 py-0.5 bg-emerald-500/80 font-mono text-[9px] uppercase border border-emerald-400 text-black font-semibold rounded pointer-events-none backdrop-blur-sm z-10">
+                      {isProcessing && (
+                        <RefreshCw className="w-2.5 h-2.5 animate-spin text-black shrink-0" />
+                      )}
+                      Optimized
+                    </div>
 
                     {/* Drag divider border indicator */}
                     <div 

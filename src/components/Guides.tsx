@@ -162,6 +162,13 @@ export default function Guides({ onTabChange }: GuidesProps) {
       .then(res => res.json())
       .then(data => setAiHeaders(data))
       .catch(err => console.error('Error loading AI headers metadata:', err));
+
+    // Handle deep-linked article ID parameters to instantly render clean content details
+    const params = new URLSearchParams(window.location.search);
+    const idParam = params.get('id');
+    if (idParam) {
+      setSelectedArticleId(idParam);
+    }
   }, []);
 
   const handleGenerateAIHeader = async (artId: string, customPrompt?: string) => {

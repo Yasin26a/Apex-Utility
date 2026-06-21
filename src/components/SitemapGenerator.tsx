@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { gzipSync } from 'fflate';
+import { AT_LEAST_20_ARTICLES } from '../data/articles';
 
 interface SitemapRoute {
   id: string;
@@ -100,7 +101,12 @@ const DISCOVERED_APP_TABS = [
   { tab: 'content-planner', path: '/content-planner', defaultPriority: 0.9, defaultFreq: 'weekly' },
   { tab: 'schema-generator', path: '/schema-generator', defaultPriority: 0.85, defaultFreq: 'weekly' },
   { tab: 'content-gap', path: '/content-gap', defaultPriority: 0.9, defaultFreq: 'weekly' },
-  { tab: 'keyword-cluster', path: '/keyword-cluster', defaultPriority: 0.9, defaultFreq: 'weekly' }
+  { tab: 'keyword-cluster', path: '/keyword-cluster', defaultPriority: 0.9, defaultFreq: 'weekly' },
+  { tab: 'robots-txt', path: '/robots-txt', defaultPriority: 0.85, defaultFreq: 'weekly' },
+  { tab: 'dns-lookup', path: '/dns-lookup', defaultPriority: 0.8, defaultFreq: 'weekly' },
+  { tab: 'user-agent', path: '/user-agent', defaultPriority: 0.8, defaultFreq: 'weekly' },
+  { tab: 'html-markdown', path: '/html-markdown', defaultPriority: 0.8, defaultFreq: 'weekly' },
+  { tab: 'meta-tags', path: '/meta-tags', defaultPriority: 0.85, defaultFreq: 'weekly' }
 ];
 
 export default function SitemapGenerator() {
@@ -894,12 +900,12 @@ export default function SitemapGenerator() {
     setRoutes(mapped);
   };
 
-  // Automatically discover and map all 40 dynamic tool routes in the app
+  // Automatically discover and map all 45 dynamic tool routes plus 138 high-value articles in the app
   const handleAutoDiscovery = (fallbackFreq: typeof newFreq, toolPriority: number, legalPriority: number, overwrite: boolean) => {
     const today = new Date().toISOString().split('T')[0];
     
-    // Convert DISCOVERED_APP_TABS to real sitemap routes
-    const discovered = DISCOVERED_APP_TABS.map((item) => {
+    // 1. Convert DISCOVERED_APP_TABS to real sitemap routes
+    const discoveredTools = DISCOVERED_APP_TABS.map((item) => {
       const isLegal = ['privacy-policy', 'terms-of-service', 'about-us'].includes(item.tab);
       const isIndex = item.tab === 'dashboard';
       
@@ -921,6 +927,20 @@ export default function SitemapGenerator() {
       };
     });
 
+    // 2. Map all 138 deep-linked dynamic guides & blog posts to individual SEO routes
+    const discoveredArticles = AT_LEAST_20_ARTICLES.map((art) => {
+      return {
+        id: `auto_art_${art.id}_${Math.random().toString(36).substring(2, 6)}`,
+        path: `/guides?id=${encodeURIComponent(art.id)}`,
+        changefreq: 'weekly' as any,
+        priority: 0.75,
+        lastmodEnabled: true,
+        lastmodDate: today
+      };
+    });
+
+    const discovered = [...discoveredTools, ...discoveredArticles];
+
     if (overwrite) {
       setRoutes(discovered);
     } else {
@@ -932,7 +952,7 @@ export default function SitemapGenerator() {
       });
     }
 
-    setCopiedNotice(`Auto-discovery completed! Dynamic crawling indexes initialized with ${discovered.length} active workspace routes.`);
+    setCopiedNotice(`Auto-discovery completed! Dynamic crawling indexes initialized with ${discovered.length} active routes (${discoveredTools.length} tools & ${discoveredArticles.length} deep-linked guides).`);
     setTimeout(() => setCopiedNotice(null), 5000);
   };
 
