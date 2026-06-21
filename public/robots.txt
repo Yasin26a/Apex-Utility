@@ -27,6 +27,10 @@
 
 User-agent: *
 Content-Signal: search=yes,ai-train=no
+Disallow: /api/
+Disallow: /debug
+Disallow: /.well-known/
+Allow: /.well-known/security.txt
 Allow: /
 
 Sitemap: https://apexutility.live/sitemap.xml
