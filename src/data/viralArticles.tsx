@@ -8,7 +8,7 @@ import {
 import { ActiveTab } from '../types';
 import { Article } from '../components/Guides';
 
-export const viralArticles: Article[] = [
+const initialViralArticles: Article[] = [
   {
     id: 'spacex-acquires-cursor',
     title: 'SpaceX Acquires AI Coding Startup Cursor for $60 Billion in High-Stakes Edge Against Anthropic',
@@ -885,3 +885,152 @@ export const viralArticles: Article[] = [
     )
   }
 ];
+
+import { WEB_NEWS_TECH_ARTICLES } from './webNewsArticles';
+
+// Map specific high-quality imagery to each article ID
+const webNewsImages: Record<string, string> = {
+  'nvidia-blackwell-gpus-2026': 'https://images.unsplash.com/photo-1591453089816-0fbb971b454c?auto=format&fit=crop&w=1200&q=80',
+  'apple-intelligence-privacy-2026': 'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=1200&q=80',
+  'openai-sora-generative-physics-2026': 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1200&q=80',
+  'google-deepmind-alphafold3-2026': 'https://images.unsplash.com/photo-1532187863486-abf9d39d66e8?auto=format&fit=crop&w=1200&q=80',
+  'microsoft-copilot-pc-slms-2026': 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80',
+  'anthropic-claude-computer-use-2026': 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=1200&q=80',
+  'meta-llama3-open-weights-2026': 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=1200&q=80',
+  'tsmc-angstrom-a16-lithography-2026': 'https://images.unsplash.com/photo-1601524909162-be87252be298?auto=format&fit=crop&w=1200&q=80',
+  'spacex-starship-mechazilla-boost-2026': 'https://images.unsplash.com/photo-1541185933-ef5d8ed016c2?auto=format&fit=crop&w=1200&q=80',
+  'google-sycamore-quantum-computations-2026': 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&w=1200&q=80',
+  'search-engines-dynamic-summaries-2026': 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80',
+  'tesla-optimus-gen2-motor-control-2026': 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=1200&q=80',
+  'blackrock-microsoft-ai-clean-grid-2026': 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?auto=format&fit=crop&w=1200&q=80',
+  'asml-high-na-euv-optics-2026': 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1200&q=80',
+  'deepseek-moe-architecture-efficiency-2026': 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=80',
+  'anthropic-security-audits-claude-2026': 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1200&q=80',
+  'github-copilot-workspace-workflows-2026': 'https://images.unsplash.com/photo-1607799279861-4dd421887fb3?auto=format&fit=crop&w=1200&q=80',
+  'multi-cloud-oracle-azure-integrations-2026': 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80',
+  'mistral-pixtral-edge-multimodality-2026': 'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=1200&q=80',
+  'groq-lpu-sram-inference-2026': 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80'
+};
+
+const webNewsAuthors: Record<string, { name: string; role: string }> = {
+  'nvidia-blackwell-gpus-2026': { name: 'SANSAR CHOUDHURY', role: 'Hardware Architect' },
+  'apple-intelligence-privacy-2026': { name: 'KATHRYN GOULD', role: 'Privacy Researcher' },
+  'openai-sora-generative-physics-2026': { name: 'MARCUS VANCE', role: 'Sora Contributor' },
+  'google-deepmind-alphafold3-2026': { name: 'DR. ELENA ROSTOVA', role: 'Biochemist' },
+  'microsoft-copilot-pc-slms-2026': { name: 'DANIEL COSTA', role: 'Edge Integrator' },
+  'anthropic-claude-computer-use-2026': { name: 'REI TANAKA', role: 'Agent Automation Lead' },
+  'meta-llama3-open-weights-2026': { name: 'JACOB STERLING', role: 'Compute Specialist' },
+  'tsmc-angstrom-a16-lithography-2026': { name: 'CHIN-WEI SU', role: 'Lithography Fellow' },
+  'spacex-starship-mechazilla-boost-2026': { name: 'ASTRID LIND', role: 'Guidance Systems Engineer' },
+  'google-sycamore-quantum-computations-2026': { name: 'DR. LIAM O\'CONNOR', role: 'Quantum Physicist' },
+  'search-engines-dynamic-summaries-2026': { name: 'SARAH JENKINS', role: 'SEO Retrieval Analyst' },
+  'tesla-optimus-gen2-motor-control-2026': { name: 'KENJI SATO', role: 'Actuation Systems Lead' },
+  'blackrock-microsoft-ai-clean-grid-2026': { name: 'HELENA ROUSSEAU', role: 'Grid Priority Analyst' },
+  'asml-high-na-euv-optics-2026': { name: 'PIETER DE JONG', role: 'ASML Optics Advisor' },
+  'deepseek-moe-architecture-efficiency-2026': { name: 'XINYUAN LIU', role: 'Sparse Routings Engineer' },
+  'anthropic-security-audits-claude-2026': { name: 'CLARA SOUZA', role: 'Safety Red-Teamer' },
+  'github-copilot-workspace-workflows-2026': { name: 'ALEXANDER GRUBER', role: 'Lead Developer Advocate' },
+  'multi-cloud-oracle-azure-integrations-2026': { name: 'AMIR AL-KHOURI', role: 'Database Core Engineer' },
+  'mistral-pixtral-edge-multimodality-2026': { name: 'CELINE MARTIN', role: 'Mistral Core Contributor' },
+  'groq-lpu-sram-inference-2026': { name: 'NATHAN DYSON', role: 'SRAM Architect' }
+};
+
+const webNewsTools: Record<string, ActiveTab> = {
+  'nvidia-blackwell-gpus-2026': 'code-snapshot',
+  'apple-intelligence-privacy-2026': 'secure-hash',
+  'openai-sora-generative-physics-2026': 'ai-writer',
+  'google-deepmind-alphafold3-2026': 'code-snapshot',
+  'microsoft-copilot-pc-slms-2026': 'quick-image-optimizer',
+  'anthropic-claude-computer-use-2026': 'batch-processor',
+  'meta-llama3-open-weights-2026': 'ai-writer',
+  'tsmc-angstrom-a16-lithography-2026': 'code-snapshot',
+  'spacex-starship-mechazilla-boost-2026': 'image-vectorizer',
+  'google-sycamore-quantum-computations-2026': 'code-snapshot',
+  'search-engines-dynamic-summaries-2026': 'seo-optimizer',
+  'tesla-optimus-gen2-motor-control-2026': 'image-vectorizer',
+  'blackrock-microsoft-ai-clean-grid-2026': 'sitemap-generator',
+  'asml-high-na-euv-optics-2026': 'code-snapshot',
+  'deepseek-moe-architecture-efficiency-2026': 'ai-writer',
+  'anthropic-security-audits-claude-2026': 'secure-hash',
+  'github-copilot-workspace-workflows-2026': 'code-snapshot',
+  'multi-cloud-oracle-azure-integrations-2026': 'sitemap-generator',
+  'mistral-pixtral-edge-multimodality-2026': 'webp-converter',
+  'groq-lpu-sram-inference-2026': 'code-snapshot'
+};
+
+const webNewsTags: Record<string, string[]> = {
+  'nvidia-blackwell-gpus-2026': ['Edge AI', 'Sovereign Compute', 'Cloud Technology', 'Automation'],
+  'apple-intelligence-privacy-2026': ['Edge AI', 'Sovereign Compute', 'Cybersecurity Policies', 'Root Escalation Exploit'],
+  'openai-sora-generative-physics-2026': ['AI Agents', 'Automation', 'Cloud Technology'],
+  'google-deepmind-alphafold3-2026': ['AlphaFold', 'Google DeepMind', 'Sovereign Compute'],
+  'microsoft-copilot-pc-slms-2026': ['Edge AI', 'Sovereign Compute', 'Local Computing', 'Apple'],
+  'anthropic-claude-computer-use-2026': ['Anthropic', 'AI Agents', 'Automation'],
+  'meta-llama3-open-weights-2026': ['Edge AI', 'Cloud Technology', 'Automation'],
+  'tsmc-angstrom-a16-lithography-2026': ['Sovereign Compute', 'Local Computing', 'Memory Chip Shortage'],
+  'spacex-starship-mechazilla-boost-2026': ['Sovereign Compute', 'Automation', 'Cloud Technology'],
+  'google-sycamore-quantum-computations-2026': ['Sovereign Compute', 'WASM Core', 'Cloud Technology'],
+  'search-engines-dynamic-summaries-2026': ['Automation', 'Sovereign Compute', 'Cloud Technology'],
+  'tesla-optimus-gen2-motor-control-2026': ['AI Agents', 'Automation', 'Sovereign Compute'],
+  'blackrock-microsoft-ai-clean-grid-2026': ['Grid Priority', 'Data Center Energy', 'SMR reactors', 'Green Nuclear Energy'],
+  'asml-high-na-euv-optics-2026': ['Sovereign Compute', 'Local Computing', 'Memory Chip Shortage'],
+  'deepseek-moe-architecture-efficiency-2026': ['Edge AI', 'Cloud Technology', 'Automation'],
+  'anthropic-security-audits-claude-2026': ['Anthropic', 'Cybersecurity Policies', 'Memory Management'],
+  'github-copilot-workspace-workflows-2026': ['AI Code Generation', 'Automation', 'AI Agents'],
+  'multi-cloud-oracle-azure-integrations-2026': ['Cloud Technology', 'Sovereign Compute', 'Memory Management'],
+  'mistral-pixtral-edge-multimodality-2026': ['Edge AI', 'AI Agents', 'Local Computing'],
+  'groq-lpu-sram-inference-2026': ['Edge AI', 'Sovereign Compute', 'Local Computing', 'WASM Core']
+};
+
+export const viralArticles: Article[] = [
+  ...initialViralArticles,
+  ...WEB_NEWS_TECH_ARTICLES.map((art): Article => {
+    const creator = webNewsAuthors[art.id] || { name: 'APEX EDITORIAL', role: 'Technology Correspondent' };
+    const imgUrl = webNewsImages[art.id] || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80';
+    return {
+      id: art.id,
+      title: art.title,
+      excerpt: art.summary,
+      topic: art.category,
+      icon: BookOpen,
+      readTime: art.readTime,
+      date: art.publishDate,
+      author: creator.name,
+      role: creator.role,
+      relatedTool: webNewsTools[art.id] || 'guides',
+      tags: webNewsTags[art.id] || ['Web Technology'],
+      image: imgUrl,
+      content: (
+        <div className="space-y-6 font-sans text-sm text-zinc-300 leading-relaxed text-justify">
+          <div className="relative overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950">
+            <img 
+              src={imgUrl} 
+              alt={art.title} 
+              referrerPolicy="no-referrer"
+              className="w-full h-56 object-cover opacity-85 hover:scale-105 transition-transform duration-500"
+            />
+            <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-zinc-950 to-transparent p-3">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-400 bg-zinc-900/95 px-2 py-1 rounded border border-zinc-800">
+                Sovereign System Context Frame
+              </span>
+            </div>
+          </div>
+          {art.content.map((para, i) => {
+            if (para.startsWith('###')) {
+              return (
+                <h3 key={i} className="font-heading text-xs font-black text-white uppercase tracking-wider mt-6 mb-2">
+                  {para.replace('###', '').trim()}
+                </h3>
+              );
+            }
+            return (
+              <p key={i}>
+                {para}
+              </p>
+            );
+          })}
+        </div>
+      )
+    };
+  })
+];
+

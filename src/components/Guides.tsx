@@ -2661,7 +2661,7 @@ export default function Guides({ onTabChange }: GuidesProps) {
     : false;
 
   return (
-    <div className="space-y-8 max-w-5xl mx-auto">
+    <div className={`space-y-8 ${currentArticle ? 'max-w-5xl' : 'max-w-7xl'} mx-auto w-full px-4 md:px-6`}>
       {/* Blog Subdomain Announcement Bar */}
       <div id="blog-subdomain-bar" className="relative group overflow-hidden bg-gradient-to-r from-brand/10 via-zinc-950 to-brand/10 border border-brand/20 p-4 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4 text-left shadow-lg">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_right,_var(--tw-gradient-stops))] from-brand/5 via-transparent to-transparent pointer-events-none" />
@@ -3826,7 +3826,7 @@ export default function Guides({ onTabChange }: GuidesProps) {
           </div>
 
           {/* Catalog Grids */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-left">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 text-left">
             {filteredArticles.map((art) => {
               const Icon = art.icon;
               return (
@@ -3909,7 +3909,7 @@ export default function Guides({ onTabChange }: GuidesProps) {
             })}
 
             {filteredArticles.length === 0 && (
-              <div className="md:col-span-2 text-center py-12 border border-dashed border-zinc-900 rounded-2xl bg-[#09090d]/35">
+              <div className="col-span-full text-center py-12 border border-dashed border-zinc-900 rounded-2xl bg-[#09090d]/35">
                 <HelpCircle className="w-8 h-8 text-zinc-600 mx-auto mb-2" />
                 <p className="font-heading text-xs font-black text-zinc-500 uppercase tracking-widest">No Guides Match Query</p>
                 <p className="font-sans text-xs text-zinc-600 mt-1">Try resetting the search terms or general filter buttons.</p>

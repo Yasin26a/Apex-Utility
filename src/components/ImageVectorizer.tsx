@@ -38,6 +38,7 @@ export default function ImageVectorizer() {
   const [silhouetteColor, setSilhouetteColor] = useState<string>('#000000');
   const [silhouetteBgColor, setSilhouetteBgColor] = useState<string>('#ffffff');
   const [smoothingLevel, setSmoothingLevel] = useState<number>(2); // RDP simplification tolerance or smoothing
+  const [useBezierCurves, setUseBezierCurves] = useState<boolean>(true); // Bezier spline curve fitting toggle
 
   // Low-poly controls
   const [polyGridSize, setPolyGridSize] = useState<number>(30); // division count
@@ -61,6 +62,12 @@ export default function ImageVectorizer() {
   const [svgCopied, setSvgCopied] = useState<boolean>(false);
   const [processingError, setProcessingError] = useState<string | null>(null);
 
+  // Compare split/slider states
+  const [compareMode, setCompareMode] = useState<'single' | 'split' | 'sidebyside'>('split');
+  const [sliderPosition, setSliderPosition] = useState<number>(50);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+  const sliderRef = useRef<HTMLDivElement | null>(null);
+
   // Drag and drop states
   const [dragActive, setDragActive] = useState<boolean>(false);
 
@@ -75,6 +82,43 @@ export default function ImageVectorizer() {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3000);
   };
+
+  // Global drag handler for compare slider
+  useEffect(() => {
+    const handleGlobalMove = (e: MouseEvent) => {
+      if (!isDragging || !sliderRef.current) return;
+      const rect = sliderRef.current.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const percentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
+      setSliderPosition(percentage);
+    };
+
+    const handleGlobalTouchMove = (e: TouchEvent) => {
+      if (!isDragging || !sliderRef.current || !e.touches[0]) return;
+      const rect = sliderRef.current.getBoundingClientRect();
+      const x = e.touches[0].clientX - rect.left;
+      const percentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
+      setSliderPosition(percentage);
+    };
+
+    const handleGlobalUp = () => {
+      setIsDragging(false);
+    };
+
+    if (isDragging) {
+      window.addEventListener('mousemove', handleGlobalMove);
+      window.addEventListener('touchmove', handleGlobalTouchMove);
+      window.addEventListener('mouseup', handleGlobalUp);
+      window.addEventListener('touchend', handleGlobalUp);
+    }
+
+    return () => {
+      window.removeEventListener('mousemove', handleGlobalMove);
+      window.removeEventListener('touchmove', handleGlobalTouchMove);
+      window.removeEventListener('mouseup', handleGlobalUp);
+      window.removeEventListener('touchend', handleGlobalUp);
+    };
+  }, [isDragging]);
 
   // ----------------------------------------------------
   // FILE SELECTION AND LOADERS
@@ -208,7 +252,7 @@ export default function ImageVectorizer() {
     }
   }, [
     sourceImage, vectorMode, silhouetteThreshold, silhouetteInvert, silhouetteColor,
-    silhouetteBgColor, smoothingLevel, polyGridSize, polyJitter, polyStroke, polyStrokeColor,
+    silhouetteBgColor, smoothingLevel, useBezierCurves, polyGridSize, polyJitter, polyStroke, polyStrokeColor,
     halftoneSpacing, halftoneMaxRadius, halftoneType, halftoneShape, pixelResolution,
     pixelShape, pixelColorCount
   ]);
@@ -294,12 +338,36 @@ export default function ImageVectorizer() {
     let pathTags = '';
     paths.forEach(p => {
       if (p.length === 0) return;
-      let d = `M ${p[0].x} ${p[0].y}`;
-      for (let i = 1; i < p.length; i++) {
-        // Option to draw smooth curves or sharp lines depending on smoothing
-        d += ` L ${p[i].x} ${p[i].y}`;
+      let d = '';
+      if (useBezierCurves && smoothingLevel > 0 && p.length >= 3) {
+        // Curve Interpolation across midpoints of simplified vertices (for beautiful organic rendering)
+        const n = p.length;
+        const midPoints = p.map((point, index) => {
+          const next = p[(index + 1) % n];
+          return {
+            x: (point.x + next.x) / 2,
+            y: (point.y + next.y) / 2
+          };
+        });
+
+        // Start path at the midpoint before the first vertex
+        const start = midPoints[n - 1];
+        d = `M ${start.x.toFixed(1)} ${start.y.toFixed(1)}`;
+        
+        for (let i = 0; i < n; i++) {
+          const ctrl = p[i];
+          const end = midPoints[i];
+          d += ` Q ${ctrl.x.toFixed(1)} ${ctrl.y.toFixed(1)} ${end.x.toFixed(1)} ${end.y.toFixed(1)}`;
+        }
+        d += ' Z';
+      } else {
+        // Fallback or explicit disabled smoothing state: Straight polygon lines
+        d = `M ${p[0].x} ${p[0].y}`;
+        for (let i = 1; i < p.length; i++) {
+          d += ` L ${p[i].x} ${p[i].y}`;
+        }
+        d += ' Z';
       }
-      d += ' Z';
       pathTags += `<path d="${d}" fill="${silhouetteColor}" />\n`;
     });
 
@@ -1250,6 +1318,107 @@ export default function ImageVectorizer() {
             )}
           </div>
 
+          {sourceImage && svgOutput && !processingError && (
+            <div className="flex bg-[#040406] border border-zinc-900/60 rounded-xl p-1 gap-1 mb-4 w-full">
+              <button
+                onClick={() => setCompareMode('single')}
+                className={`flex-1 py-1.5 px-3 rounded-lg text-[10px] font-mono font-bold uppercase transition-all duration-200 cursor-pointer text-center ${
+                  compareMode === 'single'
+                    ? 'bg-brand/10 border border-brand/25 text-brand shadow-sm'
+                    : 'border border-transparent text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900/40'
+                }`}
+              >
+                Vector Only
+              </button>
+              <button
+                onClick={() => setCompareMode('split')}
+                className={`flex-1 py-1.5 px-3 rounded-lg text-[10px] font-mono font-bold uppercase transition-all duration-200 cursor-pointer text-center flex items-center justify-center gap-1.5 ${
+                  compareMode === 'split'
+                    ? 'bg-brand/10 border border-brand/25 text-brand shadow-sm'
+                    : 'border border-transparent text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900/40'
+                }`}
+              >
+                <Sliders className="w-3 h-3" />
+                <span>Interactive Split Slider</span>
+              </button>
+              <button
+                onClick={() => setCompareMode('sidebyside')}
+                className={`flex-1 py-1.5 px-3 rounded-lg text-[10px] font-mono font-bold uppercase transition-all duration-200 cursor-pointer text-center ${
+                  compareMode === 'sidebyside'
+                    ? 'bg-brand/10 border border-brand/25 text-brand shadow-sm'
+                    : 'border border-transparent text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900/40'
+                }`}
+              >
+                Side-by-Side
+              </button>
+            </div>
+          )}
+
+          {sourceImage && svgOutput && !processingError && vectorMode === 'silhouette' && (
+            <div className="bg-[#040406]/95 border border-zinc-900/60 rounded-xl p-4 mb-4 space-y-3 w-full">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 text-xs">
+                {/* Smoothing slider */}
+                <div className="flex-1 space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="font-heading font-bold text-[10px] text-zinc-400 tracking-wider uppercase flex items-center gap-1.5 label-glow">
+                      <Sliders className="w-3.5 h-3.5 text-brand" />
+                      Vector Path Smoothing Factor
+                    </span>
+                    <span className="text-[10px] font-mono font-bold text-brand bg-brand/10 border border-brand/20 px-2 py-0.5 rounded-md">
+                      {smoothingLevel === 0 ? 'Raw Pixels (Lvl 0)' : ''}
+                      {smoothingLevel > 0 && smoothingLevel <= 2 ? `Sharp Simplification (Lvl ${smoothingLevel})` : ''}
+                      {smoothingLevel >= 3 && smoothingLevel <= 5 ? `Smoothed Splines (Lvl ${smoothingLevel})` : ''}
+                      {smoothingLevel > 5 ? `Ultra Fluid Curves (Lvl ${smoothingLevel})` : ''}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-[10px] font-mono text-zinc-600">Rigid</span>
+                    <input
+                      type="range"
+                      min={0}
+                      max={8}
+                      step={1}
+                      value={smoothingLevel}
+                      onChange={(e) => setSmoothingLevel(parseInt(e.target.value))}
+                      className="flex-1 h-1.5 bg-zinc-950 rounded-lg appearance-none cursor-pointer accent-brand"
+                    />
+                    <span className="text-[10px] font-mono text-brand font-bold">Fluid</span>
+                  </div>
+                </div>
+
+                {/* Spline toggle */}
+                <div className="flex items-center justify-between md:justify-end gap-3 border-t md:border-t-0 border-zinc-900/60 pt-2.5 md:pt-0 shrink-0">
+                  <div className="flex items-center gap-2 select-none">
+                    <input
+                      id="preview-bezier"
+                      type="checkbox"
+                      checked={useBezierCurves}
+                      onChange={(e) => setUseBezierCurves(e.target.checked)}
+                      disabled={smoothingLevel === 0}
+                      className="rounded border-zinc-850 text-brand bg-zinc-950 focus:ring-brand/40 w-4 h-4 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                    />
+                    <label 
+                      htmlFor="preview-bezier" 
+                      className={`text-[10px] font-mono uppercase tracking-wider cursor-pointer ${
+                        smoothingLevel === 0 ? 'text-zinc-600 cursor-not-allowed' : 'text-zinc-400 hover:text-zinc-200'
+                      }`}
+                    >
+                      Use Spline Curves
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <p className="text-[9px] font-mono text-zinc-500 leading-normal">
+                {smoothingLevel === 0 
+                  ? "Tracing raw geometric contours around boundary coordinates without any point optimization."
+                  : useBezierCurves 
+                  ? "Simplifying vertices with Ramer-Douglas-Peucker logic and drawing beautiful continuous quadratic Bezier curves."
+                  : "Simplifying path segments with Douglas-Peucker logic but using straight angular polyline connections."
+                }
+              </p>
+            </div>
+          )}
+
           <div className="bg-[#040406]/98 border border-zinc-900 rounded-xl flex-1 flex flex-col items-center justify-center p-6 relative overflow-hidden min-h-[340px]">
             {isProcessing && (
               <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center z-20 backdrop-blur-sm">
@@ -1281,10 +1450,103 @@ export default function ImageVectorizer() {
             )}
 
             {sourceImage && svgOutput && !processingError && (
-              <div 
-                className="w-full h-full max-h-[460px] flex items-center justify-center transition-all duration-300"
-                dangerouslySetInnerHTML={{ __html: svgOutput }}
-              />
+              <div className="w-full h-full min-h-[340px] flex items-center justify-center">
+                {compareMode === 'single' && (
+                  <div 
+                    className="w-full h-full max-h-[460px] flex items-center justify-center transition-all duration-300"
+                    dangerouslySetInnerHTML={{ __html: svgOutput }}
+                  />
+                )}
+
+                {compareMode === 'sidebyside' && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full h-full min-h-[340px] p-2 bg-[#020203] rounded-xl border border-zinc-900/40">
+                    <div className="bg-[#050508]/40 p-4 border border-zinc-900/60 rounded-xl flex flex-col items-center justify-center relative min-h-[260px] overflow-hidden">
+                      <span className="absolute top-2.5 left-2.5 bg-zinc-950/90 border border-zinc-900 text-[8px] font-mono font-bold px-1.5 py-0.5 rounded text-zinc-400 tracking-wider uppercase pointer-events-none z-10">
+                        Original Raster
+                      </span>
+                      <img 
+                        src={sourceImage} 
+                        className="max-h-[220px] max-w-full object-contain filter drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]" 
+                        alt="Original Input"
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
+                    <div className="bg-[#050508]/40 p-4 border border-zinc-900/60 rounded-xl flex flex-col items-center justify-center relative min-h-[260px] overflow-hidden">
+                      <span className="absolute top-2.5 left-2.5 bg-zinc-950/90 border border-zinc-900 text-[8px] font-mono font-bold px-1.5 py-0.5 rounded text-brand tracking-wider uppercase pointer-events-none z-10">
+                        Vector Output (SVG)
+                      </span>
+                      <div 
+                        className="max-h-[220px] max-w-full flex items-center justify-center w-full h-full svg-container"
+                        dangerouslySetInnerHTML={{ __html: svgOutput }}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {compareMode === 'split' && (
+                  <div 
+                    ref={sliderRef}
+                    onMouseDown={(e) => {
+                      setIsDragging(true);
+                      if (sliderRef.current) {
+                        const rect = sliderRef.current.getBoundingClientRect();
+                        const x = e.clientX - rect.left;
+                        const percentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
+                        setSliderPosition(percentage);
+                      }
+                    }}
+                    onTouchStart={(e) => {
+                      setIsDragging(true);
+                      if (sliderRef.current && e.touches && e.touches[0]) {
+                        const rect = sliderRef.current.getBoundingClientRect();
+                        const x = e.touches[0].clientX - rect.left;
+                        const percentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
+                        setSliderPosition(percentage);
+                      }
+                    }}
+                    className="relative w-full h-full min-h-[340px] flex items-center justify-center select-none overflow-hidden rounded-xl bg-[#030304] border border-zinc-900 cursor-ew-resize group"
+                  >
+                    {/* Layer 1 (Under): Original Raster Image */}
+                    <div className="absolute inset-0 flex items-center justify-center p-6 pointer-events-none">
+                      <img 
+                        src={sourceImage} 
+                        className="max-h-[300px] max-w-full object-contain opacity-70 filter saturate-[0.85] blur-[0.2px]" 
+                        alt="Original"
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
+
+                    {/* Layer 2 (Over): Clipped SVG Vector Output */}
+                    <div 
+                      className="absolute inset-0 flex items-center justify-center p-6 pointer-events-none bg-[#030304]/10 transition-all duration-75"
+                      style={{ clipPath: `polygon(0 0, ${sliderPosition}% 0, ${sliderPosition}% 100%, 0 100%)` }}
+                    >
+                      <div 
+                        className="max-h-[300px] max-w-full flex items-center justify-center w-full h-full"
+                        dangerouslySetInnerHTML={{ __html: svgOutput }}
+                      />
+                    </div>
+
+                    {/* Vertical slider divider/handle */}
+                    <div 
+                      className="absolute top-0 bottom-0 w-[2px] bg-brand hover:bg-brand/80 active:bg-brand z-10 pointer-events-none transition-colors"
+                      style={{ left: `${sliderPosition}%` }}
+                    >
+                      <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-zinc-950 border-2 border-brand/80 group-hover:border-brand flex items-center justify-center shadow-lg shadow-black/80 hover:scale-110 active:scale-95 transition-all">
+                        <Sliders className="w-3.5 h-3.5 text-brand rotate-90" />
+                      </div>
+                    </div>
+
+                    {/* Mode Hint Labels */}
+                    <div className="absolute bottom-3 left-3 bg-zinc-950/85 border border-zinc-900/60 px-2 py-0.5 rounded text-[8px] font-mono text-brand pointer-events-none uppercase tracking-wider">
+                      SVG Vector (Left)
+                    </div>
+                    <div className="absolute bottom-3 right-3 bg-zinc-950/85 border border-zinc-900/60 px-2 py-0.5 rounded text-[8px] font-mono text-zinc-400 pointer-events-none uppercase tracking-wider">
+                      Original (Right)
+                    </div>
+                  </div>
+                )}
+              </div>
             )}
           </div>
 

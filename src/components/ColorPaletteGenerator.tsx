@@ -911,10 +911,20 @@ export default function ColorPaletteGenerator() {
                   const checkAAA_black = color.contrastBlack >= 7.0;
 
                   return (
-                    <div 
-                      key={idx}
+                    <motion.div 
+                      key={`${color.hex}-${idx}`}
+                      layout
+                      initial={{ opacity: 0, scale: 0.95, y: 8 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95, y: -8 }}
+                      transition={{ 
+                        type: 'spring',
+                        stiffness: 350,
+                        damping: 26,
+                        layout: { duration: 0.35, type: 'spring', stiffness: 350, damping: 26 }
+                      }}
                       onClick={() => handleCopyColor(color.hex, color.name)}
-                      className="beveled-panel bg-[#07070a]/90 hover:bg-[#0c0c11]/90 border border-zinc-900 hover:border-zinc-805 rounded-xl overflow-hidden shadow-lg transition-all cursor-pointer select-none group relative"
+                      className="beveled-panel bg-[#07070a]/90 hover:bg-[#0c0c11]/90 border border-zinc-900 hover:border-zinc-805 rounded-xl overflow-hidden shadow-lg cursor-pointer select-none group relative"
                     >
                       {/* Dynamic paint bucket top box */}
                       <div className="h-16 w-full relative transition-transform duration-300 group-hover:scale-105" style={{ backgroundColor: color.hex }}>
@@ -952,7 +962,7 @@ export default function ColorPaletteGenerator() {
                           </div>
                         </div>
                       </div>
-                    </div>
+                    </motion.div>
                   );
                 })}
               </div>

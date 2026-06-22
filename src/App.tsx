@@ -240,6 +240,22 @@ export default function App() {
     }
   }, [bookmarkedIds]);
 
+  // Skeleton loader state for authoritative articles
+  const [articlesLoading, setArticlesLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout | undefined;
+    if (activeTab === 'guides') {
+      setArticlesLoading(true);
+      timer = setTimeout(() => {
+        setArticlesLoading(false);
+      }, 450);
+    }
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [activeTab, selectedArticleCategory, articleSearch]);
+
   // Automatically lock the active view route based on the subdomain
   useEffect(() => {
     const hostname = window.location.hostname; // e.g. "seo.yourdomain.com"
@@ -1774,7 +1790,7 @@ Disallow:
 
         {/* Dynamic Content Panel */}
         <div className="flex-1 overflow-y-auto flex flex-col" id="main-content-window">
-          <main className={`flex-1 ${activeTab === 'css-generator' && cssZenMode ? 'p-0 max-w-none w-full' : 'p-4 sm:p-8 max-w-5xl w-full mx-auto'}`}>
+          <main className={`flex-1 ${activeTab === 'css-generator' && cssZenMode ? 'p-0 max-w-none w-full' : activeTab === 'guides' ? 'p-4 sm:p-8 max-w-7xl w-full mx-auto' : 'p-4 sm:p-8 max-w-5xl w-full mx-auto'}`}>
             
             <AnimatePresence mode="wait">
              {activeTab === 'dashboard' && (
@@ -3398,11 +3414,46 @@ Disallow:
                 </div>
 
                 {/* Base Grid Content & Checklist */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="space-y-12">
                   
-                  {/* Main articles List column (left side, span 2) */}
-                  <div className="lg:col-span-2 space-y-4">
-                    {AT_LEAST_20_ARTICLES.filter((art) => {
+                  {/* Main Articles Grid Section (Takes full width, 4 columns on large screens) */}
+                  <div className="w-full">
+                    {articlesLoading ? (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 gap-y-10 text-left">
+                        {[...Array(8)].map((_, i) => (
+                          <div
+                            key={`skeleton-${i}`}
+                            className="bg-slate-950/80 p-5 rounded-xl border border-slate-900/60 flex flex-col justify-between h-full min-h-[410px] animate-pulse"
+                          >
+                            <div className="space-y-4 flex-grow">
+                              {/* Skeleton card cover */}
+                              <div className="w-full h-36 rounded-lg bg-slate-900/80 relative mb-3.5 shrink-0" />
+                              
+                              <div className="flex justify-between items-center">
+                                <div className="w-20 h-4 bg-slate-900/80 rounded" />
+                                <div className="w-14 h-3 bg-slate-900/80 rounded" />
+                              </div>
+                              
+                              <div className="space-y-2 mt-2">
+                                <div className="w-full h-4 bg-slate-900/80 rounded" />
+                                <div className="w-3/4 h-4 bg-slate-900/80 rounded" />
+                              </div>
+
+                              <div className="space-y-2 pt-1">
+                                <div className="w-full h-3 bg-slate-900/50 rounded" />
+                                <div className="w-full h-3 bg-slate-900/50 rounded" />
+                                <div className="w-4/5 h-3 bg-slate-900/50 rounded" />
+                              </div>
+                            </div>
+
+                            <div className="flex items-center justify-between border-t border-slate-900/60 pt-3 mt-4 shrink-0">
+                              <div className="w-28 h-3.5 bg-slate-900/50 rounded" />
+                              <div className="w-16 h-3.5 bg-slate-900/80 rounded" />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : AT_LEAST_20_ARTICLES.filter((art) => {
                       const matchesCategory = selectedArticleCategory === 'All' || art.category === selectedArticleCategory;
                       const matchesSearch = 
                         art.title.toLowerCase().includes(articleSearch.toLowerCase()) ||
@@ -3421,13 +3472,13 @@ Disallow:
                         </button>
                       </div>
                     ) : (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 gap-y-10 text-left">
                         {AT_LEAST_20_ARTICLES.filter((art) => {
                           const matchesCategory = selectedArticleCategory === 'All' || art.category === selectedArticleCategory;
                           const matchesSearch = 
-                            art.title.toLowerCase().includes(articleSearch.toLowerCase()) ||
-                            art.summary.toLowerCase().includes(articleSearch.toLowerCase()) ||
-                            art.content.some((p) => p.toLowerCase().includes(articleSearch.toLowerCase()));
+                        art.title.toLowerCase().includes(articleSearch.toLowerCase()) ||
+                        art.summary.toLowerCase().includes(articleSearch.toLowerCase()) ||
+                        art.content.some((p) => p.toLowerCase().includes(articleSearch.toLowerCase()));
                           return matchesCategory && matchesSearch;
                         }).map((art) => {
                           // Deterministic Pill design
@@ -3446,11 +3497,11 @@ Disallow:
                             <div
                               key={art.id}
                               onClick={() => setReadingArticle(art)}
-                              className="bg-slate-950 p-5 rounded-xl border border-slate-850 hover:border-slate-800 hover:bg-slate-900/40 cursor-pointer hover:shadow-lg transition-all flex flex-col justify-between group h-[390px]"
+                              className="bg-slate-950 p-5 rounded-xl border border-slate-850 hover:border-slate-800 hover:bg-slate-900/40 cursor-pointer hover:shadow-lg transition-all flex flex-col justify-between group h-full min-h-[410px]"
                             >
                               <div className="space-y-3 flex-grow">
                                 {/* Article Card Cover Photo */}
-                                <div className="w-full h-32 rounded-lg overflow-hidden border border-slate-900/60 relative mb-3 shrink-0">
+                                <div className="w-full h-36 rounded-lg overflow-hidden border border-slate-900/60 relative mb-3.5 shrink-0">
                                   <img 
                                     src={getArticleCover(art.category, art.id)} 
                                     alt={art.title} 
@@ -3471,7 +3522,7 @@ Disallow:
                                         e.stopPropagation();
                                         toggleBookmark(art.id);
                                       }}
-                                      className="p-1 rounded text-slate-500 hover:text-rose-400 hover:bg-slate-900 transition-all"
+                                      className="p-1 rounded text-slate-500 hover:text-rose-400 hover:bg-slate-900 transition-all cursor-pointer"
                                       title={bookmarkedIds.includes(art.id) ? "Remove from Reading List" : "Add to Reading List"}
                                     >
                                       {bookmarkedIds.includes(art.id) ? (
@@ -3490,7 +3541,7 @@ Disallow:
                                 </p>
                               </div>
                               
-                              <div className="flex items-center justify-between border-t border-slate-900/60 pt-3 mt-auto shrink-0">
+                              <div className="flex items-center justify-between border-t border-slate-900/60 pt-3 mt-4 shrink-0 font-sans">
                                 <div className="flex items-center gap-1.5 text-slate-500 font-mono text-[10px]">
                                   <Clock className="w-3.5 h-3.5 text-slate-500" />
                                   <span>{art.readTime}</span>
@@ -3508,174 +3559,178 @@ Disallow:
                     )}
                   </div>
 
-                  {/* Sidebar Checklist column (right side, span 1) */}
-                  <div className="space-y-6">
-                    {/* Priority Pinned AdSense checklist */}
-                    <div className="bg-slate-950 p-5 rounded-xl border border-slate-800 space-y-4">
-                      <div className="flex items-center gap-1.5">
-                        <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                        <h4 className="font-bold text-slate-200 text-xs sm:text-sm uppercase tracking-wide">AdSense Verification Checklist</h4>
-                      </div>
-                      <p className="text-xs text-slate-400 leading-relaxed">
-                        If you bought your custom domain in mid-2026, Google evaluates site eligibility based on quality, user structure, and data statements.
-                      </p>
-                      
-                      <hr className="border-slate-850" />
-                      
-                      <div className="space-y-3.5 text-xs text-slate-300">
-                        <div className="flex gap-2.5">
-                          <span className="w-4 h-4 shrink-0 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center text-[10px] font-bold">1</span>
-                          <div>
-                            <p className="font-semibold text-slate-200">Useful Local Tools</p>
-                            <p className="text-[10px] text-slate-400 leading-normal mt-0.5">Integrate practical browser computations (like PDF and sitemap helpers) instead of copying dry paragraphs.</p>
+                  {/* Sidebar Checklist column (Auxiliary Bottom Hub) */}
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-10 border-t border-slate-850">
+                    <div className="lg:col-span-2 space-y-4 text-left">
+                      {/* Priority Pinned AdSense checklist */}
+                      <div className="bg-slate-950 p-5 rounded-xl border border-slate-800 space-y-4">
+                        <div className="flex items-center gap-1.5">
+                          <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                          <h4 className="font-bold text-slate-200 text-xs sm:text-sm uppercase tracking-wide">AdSense Verification Checklist</h4>
+                        </div>
+                        <p className="text-xs text-slate-400 leading-relaxed">
+                          If you bought your custom domain in mid-2026, Google evaluates site eligibility based on quality, user structure, and data statements.
+                        </p>
+                        
+                        <hr className="border-slate-850" />
+                        
+                        <div className="space-y-3.5 text-xs text-slate-300">
+                          <div className="flex gap-2.5">
+                            <span className="w-4 h-4 shrink-0 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center text-[10px] font-bold">1</span>
+                            <div>
+                              <p className="font-semibold text-slate-200">Useful Local Tools</p>
+                              <p className="text-[10px] text-slate-400 leading-normal mt-0.5">Integrate practical browser computations (like PDF and sitemap helpers) instead of copying dry paragraphs.</p>
+                            </div>
+                          </div>
+
+                          <div className="flex gap-2.5">
+                            <span className="w-4 h-4 shrink-0 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center text-[10px] font-bold">2</span>
+                            <div>
+                              <p className="font-semibold text-slate-200">Legal Statements</p>
+                              <p className="text-[10px] text-slate-400 leading-normal mt-0.5">Publish clear, complete declarations covering storage, local caches, and cookie agreements.</p>
+                            </div>
+                          </div>
+
+                          <div className="flex gap-2.5">
+                            <span className="w-4 h-4 shrink-0 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center text-[10px] font-bold">3</span>
+                            <div>
+                              <p className="font-semibold text-slate-200">Sitemap URLs</p>
+                              <p className="text-[10px] text-slate-400 leading-normal mt-0.5">Establish a compliant index map dynamically to guide search crawler spiders through your pages.</p>
+                            </div>
                           </div>
                         </div>
 
-                        <div className="flex gap-2.5">
-                          <span className="w-4 h-4 shrink-0 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center text-[10px] font-bold">2</span>
-                          <div>
-                            <p className="font-semibold text-slate-200">Legal Statements</p>
-                            <p className="text-[10px] text-slate-400 leading-normal mt-0.5">Publish clear, complete declarations covering storage, local caches, and cookie agreements.</p>
+                        <div className="p-3 bg-indigo-500/5 rounded-lg border border-indigo-500/10 flex justify-between items-center gap-2">
+                          <div className="space-y-0.5 text-left">
+                            <p className="text-[10px] font-mono text-slate-400 font-bold">Sitemap live index</p>
+                            <p className="text-[9px] text-slate-500">Fully configured XML schema mapping live.</p>
                           </div>
+                          <button
+                            onClick={() => handleTabChange('sitemap-generator')}
+                            className="text-[10px] font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-0.5 cursor-pointer"
+                          >
+                            Sitemap <ArrowRight className="w-2.5 h-2.5" />
+                          </button>
                         </div>
-
-                        <div className="flex gap-2.5">
-                          <span className="w-4 h-4 shrink-0 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center text-[10px] font-bold">3</span>
-                          <div>
-                            <p className="font-semibold text-slate-200">Sitemap URLs</p>
-                            <p className="text-[10px] text-slate-400 leading-normal mt-0.5">Establish a compliant index map dynamically to guide search crawler spiders through your pages.</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="p-3 bg-indigo-500/5 rounded-lg border border-indigo-500/10 flex justify-between items-center gap-2">
-                        <div className="space-y-0.5">
-                          <p className="text-[10px] font-mono text-slate-400 font-bold">Sitemap live index</p>
-                          <p className="text-[9px] text-slate-500">Fully configured XML schema mapping live.</p>
-                        </div>
-                        <button
-                          onClick={() => handleTabChange('sitemap-generator')}
-                          className="text-[10px] font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-0.5"
-                        >
-                          Sitemap <ArrowRight className="w-2.5 h-2.5" />
-                        </button>
                       </div>
                     </div>
 
-                    {/* Saved for Later: Reading List Container */}
-                    <div className="bg-slate-950 p-5 rounded-xl border border-slate-800 space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                          <BookmarkCheck className="w-4 h-4 text-rose-500 fill-rose-500/10 shrink-0" />
-                          <h4 className="font-bold text-slate-200 text-xs sm:text-sm uppercase tracking-wide truncate">Reading List</h4>
-                        </div>
-                        <span className="px-2 py-0.5 bg-slate-900 border border-slate-850 rounded text-[10px] font-mono text-slate-400 shrink-0">
-                          {bookmarkedIds.length} saved
-                        </span>
-                      </div>
-                      <p className="text-xs text-slate-400 leading-relaxed font-sans">
-                        Access your bookmarked SEO blueprints and verification guides offline at any time.
-                      </p>
-
-                      <hr className="border-slate-850" />
-
-                      {bookmarkedIds.length === 0 ? (
-                        <div className="space-y-4">
-                          <div className="text-center py-5 px-4 bg-slate-900/30 rounded-lg border border-dashed border-slate-850">
-                            <Bookmark className="w-5 h-5 text-slate-600 mx-auto mb-2" />
-                            <p className="text-[11px] text-slate-400 font-medium font-sans">Your reading list is empty</p>
-                            <p className="text-[10px] text-slate-500 mt-1">Click the bookmark icon on any guide to save it here.</p>
+                    <div className="space-y-4 text-left">
+                      {/* Saved for Later: Reading List Container */}
+                      <div className="bg-slate-950 p-5 rounded-xl border border-slate-800 space-y-4 height-full">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                            <BookmarkCheck className="w-4 h-4 text-rose-500 fill-rose-500/10 shrink-0" />
+                            <h4 className="font-bold text-slate-200 text-xs sm:text-sm uppercase tracking-wide truncate">Reading List</h4>
                           </div>
-                          
-                          <div className="space-y-2 pt-1">
-                            <div className="flex items-center gap-1 text-[10px] uppercase tracking-wider font-mono font-bold text-rose-400">
-                              <Sparkles className="w-3 h-3 text-rose-400 shrink-0" />
-                              <span>You might like</span>
+                          <span className="px-2 py-0.5 bg-slate-900 border border-slate-850 rounded text-[10px] font-mono text-slate-400 shrink-0">
+                            {bookmarkedIds.length} saved
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-400 leading-relaxed font-sans">
+                          Access your bookmarked SEO blueprints and verification guides offline at any time.
+                        </p>
+
+                        <hr className="border-slate-850" />
+
+                        {bookmarkedIds.length === 0 ? (
+                          <div className="space-y-4">
+                            <div className="text-center py-5 px-4 bg-slate-900/30 rounded-lg border border-dashed border-slate-850">
+                              <Bookmark className="w-5 h-5 text-slate-600 mx-auto mb-2" />
+                              <p className="text-[11px] text-slate-400 font-medium font-sans">Your reading list is empty</p>
+                              <p className="text-[10px] text-slate-500 mt-1">Click the bookmark icon on any guide to save it here.</p>
                             </div>
-                            <div className="space-y-2">
-                              {AT_LEAST_20_ARTICLES.filter(art => 
-                                ['psychology-dark-patterns', 'seo-secrets-spa-no-backend', 'double-adsense-rpm-insider-tricks'].includes(art.id)
-                              ).map((art) => (
-                                <div
-                                  key={art.id}
-                                  onClick={() => setReadingArticle(art)}
-                                  className="group p-2 flex items-center gap-3 bg-slate-900/45 hover:bg-slate-900/90 rounded-lg border border-slate-850 hover:border-slate-700 transition-all cursor-pointer"
-                                >
-                                  {/* Small Thumbnail */}
-                                  <div className="w-12 h-12 rounded overflow-hidden border border-slate-950 shrink-0">
-                                    <img 
-                                      src={getArticleCover(art.category, art.id)} 
-                                      alt={art.title} 
-                                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                      referrerPolicy="no-referrer"
-                                    />
-                                  </div>
-                                  <div className="min-w-0 flex-grow space-y-0.5">
-                                    <h5 className="font-semibold text-xs text-slate-300 group-hover:text-rose-400 transition-colors line-clamp-2 leading-snug">
-                                      {art.title}
-                                    </h5>
-                                    <div className="flex items-center gap-1.5 text-[9px] text-slate-500 font-mono">
-                                      <span className="text-rose-400/90 bg-rose-500/10 px-1 py-0.2 rounded text-[8px] border border-rose-500/10">Trending</span>
-                                      <span>•</span>
-                                      <span>{art.readTime}</span>
-                                    </div>
-                                  </div>
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      toggleBookmark(art.id);
-                                    }}
-                                    className="p-1 px-1.5 text-slate-400 hover:text-white hover:bg-rose-500 bg-slate-900 hover:border-rose-400 border border-slate-800 rounded transition-all shrink-0 flex items-center justify-center"
-                                    title="Add to Reading List"
+                            
+                            <div className="space-y-2 pt-1">
+                              <div className="flex items-center gap-1 text-[10px] uppercase tracking-wider font-mono font-bold text-rose-400">
+                                <Sparkles className="w-3 h-3 text-rose-400 shrink-0" />
+                                <span>You might like</span>
+                              </div>
+                              <div className="space-y-2">
+                                {AT_LEAST_20_ARTICLES.filter(art => 
+                                  ['psychology-dark-patterns', 'seo-secrets-spa-no-backend', 'double-adsense-rpm-insider-tricks'].includes(art.id)
+                                ).map((art) => (
+                                  <div
+                                    key={art.id}
+                                    onClick={() => setReadingArticle(art)}
+                                    className="group p-2 flex items-center gap-3 bg-slate-900/45 hover:bg-slate-900/90 rounded-lg border border-slate-850 hover:border-slate-700 transition-all cursor-pointer"
                                   >
-                                    <Bookmark className="w-3 h-3" />
-                                  </button>
-                                </div>
-                              ))}
+                                    {/* Small Thumbnail */}
+                                    <div className="w-12 h-12 rounded overflow-hidden border border-slate-950 shrink-0">
+                                      <img 
+                                        src={getArticleCover(art.category, art.id)} 
+                                        alt={art.title} 
+                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                        referrerPolicy="no-referrer"
+                                      />
+                                    </div>
+                                    <div className="min-w-0 flex-grow space-y-0.5">
+                                      <h5 className="font-semibold text-xs text-slate-300 group-hover:text-rose-400 transition-colors line-clamp-2 leading-snug">
+                                        {art.title}
+                                      </h5>
+                                      <div className="flex items-center gap-1.5 text-[9px] text-slate-550 font-mono">
+                                        <span className="text-rose-400/90 bg-rose-500/10 px-1 py-0.2 rounded text-[8px] border border-rose-500/10">Trending</span>
+                                        <span>•</span>
+                                        <span>{art.readTime}</span>
+                                      </div>
+                                    </div>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        toggleBookmark(art.id);
+                                      }}
+                                      className="p-1 px-1.5 text-slate-400 hover:text-white hover:bg-rose-500 bg-slate-900 hover:border-rose-400 border border-slate-800 rounded transition-all shrink-0 flex items-center justify-center cursor-pointer"
+                                      title="Add to Reading List"
+                                    >
+                                      <Bookmark className="w-3 h-3" />
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ) : (
-                        <div className="space-y-2.5 max-h-[280px] overflow-y-auto pr-1">
-                          {AT_LEAST_20_ARTICLES.filter((art) => bookmarkedIds.includes(art.id)).map((art) => (
-                            <div 
-                              key={art.id}
-                              onClick={() => setReadingArticle(art)}
-                              className="group p-2 flex items-center gap-3 bg-slate-900/60 hover:bg-slate-900 rounded-lg border border-slate-850 hover:border-slate-755 transition-all cursor-pointer"
-                            >
-                              {/* Small Thumbnail */}
-                              <div className="w-12 h-12 rounded overflow-hidden border border-slate-950 shrink-0">
-                                <img 
-                                  src={getArticleCover(art.category, art.id)} 
-                                  alt={art.title} 
-                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                  referrerPolicy="no-referrer"
-                                />
-                              </div>
-                              <div className="min-w-0 flex-grow space-y-0.5">
-                                <h5 className="font-semibold text-xs text-slate-200 group-hover:text-rose-400 transition-colors line-clamp-1">
-                                  {art.title}
-                                </h5>
-                                <div className="flex items-center gap-2 text-[10px] text-slate-500 font-mono">
-                                  <span className="text-slate-400">{art.category}</span>
-                                  <span>•</span>
-                                  <span>{art.readTime}</span>
-                                </div>
-                              </div>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  toggleBookmark(art.id);
-                                }}
-                                className="p-1.5 text-slate-500 hover:text-rose-400 hover:bg-slate-950 rounded transition-colors shrink-0"
-                                title="Remove bookmark"
+                        ) : (
+                          <div className="space-y-2.5 max-h-[280px] overflow-y-auto pr-1">
+                            {AT_LEAST_20_ARTICLES.filter((art) => bookmarkedIds.includes(art.id)).map((art) => (
+                              <div 
+                                key={art.id}
+                                onClick={() => setReadingArticle(art)}
+                                className="group p-2 flex items-center gap-3 bg-slate-900/60 hover:bg-slate-900 rounded-lg border border-slate-850 hover:border-slate-755 transition-all cursor-pointer"
                               >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      )}
+                                {/* Small Thumbnail */}
+                                <div className="w-12 h-12 rounded overflow-hidden border border-slate-950 shrink-0">
+                                  <img 
+                                    src={getArticleCover(art.category, art.id)} 
+                                    alt={art.title} 
+                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                    referrerPolicy="no-referrer"
+                                  />
+                                </div>
+                                <div className="min-w-0 flex-grow space-y-0.5">
+                                  <h5 className="font-semibold text-xs text-slate-200 group-hover:text-rose-400 transition-colors line-clamp-1">
+                                    {art.title}
+                                  </h5>
+                                  <div className="flex items-center gap-2 text-[10px] text-slate-500 font-mono">
+                                    <span className="text-slate-400">{art.category}</span>
+                                    <span>•</span>
+                                    <span>{art.readTime}</span>
+                                  </div>
+                                </div>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleBookmark(art.id);
+                                  }}
+                                  className="p-1.5 text-slate-500 hover:text-rose-400 hover:bg-slate-950 rounded transition-colors shrink-0 cursor-pointer"
+                                  title="Remove bookmark"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>

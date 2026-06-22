@@ -1,4 +1,5 @@
 import { CSS_GLASS_SHADOW_ARTICLES } from './cssArticles';
+import { WEB_NEWS_TECH_ARTICLES } from './webNewsArticles';
 
 export interface Article {
   id: string;
@@ -2313,7 +2314,8 @@ export const AT_LEAST_20_ARTICLES: Article[] = [
   ...originalArticles,
   ...generate50ExtraArticles(),
   ...TRENDING_AI_TECH_ARTICLES,
-  ...CSS_GLASS_SHADOW_ARTICLES
+  ...CSS_GLASS_SHADOW_ARTICLES,
+  ...WEB_NEWS_TECH_ARTICLES
 ].map(expandArticleTo10k);
 
 
