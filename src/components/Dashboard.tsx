@@ -94,7 +94,22 @@ function ThreeDTiltCard({
   );
 }
 
-const DEFAULT_CARDS = [
+interface DashboardCard {
+  id: string;
+  title: string;
+  desc: string;
+  tagline: string;
+  category: string;
+  categoryIcon: string;
+  cardIcon: string;
+  textClass: string;
+  buttonLabel: string;
+  colSpan?: number;
+  heightLevel?: number;
+  pinned?: boolean;
+}
+
+const DEFAULT_CARDS: DashboardCard[] = [
   {
     id: 'css-generator',
     title: 'CSS Glass & Shadow Generator',
@@ -843,7 +858,10 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
         'Developer Operations': 'Developer Operations',
         'AI Copywriting': 'AI Copywriting',
         'Security Vault': 'Security Vault',
-        'Design & Signals': 'Design & Signals'
+        'Design & Signals': 'Design & Signals',
+        'PDF Utilities': 'PDF Utilities',
+        'SEO Tools': 'SEO Tools',
+        'Coding & Dev': 'Coding & Dev'
       },
       es: {
         'Media Lab': 'Laboratorio de Medios',
@@ -853,7 +871,10 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
         'Developer Operations': 'Operaciones de Desarrollo',
         'AI Copywriting': 'Redacción de IA',
         'Security Vault': 'Bóveda de Seguridad',
-        'Design & Signals': 'Diseño y Señales'
+        'Design & Signals': 'Diseño y Señales',
+        'PDF Utilities': 'Utilidades PDF',
+        'SEO Tools': 'Herramientas SEO',
+        'Coding & Dev': 'Código y Desarrollo'
       },
       fr: {
         'Media Lab': 'Laboratoire Média',
@@ -863,7 +884,10 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
         'Developer Operations': 'Opérations Développeur',
         'AI Copywriting': 'Rédaction IA',
         'Security Vault': 'Coffre de Sécurité',
-        'Design & Signals': 'Design & Signaux'
+        'Design & Signals': 'Design & Signaux',
+        'PDF Utilities': 'Utilitaires PDF',
+        'SEO Tools': 'Outils SEO',
+        'Coding & Dev': 'Codage & Dev'
       },
       de: {
         'Media Lab': 'Medienlabor',
@@ -873,7 +897,10 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
         'Developer Operations': 'Entwickler-Operationen',
         'AI Copywriting': 'KI-Texterstellung',
         'Security Vault': 'Sicherheits-Tresor',
-        'Design & Signals': 'Design & Signale'
+        'Design & Signals': 'Design & Signale',
+        'PDF Utilities': 'PDF-Dienstprogramme',
+        'SEO Tools': 'SEO-Tools',
+        'Coding & Dev': 'Programmierung & Entwicklung'
       },
       pt: {
         'Media Lab': 'Laboratório de Mídia',
@@ -883,7 +910,10 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
         'Developer Operations': 'Operações de Desenvolvedor',
         'AI Copywriting': 'Redação de IA',
         'Security Vault': 'Cofre de Segurança',
-        'Design & Signals': 'Design e Sinais'
+        'Design & Signals': 'Design e Sinais',
+        'PDF Utilities': 'Utilitários PDF',
+        'SEO Tools': 'Ferramentas de SEO',
+        'Coding & Dev': 'Código e Dev'
       }
     };
     return dicts[lang]?.[category] || category;
@@ -1172,19 +1202,54 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
     }
   });
   const [draggedId, setDraggedId] = useState<string | null>(null);
-  const [cards, setCards] = useState(() => {
+  const [cards, setCards] = useState<DashboardCard[]>(() => {
     const saved = localStorage.getItem('apex_dashboard_layout');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed.map((item: any) => {
-            const defaults = DEFAULT_CARDS.find(d => d.id === item.id) || DEFAULT_CARDS[0];
+          const parsedOrder = new Map();
+          const parsedData = new Map();
+          parsed.forEach((item: any, idx: number) => {
+            if (item && item.id) {
+              parsedOrder.set(item.id, idx);
+              parsedData.set(item.id, item);
+            }
+          });
+
+          const merged = DEFAULT_CARDS.map(dc => {
+            const savedItem = parsedData.get(dc.id);
+            if (savedItem) {
+              return {
+                ...dc,
+                colSpan: savedItem.colSpan || dc.colSpan || 1,
+                heightLevel: savedItem.heightLevel || dc.heightLevel || 2,
+                pinned: savedItem.pinned !== undefined ? savedItem.pinned : (dc.pinned || false),
+              };
+            }
             return {
-              ...defaults,
-              ...item
+              ...dc,
+              colSpan: dc.colSpan || 1,
+              heightLevel: dc.heightLevel || 2,
+              pinned: dc.pinned || false,
             };
           });
+
+          merged.sort((a, b) => {
+            if (a.pinned !== b.pinned) {
+              return a.pinned ? -1 : 1;
+            }
+            const orderA = parsedOrder.has(a.id) ? parsedOrder.get(a.id) : 999;
+            const orderB = parsedOrder.has(b.id) ? parsedOrder.get(b.id) : 999;
+            if (orderA !== orderB) {
+              return orderA - orderB;
+            }
+            const idxA = DEFAULT_CARDS.findIndex(d => d.id === a.id);
+            const idxB = DEFAULT_CARDS.findIndex(d => d.id === b.id);
+            return idxA - idxB;
+          });
+
+          return merged;
         }
       } catch (e) {
         console.error('Failed to parse saved layout config', e);
@@ -1209,7 +1274,33 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
       localizedCat.toLowerCase().includes(searchLower) ||
       card.id.toLowerCase().includes(searchLower);
 
-    const matchesCategory = selectedCategory === 'All' || card.category === selectedCategory;
+    let matchesCategory = false;
+    if (selectedCategory === 'All') {
+      matchesCategory = true;
+    } else if (selectedCategory === 'PDF Utilities') {
+      matchesCategory = 
+        card.category.toLowerCase().includes('pdf') ||
+        card.id.toLowerCase().includes('pdf') ||
+        card.title.toLowerCase().includes('pdf') ||
+        card.desc.toLowerCase().includes('pdf');
+    } else if (selectedCategory === 'SEO Tools') {
+      matchesCategory = 
+        card.category.toLowerCase().includes('seo') ||
+        card.id.toLowerCase().includes('seo') ||
+        card.id.toLowerCase().includes('keyword') ||
+        card.title.toLowerCase().includes('seo') ||
+        card.desc.toLowerCase().includes('seo');
+    } else if (selectedCategory === 'Coding & Dev') {
+      matchesCategory = 
+        card.category === 'Developer Operations' ||
+        card.id.toLowerCase().includes('code') ||
+        card.title.toLowerCase().includes('code') ||
+        card.desc.toLowerCase().includes('code') ||
+        card.id.toLowerCase().includes('sandbox') ||
+        card.title.toLowerCase().includes('sandbox');
+    } else {
+      matchesCategory = card.category === selectedCategory;
+    }
     return matchesSearch && matchesCategory;
   });
 
@@ -1405,7 +1496,7 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
     switch (heightLevel) {
       case 1: return 'h-60';
       case 2: return 'h-72';
-      case 3: return 'h-84';
+      case 3: return 'h-80';
       case 4: return 'h-96';
       case 5: return 'h-[32rem]';
       default: return 'h-72';
@@ -1897,7 +1988,7 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
       </div>
 
       {/* Dynamic Drag-and-Resize Utilities Matrix */}
-      <div id="dashboard-core-vault">
+      <div id="dashboard-core-vault" className="mb-14 sm:mb-20">
         <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-3 pb-3 border-b border-zinc-900/40">
           <div>
             <h2 className="font-heading text-xl font-bold text-white uppercase tracking-wider">{t.dashboard.toolsTitle}</h2>
@@ -1952,10 +2043,10 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
         </div>
 
         {/* Modern Tools Search & Filter Panel */}
-        <div className="mb-6 p-4 bg-[#0e0e15]/40 border border-zinc-900/70 rounded-2xl flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between shadow-sm">
+        <div className="mb-10 lg:mb-12 p-4 bg-[#0e0e15]/40 border border-zinc-900/70 rounded-2xl flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between shadow-sm">
           {/* Left Side: Category choice buttons */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none scroll-smooth min-w-0 flex-1">
-            {['All', 'Design & Signals', 'Media Lab', 'Document Optimization', 'Developer Operations', 'Security Vault', 'AI Copywriting'].map((cat) => {
+            {['All', 'PDF Utilities', 'SEO Tools', 'Coding & Dev', 'Design & Signals', 'Media Lab', 'Document Optimization', 'Developer Operations', 'Security Vault', 'AI Copywriting'].map((cat) => {
               const isSelected = selectedCategory === cat;
               const displayLabel = cat === 'All'
                 ? (language === 'es' ? 'Todas' : language === 'fr' ? 'Toutes' : language === 'de' ? 'Alle' : language === 'pt' ? 'Todas' : 'All Formats')
@@ -2029,12 +2120,12 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
           </div>
         ) : (
           dashboardViewMode === 'grid' ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-12">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 grid-flow-row-dense gap-x-8 gap-y-12 lg:gap-x-10 lg:gap-y-16 pb-16">
               {filteredCards.map((card, index) => {
                 const CategoryIcon = iconMap[card.categoryIcon] || Image;
                 const CardIcon = iconMap[card.cardIcon] || Image;
                 const isAiWriter = card.id === 'ai-writer';
-                const colSpanClass = isCustomizing ? getGridSpanClass(card.colSpan || 1) : 'col-span-1';
+                const colSpanClass = getGridSpanClass(card.colSpan || 1);
               
               const localizedCat = getTranslatedCategory(card.category, language);
               const { title: localizedTitle, desc: localizedDesc, buttonLabel: localizedBtn } = getCardTranslations(card.id, card.title, card.desc, card.buttonLabel);
@@ -2122,10 +2213,10 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
                     </div>
                   )}
                   
-                  <div className="relative h-full">
+                  <div className="relative">
                     <ThreeDTiltCard 
                       onClick={() => !isCustomizing && onTabChange(card.id as ActiveTab)} 
-                      className={`${isCustomizing ? getHeightClass(card.heightLevel || 2) : 'h-80'} transition-all duration-300 relative`}
+                      className={`${getHeightClass(card.heightLevel || 2)} transition-all duration-300 relative`}
                     >
                       <div className="space-y-4 h-full flex flex-col justify-between" style={{ transformStyle: 'preserve-3d' }}>
                         <div className="space-y-4" style={{ transformStyle: 'preserve-3d' }}>
@@ -2141,7 +2232,7 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
                           {/* 3D Elevated Title & Description */}
                           <div style={{ transform: 'translateZ(20px)' }}>
                             <h4 className="font-heading text-lg font-extrabold text-white tracking-tight leading-snug group-hover:text-brand transition-colors duration-300">{localizedTitle}</h4>
-                            <p className="font-sans text-xs sm:text-sm text-zinc-400 mt-2 leading-relaxed">
+                            <p className="font-sans text-xs sm:text-sm text-zinc-400 mt-2 leading-relaxed line-clamp-3" title={localizedDesc}>
                               {localizedDesc}
                             </p>
                           </div>
@@ -2173,13 +2264,13 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
                         >
                           <div className="flex items-center justify-between border-b border-zinc-900 pb-1.5">
                             <span className="text-[9.5px] font-mono text-zinc-400 font-bold uppercase tracking-wider">{dict.gridWidthSpan}</span>
-                            <span className="text-[10px] font-mono text-emerald-400 font-extrabold">{card.colSpan}x Width</span>
+                            <span className="text-[10px] font-mono text-emerald-400 font-extrabold">{(card.colSpan || 1)}x Width</span>
                           </div>
                           <div className="flex items-center gap-1.5 bg-zinc-900/40 p-1 rounded-lg border border-zinc-950">
                             <button
                               type="button"
                               onClick={() => updateCardSize(card.id, -1, 0)}
-                              disabled={card.colSpan <= 1}
+                              disabled={(card.colSpan || 1) <= 1}
                               className="flex-1 py-1 px-2 rounded-md bg-zinc-950 hover:bg-zinc-900 text-zinc-400 hover:text-white disabled:opacity-20 font-bold font-mono text-[11px] transition-all cursor-pointer border border-zinc-900"
                             >
                               <Minus className="w-3 h-3 mx-auto" />
@@ -2187,7 +2278,7 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
                             <button
                               type="button"
                               onClick={() => updateCardSize(card.id, 1, 0)}
-                              disabled={card.colSpan >= 6}
+                              disabled={(card.colSpan || 1) >= 6}
                               className="flex-1 py-1 px-2 rounded-md bg-zinc-950 hover:bg-zinc-900 text-zinc-400 hover:text-white disabled:opacity-20 font-bold font-mono text-[11px] transition-all cursor-pointer border border-zinc-900"
                             >
                               <Plus className="w-3 h-3 mx-auto" />
@@ -2196,13 +2287,13 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
 
                           <div className="flex items-center justify-between border-b border-zinc-900 pt-1 pb-1.5 mt-1">
                             <span className="text-[9.5px] font-mono text-zinc-400 font-bold uppercase tracking-wider">{dict.widgetHeight}</span>
-                            <span className="text-[10px] font-mono text-amber-500 font-extrabold">{getHeightClass(card.heightLevel)}</span>
+                            <span className="text-[10px] font-mono text-amber-500 font-extrabold">{getHeightClass(card.heightLevel || 2)}</span>
                           </div>
                           <div className="flex items-center gap-1.5 bg-zinc-900/40 p-1 rounded-lg border border-zinc-950">
                             <button
                               type="button"
                               onClick={() => updateCardSize(card.id, 0, -1)}
-                              disabled={card.heightLevel <= 1}
+                              disabled={(card.heightLevel || 2) <= 1}
                               className="flex-1 py-1 px-2 rounded-md bg-zinc-950 hover:bg-zinc-900 text-zinc-400 hover:text-white disabled:opacity-20 font-bold font-mono text-[11px] transition-all cursor-pointer border border-zinc-900"
                             >
                               <Minus className="w-3 h-3 mx-auto" />
@@ -2210,7 +2301,7 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
                             <button
                               type="button"
                               onClick={() => updateCardSize(card.id, 0, 1)}
-                              disabled={card.heightLevel >= 5}
+                              disabled={(card.heightLevel || 2) >= 5}
                               className="flex-1 py-1 px-2 rounded-md bg-zinc-950 hover:bg-zinc-900 text-zinc-400 hover:text-white disabled:opacity-20 font-bold font-mono text-[11px] transition-all cursor-pointer border border-zinc-900"
                             >
                               <Plus className="w-3 h-3 mx-auto" />
@@ -2236,7 +2327,7 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
           </div>
         ) : (
           /* Minimalist List view of elements */
-          <div className="flex flex-col gap-3.5 w-full max-w-5xl mx-auto">
+          <div className="flex flex-col gap-5 sm:gap-6 w-full max-w-5xl mx-auto pb-16">
             {filteredCards.map((card, index) => {
               const CategoryIcon = iconMap[card.categoryIcon] || Image;
               const CardIcon = iconMap[card.cardIcon] || Image;
