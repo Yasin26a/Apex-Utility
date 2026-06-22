@@ -863,47 +863,10 @@ export default function App() {
   </url>
 </urlset>`;
 
-      let robotDoc = `# Standard robots.txt for Apex Search Engines
+      let robotDoc = `# Standard robots.txt for Search Engines
 User-agent: *
-Allow: /
+Disallow:
 `;
-
-      const subdomains = [
-        'https://news.apexutility.live/',
-        'https://www.smallpdf.com.apexutility.live/',
-        'https://pdf.apexutility.live/',
-        'https://png.apexutility.live/',
-        'https://utility.apexutility.live/',
-        'https://jpg2pdf.com.apexutility.live/',
-        'https://json.apexutility.live/',
-        'https://ilovepdf.com.apexutility.live/',
-        'https://www.apexutility.live/',
-        'https://beta.apexutility.live/',
-        'https://apex.apexutility.live/',
-        'https://jpg.apexutility.live/',
-        'https://apexutility.com.apexutility.live/',
-        'https://ai.apexutility.live/',
-        'https://docs.apexutility.live/',
-        'https://image.apexutility.live/',
-        'https://blog.apexutility.live/',
-        'https://www.ilovepdf.com.apexutility.live/',
-        'https://seo.apexutility.live/',
-        'https://qrcode.apexutility.live/',
-        'https://regex.apexutility.live/',
-        'https://audio.apexutility.live/',
-        'https://video.apexutility.live/',
-        'https://dev.apexutility.live/',
-        'https://tools.apexutility.live/',
-        'https://api.apexutility.live/',
-        'https://converter.apexutility.live/',
-        'https://design.apexutility.live/',
-        'https://sketch.apexutility.live/',
-        'https://secure.apexutility.live/'
-      ];
-
-      subdomains.forEach(sub => {
-        robotDoc += `Allow: ${sub}\n`;
-      });
 
       robotDoc += `\nSitemap: ${parsedUrl}/sitemap.xml`;
 

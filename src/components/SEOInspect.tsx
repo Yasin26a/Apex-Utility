@@ -157,17 +157,17 @@ const AUDIT_PROFILES = [
   {
     id: 'homepage',
     name: 'Home Portal',
-    url: 'https://apexutility.live/',
-    title: 'APEX UTILITY Forge - High Performance Developer Operations',
+    url: 'https://example.com/',
+    title: 'Example Web Tools Forge - High Performance Developer Operations',
     description: 'High performance local-first tool suite optimized for developer operations, PDF operations, dynamic XML sitemaps, and secure image conversions.',
     keyword: 'developer operations',
     schema: JSON.stringify(SCHEMA_PROFILES[0].code, null, 2),
-    pageContent: 'Apex Utility Forge is a comprehensive, local-first set of web browser utilities. Users can convert visual image formats, compress large PDF documents legibly, combine several PDF files together with dynamic page dragging, format or beautify code syntactic arrays (like nested JSON structures), and perform in-browser SEO diagnostics, sitemap indexing crawls, and robots directives generator. Zero files are uploaded to any server, preserving total security and privacy.'
+    pageContent: 'Our Tools Forge is a comprehensive, local-first set of web browser utilities. Users can convert visual image formats, compress large PDF documents legibly, combine several PDF files together with dynamic page dragging, format or beautify code syntactic arrays (like nested JSON structures), and perform in-browser SEO diagnostics, sitemap indexing crawls, and robots directives generator. Zero files are uploaded to any server, preserving total security and privacy.'
   },
   {
     id: 'webp-converter',
     name: 'WebP Converter',
-    url: 'https://apexutility.live/media-producer-toolkit/webp-converter',
+    url: 'https://example.com/webp-converter',
     title: 'WebP Image Converter - Convert Image Formats Locally',
     description: 'Instantly read WebP vectors and convert to crisp PNG or compressed JPG quality locally. No server upload required.',
     keyword: 'convert image',
@@ -177,7 +177,7 @@ const AUDIT_PROFILES = [
   {
     id: 'compress-pdf',
     name: 'PDF Compressor',
-    url: 'https://apexutility.live/pdf-document-optimizer/compress-pdf',
+    url: 'https://example.com/compress-pdf',
     title: 'Smart PDF Compressor - Shrink Files Legibly',
     description: 'Compress and structurally shrink document payload sizes without rasterization errors. Optimize speed and limit margins.',
     keyword: 'compress',
@@ -187,7 +187,7 @@ const AUDIT_PROFILES = [
   {
     id: 'custom-empty',
     name: 'Draft (Demonstration of Bad SEO Practice / Fails)',
-    url: 'https://apexutility.live/test-route',
+    url: 'https://example.com/test-route',
     title: 'Draft',
     description: 'Short desc.',
     keyword: 'best tools',
@@ -202,8 +202,8 @@ export default function SEOInspect() {
 
   // Automated Meta-Tag Compliance Auditor States
   const [selectedAuditProfile, setSelectedAuditProfile] = useState('homepage');
-  const [inputUrl, setInputUrl] = useState('https://apexutility.live/');
-  const [inputTitle, setInputTitle] = useState('APEX UTILITY Forge - High Performance Developer Operations');
+  const [inputUrl, setInputUrl] = useState('https://example.com/');
+  const [inputTitle, setInputTitle] = useState('Example Web Tools Forge - High Performance Developer Operations');
   const [inputDesc, setInputDesc] = useState('High performance local-first tool suite optimized for developer operations, PDF operations, dynamic XML sitemaps, and secure image conversions.');
   const [inputKeyword, setInputKeyword] = useState('developer operations');
   const [inputSchema, setInputSchema] = useState(AUDIT_PROFILES[0].schema);
@@ -662,7 +662,21 @@ export default function SEOInspect() {
     return result;
   }, [inputTitle, inputDesc, inputKeyword, inputSchema]);
 
-  const websiteUrl = 'https://apexutility.live';
+  const websiteUrl = useMemo(() => {
+    try {
+      const u = new URL(inputUrl);
+      return `${u.protocol}//${u.host}`;
+    } catch {
+      return 'https://example.com';
+    }
+  }, [inputUrl]);
+  const hostNameUpper = useMemo(() => {
+    try {
+      return new URL(websiteUrl).hostname.toUpperCase();
+    } catch {
+      return 'EXAMPLE.COM';
+    }
+  }, [websiteUrl]);
   const currentDateISO = '2026-06-05';
 
   // Sitemap XML markup string
@@ -915,7 +929,7 @@ Sitemap: ${websiteUrl}/sitemap.xml`;
               Search Console & E-E-A-T Authority Portal
             </h3>
             <p className="font-sans text-xs text-[#94a3b8] max-w-xl">
-              Establish high search trust for <code>https://apexutility.live/</code>. Verify content ownership with Google & Bing, activate the instant IndexNow pipeline, and score E-E-A-T signals.
+              Establish high search trust for <code>{websiteUrl}/</code>. Verify content ownership with Google & Bing, activate the instant IndexNow pipeline, and score E-E-A-T signals.
             </p>
           </div>
         </div>
@@ -998,7 +1012,7 @@ Sitemap: ${websiteUrl}/sitemap.xml`;
               <span className="font-mono text-[8.5px] text-zinc-400 font-bold uppercase block">Verification Protocol:</span>
               <ul className="list-disc list-inside space-y-1">
                 <li>Visit <a href="https://search.google.com/search-console" target="_blank" rel="noopener noreferrer" className="text-rose-400 hover:underline">Google Search Console</a>.</li>
-                <li>Add your domain: <code>https://apexutility.live/</code>.</li>
+                <li>Add your domain: <code>{websiteUrl}/</code>.</li>
                 <li>Download the HTML file or copy the header tag, and paste here to compile.</li>
               </ul>
             </div>
@@ -1132,7 +1146,7 @@ Sitemap: ${websiteUrl}/sitemap.xml`;
               <button
                 type="button"
                 onClick={() => {
-                  const pingUrl = `https://www.bing.com/indexnow?url=https://apexutility.live/&key=${indexNowKey}`;
+                  const pingUrl = `https://www.bing.com/indexnow?url=${encodeURIComponent(websiteUrl)}/&key=${indexNowKey}`;
                   window.open(pingUrl, '_blank');
                 }}
                 className="py-1.5 px-2 bg-[#0d0e15] border border-zinc-800 hover:border-zinc-700 text-zinc-300 hover:text-white rounded text-[9.5px] font-heading font-black tracking-wider uppercase flex items-center justify-center gap-1 cursor-pointer transition-all active:scale-95 shadow"
@@ -1334,7 +1348,7 @@ Sitemap: ${websiteUrl}/sitemap.xml`;
                     <button
                       type="button"
                       onClick={() => {
-                        const snippet = `<!-- Open Graph / Meta Protocol tags -->\n<meta property="og:type" content="website" />\n<meta property="og:title" content="${ogTitle}" />\n<meta property="og:description" content="${ogDesc}" />\n<meta property="og:image" content="${ogImage}" />\n<meta property="og:url" content="https://apexutility.live/" />\n\n<!-- Twitter Cards Card Protocol -->\n<meta name="twitter:card" content="summary_large_image" />\n<meta name="twitter:creator" content="${twitterCreator}" />\n<meta name="twitter:title" content="${ogTitle}" />\n<meta name="twitter:description" content="${ogDesc}" />\n<meta name="twitter:image" content="${ogImage}" />`;
+                        const snippet = `<!-- Open Graph / Meta Protocol tags -->\n<meta property="og:type" content="website" />\n<meta property="og:title" content="${ogTitle}" />\n<meta property="og:description" content="${ogDesc}" />\n<meta property="og:image" content="${ogImage}" />\n<meta property="og:url" content="${websiteUrl}/" />\n\n<!-- Twitter Cards Card Protocol -->\n<meta name="twitter:card" content="summary_large_image" />\n<meta name="twitter:creator" content="${twitterCreator}" />\n<meta name="twitter:title" content="${ogTitle}" />\n<meta name="twitter:description" content="${ogDesc}" />\n<meta name="twitter:image" content="${ogImage}" />`;
                         copyToClipboard(snippet, 'social-snippet');
                       }}
                       className="px-2.5 py-1 rounded bg-zinc-950 border border-zinc-900 hover:text-white transition-all text-[9.5px] font-mono cursor-pointer flex items-center gap-1.5 text-zinc-400 hover:bg-[#16161f]"
@@ -1350,7 +1364,7 @@ Sitemap: ${websiteUrl}/sitemap.xml`;
 <meta property="og:title" content="${ogTitle}" />
 <meta property="og:description" content="${ogDesc}" />
 <meta property="og:image" content="${ogImage}" />
-<meta property="og:url" content="https://apexutility.live/" />
+<meta property="og:url" content="${websiteUrl}/" />
 
 <!-- Twitter System Protocol -->
 <meta name="twitter:card" content="summary_large_image" />
@@ -1399,13 +1413,13 @@ Sitemap: ${websiteUrl}/sitemap.xml`;
                       <div className="font-mono text-[10px] text-zinc-700 uppercase">Image Ref Missing</div>
                     )}
                     <span className="absolute bottom-2 left-2 px-1.5 py-0.5 rounded bg-black/80 text-[8.5px] font-mono text-zinc-400 font-bold uppercase border border-zinc-800">
-                      https://apexutility.live/
+                      {websiteUrl}/
                     </span>
                   </div>
 
                   {/* Link Meta Details Footer block */}
                   <div className="p-3.5 bg-zinc-950 space-y-1 block">
-                    <span className="font-mono text-[8.5px] text-rose-400 uppercase tracking-widest font-black block">APEXUTILITY.LIVE</span>
+                    <span className="font-mono text-[8.5px] text-rose-400 uppercase tracking-widest font-black block">{hostNameUpper}</span>
                     <h5 className="font-sans text-xs font-bold text-white line-clamp-1">{ogTitle || 'Untitled Home Utilities'}</h5>
                     <p className="font-sans text-[10px] text-zinc-500 line-clamp-2 leading-relaxed">{ogDesc || 'Dynamic SEO structured graphs parsed live.'}</p>
                   </div>
@@ -1477,7 +1491,7 @@ Sitemap: ${websiteUrl}/sitemap.xml`;
                 id="reset-audit-form-btn"
                 onClick={() => {
                   setSelectedAuditProfile('custom-empty');
-                  setInputUrl('https://apexutility.live/draft-testing');
+                  setInputUrl('https://example.com/draft-testing');
                   setInputTitle('');
                   setInputDesc('');
                   setInputKeyword('');

@@ -2,46 +2,12 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Copy, Check, Download, FileCode, CheckCircle, ShieldAlert, Globe } from 'lucide-react';
 
-const APEX_SUBDOMAINS_ROOTS_ALLOW = [
-  'https://news.apexutility.live/',
-  'https://www.smallpdf.com.apexutility.live/',
-  'https://pdf.apexutility.live/',
-  'https://png.apexutility.live/',
-  'https://utility.apexutility.live/',
-  'https://jpg2pdf.com.apexutility.live/',
-  'https://json.apexutility.live/',
-  'https://ilovepdf.com.apexutility.live/',
-  'https://www.apexutility.live/',
-  'https://beta.apexutility.live/',
-  'https://apex.apexutility.live/',
-  'https://jpg.apexutility.live/',
-  'https://apexutility.com.apexutility.live/',
-  'https://ai.apexutility.live/',
-  'https://docs.apexutility.live/',
-  'https://image.apexutility.live/',
-  'https://blog.apexutility.live/',
-  'https://www.ilovepdf.com.apexutility.live/',
-  'https://seo.apexutility.live/',
-  'https://qrcode.apexutility.live/',
-  'https://regex.apexutility.live/',
-  'https://audio.apexutility.live/',
-  'https://video.apexutility.live/',
-  'https://dev.apexutility.live/',
-  'https://tools.apexutility.live/',
-  'https://api.apexutility.live/',
-  'https://converter.apexutility.live/',
-  'https://design.apexutility.live/',
-  'https://sketch.apexutility.live/',
-  'https://secure.apexutility.live/'
-];
-
 export default function RobotsGenerator() {
   const [allowGoogle, setAllowGoogle] = useState(true);
   const [allowBing, setAllowBing] = useState(true);
   const [allowBaidu, setAllowBaidu] = useState(true);
   const [allowYandex, setAllowYandex] = useState(true);
-  const [includeApexSubdomains, setIncludeApexSubdomains] = useState(true);
-  const [sitemapUrl, setSitemapUrl] = useState('https://apexutility.live/sitemap.xml');
+  const [sitemapUrl, setSitemapUrl] = useState('https://example.com/sitemap.xml');
   const [customRules, setCustomRules] = useState<string>('');
   const [crawlDelay, setCrawlDelay] = useState<string>('none');
   const [copied, setCopied] = useState(false);
@@ -53,29 +19,12 @@ export default function RobotsGenerator() {
     if (crawlDelay !== 'none') {
       output += `Crawl-delay: ${crawlDelay}\n`;
     }
-
-    if (includeApexSubdomains) {
-      output += `\n# Explicit Allow rules for search crawler indexing of validated subdomains\n`;
-      APEX_SUBDOMAINS_ROOTS_ALLOW.forEach(url => {
-        output += `Allow: ${url}\n`;
-      });
-    }
     
     // Googlebot
     output += `\n# Googlebot directives\nUser-agent: Googlebot\nDisallow:${allowGoogle ? '' : ' /'}\n`;
-    if (allowGoogle && includeApexSubdomains) {
-      APEX_SUBDOMAINS_ROOTS_ALLOW.forEach(url => {
-        output += `Allow: ${url}\n`;
-      });
-    }
     
     // Bingbot
     output += `\n# Bingbot directives\nUser-agent: Bingbot\nDisallow:${allowBing ? '' : ' /'}\n`;
-    if (allowBing && includeApexSubdomains) {
-      APEX_SUBDOMAINS_ROOTS_ALLOW.forEach(url => {
-        output += `Allow: ${url}\n`;
-      });
-    }
 
     // Baiduspider
     output += `\n# Baiduspider directives\nUser-agent: Baiduspider\nDisallow:${allowBaidu ? '' : ' /'}\n`;
@@ -182,25 +131,7 @@ export default function RobotsGenerator() {
               </button>
             </div>
 
-            <div className="flex items-center justify-between p-3 rounded-lg bg-zinc-900/40 border border-zinc-900">
-              <div className="flex flex-col">
-                <span className="text-xs font-bold text-zinc-200 font-heading flex items-center gap-1.5">
-                  <Globe className="w-3.5 h-3.5 text-brand" />
-                  <span>Apex Optimized Subdomains</span>
-                </span>
-                <span className="text-[10px] text-zinc-500 font-mono">Explicitly index & Allow 30 secure utility subdomains</span>
-              </div>
-              <button
-                onClick={() => setIncludeApexSubdomains(!includeApexSubdomains)}
-                className={`px-3 py-1 text-[11px] font-bold rounded-md font-sans border transition-all ${
-                  includeApexSubdomains 
-                    ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' 
-                    : 'bg-zinc-500/10 border-zinc-800 text-zinc-400'
-                }`}
-              >
-                {includeApexSubdomains ? 'ENABLED' : 'DISABLED'}
-              </button>
-            </div>
+
           </div>
 
           <div className="space-y-2">
