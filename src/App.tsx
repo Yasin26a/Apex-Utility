@@ -44,6 +44,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { ActiveTab } from './types';
 import { useReadingScrollTracker } from './hooks/useReadingScrollTracker';
+import { useVoicePreference } from './hooks/useVoicePreference';
 import { AT_LEAST_20_ARTICLES, Article } from './data/articles';
 import { jsPDF } from 'jspdf';
 import WebPConverter from './components/WebPConverter';
@@ -254,7 +255,11 @@ export default function App() {
   const [isPaused, setIsPaused] = useState(false);
   const [speechRate, setSpeechRate] = useState(1);
   const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
-  const [selectedVoiceName, setSelectedVoiceName] = useState<string>('');
+  const [selectedVoiceName, setSelectedVoiceName] = useVoicePreference();
+  const selectedVoiceNameRef = useRef(selectedVoiceName);
+  useEffect(() => {
+    selectedVoiceNameRef.current = selectedVoiceName;
+  }, [selectedVoiceName]);
 
   // Navigation and sidebar states
   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
@@ -419,8 +424,8 @@ export default function App() {
         (art) => art.id.toLowerCase() === artId.toLowerCase()
       );
       if (matchedArt) {
-        setActiveTab('guides');
-        setReadingArticle(matchedArt);
+        setActiveTab(current => current === 'guides' ? current : 'guides');
+        setReadingArticle(current => current?.id === matchedArt.id ? current : matchedArt);
 
         if (pIndexStr) {
           const pIndices = pIndexStr.split(',').map(s => parseInt(s.trim(), 10)).filter(num => !isNaN(num));
@@ -428,6 +433,9 @@ export default function App() {
             // Automatically ensure highlights are loaded
             setHighlights(prev => {
               const currentList = prev[matchedArt.id] || [];
+              const hasNew = pIndices.some(idx => !currentList.includes(idx));
+              if (!hasNew) return prev;
+
               const combinedList = Array.from(new Set([...currentList, ...pIndices]));
               return {
                 ...prev,
@@ -716,11 +724,24 @@ export default function App() {
         // Look for English voices to provide a high-quality selection
         const englishVoices = voices.filter(v => v.lang.toLowerCase().startsWith('en'));
         const voicesList = englishVoices.length > 0 ? englishVoices : voices;
-        setAvailableVoices(voicesList);
+        
+        setAvailableVoices(current => {
+          if (current.length === voicesList.length && current.every((v, i) => v.name === voicesList[i].name)) {
+            return current;
+          }
+          return voicesList;
+        });
         
         if (voicesList.length > 0) {
-          const defaultVoice = voicesList.find(v => v.name.toLowerCase().includes('google') || v.name.toLowerCase().includes('natural')) || voicesList[0];
-          setSelectedVoiceName(defaultVoice.name);
+          const persistedName = localStorage.getItem('apex_selected_voice_name');
+          const exists = persistedName ? voicesList.some(v => v.name === persistedName) : false;
+          const targetVoiceName = (persistedName && exists)
+            ? persistedName
+            : (voicesList.find(v => v.name.toLowerCase().includes('google') || v.name.toLowerCase().includes('natural')) || voicesList[0]).name;
+
+          if (selectedVoiceNameRef.current !== targetVoiceName) {
+            setSelectedVoiceName(targetVoiceName);
+          }
         }
       };
       
@@ -729,7 +750,7 @@ export default function App() {
         window.speechSynthesis.onvoiceschanged = loadVoices;
       }
     }
-  }, []);
+  }, [setSelectedVoiceName]);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {

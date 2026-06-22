@@ -59,8 +59,190 @@ export default function AIAudioTranscriber() {
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [selectedSpeakerFilter, setSelectedSpeakerFilter] = useState<string>('all');
 
+  const [sourceMode, setSourceMode] = useState<'upload' | 'record'>('upload');
+  const [isRecording, setIsRecording] = useState<boolean>(false);
+  const [recordingDuration, setRecordingDuration] = useState<number>(0);
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const animationFrameRef = useRef<number | null>(null);
+  const recordingTimerRef = useRef<number | null>(null);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const audioPlayerRef = useRef<HTMLAudioElement>(null);
+
+  // Clean up all resources when component unmounts
+  useEffect(() => {
+    return () => {
+      if (recordingTimerRef.current) {
+        window.clearInterval(recordingTimerRef.current);
+      }
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+      if (audioContextRef.current) {
+        audioContextRef.current.close().catch(() => {});
+      }
+    };
+  }, []);
+
+  const startRecording = async () => {
+    setErrorHeader(null);
+    if (typeof window === 'undefined' || !navigator.mediaDevices) {
+      setErrorHeader('Microphone recording is not supported in this browser environment.');
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContextClass) {
+        setErrorHeader('Web Audio API is not supported in this browser.');
+        return;
+      }
+
+      const audioContext = new AudioContextClass();
+      const analyser = audioContext.createAnalyser();
+      const source = audioContext.createMediaStreamSource(stream);
+      source.connect(analyser);
+      
+      analyser.fftSize = 256;
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+      
+      audioContextRef.current = audioContext;
+      analyserRef.current = analyser;
+      
+      const recorder = new MediaRecorder(stream);
+      const chunks: Blob[] = [];
+      
+      recorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) {
+          chunks.push(e.data);
+        }
+      };
+      
+      recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: 'audio/webm' });
+        const file = new File([blob], `mic_recording_${Date.now()}.webm`, { type: 'audio/webm' });
+        loadAudioFile(file);
+        
+        // Disable tracks
+        stream.getTracks().forEach(track => track.stop());
+      };
+      
+      recorder.start();
+      setMediaRecorder(recorder);
+      setIsRecording(true);
+      setRecordingDuration(0);
+      
+      if (recordingTimerRef.current) {
+        window.clearInterval(recordingTimerRef.current);
+      }
+      recordingTimerRef.current = window.setInterval(() => {
+        setRecordingDuration(prev => prev + 1);
+      }, 1000);
+      
+      // Paint custom waveform visualization on canvas
+      const canvas = canvasRef.current;
+      if (canvas) {
+        const ctx = canvas.getContext('2d');
+        const draw = () => {
+          if (!ctx || !analyserRef.current || !canvas) return;
+          animationFrameRef.current = requestAnimationFrame(draw);
+          
+          const width = canvas.width;
+          const height = canvas.height;
+          
+          analyserRef.current.getByteFrequencyData(dataArray);
+          
+          ctx.clearRect(0, 0, width, height);
+          
+          // Slate dark visual identity
+          ctx.fillStyle = '#09090b'; // zinc-950
+          ctx.fillRect(0, 0, width, height);
+          
+          // Subtle elegant scanlines background
+          ctx.strokeStyle = 'rgba(79, 70, 229, 0.08)'; // indigo highlight
+          ctx.lineWidth = 1;
+          for (let i = 0; i < width; i += 20) {
+            ctx.beginPath();
+            ctx.moveTo(i, 0);
+            ctx.lineTo(i, height);
+            ctx.stroke();
+          }
+          
+          // Symmetric baseline horizontal rule
+          ctx.strokeStyle = 'rgba(99, 102, 241, 0.25)'; // indigo-500
+          ctx.beginPath();
+          ctx.moveTo(0, height / 2);
+          ctx.lineTo(width, height / 2);
+          ctx.stroke();
+          
+          // Draw energetic responsive audio columns
+          const barWidth = (width / bufferLength) * 1.5;
+          let x = 0;
+          
+          for (let i = 0; i < bufferLength; i++) {
+            const percent = dataArray[i] / 255;
+            const barHeight = Math.max(4, percent * (height * 0.8));
+            
+            // Neon gradient columns matching our premium brand vibe
+            const grad = ctx.createLinearGradient(0, height / 2 - barHeight / 2, 0, height / 2 + barHeight / 2);
+            grad.addColorStop(0, '#a5b4fc'); // indigo-300
+            grad.addColorStop(0.5, '#6366f1'); // indigo-500
+            grad.addColorStop(1, '#4338ca'); // indigo-700
+            
+            ctx.fillStyle = grad;
+            
+            // Symmetric drawing upwards & downwards from baseline
+            const y = (height - barHeight) / 2;
+            
+            // Draw clean rounded bars
+            ctx.beginPath();
+            if (ctx.roundRect) {
+              ctx.roundRect(x, y, barWidth - 2.5, barHeight, 2);
+            } else {
+              ctx.rect(x, y, barWidth - 2.5, barHeight);
+            }
+            ctx.fill();
+            
+            x += barWidth;
+          }
+        };
+        draw();
+      }
+    } catch (err: any) {
+      console.error('Error starting microphone stream:', err);
+      setErrorHeader('Unable to access your microphone. Please check system permissions or browser block controls.');
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+      mediaRecorder.stop();
+    }
+    
+    if (recordingTimerRef.current) {
+      window.clearInterval(recordingTimerRef.current);
+      recordingTimerRef.current = null;
+    }
+    
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
+    }
+    
+    if (audioContextRef.current) {
+      audioContextRef.current.close().catch(() => {});
+      audioContextRef.current = null;
+    }
+    
+    setIsRecording(false);
+  };
 
   // Clean up object URLs to avoid memory leaks
   useEffect(() => {
@@ -318,36 +500,129 @@ export default function AIAudioTranscriber() {
               <Upload className="h-3.5 w-3.5" /> Audio Workspace
             </h2>
 
-            {!audioFile ? (
-              // FILE DROP ZONE
-              <div
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                onClick={() => fileInputRef.current?.click()}
-                className={`border-2 border-dashed rounded-xl p-8 flex flex-col items-center justify-center text-center cursor-pointer transition ${
-                  isDragging 
-                    ? 'border-indigo-500 bg-indigo-50/30 dark:bg-indigo-950/10' 
-                    : 'border-zinc-300 dark:border-zinc-800 hover:border-zinc-400 dark:hover:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-950/10'
-                }`}
-              >
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleFileChange}
-                  accept="audio/*"
-                  className="hidden"
-                />
-                <div className="h-12 w-12 rounded-full bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center text-zinc-500 dark:text-zinc-400 mb-4 shadow-sm">
-                  <Volume2 className="h-6 w-6" />
-                </div>
-                <h3 className="text-sm font-medium text-zinc-800 dark:text-zinc-200">
-                  Select or drag an audio file
-                </h3>
-                <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-1.5 max-w-xs">
-                  Supports MP3, WAV, M4A, OGG, WEBM, FLAC formats up to 40MB.
-                </p>
+            {/* SOURCE SELECTOR TABS (Only visible when no track is loaded) */}
+            {!audioFile && (
+              <div className="flex bg-zinc-100 dark:bg-zinc-950/50 p-1 rounded-xl">
+                <button
+                  type="button"
+                  onClick={() => setSourceMode('upload')}
+                  disabled={isRecording}
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg transition-all duration-150 ${
+                    sourceMode === 'upload'
+                      ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-sm font-bold'
+                      : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 disabled:opacity-40'
+                  }`}
+                >
+                  <Upload className="h-3.5 w-3.5" />
+                  Upload File
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSourceMode('record')}
+                  disabled={isRecording}
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg transition-all duration-150 ${
+                    sourceMode === 'record'
+                      ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-sm font-bold'
+                      : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 disabled:opacity-40'
+                  }`}
+                >
+                  <Mic className="h-3.5 w-3.5" />
+                  Record Live
+                </button>
               </div>
+            )}
+
+            {!audioFile ? (
+              sourceMode === 'upload' ? (
+                // FILE DROP ZONE
+                <div
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  onClick={() => fileInputRef.current?.click()}
+                  className={`border-2 border-dashed rounded-xl p-8 flex flex-col items-center justify-center text-center cursor-pointer transition ${
+                    isDragging 
+                      ? 'border-indigo-500 bg-indigo-50/30 dark:bg-indigo-950/10' 
+                      : 'border-zinc-300 dark:border-zinc-800 hover:border-zinc-400 dark:hover:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-950/10'
+                  }`}
+                >
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    accept="audio/*"
+                    className="hidden"
+                  />
+                  <div className="h-12 w-12 rounded-full bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center text-zinc-500 dark:text-zinc-400 mb-4 shadow-sm">
+                    <Volume2 className="h-6 w-6" />
+                  </div>
+                  <h3 className="text-sm font-medium text-zinc-800 dark:text-zinc-200">
+                    Select or drag an audio file
+                  </h3>
+                  <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-1.5 max-w-xs">
+                    Supports MP3, WAV, M4A, OGG, WEBM, FLAC formats up to 40MB.
+                  </p>
+                </div>
+              ) : (
+                // RECORDING DOCK WITH REAL-TIME WAVEFORM GENERATOR CANVAS
+                <div className="border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/20 rounded-xl p-4 md:p-5 flex flex-col items-center justify-center space-y-4">
+                  <div className="text-center w-full">
+                    <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-200 flex items-center justify-center gap-2">
+                      <span className={`w-2.5 h-2.5 rounded-full ${isRecording ? 'bg-red-500 animate-pulse' : 'bg-zinc-400'}`} />
+                      {isRecording ? 'Capturing Live Audio Stream...' : 'Voice Recorder'}
+                    </h3>
+                    <p className="text-xs text-zinc-400 dark:text-zinc-550 mt-1 font-mono">
+                      {isRecording 
+                        ? `RECORDING TIME: ${formatTime(recordingDuration)}` 
+                        : 'Record interviews, transcripts, or notes instantly'
+                      }
+                    </p>
+                  </div>
+
+                  {/* ACTIVE HIGH-CONTRAST DYNAMIC WAVEFORM CANVAS */}
+                  <div className={`relative w-full h-24 rounded-xl overflow-hidden border transition-all duration-300 ${
+                    isRecording 
+                      ? 'border-indigo-500/80 bg-zinc-950 shadow-md shadow-indigo-500/5' 
+                      : 'border-zinc-200 dark:border-zinc-800 bg-zinc-100/30 dark:bg-zinc-900/40'
+                  }`}>
+                    <canvas 
+                      ref={canvasRef} 
+                      width={480} 
+                      height={96}
+                      className="w-full h-full block"
+                    />
+                    {!isRecording && (
+                      <div className="absolute inset-0 flex flex-col items-center justify-center bg-zinc-900/5 dark:bg-zinc-900/10 pointer-events-none">
+                        <span className="text-[10px] font-mono tracking-widest font-semibold text-zinc-400 dark:text-zinc-500 flex items-center gap-1.5 uppercase">
+                          <Mic className="h-3.5 w-3.5 animate-bounce" /> Waveform generator standby
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-3 w-full">
+                    {!isRecording ? (
+                      <button
+                        type="button"
+                        onClick={startRecording}
+                        className="flex-1 flex items-center justify-center gap-2 rounded-xl py-2.5 px-4 font-medium text-xs transition duration-150 bg-red-650 hover:bg-red-700 text-white shadow-sm active:scale-[0.98]"
+                      >
+                        <Mic className="h-4 w-4 fill-white/10" />
+                        <span>Start Voice Session</span>
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={stopRecording}
+                        className="flex-1 flex items-center justify-center gap-2 rounded-xl py-2.5 px-4 font-semibold text-xs transition duration-155 bg-zinc-950 border border-zinc-800 hover:bg-zinc-900 text-zinc-200 hover:text-white shadow-sm active:scale-[0.98]"
+                      >
+                        <span className="w-2.5 h-2.5 bg-red-500 rounded-sm animate-ping" />
+                        <span>Stop & Save Track</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )
             ) : (
               // LOADED AUDIO FILE UI
               <div className="border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/20 rounded-xl p-4 space-y-4">
@@ -360,7 +635,7 @@ export default function AIAudioTranscriber() {
                     <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100 truncate mt-0.5">
                       {audioFile.name}
                     </p>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                    <p className="text-xs text-zinc-505 dark:text-zinc-405 mt-0.5">
                       {(audioFile.size / (1024 * 1024)).toFixed(2)} MB • {audioFile.type}
                     </p>
                   </div>
