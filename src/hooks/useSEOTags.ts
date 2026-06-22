@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { ActiveTab } from '../types';
+import { Article } from '../data/articles';
 
 interface SEOHeaderContent {
   title: string;
@@ -1005,13 +1006,78 @@ const SEO_METADATA: Record<string, SEOHeaderContent> = {
   }
 };
 
-export default function useSEOTags(activeTab: ActiveTab) {
+/**
+ * Dynamically generates and injects a canonical link tag into the document head.
+ * Ensures search engines identify the single authoritative source of content and
+ * prevents duplicate content penalties.
+ * @param url The absolute canonical URL string.
+ */
+export function injectCanonicalLink(url: string) {
+  if (typeof window === 'undefined') return;
+  let link: HTMLLinkElement | null = document.querySelector('link[rel="canonical"]');
+  if (!link) {
+    link = document.createElement('link');
+    link.setAttribute('rel', 'canonical');
+    document.head.appendChild(link);
+  }
+  link.setAttribute('href', url);
+}
+
+export default function useSEOTags(activeTab: ActiveTab, readingArticle?: Article | null) {
   useEffect(() => {
     const meta = SEO_METADATA[activeTab as string];
     if (!meta) return;
 
+    let title = meta.title;
+    let description = meta.description;
+    let keywords = meta.keywords;
+    let ogTitle = meta.ogTitle;
+    let ogDescription = meta.ogDescription;
+    let schemaMarkup = meta.schema;
+
+    // Custom overrides if reading a specific deep article in Guides tab
+    if (activeTab === 'guides' && readingArticle) {
+      title = `${readingArticle.title} | Technical SEO Guides`;
+      description = `${readingArticle.summary || (readingArticle.content && readingArticle.content[0]) || ''} Learn deep workspace insights and dynamic file conversions on Apex Processing Labs.`.substring(0, 160);
+      
+      // Generate some custom article keywords
+      const categoryKws = readingArticle.category 
+        ? `${readingArticle.category.toLowerCase()}, index optimization, crawler guidelines` 
+        : 'seo guides, deep-tech research';
+      keywords = `${readingArticle.id.replace(/-/g, ' ')}, ${categoryKws}, ${meta.keywords}`;
+      
+      ogTitle = title;
+      ogDescription = description;
+
+      // Custom schema for Scholarly/TechArticle
+      schemaMarkup = {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": readingArticle.title,
+        "description": readingArticle.summary,
+        "category": readingArticle.category,
+        "inLanguage": "en-US",
+        "author": {
+          "@type": "Organization",
+          "name": "Apex Processing Labs"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "Apex Processing Labs",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://apexutility.live/assets/logo.png"
+          }
+        },
+        "mainEntityOfPage": {
+          "@type": "WebPage",
+          "@id": `https://apexutility.live/guides?id=${encodeURIComponent(readingArticle.id)}`
+        }
+      };
+    }
+
     // 1. Title Update
-    document.title = meta.title;
+    document.title = title;
 
     const setMetaTag = (attributeName: string, attributeValue: string, content: string) => {
       let element = document.querySelector(`meta[${attributeName}="${attributeValue}"]`);
@@ -1024,19 +1090,19 @@ export default function useSEOTags(activeTab: ActiveTab) {
     };
 
     // 2. Head Meta Descriptions and Keywords
-    setMetaTag('name', 'description', meta.description);
-    setMetaTag('name', 'keywords', meta.keywords);
+    setMetaTag('name', 'description', description);
+    setMetaTag('name', 'keywords', keywords);
 
     // 3. OpenGraph Schema Tags
-    setMetaTag('property', 'og:title', meta.ogTitle);
-    setMetaTag('property', 'og:description', meta.ogDescription);
-    setMetaTag('property', 'og:type', 'website');
+    setMetaTag('property', 'og:title', ogTitle);
+    setMetaTag('property', 'og:description', ogDescription);
+    setMetaTag('property', 'og:type', activeTab === 'guides' && readingArticle ? 'article' : 'website');
     setMetaTag('property', 'og:site_name', 'Apex Processing Labs');
 
     // 4. Twitter Card Parameters
     setMetaTag('name', 'twitter:card', 'summary_large_image');
-    setMetaTag('name', 'twitter:title', meta.ogTitle);
-    setMetaTag('name', 'twitter:description', meta.ogDescription);
+    setMetaTag('name', 'twitter:title', ogTitle);
+    setMetaTag('name', 'twitter:description', ogDescription);
 
     // 5. Dynamic JSON-LD structured schema script block tracking
     const existingScript = document.getElementById('apex-jsonld-schema');
@@ -1047,11 +1113,21 @@ export default function useSEOTags(activeTab: ActiveTab) {
     const script = document.createElement('script');
     script.id = 'apex-jsonld-schema';
     script.type = 'application/ld+json';
-    script.innerHTML = JSON.stringify(meta.schema, null, 2);
+    script.innerHTML = JSON.stringify(schemaMarkup, null, 2);
     document.head.appendChild(script);
 
+    // 6. Dynamic Canonical Link Tag Injection
+    let canonicalUrl = 'https://apexutility.live';
+    if (activeTab === 'guides' && readingArticle) {
+      // Standardize to use the Google Search Console / sitemap.xml format
+      canonicalUrl = `https://apexutility.live/guides?id=${encodeURIComponent(readingArticle.id)}`;
+    } else if (activeTab && activeTab !== 'dashboard') {
+      canonicalUrl = `https://apexutility.live/${activeTab}`;
+    }
+    injectCanonicalLink(canonicalUrl);
+
     return () => {
-      // Dynamic cleanup if required or let succeeding navigation override naturally
+      // Clean up or let next render transition override
     };
-  }, [activeTab]);
+  }, [activeTab, readingArticle]);
 }

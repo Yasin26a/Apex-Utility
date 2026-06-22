@@ -724,6 +724,44 @@ Tone Guidelines:
     }
   });
 
+  // Submit sitemap directly to Google Search Console (Ping Submission API)
+  app.get('/api/ping-google-sitemap', async (req, res) => {
+    try {
+      const host = req.headers.host || 'apexutility.live';
+      const protocol = req.headers['x-forwarded-proto'] || 'https';
+      
+      // Support custom domain if requested parameter exists
+      const queryBaseUrl = req.query.baseUrl as string;
+      const sitemapUrl = queryBaseUrl 
+        ? `${queryBaseUrl.replace(/\/$/, '')}/sitemap.xml`
+        : `${protocol}://${host}/sitemap.xml`;
+        
+      const targetUrl = `https://www.google.com/ping?sitemap=${encodeURIComponent(sitemapUrl)}`;
+      
+      console.log(`[Sitemap Ping] Submitting sitemap to Google: ${targetUrl}`);
+      
+      // Perform backend fetch to Google ping endpoint
+      const response = await fetch(targetUrl);
+      const isOk = response.ok;
+      
+      res.json({
+        success: isOk,
+        sitemapUrl,
+        pingUrl: targetUrl,
+        status: response.status,
+        message: isOk 
+          ? `Successfully submitted sitemap to Google Search Console!`
+          : `Failed to submit. Google responded with status ${response.status}.`
+      });
+    } catch (err: any) {
+      console.error('[Sitemap Ping] Error pinging Google Search Console:', err);
+      res.status(500).json({
+        success: false,
+        message: err.message || 'Error occurred while contacting Google submission servers.'
+      });
+    }
+  });
+
   // Serve a dynamically generated, search-crawler compliant sitemap.xml
   app.get('/sitemap.xml', (req, res) => {
     const host = req.headers.host || 'apexutility.live';

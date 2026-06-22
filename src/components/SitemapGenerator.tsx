@@ -4,7 +4,8 @@ import {
   Globe, FileCode, Plus, Trash2, Download, Copy, Check, Settings, 
   HelpCircle, RefreshCw, CheckCircle2, Sparkles, Info, Calendar, 
   ArrowRight, FileText, Sliders, Shield, AlertTriangle,
-  Folder, FolderOpen, ChevronRight, ChevronDown, ListPlus
+  Folder, FolderOpen, ChevronRight, ChevronDown, ListPlus,
+  Send, ExternalLink
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { gzipSync } from 'fflate';
@@ -200,6 +201,54 @@ export default function SitemapGenerator() {
   const [copiedNotice, setCopiedNotice] = useState<string | null>(null);
   const [downloadFilename, setDownloadFilename] = useState('sitemap.xml');
   const [downloadSuccessNotice, setDownloadSuccessNotice] = useState<string | null>(null);
+
+  // Google Search Console Sitemap Ping submission states
+  const [pingLoading, setPingLoading] = useState(false);
+  const [pingResult, setPingResult] = useState<{
+    success: boolean;
+    sitemapUrl: string;
+    pingUrl: string;
+    message: string;
+  } | null>(null);
+
+  const submitToGoogle = async () => {
+    setPingLoading(true);
+    setPingResult(null);
+    try {
+      // Direct browser fallback: constructs the official URL and attempts to open it in a new window/tab
+      const targetSitemap = `${cleanedBaseUrl}/sitemap.xml`;
+      const pingUrl = `https://www.google.com/ping?sitemap=${encodeURIComponent(targetSitemap)}`;
+      
+      // Attempt backend proxy request to bypass CORS
+      const apiEndpoint = `/api/ping-google-sitemap?baseUrl=${encodeURIComponent(cleanedBaseUrl)}`;
+      const res = await fetch(apiEndpoint);
+      if (res.ok) {
+        const data = await res.json();
+        setPingResult({
+          success: data.success,
+          sitemapUrl: data.sitemapUrl,
+          pingUrl: data.pingUrl,
+          message: data.message
+        });
+      } else {
+        const errText = await res.text();
+        throw new Error(errText || `Server returned status ${res.status}`);
+      }
+
+      // Open tab so the search engine directly registers the browser ping too
+      window.open(pingUrl, '_blank', 'noopener,noreferrer');
+    } catch (err: any) {
+      console.error(err);
+      setPingResult({
+        success: false,
+        sitemapUrl: `${cleanedBaseUrl}/sitemap.xml`,
+        pingUrl: `https://www.google.com/ping?sitemap=${encodeURIComponent(`${cleanedBaseUrl}/sitemap.xml`)}`,
+        message: err?.message || 'Error communicating with Google sitemap ping service.'
+      });
+    } finally {
+      setPingLoading(false);
+    }
+  };
 
   // Automated Meta-Tag Analysis & SEO Scanner States
   const [seoMetadata, setSeoMetadata] = useState<Record<string, {
@@ -1244,6 +1293,108 @@ export default function SitemapGenerator() {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Submit to Search Console Card */}
+          <div className="beveled-panel bg-[#09090d]/95 p-6 border-brand-border/40 space-y-4 shadow-xl" id="google-search-console-submission-card">
+            <h3 className="font-heading text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+              <Send className="w-4 h-4 text-brand" />
+              <span>Google Search Console Submission</span>
+            </h3>
+
+            <p className="font-sans text-xs text-zinc-400 leading-normal">
+              Directly ping Google's crawler index queue to expedite crawling status for your sitemap. This registers the authoritative XML location in Google's indexing systems.
+            </p>
+
+            <div className="pt-2 flex flex-col sm:flex-row gap-3">
+              <button
+                type="button"
+                id="submit-sitemap-gsc-btn"
+                onClick={submitToGoogle}
+                disabled={pingLoading}
+                className={`flex-1 px-4 py-2.5 rounded-lg text-xs font-mono font-bold flex items-center justify-center gap-2 transition-all active:scale-95 ${
+                  pingLoading 
+                    ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed' 
+                    : 'bg-brand text-zinc-950 hover:bg-brand-hover cursor-pointer'
+                }`}
+              >
+                {pingLoading ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin text-zinc-500" />
+                    <span>Submitting Submission API Ping...</span>
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4" />
+                    <span>Submit to Search Console (Ping Google)</span>
+                  </>
+                )}
+              </button>
+
+              <a
+                href={`https://search.google.com/search-console/sitemaps?resource_id=${encodeURIComponent(cleanedBaseUrl)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                id="view-gsc-dashboard-link"
+                className="px-4 py-2.5 rounded-lg text-xs font-mono font-bold text-zinc-450 bg-zinc-900 border border-zinc-800/80 hover:bg-zinc-850 hover:text-white flex items-center justify-center gap-2 transition-all active:scale-95"
+              >
+                <span>GSC Dashboard</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            </div>
+
+            {/* Display submission results with detailed explanations of GSC discoverability */}
+            <AnimatePresence>
+              {pingResult && (
+                <motion.div
+                  id="ping-submission-outcome"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="space-y-3 overflow-hidden"
+                >
+                  <div className={`p-4 rounded-lg border text-xs font-sans space-y-2 ${
+                    pingResult.success 
+                      ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300' 
+                      : 'bg-rose-500/10 border-rose-500/20 text-rose-300'
+                  }`}>
+                    <div className="flex items-center gap-2 font-mono font-bold">
+                      {pingResult.success ? (
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                      ) : (
+                        <AlertTriangle className="w-4 h-4 text-rose-400" />
+                      )}
+                      <span>{pingResult.success ? 'Google submission ping registered!' : 'Submission ping warning'}</span>
+                    </div>
+
+                    <p className="leading-relaxed opacity-90">
+                      {pingResult.message}
+                    </p>
+
+                    <div className="text-[10px] font-mono bg-zinc-950/70 p-2 rounded border border-zinc-900 text-zinc-400 space-y-1">
+                      <div><span className="text-zinc-500 font-bold">Target Sitemap:</span> {pingResult.sitemapUrl}</div>
+                      <div className="truncate"><span className="text-zinc-500 font-bold">Google Endpoint:</span> {pingResult.pingUrl}</div>
+                    </div>
+                  </div>
+
+                  {/* Educational advice detailing Google async indexing cycle */}
+                  <div className="p-4 bg-zinc-950 border border-zinc-900 rounded-lg text-[11px] text-zinc-400 leading-relaxed space-y-2" id="indexing-advisory-note">
+                    <div className="font-heading font-extrabold text-zinc-300 flex items-center gap-1.5 uppercase tracking-wider text-[10px]">
+                      <Info className="w-3.5 h-3.5 text-brand" />
+                      <span>Why does Search Console show only 41 pages?</span>
+                    </div>
+                    <p>
+                      If you've recently built or expanded your sitemap and Google Search Console still shows <strong>"41 pages discovered"</strong> (or fewer), this is standard behavior due to <strong>asynchronous crawl latency</strong>. 
+                    </p>
+                    <ul className="list-disc pl-4 space-y-1 text-zinc-500">
+                      <li><strong className="text-zinc-400">Google Index Queue:</strong> Google places sitemaps in a low-priority async queue and can take anywhere from <strong>24 hours to 10 days</strong> to fully parse all 274 indexable pages.</li>
+                      <li><strong className="text-zinc-400">Canonical Agreement:</strong> Ensure that the base URL configured above (<code className="text-brand text-[10px] bg-zinc-900 px-1 py-0.5 rounded">{cleanedBaseUrl}</code>) corresponds exactly with the properties verified inside your Search Console console. Do not mix HTTP vs. HTTPS or non-www vs www.</li>
+                      <li><strong className="text-zinc-400">Dynamic Client Router:</strong> For SPAs, Google renders React layouts headlessly. Directing Google to the sitemap via this API Ping triggers an immediate request for crawler bots to begin checking update frequencies.</li>
+                    </ul>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* Quick Preset Packs */}

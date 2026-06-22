@@ -45,6 +45,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { ActiveTab } from './types';
 import { useReadingScrollTracker } from './hooks/useReadingScrollTracker';
 import { useVoicePreference } from './hooks/useVoicePreference';
+import useSEOTags from './hooks/useSEOTags';
 import { AT_LEAST_20_ARTICLES, Article } from './data/articles';
 import { jsPDF } from 'jspdf';
 import WebPConverter from './components/WebPConverter';
@@ -325,6 +326,9 @@ export default function App() {
 
   // Track and persist modal reading scroll position
   useReadingScrollTracker(readerScrollRef, readingArticle?.id);
+
+  // Dynamic SEO meta attributes and canonical link tag injection
+  useSEOTags(activeTab, readingArticle);
 
   // Highlights stored by article ID as an array of highlighted paragraph indices
   const [highlights, setHighlights] = useState<Record<string, number[]>>(() => {
