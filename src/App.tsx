@@ -36,10 +36,14 @@ import {
   Square,
   Pause,
   Wifi,
-  WifiOff
+  WifiOff,
+  Tag,
+  Highlighter,
+  Share2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ActiveTab } from './types';
+import { useReadingScrollTracker } from './hooks/useReadingScrollTracker';
 import { AT_LEAST_20_ARTICLES, Article } from './data/articles';
 import { jsPDF } from 'jspdf';
 import WebPConverter from './components/WebPConverter';
@@ -93,6 +97,99 @@ import DNSLookup from './components/DNSLookup';
 import UserAgentAnalyzer from './components/UserAgentAnalyzer';
 import HTMLMarkdownConverter from './components/HTMLMarkdownConverter';
 import MetaTagsOptimizer from './components/MetaTagsOptimizer';
+
+const getArticleKeywords = (article: Article): string[] => {
+  const text = [
+    article.title,
+    article.summary,
+    ...article.content
+  ].join(" ").toLowerCase();
+
+  const predefined = [
+    "seo", "adsense", "indexing", "privacy", "security", "webgpu", "react", "next.js", "typescript", 
+    "wasm", "google", "apple", "chrome", "safari", "meta", "gemma", "ai", "cloudflare", "sqlite", 
+    "postgres", "sql", "database", "cache", "rendering", "brotli", "docker", "kubernetes", "compression", 
+    "pdf", "consent", "sitemap", "metadata", "inp", "quic", "optimization", "analytics", "encryption", 
+    "passkeys", "api", "serverless", "federation", "threads"
+  ];
+
+  const matched = predefined.filter(kw => {
+    const regex = new RegExp(`\\b${kw}\\b`, 'i');
+    return regex.test(text);
+  });
+
+  const casingMap: Record<string, string> = {
+    "seo": "SEO",
+    "adsense": "AdSense",
+    "indexing": "Indexing",
+    "privacy": "Privacy",
+    "security": "Security",
+    "webgpu": "WebGPU",
+    "react": "React",
+    "next.js": "Next.js",
+    "typescript": "TypeScript",
+    "wasm": "Wasm",
+    "google": "Google",
+    "apple": "Apple",
+    "chrome": "Chrome",
+    "safari": "Safari",
+    "meta": "Meta",
+    "gemma": "Gemma",
+    "ai": "AI",
+    "cloudflare": "Cloudflare",
+    "sqlite": "SQLite",
+    "postgres": "Postgres",
+    "sql": "SQL",
+    "database": "Database",
+    "cache": "Cache",
+    "rendering": "Rendering",
+    "brotli": "Brotli",
+    "docker": "Docker",
+    "kubernetes": "Kubernetes",
+    "compression": "Compression",
+    "pdf": "PDF",
+    "consent": "Consent",
+    "sitemap": "Sitemap",
+    "metadata": "Metadata",
+    "inp": "INP",
+    "quic": "QUIC",
+    "optimization": "Optimization",
+    "analytics": "Analytics",
+    "encryption": "Encryption",
+    "passkeys": "Passkeys",
+    "api": "API",
+    "serverless": "Serverless",
+    "federation": "Federation",
+    "threads": "Threads"
+  };
+
+  const results = matched.map(kw => casingMap[kw] || kw);
+  
+  if (results.length < 4) {
+    const words = text
+      .replace(/[^\w\s]/g, '')
+      .split(/\s+/)
+      .filter(w => w.length > 5);
+      
+    const stopWords = new Set(["about", "before", "through", "between", "under", "system", "developers", "applications", "features", "devices", "standard", "running", "allows", "across", "highly", "without"]);
+    
+    const wordCounts: Record<string, number> = {};
+    words.forEach(w => {
+      if (!stopWords.has(w)) {
+        wordCounts[w] = (wordCounts[w] || 0) + 1;
+      }
+    });
+    
+    const sortedWords = Object.keys(wordCounts)
+      .sort((a, b) => wordCounts[b] - wordCounts[a])
+      .slice(0, 5 - results.length)
+      .map(w => w.charAt(0).toUpperCase() + w.slice(1));
+      
+    return Array.from(new Set([...results, ...sortedWords])).slice(0, 6);
+  }
+
+  return results.slice(0, 6);
+};
 
 const getArticleCover = (category: string, id: string): string => {
   const cat = category?.toLowerCase() || '';
@@ -220,6 +317,141 @@ export default function App() {
   const [readTheme, setReadTheme] = useState<'slate' | 'sepia' | 'parchment'>('slate');
   const [readFontFamily, setReadFontFamily] = useState<'sans' | 'serif' | 'mono'>('sans');
   const [readFontSize, setReadFontSize] = useState<'sm' | 'base' | 'lg' | 'xl'>('base');
+
+  // Track and persist modal reading scroll position
+  useReadingScrollTracker(readerScrollRef, readingArticle?.id);
+
+  // Highlights stored by article ID as an array of highlighted paragraph indices
+  const [highlights, setHighlights] = useState<Record<string, number[]>>(() => {
+    try {
+      const saved = localStorage.getItem('apex_article_highlights');
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  // Save highlights to localStorage when changed
+  useEffect(() => {
+    try {
+      localStorage.setItem('apex_article_highlights', JSON.stringify(highlights));
+    } catch (e) {
+      console.error(e);
+    }
+  }, [highlights]);
+
+  // Share highlight feedback toast
+  const [shareToast, setShareToast] = useState<string | null>(null);
+
+  const toggleHighlight = (index: number) => {
+    if (!readingArticle) return;
+    setHighlights(prev => {
+      const artId = readingArticle.id;
+      const currentList = prev[artId] || [];
+      const newList = currentList.includes(index)
+        ? currentList.filter(idx => idx !== index)
+        : [...currentList, index];
+      return {
+        ...prev,
+        [artId]: newList
+      };
+    });
+  };
+
+  const handleCopyHighlightLink = (index: number) => {
+    if (!readingArticle) return;
+    const url = new URL(window.location.href);
+    url.searchParams.set('art', readingArticle.id);
+    url.searchParams.set('p', index.toString());
+    
+    navigator.clipboard.writeText(url.toString()).then(() => {
+      setShareToast(`Copied deep link to highlight block #${index + 1}!`);
+      // Auto highlight the paragraph to make sure it visualizes
+      setHighlights(prev => {
+        const artId = readingArticle.id;
+        const currentList = prev[artId] || [];
+        if (!currentList.includes(index)) {
+          return {
+            ...prev,
+            [artId]: [...currentList, index]
+          };
+        }
+        return prev;
+      });
+      setTimeout(() => {
+        setShareToast(null);
+      }, 3000);
+    }).catch(err => {
+      console.error("Failed to copy link:", err);
+    });
+  };
+
+  const handleCopyHighlightsCollection = () => {
+    if (!readingArticle) return;
+    const currentList = highlights[readingArticle.id] || [];
+    if (currentList.length === 0) return;
+    
+    // Sort indices ascending to keep it neat
+    const sortedIndices = [...currentList].sort((a, b) => a - b);
+    
+    const url = new URL(window.location.href);
+    url.searchParams.set('art', readingArticle.id);
+    url.searchParams.set('p', sortedIndices.join(','));
+    
+    navigator.clipboard.writeText(url.toString()).then(() => {
+      setShareToast(`Copied deep link to highlight bundle (${sortedIndices.length} items)!`);
+      setTimeout(() => {
+        setShareToast(null);
+      }, 3000);
+    }).catch(err => {
+      console.error("Failed to copy collection link:", err);
+    });
+  };
+
+  // Auto-scroll inside reader modal when deep linked
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const artId = searchParams.get('art') || searchParams.get('article');
+    const pIndexStr = searchParams.get('p') || searchParams.get('paragraph');
+
+    if (artId) {
+      const matchedArt = AT_LEAST_20_ARTICLES.find(
+        (art) => art.id.toLowerCase() === artId.toLowerCase()
+      );
+      if (matchedArt) {
+        setActiveTab('guides');
+        setReadingArticle(matchedArt);
+
+        if (pIndexStr) {
+          const pIndices = pIndexStr.split(',').map(s => parseInt(s.trim(), 10)).filter(num => !isNaN(num));
+          if (pIndices.length > 0) {
+            // Automatically ensure highlights are loaded
+            setHighlights(prev => {
+              const currentList = prev[matchedArt.id] || [];
+              const combinedList = Array.from(new Set([...currentList, ...pIndices]));
+              return {
+                ...prev,
+                [matchedArt.id]: combinedList
+              };
+            });
+
+            // Delayed smooth scrolling into view of the first element once the modal loads
+            setTimeout(() => {
+              const firstIndex = pIndices[0];
+              const targetEl = document.getElementById(`para-${firstIndex}`);
+              if (targetEl) {
+                targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                targetEl.classList.add('ring-2', 'ring-rose-500/50', 'scale-[1.01]');
+                setTimeout(() => {
+                  targetEl.classList.remove('ring-2', 'ring-rose-500/50', 'scale-[1.01]');
+                }, 4000);
+              }
+            }, 800);
+          }
+        }
+      }
+    }
+  }, [location.search]);
 
   // Read Later State utilizing localStorage
   const [bookmarkedIds, setBookmarkedIds] = useState<string[]>(() => {
@@ -575,6 +807,94 @@ export default function App() {
       setIsPaused(false);
     }
   };
+
+  // Keyboard shortcuts listener for the active reading modal
+  useEffect(() => {
+    if (!readingArticle) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Avoid firing shortcuts when user is actively filling form fields or inputs
+      const activeEl = document.activeElement;
+      if (
+        activeEl &&
+        (activeEl.tagName === 'INPUT' ||
+          activeEl.tagName === 'TEXTAREA' ||
+          activeEl.getAttribute('contenteditable') === 'true')
+      ) {
+        return;
+      }
+
+      switch (event.key) {
+        case 'Escape': {
+          event.preventDefault();
+          setReadingArticle(null);
+          break;
+        }
+        case ' ': { // Space key
+          event.preventDefault();
+          handleToggleSpeak();
+          break;
+        }
+        case 'ArrowLeft': { // Left arrow (Previous Page)
+          event.preventDefault();
+          const activeList = AT_LEAST_20_ARTICLES.filter((art) => {
+            const matchesCategory = selectedArticleCategory === 'All' || art.category === selectedArticleCategory;
+            const matchesSearch = 
+              art.title.toLowerCase().includes(articleSearch.toLowerCase()) ||
+              art.summary.toLowerCase().includes(articleSearch.toLowerCase()) ||
+              art.content.some((p) => p.toLowerCase().includes(articleSearch.toLowerCase()));
+            return matchesCategory && matchesSearch;
+          });
+          let currentIndex = activeList.findIndex(art => art.id === readingArticle.id);
+          let targetList = activeList;
+          if (currentIndex === -1) {
+            currentIndex = AT_LEAST_20_ARTICLES.findIndex(art => art.id === readingArticle.id);
+            targetList = AT_LEAST_20_ARTICLES;
+          }
+          if (currentIndex > 0) {
+            const prevArt = targetList[currentIndex - 1];
+            setReadingArticle(prevArt);
+            setTimeout(() => {
+              readerScrollRef.current?.scrollTo({ top: 0, behavior: 'instant' });
+            }, 50);
+          }
+          break;
+        }
+        case 'ArrowRight': { // Right arrow (Next Page)
+          event.preventDefault();
+          const activeList = AT_LEAST_20_ARTICLES.filter((art) => {
+            const matchesCategory = selectedArticleCategory === 'All' || art.category === selectedArticleCategory;
+            const matchesSearch = 
+              art.title.toLowerCase().includes(articleSearch.toLowerCase()) ||
+              art.summary.toLowerCase().includes(articleSearch.toLowerCase()) ||
+              art.content.some((p) => p.toLowerCase().includes(articleSearch.toLowerCase()));
+            return matchesCategory && matchesSearch;
+          });
+          let currentIndex = activeList.findIndex(art => art.id === readingArticle.id);
+          let targetList = activeList;
+          if (currentIndex === -1) {
+            currentIndex = AT_LEAST_20_ARTICLES.findIndex(art => art.id === readingArticle.id);
+            targetList = AT_LEAST_20_ARTICLES;
+          }
+          if (currentIndex < targetList.length - 1) {
+            const nextArt = targetList[currentIndex + 1];
+            setReadingArticle(nextArt);
+            setTimeout(() => {
+              readerScrollRef.current?.scrollTo({ top: 0, behavior: 'instant' });
+            }, 50);
+          }
+          break;
+        }
+        default:
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [readingArticle, selectedArticleCategory, articleSearch, handleToggleSpeak]);
 
   // Download Article directly as structured document PDF offline using jsPDF (no browser print needed!)
   const handleDownloadPDF = (art: Article) => {
@@ -3341,7 +3661,7 @@ Disallow:
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div className="space-y-1">
                     <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf1544] uppercase">Compliance Master Library</span>
-                    <h2 className="text-2xl font-extrabold text-white tracking-tight">APEX Global News &amp; Tool Academy</h2>
+                    <h2 id="compliance-directory-header" className="text-2xl font-extrabold text-white tracking-tight">APEX Global News &amp; Tool Academy</h2>
                     <p className="text-slate-400 text-xs sm:text-sm">
                       Discover {AT_LEAST_20_ARTICLES.length} authoritative, high-quality, fully detailed guides on SEO indexing, browser privacy buffers, media compression, and global compliance.
                     </p>
@@ -3743,6 +4063,21 @@ Disallow:
                       animate={{ opacity: 1, scale: 1, y: 0 }}
                       className="bg-slate-950 max-w-4xl w-full h-full md:h-auto md:max-h-[92vh] rounded-none md:rounded-2xl border-0 md:border border-slate-800 overflow-hidden shadow-2xl flex flex-col my-0 md:my-4 transition-all relative"
                     >
+                      {/* Highlight deep link share toast */}
+                      <AnimatePresence>
+                        {shareToast && (
+                          <motion.div
+                            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+                            className="absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-emerald-600 text-white text-xs sm:text-sm font-sans font-semibold px-4 py-2.5 rounded-full shadow-2xl flex items-center gap-2 border border-emerald-500/30"
+                          >
+                            <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
+                            <span>{shareToast}</span>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+
                       {/* Quiet Floating Close Button (X) */}
                       <button
                         onClick={() => setReadingArticle(null)}
@@ -3793,6 +4128,92 @@ Disallow:
                             {readingArticle.title}
                           </h3>
                         </div>
+
+                        {/* Keyboard Shortcut Hints Info Bar */}
+                        <div className={`p-2 rounded-xl border flex flex-wrap gap-x-4 gap-y-1.5 items-center justify-center text-[11px] font-mono transition-colors duration-200 ${
+                          readTheme === 'sepia'
+                            ? 'bg-[#1a1412] border-[#ece4db]/10 text-[#ece4db]/70 shadow-inner'
+                            : readTheme === 'parchment'
+                            ? 'bg-stone-100 border-stone-250 text-stone-655 shadow-inner'
+                            : 'bg-slate-900/40 border-slate-850/70 text-slate-400 shadow-inner'
+                        }`}>
+                          <span className="font-sans font-bold uppercase tracking-wider text-[10px] text-rose-500 flex items-center gap-1 shrink-0">
+                            <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+                            Keyboard Support:
+                          </span>
+                          <div className="flex items-center gap-1 shrink-0">
+                            <kbd className="px-1.5 py-0.5 bg-black/30 dark:bg-black/60 rounded border border-slate-700/30 text-[9px] font-bold">Space</kbd>
+                            <span>Play/Pause Narration</span>
+                          </div>
+                          <div className="flex items-center gap-1 shrink-0">
+                            <kbd className="px-1.5 py-0.5 bg-black/30 dark:bg-black/60 rounded border border-slate-700/30 text-[9px] font-bold">←</kbd>
+                            <span>Prev Page</span>
+                          </div>
+                          <div className="flex items-center gap-1 shrink-0">
+                            <kbd className="px-1.5 py-0.5 bg-black/30 dark:bg-black/60 rounded border border-slate-700/30 text-[9px] font-bold">→</kbd>
+                            <span>Next Page</span>
+                          </div>
+                          <div className="flex items-center gap-1 shrink-0">
+                            <kbd className="px-1.5 py-0.5 bg-black/30 dark:bg-black/60 rounded border border-slate-700/30 text-[9px] font-bold">Esc</kbd>
+                            <span>Close Reader</span>
+                          </div>
+                        </div>
+
+                        {/* 1.5. Highlight Collection Share Banner Panel */}
+                        {readingArticle && (highlights[readingArticle.id] || []).length > 0 && (
+                          <div className={`p-3.5 rounded-xl border flex flex-col sm:flex-row gap-3 items-center justify-between transition-all duration-200 shadow-md ${
+                            readTheme === 'sepia'
+                              ? 'bg-[#1e1512] border-amber-500/25 text-[#ece4db]/90'
+                              : readTheme === 'parchment'
+                              ? 'bg-amber-50/70 border-amber-200 text-stone-800'
+                              : 'bg-emerald-950/20 border-emerald-800/40 text-emerald-300'
+                          }`}>
+                            <div className="flex items-center gap-2 w-full sm:w-auto">
+                              <span className="flex h-2.5 w-2.5 relative shrink-0">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500"></span>
+                              </span>
+                              <p className="text-xs font-sans font-medium line-clamp-1">
+                                Saved Highlights: <strong className="font-bold underline text-rose-500">{(highlights[readingArticle.id] || []).length}</strong> block{(highlights[readingArticle.id] || []).length > 1 ? 's' : ''} in this article.
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                              <button
+                                onClick={handleCopyHighlightsCollection}
+                                className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-sm cursor-pointer whitespace-nowrap shrink-0 ${
+                                  readTheme === 'sepia'
+                                    ? 'bg-amber-900/40 hover:bg-amber-900 border border-amber-600 text-[#ece4db]'
+                                    : readTheme === 'parchment'
+                                    ? 'bg-[#e2d8c9] hover:bg-[#d6cbba] border border-stone-300 text-stone-900'
+                                    : 'bg-emerald-600 hover:bg-emerald-500 text-white hover:shadow-md'
+                                }`}
+                              >
+                                <Share2 className="w-3.5 h-3.5" />
+                                Share Bundle Link
+                              </button>
+                              <button
+                                onClick={() => {
+                                  if (confirm("Are you sure you want to clear your highlights for this article?")) {
+                                    setHighlights(prev => {
+                                      const { [readingArticle.id]: _, ...rest } = prev;
+                                      return rest;
+                                    });
+                                  }
+                                }}
+                                className={`px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center justify-center transition-colors cursor-pointer shrink-0 ${
+                                  readTheme === 'sepia'
+                                    ? 'hover:bg-red-950/40 text-amber-500/70 hover:text-red-400'
+                                    : readTheme === 'parchment'
+                                    ? 'hover:bg-red-50 text-stone-500 hover:text-red-650'
+                                    : 'hover:bg-red-950/30 text-rose-500 hover:text-red-400'
+                                }`}
+                                title="Clear highlights inside this article"
+                              >
+                                Clear All
+                              </button>
+                            </div>
+                          </div>
+                        )}
 
                         {/* 2. Interactive Reader Option Dashboard */}
                         <div className={`p-4 rounded-xl flex flex-col md:flex-row gap-4 items-start md:items-center justify-between text-xs transition-colors ${
@@ -4051,47 +4472,126 @@ Disallow:
                             : 'text-sm sm:text-base'
                         } leading-relaxed`}>
                           {readingArticle.content.map((paragraph, i) => {
-                            if (paragraph.startsWith('###')) {
+                            const isHighlighted = highlights[readingArticle.id]?.includes(i);
+                            
+                            // Custom highlighting style based on reader theme
+                            const highlightClass = isHighlighted
+                              ? readTheme === 'sepia'
+                                ? 'bg-amber-950/40 border-amber-500/40 text-amber-100 ring-1 ring-amber-500/10 px-3 py-1.5 rounded-lg border-l-4 transition-all duration-300'
+                                : readTheme === 'parchment'
+                                ? 'bg-amber-100/70 border-amber-500 text-stone-900 ring-1 ring-amber-400/20 px-3 py-1.5 rounded-lg border-l-4 transition-all duration-300 shadow-sm'
+                                : 'bg-rose-500/10 border-rose-500 text-white ring-1 ring-rose-500/20 px-3 py-1.5 rounded-lg border-l-4 transition-all duration-300 shadow-sm'
+                              : 'border-l-4 border-transparent pl-3';
+
+                            const renderContent = () => {
+                              if (paragraph.startsWith('###')) {
+                                return (
+                                  <h4 
+                                    className={`font-semibold mt-8 pt-4 border-b pb-1.5 flex items-center gap-2 ${
+                                      readTheme === 'parchment' 
+                                        ? 'text-stone-900 border-stone-200' 
+                                        : 'text-white border-slate-900'
+                                    }`}
+                                  >
+                                    <span className="w-2 h-2 rounded-full bg-rose-500 shrink-0" />
+                                    <span className={`${readFontSize === 'sm' ? 'text-sm sm:text-base' : readFontSize === 'lg' ? 'text-lg sm:text-xl' : readFontSize === 'xl' ? 'text-xl sm:text-2xl' : 'text-base sm:text-lg'}`}>
+                                      {paragraph.replace('###', '').trim()}
+                                    </span>
+                                  </h4>
+                                );
+                              }
+                              if (paragraph.match(/^[0-9]\./)) {
+                                return (
+                                  <div className="pl-5 mt-2.5">
+                                    <p className={`font-semibold ${
+                                      readTheme === 'parchment' ? 'text-stone-900' : 'text-slate-200'
+                                    }`}>{paragraph}</p>
+                                  </div>
+                                );
+                              }
+                              if (paragraph.startsWith('```')) {
+                                // Extract code representation
+                                const cleanCode = paragraph.replace(/```[a-z]*/g, '').trim();
+                                return (
+                                  <pre className="p-4 bg-[#09090d] rounded-xl border border-slate-850 overflow-x-auto text-xs sm:text-sm font-mono text-rose-300 leading-normal my-4 shadow-inner">
+                                    <code>{cleanCode}</code>
+                                  </pre>
+                                );
+                              }
                               return (
-                                <h4 
-                                  key={i} 
-                                  className={`font-semibold mt-8 pt-4 border-b pb-1.5 flex items-center gap-2 ${
-                                    readTheme === 'parchment' 
-                                      ? 'text-stone-900 border-stone-200' 
-                                      : 'text-white border-slate-900'
-                                  }`}
-                                >
-                                  <span className="w-2 h-2 rounded-full bg-rose-500 shrink-0" />
-                                  <span className={`${readFontSize === 'sm' ? 'text-sm sm:text-base' : readFontSize === 'lg' ? 'text-lg sm:text-xl' : readFontSize === 'xl' ? 'text-xl sm:text-2xl' : 'text-base sm:text-lg'}`}>
-                                    {paragraph.replace('###', '').trim()}
-                                  </span>
-                                </h4>
+                                <p className="leading-relaxed whitespace-pre-line font-normal text-justify">
+                                  {paragraph}
+                                </p>
                               );
-                            }
-                            if (paragraph.match(/^[0-9]\./)) {
-                              return (
-                                <div key={i} className="pl-5 mt-2.5">
-                                  <p className={`font-semibold ${
-                                    readTheme === 'parchment' ? 'text-stone-900' : 'text-slate-200'
-                                  }`}>{paragraph}</p>
-                                </div>
-                              );
-                            }
-                            if (paragraph.startsWith('```')) {
-                              // Extract code representation
-                              const cleanCode = paragraph.replace(/```[a-z]*/g, '').trim();
-                              return (
-                                <pre key={i} className="p-4 bg-[#09090d] rounded-xl border border-slate-850 overflow-x-auto text-xs sm:text-sm font-mono text-rose-300 leading-normal my-4 shadow-inner">
-                                  <code>{cleanCode}</code>
-                                </pre>
-                              );
-                            }
+                            };
+
                             return (
-                              <p key={i} className="leading-relaxed whitespace-pre-line font-normal text-justify">
-                                {paragraph}
-                              </p>
+                              <div
+                                key={i}
+                                id={`para-${i}`}
+                                className={`group relative transition-all duration-300 pr-12 my-3 ${highlightClass}`}
+                              >
+                                {renderContent()}
+
+                                {/* Floating Toolbar Controls */}
+                                <div className="absolute right-1 top-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-200 bg-slate-900/90 hover:bg-slate-900 text-slate-100 px-1 py-1 rounded-lg border border-slate-700/50 shadow-md z-10">
+                                  <button
+                                    onClick={() => toggleHighlight(i)}
+                                    title={isHighlighted ? "Remove Highlight" : "Highlight Segment"}
+                                    className={`p-1.5 rounded hover:bg-slate-850 transition-colors cursor-pointer ${
+                                      isHighlighted ? 'text-rose-400' : 'text-slate-300 hover:text-rose-400'
+                                    }`}
+                                  >
+                                    <Highlighter className="w-3.5 h-3.5" />
+                                  </button>
+                                  <button
+                                    onClick={() => handleCopyHighlightLink(i)}
+                                    title="Copy Deep Link to Paragraph"
+                                    className="p-1.5 rounded hover:bg-slate-850 text-slate-300 hover:text-emerald-400 transition-colors cursor-pointer"
+                                  >
+                                    <Share2 className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+                              </div>
                             );
                           })}
+                        </div>
+
+                        {/* Interactive Key Topics Search Tags */}
+                        <div className={`mt-8 pt-6 border-t transition-colors ${
+                          readTheme === 'parchment' ? 'border-stone-200' : 'border-slate-850/50'
+                        }`}>
+                          <div className="flex items-center gap-1.5 mb-3">
+                            <Tag className="w-3.5 h-3.5 text-rose-500" />
+                            <span className={`text-[11px] font-mono uppercase font-bold tracking-wider ${
+                              readTheme === 'parchment' ? 'text-stone-600' : 'text-slate-400'
+                            }`}>
+                              Discovered Article Keywords (Click to Search Library)
+                            </span>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {getArticleKeywords(readingArticle).map((keyword) => (
+                              <button
+                                key={keyword}
+                                onClick={() => {
+                                  setArticleSearch(keyword);
+                                  setSelectedArticleCategory('All');
+                                  setReadingArticle(null); // Closes the modal to reveal search results
+                                  document.getElementById('compliance-directory-header')?.scrollIntoView({ behavior: 'smooth' });
+                                }}
+                                className={`px-2.5 py-1 text-xs font-medium rounded-lg border transition-all duration-300 hover:scale-105 active:scale-95 flex items-center gap-1 cursor-pointer ${
+                                  readTheme === 'sepia'
+                                    ? 'bg-[#1a1412] text-[#ece4db] border-[#ece4db]/10 hover:border-[#ece4db]/30 hover:bg-[#251e1b]'
+                                    : readTheme === 'parchment'
+                                    ? 'bg-stone-50 text-stone-900 border-stone-200 hover:border-stone-350 hover:bg-stone-100'
+                                    : 'bg-slate-900/60 text-slate-100 border-slate-850 hover:border-rose-500/40 hover:bg-slate-900 hover:text-rose-400'
+                                }`}
+                              >
+                                <Search className="w-3.5 h-3.5 text-rose-500/75" />
+                                <span>{keyword}</span>
+                              </button>
+                            ))}
+                          </div>
                         </div>
 
                         {/* Related Articles Suggested in Same Category */}

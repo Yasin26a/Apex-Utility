@@ -1,6 +1,7 @@
 import { Article } from './articles';
+import { ADDITIONAL_35_ARTICLES } from './additional35Articles';
 
-export const WEB_NEWS_TECH_ARTICLES: Article[] = [
+const BASE_WEB_NEWS_TECH_ARTICLES: Article[] = [
   {
     id: "nvidia-blackwell-gpus-2026",
     title: "NVIDIA Blackwell B200 Superchip: Scaling Generative AI and Transistor Densities",
@@ -324,3 +325,9 @@ export const WEB_NEWS_TECH_ARTICLES: Article[] = [
     ]
   }
 ];
+
+export const WEB_NEWS_TECH_ARTICLES: Article[] = [
+  ...BASE_WEB_NEWS_TECH_ARTICLES,
+  ...ADDITIONAL_35_ARTICLES
+];
+
