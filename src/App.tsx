@@ -851,11 +851,6 @@ export default function App() {
           setReadingArticle(null);
           break;
         }
-        case ' ': { // Space key
-          event.preventDefault();
-          handleToggleSpeak();
-          break;
-        }
         case 'ArrowLeft': { // Left arrow (Previous Page)
           event.preventDefault();
           const activeList = AT_LEAST_20_ARTICLES.filter((art) => {
@@ -4163,10 +4158,6 @@ Disallow:
                             Keyboard Support:
                           </span>
                           <div className="flex items-center gap-1 shrink-0">
-                            <kbd className="px-1.5 py-0.5 bg-black/30 dark:bg-black/60 rounded border border-slate-700/30 text-[9px] font-bold">Space</kbd>
-                            <span>Play/Pause Narration</span>
-                          </div>
-                          <div className="flex items-center gap-1 shrink-0">
                             <kbd className="px-1.5 py-0.5 bg-black/30 dark:bg-black/60 rounded border border-slate-700/30 text-[9px] font-bold">←</kbd>
                             <span>Prev Page</span>
                           </div>
@@ -4319,148 +4310,6 @@ Disallow:
                                   {thm.name}
                                 </button>
                               ))}
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Voice-to-Text / Audio Narration Engine controller */}
-                        <div className={`p-4 rounded-xl border flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between text-xs transition-colors ${
-                          readTheme === 'sepia'
-                            ? 'bg-[#1e1715] border-[#ece4db]/10 text-[#ece4db]'
-                            : readTheme === 'parchment'
-                            ? 'bg-[#FAF6EE] border-stone-200 text-[#1c1917]'
-                            : 'bg-slate-900/60 border-slate-850/60 text-slate-100'
-                        }`}>
-                          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3.5 flex-1">
-                            {/* Listening / Audio Indicator with custom styles */}
-                            <div className="flex items-center gap-2">
-                              <div className={`p-2 rounded-lg ${
-                                readTheme === 'parchment'
-                                  ? 'bg-rose-500/10 border border-rose-500/20 text-rose-600'
-                                  : 'bg-rose-500/10 border border-rose-500/20 text-rose-400'
-                              }`}>
-                                <Headphones className={`w-4 h-4 ${isSpeaking ? 'animate-bounce' : ''}`} />
-                              </div>
-                              <div>
-                                <h4 className={`font-extrabold text-[11px] uppercase tracking-wider ${
-                                  readTheme === 'parchment' ? 'text-rose-600' : 'text-rose-400'
-                                }`}>Voice-to-Text Narration</h4>
-                                <p className={`text-[10px] sm:text-xs ${readTheme === 'parchment' ? 'text-[#1c1917]/70' : 'text-slate-400'}`}>
-                                  {isSpeaking ? (
-                                    <span className="text-emerald-400 flex items-center gap-1">
-                                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Playing Audio Guide...
-                                    </span>
-                                  ) : isPaused ? (
-                                    <span className="text-amber-400">Narration Paused</span>
-                                  ) : (
-                                    <span>Synthesized audio narration reader</span>
-                                  )}
-                                </p>
-                              </div>
-                            </div>
-
-                            {/* Waveform Equalizer simulation (only if speaking) */}
-                            {isSpeaking && (
-                              <div className="hidden sm:flex items-end gap-0.5 h-5 px-1 pb-1">
-                                <span className="w-0.5 bg-rose-500 animate-[bounce_0.8s_infinite] h-2" style={{ animationDelay: '0.1s' }} />
-                                <span className="w-0.5 bg-rose-500 animate-[bounce_0.5s_infinite] h-4" style={{ animationDelay: '0.3s' }} />
-                                <span className="w-0.5 bg-rose-500 animate-[bounce_0.7s_infinite] h-3" style={{ animationDelay: '0.2s' }} />
-                                <span className="w-0.5 bg-rose-500 animate-[bounce_0.6s_infinite] h-5" style={{ animationDelay: '0s' }} />
-                                <span className="w-0.5 bg-rose-500 animate-[bounce_0.9s_infinite] h-1" style={{ animationDelay: '0.4s' }} />
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Voice configurations and player actions */}
-                          <div className="flex flex-wrap items-center gap-3.5">
-                            {/* Available Voices Dropdown selection */}
-                            {availableVoices.length > 0 && (
-                              <div className="flex items-center gap-1.5 shrink-0">
-                                <span className={`text-[10px] font-mono uppercase font-bold tracking-wider ${
-                                  readTheme === 'parchment' ? 'text-stone-500' : 'text-slate-400'
-                                }`}>Voice:</span>
-                                <select
-                                  value={selectedVoiceName}
-                                  onChange={(e) => {
-                                    setSelectedVoiceName(e.target.value);
-                                    handleStopSpeak(); // restart cleanly
-                                  }}
-                                  className={`text-[10px] font-bold p-1 rounded border outline-none max-w-[130px] sm:max-w-[160px] ${
-                                    readTheme === 'sepia'
-                                      ? 'bg-black/40 border-[#ece4db]/20 text-[#ece4db]'
-                                      : readTheme === 'parchment'
-                                      ? 'bg-stone-100 border-stone-300 text-stone-900'
-                                      : 'bg-slate-950 border-slate-800 text-slate-100'
-                                  }`}
-                                >
-                                  {availableVoices.map((voice) => (
-                                    <option key={voice.name} value={voice.name} className="bg-slate-950 text-slate-100">
-                                      {voice.name.replace(/Microsoft|Google|Apple/gi, '').trim()} ({voice.lang})
-                                    </option>
-                                  ))}
-                                </select>
-                              </div>
-                            )}
-
-                            {/* Speed Rate configuration slider */}
-                            <div className="flex items-center gap-1.5 shrink-0">
-                              <span className={`text-[10px] font-mono uppercase font-bold tracking-wider ${
-                                readTheme === 'parchment' ? 'text-stone-500' : 'text-slate-400'
-                              }`}>Speed:</span>
-                              <div className="flex items-center gap-1">
-                                <input
-                                  type="range"
-                                  min="0.5"
-                                  max="2"
-                                  step="0.25"
-                                  value={speechRate}
-                                  onChange={(e) => {
-                                    setSpeechRate(parseFloat(e.target.value));
-                                  }}
-                                  className="w-16 accent-rose-500 h-1"
-                                />
-                                <span className="font-mono text-[10px] font-bold shrink-0">{speechRate}x</span>
-                              </div>
-                            </div>
-
-                            {/* Control button actions */}
-                            <div className="flex items-center gap-1.5">
-                              <button
-                                onClick={handleToggleSpeak}
-                                className={`px-2.5 py-1.5 rounded-lg text-[10px] font-bold transition-all flex items-center gap-1 cursor-pointer ${
-                                  isSpeaking 
-                                    ? 'bg-amber-500 text-black hover:bg-amber-400' 
-                                    : 'bg-rose-500 hover:bg-rose-600 text-white shadow'
-                                }`}
-                                title={isSpeaking ? "Pause Narration" : "Listen / Read Aloud"}
-                              >
-                                {isSpeaking ? (
-                                  <>
-                                    <Pause className="w-3 h-3 fill-current" />
-                                    <span>Pause</span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <Play className="w-3 h-3 fill-current" />
-                                    <span>{isPaused ? "Resume" : "Listen Aloud"}</span>
-                                  </>
-                                )}
-                              </button>
-
-                              {(isSpeaking || isPaused) && (
-                                <button
-                                  onClick={handleStopSpeak}
-                                  className={`px-2.5 py-1.5 rounded-lg text-[10px] font-bold transition-all flex items-center gap-1 cursor-pointer ${
-                                    readTheme === 'parchment' 
-                                      ? 'bg-stone-200 text-stone-900 hover:bg-stone-300'
-                                      : 'bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 hover:text-white'
-                                  }`}
-                                  title="Stop Narration"
-                                >
-                                  <Square className="w-3 h-3 fill-current" />
-                                  <span>Stop</span>
-                                </button>
-                              )}
                             </div>
                           </div>
                         </div>
