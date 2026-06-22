@@ -1156,6 +1156,8 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
   const [isCaptureModalOpen, setIsCaptureModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<'All' | 'PDF Compression' | 'WebP Conversion' | 'Image to PDF'>('All');
+  const [toolSearch, setToolSearch] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'info' | 'error' } | null>(null);
 
@@ -1189,6 +1191,26 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
       }
     }
     return DEFAULT_CARDS;
+  });
+
+  const filteredCards = cards.filter(card => {
+    const { title: localizedTitle, desc: localizedDesc } = getCardTranslations(
+      card.id,
+      card.title,
+      card.desc,
+      card.buttonLabel
+    );
+    const localizedCat = getTranslatedCategory(card.category, language);
+    
+    const searchLower = toolSearch.toLowerCase();
+    const matchesSearch =
+      localizedTitle.toLowerCase().includes(searchLower) ||
+      localizedDesc.toLowerCase().includes(searchLower) ||
+      localizedCat.toLowerCase().includes(searchLower) ||
+      card.id.toLowerCase().includes(searchLower);
+
+    const matchesCategory = selectedCategory === 'All' || card.category === selectedCategory;
+    return matchesSearch && matchesCategory;
   });
 
   // Local storage telemetry analytics calculation
@@ -1882,6 +1904,24 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
             <p className="font-sans text-xs text-zinc-500 mt-1">{getSubDesc(language)}</p>
           </div>
           <div className="flex flex-wrap items-center gap-2.5">
+            {!isCustomizing && (
+              <button
+                type="button"
+                onClick={resetDefaultLayout}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#16161c] hover:bg-[#20202a] border border-zinc-900/60 text-zinc-400 hover:text-white text-xs font-mono font-bold transition-all cursor-pointer shadow-md"
+                title="Reset layout grid back to factory defaults"
+              >
+                <RotateCcw className="w-3.5 h-3.5 text-zinc-500" />
+                <span>
+                  {language === 'es' ? 'Restablecer Cuadrícula' :
+                   language === 'fr' ? 'Réinitialiser la Grille' :
+                   language === 'de' ? 'Raster zurücksetzen' :
+                   language === 'pt' ? 'Restaurar Grade' :
+                   'Reset Grid'}
+                </span>
+              </button>
+            )}
+
             <button
               onClick={() => setIsCustomizing(!isCustomizing)}
               className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg border text-xs font-mono font-bold transition-all cursor-pointer ${
@@ -1911,13 +1951,90 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
           </div>
         </div>
 
-        {dashboardViewMode === 'grid' ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8 pb-12">
-            {cards.map((card, index) => {
-              const CategoryIcon = iconMap[card.categoryIcon] || Image;
-              const CardIcon = iconMap[card.cardIcon] || Image;
-              const isAiWriter = card.id === 'ai-writer';
-              const colSpanClass = getGridSpanClass(card.colSpan || 1);
+        {/* Modern Tools Search & Filter Panel */}
+        <div className="mb-6 p-4 bg-[#0e0e15]/40 border border-zinc-900/70 rounded-2xl flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between shadow-sm">
+          {/* Left Side: Category choice buttons */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none scroll-smooth min-w-0 flex-1">
+            {['All', 'Design & Signals', 'Media Lab', 'Document Optimization', 'Developer Operations', 'Security Vault', 'AI Copywriting'].map((cat) => {
+              const isSelected = selectedCategory === cat;
+              const displayLabel = cat === 'All'
+                ? (language === 'es' ? 'Todas' : language === 'fr' ? 'Toutes' : language === 'de' ? 'Alle' : language === 'pt' ? 'Todas' : 'All Formats')
+                : getTranslatedCategory(cat, language);
+              return (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`px-3 py-1.5 rounded-lg text-[10px] font-heading font-extrabold tracking-wider uppercase transition-all whitespace-nowrap cursor-pointer ${
+                    isSelected
+                      ? 'bg-brand text-zinc-950 shadow-[0_0_12px_rgba(245,158,11,0.25)]'
+                      : 'bg-zinc-950 hover:bg-[#12121a] text-zinc-500 hover:text-zinc-200 border border-zinc-900/80 hover:border-zinc-850'
+                  }`}
+                >
+                  {displayLabel}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Right Side: Search bar of Tools */}
+          <div className="relative w-full md:w-64 flex-shrink-0">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-500">
+              <Search className="w-3.5 h-3.5" />
+            </div>
+            <input
+              type="text"
+              value={toolSearch}
+              onChange={(e) => setToolSearch(e.target.value)}
+              placeholder={
+                language === 'es' ? 'Buscar herramienta...' :
+                language === 'fr' ? 'Rechercher un outil...' :
+                language === 'de' ? 'Werkzeug suchen...' :
+                language === 'pt' ? 'Buscar ferramenta...' :
+                'Search tool...'
+              }
+              className="w-full pl-9 pr-8 py-2 bg-zinc-950 border border-zinc-900 rounded-xl text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-brand/40 font-sans transition-all duration-200"
+            />
+            {toolSearch && (
+              <button
+                type="button"
+                onClick={() => setToolSearch('')}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-zinc-500 hover:text-zinc-300 cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5 rotate-45" />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {filteredCards.length === 0 ? (
+          <div className="py-20 text-center rounded-2xl bg-zinc-950/20 border border-dashed border-zinc-900/80 max-w-md mx-auto space-y-4 my-4">
+            <div className="mx-auto w-12 h-12 rounded-full bg-zinc-900/60 flex items-center justify-center text-zinc-500 border border-zinc-850/80">
+              <Search className="w-5 h-5 text-brand" />
+            </div>
+            <div>
+              <p className="font-heading text-sm font-bold text-zinc-300">
+                {language === 'es' ? 'Sin resultados' : 'No tools matched your search'}
+              </p>
+              <p className="font-sans text-xs text-zinc-500 mt-1 max-w-xs mx-auto">
+                {language === 'es' ? 'Prueba ajustando tus filtros o términos de búsqueda.' : 'Try adjusting your search query or switching categories.'}
+              </p>
+            </div>
+            <button
+              onClick={() => { setToolSearch(''); setSelectedCategory('All'); }}
+              className="px-4 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-850 text-xs font-mono font-bold text-[#fafafa] border border-zinc-800 transition-colors cursor-pointer"
+            >
+              Reset Filters
+            </button>
+          </div>
+        ) : (
+          dashboardViewMode === 'grid' ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-12">
+              {filteredCards.map((card, index) => {
+                const CategoryIcon = iconMap[card.categoryIcon] || Image;
+                const CardIcon = iconMap[card.cardIcon] || Image;
+                const isAiWriter = card.id === 'ai-writer';
+                const colSpanClass = isCustomizing ? getGridSpanClass(card.colSpan || 1) : 'col-span-1';
               
               const localizedCat = getTranslatedCategory(card.category, language);
               const { title: localizedTitle, desc: localizedDesc, buttonLabel: localizedBtn } = getCardTranslations(card.id, card.title, card.desc, card.buttonLabel);
@@ -2008,7 +2125,7 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
                   <div className="relative h-full">
                     <ThreeDTiltCard 
                       onClick={() => !isCustomizing && onTabChange(card.id as ActiveTab)} 
-                      className={`${getHeightClass(card.heightLevel)} transition-all duration-300 relative`}
+                      className={`${isCustomizing ? getHeightClass(card.heightLevel || 2) : 'h-80'} transition-all duration-300 relative`}
                     >
                       <div className="space-y-4 h-full flex flex-col justify-between" style={{ transformStyle: 'preserve-3d' }}>
                         <div className="space-y-4" style={{ transformStyle: 'preserve-3d' }}>
@@ -2120,7 +2237,7 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
         ) : (
           /* Minimalist List view of elements */
           <div className="flex flex-col gap-3.5 w-full max-w-5xl mx-auto">
-            {cards.map((card, index) => {
+            {filteredCards.map((card, index) => {
               const CategoryIcon = iconMap[card.categoryIcon] || Image;
               const CardIcon = iconMap[card.cardIcon] || Image;
               const isAiWriter = card.id === 'ai-writer';
@@ -2246,7 +2363,8 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
               );
             })}
           </div>
-        )}
+        )
+      )}
       </div>
 
       {/* Concurrent WASM Task Queue Module */}
