@@ -3341,7 +3341,7 @@ Disallow:
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div className="space-y-1">
                     <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf1544] uppercase">Compliance Master Library</span>
-                    <h2 className="text-2xl font-extrabold text-white tracking-tight">AdSense Readiness &amp; Tool Academy</h2>
+                    <h2 className="text-2xl font-extrabold text-white tracking-tight">APEX Global News &amp; Tool Academy</h2>
                     <p className="text-slate-400 text-xs sm:text-sm">
                       Discover {AT_LEAST_20_ARTICLES.length} authoritative, high-quality, fully detailed guides on SEO indexing, browser privacy buffers, media compression, and global compliance.
                     </p>
