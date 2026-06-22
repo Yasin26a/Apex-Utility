@@ -461,6 +461,26 @@ export default function App() {
     }
   }, [location.search]);
 
+  // Dynamically synchronize the reader state to the browser address bar search query
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      if (readingArticle) {
+        if (url.searchParams.get('art') !== readingArticle.id) {
+          url.searchParams.set('art', readingArticle.id);
+          window.history.pushState({ artId: readingArticle.id }, '', url.toString());
+        }
+      } else {
+        if (url.searchParams.has('art')) {
+          url.searchParams.delete('art');
+          url.searchParams.delete('p');
+          url.searchParams.delete('paragraph');
+          window.history.pushState({}, '', url.toString());
+        }
+      }
+    }
+  }, [readingArticle]);
+
   // Read Later State utilizing localStorage
   const [bookmarkedIds, setBookmarkedIds] = useState<string[]>(() => {
     try {
@@ -1681,7 +1701,22 @@ Disallow:
   const isValidSitemapDomain = sitemapDomainValue !== '' && sitemapDomainRegex.test(sitemapDomainValue);
 
   return (
-    <div className="h-screen overflow-hidden bg-black text-zinc-100 flex flex-col font-sans selection:bg-brand selection:text-white">
+    <div className="h-screen overflow-hidden bg-black text-zinc-100 flex flex-col font-sans selection:bg-brand selection:text-white relative">
+      {/* Global Share Toast Notification */}
+      <AnimatePresence>
+        {shareToast && (
+          <motion.div
+            initial={{ opacity: 0, y: -25, x: "-50%", scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, x: "-50%", scale: 1 }}
+            exit={{ opacity: 0, y: -25, x: "-50%", scale: 0.95 }}
+            className="fixed top-6 left-1/2 -translate-x-1/2 z-[9999] bg-emerald-600 text-white text-xs sm:text-sm font-sans font-semibold px-5 py-3 rounded-full shadow-2xl flex items-center gap-2 border border-emerald-500/30 whitespace-nowrap"
+          >
+            <span className="w-2 h-2 rounded-full bg-white animate-ping" />
+            <span>{shareToast}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Header Bar */}
       {!(activeTab === 'css-generator' && cssZenMode) && (
         <header className="bg-[#050507]/95 backdrop-blur-md border-b border-red-950/45 sticky top-0 z-50 px-4 py-3 flex items-center justify-between">
@@ -3856,6 +3891,20 @@ Disallow:
                                     <button
                                       onClick={(e) => {
                                         e.stopPropagation();
+                                        const shareUrl = `${window.location.origin}${window.location.pathname}?art=${art.id}`;
+                                        navigator.clipboard.writeText(shareUrl).then(() => {
+                                          setShareToast(`Share link copied for "${art.title}"!`);
+                                          setTimeout(() => setShareToast(null), 3050);
+                                        });
+                                      }}
+                                      className="p-1 rounded text-slate-500 hover:text-emerald-400 hover:bg-slate-900 transition-all cursor-pointer flex items-center justify-center"
+                                      title="Copy Social Shareable Link"
+                                    >
+                                      <Share2 className="w-3.5 h-3.5" />
+                                    </button>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
                                         toggleBookmark(art.id);
                                       }}
                                       className="p-1 rounded text-slate-500 hover:text-rose-400 hover:bg-slate-900 transition-all cursor-pointer"
@@ -4013,6 +4062,20 @@ Disallow:
                                     <button
                                       onClick={(e) => {
                                         e.stopPropagation();
+                                        const shareUrl = `${window.location.origin}${window.location.pathname}?art=${art.id}`;
+                                        navigator.clipboard.writeText(shareUrl).then(() => {
+                                          setShareToast(`Share link copied for "${art.title}"!`);
+                                          setTimeout(() => setShareToast(null), 3050);
+                                        });
+                                      }}
+                                      className="p-1 px-1.5 text-slate-400 hover:text-white hover:bg-emerald-600 bg-slate-900 border border-slate-800 rounded transition-all shrink-0 flex items-center justify-center cursor-pointer"
+                                      title="Copy Social Shareable Link"
+                                    >
+                                      <Share2 className="w-3 h-3" />
+                                    </button>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
                                         toggleBookmark(art.id);
                                       }}
                                       className="p-1 px-1.5 text-slate-400 hover:text-white hover:bg-rose-500 bg-slate-900 hover:border-rose-400 border border-slate-800 rounded transition-all shrink-0 flex items-center justify-center cursor-pointer"
@@ -4052,6 +4115,20 @@ Disallow:
                                     <span>{art.readTime}</span>
                                   </div>
                                 </div>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const shareUrl = `${window.location.origin}${window.location.pathname}?art=${art.id}`;
+                                    navigator.clipboard.writeText(shareUrl).then(() => {
+                                      setShareToast(`Share link copied for "${art.title}"!`);
+                                      setTimeout(() => setShareToast(null), 3050);
+                                    });
+                                  }}
+                                  className="p-1.5 text-slate-500 hover:text-emerald-400 hover:bg-slate-950 rounded transition-colors shrink-0 cursor-pointer flex items-center justify-center placeholder:"
+                                  title="Copy Article Social Link"
+                                >
+                                  <Share2 className="w-3.5 h-3.5" />
+                                </button>
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
@@ -4571,7 +4648,8 @@ Disallow:
                             <button
                               onClick={() => {
                                 const text = encodeURIComponent(`Check out "${readingArticle.title}" on Apex Utility - and learn how to optimize your web layouts!`);
-                                const url = encodeURIComponent(`https://apexutility.live/guides#${readingArticle.id}`);
+                                const shareUrl = `${window.location.origin}${window.location.pathname}?art=${readingArticle.id}`;
+                                const url = encodeURIComponent(shareUrl);
                                 window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
                               }}
                               className="px-3 py-1.5 bg-[#1da1f2]/10 hover:bg-[#1da1f2]/20 text-[#1da1f2] border border-[#1da1f2]/20 hover:border-[#1da1f2]/40 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer hover:scale-105"
@@ -4584,7 +4662,8 @@ Disallow:
                             {/* LinkedIn */}
                             <button
                               onClick={() => {
-                                const url = encodeURIComponent(`https://apexutility.live/guides#${readingArticle.id}`);
+                                const shareUrl = `${window.location.origin}${window.location.pathname}?art=${readingArticle.id}`;
+                                const url = encodeURIComponent(shareUrl);
                                 window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank');
                               }}
                               className="px-3 py-1.5 bg-[#0077b5]/10 hover:bg-[#0077b5]/20 text-[#0077b5] border border-[#0077b5]/20 hover:border-[#0077b5]/40 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer hover:scale-105"
@@ -4597,8 +4676,11 @@ Disallow:
                             {/* Copy Link */}
                             <button
                               onClick={() => {
-                                navigator.clipboard.writeText(`https://apexutility.live/guides#${readingArticle.id}`);
-                                alert("Article deep link copied to clipboard successfully!");
+                                const shareUrl = `${window.location.origin}${window.location.pathname}?art=${readingArticle.id}`;
+                                navigator.clipboard.writeText(shareUrl).then(() => {
+                                  setShareToast("Deep link copied to clipboard successfully!");
+                                  setTimeout(() => setShareToast(null), 3000);
+                                });
                               }}
                               className={`px-3 py-1.5 text-xs font-bold transition-all flex items-center gap-1.5 rounded-lg border cursor-pointer hover:scale-105 ${
                                 readTheme === 'parchment'
@@ -4663,8 +4745,11 @@ Disallow:
                             </button>
                             <button
                               onClick={() => {
-                                navigator.clipboard.writeText(`https://apexutility.live/guides#${readingArticle.id}`);
-                                alert("Article deep link copied to clipboard successfully!");
+                                const shareUrl = `${window.location.origin}${window.location.pathname}?art=${readingArticle.id}`;
+                                navigator.clipboard.writeText(shareUrl).then(() => {
+                                  setShareToast("Article deep link copied to clipboard successfully!");
+                                  setTimeout(() => setShareToast(null), 3000);
+                                });
                               }}
                               className="flex-1 md:flex-initial py-2.5 px-4 bg-slate-905 hover:bg-slate-800 text-slate-300 border border-slate-805 rounded-lg text-xs font-bold transition-colors inline-flex items-center justify-center gap-1.5"
                             >
