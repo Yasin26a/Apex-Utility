@@ -1,6 +1,7 @@
 import express from 'express';
 import path from 'path';
 import { GoogleGenAI, Type } from '@google/genai';
+import { AT_LEAST_20_ARTICLES } from './src/data/articles';
 
 async function generateContentWithFallback(
   ai: GoogleGenAI,
@@ -764,7 +765,21 @@ Tone Guidelines:
       xml += '  </url>\n';
     });
 
-    // 3. Add Apex Subdomains for indexing
+    // 3. Add all editorial articles (50+ structural guides)
+    if (Array.isArray(AT_LEAST_20_ARTICLES)) {
+      AT_LEAST_20_ARTICLES.forEach(art => {
+        if (art && art.id) {
+          xml += '  <url>\n';
+          xml += `    <loc>${baseUrl}/guides?id=${encodeURIComponent(art.id)}</loc>\n`;
+          xml += `    <lastmod>${today}</lastmod>\n`;
+          xml += '    <changefreq>weekly</changefreq>\n';
+          xml += '    <priority>0.75</priority>\n';
+          xml += '  </url>\n';
+        }
+      });
+    }
+
+    // 4. Add Apex Subdomains for indexing
     const subdomains = [
       'https://news.apexutility.live/',
       'https://www.smallpdf.com.apexutility.live/',
@@ -799,7 +814,6 @@ Tone Guidelines:
     ];
 
     subdomains.forEach(url => {
-      // Avoid duplicate of root URL if requested but normally they are all subdomains
       xml += '  <url>\n';
       xml += `    <loc>${url}</loc>\n`;
       xml += `    <lastmod>${today}</lastmod>\n`;

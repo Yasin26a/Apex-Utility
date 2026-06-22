@@ -416,7 +416,7 @@ export default function App() {
   // Auto-scroll inside reader modal when deep linked
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
-    const artId = searchParams.get('art') || searchParams.get('article');
+    const artId = searchParams.get('art') || searchParams.get('article') || searchParams.get('id');
     const pIndexStr = searchParams.get('p') || searchParams.get('paragraph');
 
     if (artId) {

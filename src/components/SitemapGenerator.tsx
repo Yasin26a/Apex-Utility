@@ -129,11 +129,45 @@ export default function SitemapGenerator() {
     } catch (e) {
       console.error(e);
     }
-    return [
-      { id: '1', path: '/', changefreq: 'weekly', priority: 1.0, lastmodEnabled: true, lastmodDate: new Date().toISOString().split('T')[0] },
-      { id: '2', path: '/about', changefreq: 'monthly', priority: 0.8, lastmodEnabled: true, lastmodDate: new Date().toISOString().split('T')[0] },
-      { id: '3', path: '/contact', changefreq: 'monthly', priority: 0.8, lastmodEnabled: true, lastmodDate: new Date().toISOString().split('T')[0] }
+    
+    // Dynamically build a comprehensive sitemap with all tools and articles!
+    const todayStr = new Date().toISOString().split('T')[0];
+    const defaultList: SitemapRoute[] = [
+      { id: '1', path: '/', changefreq: 'daily', priority: 1.0, lastmodEnabled: true, lastmodDate: todayStr },
+      { id: '2', path: '/about-us', changefreq: 'monthly', priority: 0.7, lastmodEnabled: true, lastmodDate: todayStr },
+      { id: '3', path: '/privacy-policy', changefreq: 'monthly', priority: 0.5, lastmodEnabled: true, lastmodDate: todayStr },
+      { id: '4', path: '/terms-of-service', changefreq: 'monthly', priority: 0.5, lastmodEnabled: true, lastmodDate: todayStr },
+      { id: '5', path: '/guides', changefreq: 'daily', priority: 0.8, lastmodEnabled: true, lastmodDate: todayStr }
     ];
+    
+    // Add all discovered utility tools and custom views
+    DISCOVERED_APP_TABS.forEach((item, index) => {
+      const isCorePath = ['/', '/about-us', '/privacy-policy', '/terms-of-service', '/guides'].includes(item.path);
+      if (!isCorePath) {
+        defaultList.push({
+          id: `initial_tool_${index}`,
+          path: item.path,
+          changefreq: item.tab === 'sitemap-generator' || item.tab === 'sitemap-seo' ? 'daily' : item.defaultFreq as any,
+          priority: item.defaultPriority,
+          lastmodEnabled: true,
+          lastmodDate: todayStr
+        });
+      }
+    });
+
+    // Add top 35 technical articles directly to the indexable sitemap!
+    AT_LEAST_20_ARTICLES.slice(0, 35).forEach((art, index) => {
+      defaultList.push({
+        id: `initial_art_${index}`,
+        path: `/guides?id=${encodeURIComponent(art.id)}`,
+        changefreq: 'weekly' as any,
+        priority: 0.75,
+        lastmodEnabled: true,
+        lastmodDate: todayStr
+      });
+    });
+
+    return defaultList;
   });
 
   // Form states for adding a new route
