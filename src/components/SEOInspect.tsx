@@ -716,11 +716,9 @@ export default function SEOInspect() {
 </urlset>`;
 
   // Robots.txt content string
-  const robotsTxt = `# APEX UTILITY Crawler Instructions
+  const robotsTxt = `# Search Engine Crawler Instructions
 User-agent: *
-Allow: /
-
-Sitemap: ${websiteUrl}/sitemap.xml`;
+Allow: /`;
 
   const copyToClipboard = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
