@@ -4769,7 +4769,7 @@ Disallow:
                             </button>
                             <button
                               onClick={() => {
-                                const shareUrl = `${window.location.origin}/guides/${readingArticle.id}`;
+                                const shareUrl = `${window.location.origin}/${readingArticle.id}`;
                                 navigator.clipboard.writeText(shareUrl).then(() => {
                                   setShareToast("Article deep link copied to clipboard successfully!");
                                   setTimeout(() => setShareToast(null), 3000);
