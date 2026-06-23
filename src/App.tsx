@@ -421,7 +421,12 @@ export default function App() {
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const rawPath = location.pathname;
-    const artIdInPath = rawPath.startsWith('/guides/') ? rawPath.substring(8) : '';
+    const pathSegment = rawPath.substring(1);
+    const pathIsArticle = AT_LEAST_20_ARTICLES.some(art => art.id.toLowerCase() === pathSegment.toLowerCase());
+    
+    const artIdInPath = pathIsArticle 
+      ? pathSegment 
+      : (rawPath.startsWith('/guides/') ? rawPath.substring(8) : '');
     const artId = artIdInPath || searchParams.get('art') || searchParams.get('article') || searchParams.get('id');
     const pIndexStr = searchParams.get('p') || searchParams.get('paragraph');
 
@@ -474,7 +479,7 @@ export default function App() {
       const searchParams = new URLSearchParams(location.search);
       
       if (readingArticle) {
-        const targetPath = `/guides/${readingArticle.id}`;
+        const targetPath = `/${readingArticle.id}`;
         if (currentPath !== targetPath) {
           // Keep highlight/paragraph codes if they exist
           const searchString = searchParams.toString();
@@ -483,7 +488,8 @@ export default function App() {
         }
       } else {
         // If we are listing guides, the path should be exactly /guides (clean URLs)
-        if (currentPath.startsWith('/guides/')) {
+        const isArticlePath = AT_LEAST_20_ARTICLES.some(art => `/${art.id}` === currentPath);
+        if (currentPath.startsWith('/guides/') || isArticlePath) {
           searchParams.delete('art');
           searchParams.delete('p');
           searchParams.delete('paragraph');
@@ -1178,8 +1184,9 @@ export default function App() {
       'dashboard': 'dashboard'
     };
 
-    if (rawPath.startsWith('/guides/') || rawPath === '/guides') {
-      setActiveTab('guides');
+    const isArticle = AT_LEAST_20_ARTICLES.some(art => art.id.toLowerCase() === path.toLowerCase());
+    if (rawPath.startsWith('/guides/') || rawPath === '/guides' || isArticle) {
+       setActiveTab('guides');
     } else if (path) {
       setActiveTab(path as ActiveTab);
     } else if (subdomainRoutes[subdomain]) {
@@ -3908,7 +3915,7 @@ Disallow:
                                     <button
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        const shareUrl = `${window.location.origin}/guides/${art.id}`;
+                                        const shareUrl = `${window.location.origin}/${art.id}`;
                                         navigator.clipboard.writeText(shareUrl).then(() => {
                                           setShareToast(`Share link copied for "${art.title}"!`);
                                           setTimeout(() => setShareToast(null), 3050);
@@ -4079,7 +4086,7 @@ Disallow:
                                     <button
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        const shareUrl = `${window.location.origin}/guides/${art.id}`;
+                                        const shareUrl = `${window.location.origin}/${art.id}`;
                                         navigator.clipboard.writeText(shareUrl).then(() => {
                                           setShareToast(`Share link copied for "${art.title}"!`);
                                           setTimeout(() => setShareToast(null), 3050);
@@ -4135,7 +4142,7 @@ Disallow:
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    const shareUrl = `${window.location.origin}/guides/${art.id}`;
+                                    const shareUrl = `${window.location.origin}/${art.id}`;
                                     navigator.clipboard.writeText(shareUrl).then(() => {
                                       setShareToast(`Share link copied for "${art.title}"!`);
                                       setTimeout(() => setShareToast(null), 3050);
@@ -4665,7 +4672,7 @@ Disallow:
                             <button
                               onClick={() => {
                                 const text = encodeURIComponent(`Check out "${readingArticle.title}" on Apex Utility - and learn how to optimize your web layouts!`);
-                                const shareUrl = `${window.location.origin}/guides/${readingArticle.id}`;
+                                const shareUrl = `${window.location.origin}/${readingArticle.id}`;
                                 const url = encodeURIComponent(shareUrl);
                                 window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
                               }}
@@ -4679,7 +4686,7 @@ Disallow:
                             {/* LinkedIn */}
                             <button
                               onClick={() => {
-                                const shareUrl = `${window.location.origin}/guides/${readingArticle.id}`;
+                                const shareUrl = `${window.location.origin}/${readingArticle.id}`;
                                 const url = encodeURIComponent(shareUrl);
                                 window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank');
                               }}
@@ -4693,7 +4700,7 @@ Disallow:
                             {/* Copy Link */}
                             <button
                               onClick={() => {
-                                const shareUrl = `${window.location.origin}/guides/${readingArticle.id}`;
+                                const shareUrl = `${window.location.origin}/${readingArticle.id}`;
                                 navigator.clipboard.writeText(shareUrl).then(() => {
                                   setShareToast("Deep link copied to clipboard successfully!");
                                   setTimeout(() => setShareToast(null), 3000);

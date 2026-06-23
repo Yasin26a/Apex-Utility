@@ -45,7 +45,7 @@ function generateSitemap() {
     AT_LEAST_20_ARTICLES.forEach(art => {
       if (art && art.id) {
         xml += '  <url>\n';
-        xml += `    <loc>${baseUrl}/guides?id=${encodeURIComponent(art.id)}</loc>\n`;
+        xml += `    <loc>${baseUrl}/${art.id}</loc>\n`;
         xml += `    <lastmod>${today}</lastmod>\n`;
         xml += '    <changefreq>weekly</changefreq>\n';
         xml += '    <priority>0.75</priority>\n';

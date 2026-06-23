@@ -1071,7 +1071,7 @@ export default function useSEOTags(activeTab: ActiveTab, readingArticle?: Articl
         },
         "mainEntityOfPage": {
           "@type": "WebPage",
-          "@id": `https://apexutility.live/guides?id=${encodeURIComponent(readingArticle.id)}`
+          "@id": `https://apexutility.live/${readingArticle.id}`
         }
       };
     }
@@ -1120,7 +1120,7 @@ export default function useSEOTags(activeTab: ActiveTab, readingArticle?: Articl
     let canonicalUrl = 'https://apexutility.live';
     if (activeTab === 'guides' && readingArticle) {
       // Standardize to use the Google Search Console / sitemap.xml format
-      canonicalUrl = `https://apexutility.live/guides?id=${encodeURIComponent(readingArticle.id)}`;
+      canonicalUrl = `https://apexutility.live/${readingArticle.id}`;
     } else if (activeTab && activeTab !== 'dashboard') {
       canonicalUrl = `https://apexutility.live/${activeTab}`;
     }
