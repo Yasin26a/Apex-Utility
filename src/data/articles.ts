@@ -1,5 +1,6 @@
 import { CSS_GLASS_SHADOW_ARTICLES } from './cssArticles';
 import { WEB_NEWS_TECH_ARTICLES } from './webNewsArticles';
+import { generate100SEOArticles } from './seoOptimized100Articles';
 
 export interface Article {
   id: string;
@@ -2315,7 +2316,8 @@ export const AT_LEAST_20_ARTICLES: Article[] = [
   ...generate50ExtraArticles(),
   ...TRENDING_AI_TECH_ARTICLES,
   ...CSS_GLASS_SHADOW_ARTICLES,
-  ...WEB_NEWS_TECH_ARTICLES
+  ...WEB_NEWS_TECH_ARTICLES,
+  ...generate100SEOArticles()
 ].map(expandArticleTo10k);
 
 

@@ -420,7 +420,9 @@ export default function App() {
   // Auto-scroll inside reader modal when deep linked
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
-    const artId = searchParams.get('art') || searchParams.get('article') || searchParams.get('id');
+    const rawPath = location.pathname;
+    const artIdInPath = rawPath.startsWith('/guides/') ? rawPath.substring(8) : '';
+    const artId = artIdInPath || searchParams.get('art') || searchParams.get('article') || searchParams.get('id');
     const pIndexStr = searchParams.get('p') || searchParams.get('paragraph');
 
     if (artId) {
@@ -463,27 +465,35 @@ export default function App() {
         }
       }
     }
-  }, [location.search]);
+  }, [location.pathname, location.search]);
 
-  // Dynamically synchronize the reader state to the browser address bar search query
+  // Dynamically synchronize the reader state to the browser address bar for beautiful, clean URLs
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const url = new URL(window.location.href);
+      const currentPath = location.pathname;
+      const searchParams = new URLSearchParams(location.search);
+      
       if (readingArticle) {
-        if (url.searchParams.get('art') !== readingArticle.id) {
-          url.searchParams.set('art', readingArticle.id);
-          window.history.pushState({ artId: readingArticle.id }, '', url.toString());
+        const targetPath = `/guides/${readingArticle.id}`;
+        if (currentPath !== targetPath) {
+          // Keep highlight/paragraph codes if they exist
+          const searchString = searchParams.toString();
+          const targetUrlString = targetPath + (searchString ? `?${searchString}` : '');
+          navigate(targetUrlString);
         }
       } else {
-        if (url.searchParams.has('art')) {
-          url.searchParams.delete('art');
-          url.searchParams.delete('p');
-          url.searchParams.delete('paragraph');
-          window.history.pushState({}, '', url.toString());
+        // If we are listing guides, the path should be exactly /guides (clean URLs)
+        if (currentPath.startsWith('/guides/')) {
+          searchParams.delete('art');
+          searchParams.delete('p');
+          searchParams.delete('paragraph');
+          const searchString = searchParams.toString();
+          const targetUrlString = `/guides` + (searchString ? `?${searchString}` : '');
+          navigate(targetUrlString);
         }
       }
     }
-  }, [readingArticle]);
+  }, [readingArticle, navigate, location.pathname, location.search]);
 
   // Read Later State utilizing localStorage
   const [bookmarkedIds, setBookmarkedIds] = useState<string[]>(() => {
@@ -1148,7 +1158,8 @@ export default function App() {
 
   // Synchronize router location with active tab
   useEffect(() => {
-    const path = location.pathname.substring(1);
+    const rawPath = location.pathname;
+    const path = rawPath.substring(1);
     const hostname = window.location.hostname;
     const subdomain = hostname.split('.')[0].toLowerCase();
     const subdomainRoutes: Record<string, ActiveTab> = {
@@ -1167,7 +1178,9 @@ export default function App() {
       'dashboard': 'dashboard'
     };
 
-    if (path) {
+    if (rawPath.startsWith('/guides/') || rawPath === '/guides') {
+      setActiveTab('guides');
+    } else if (path) {
       setActiveTab(path as ActiveTab);
     } else if (subdomainRoutes[subdomain]) {
       setActiveTab(subdomainRoutes[subdomain]);
@@ -3895,7 +3908,7 @@ Disallow:
                                     <button
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        const shareUrl = `${window.location.origin}${window.location.pathname}?art=${art.id}`;
+                                        const shareUrl = `${window.location.origin}/guides/${art.id}`;
                                         navigator.clipboard.writeText(shareUrl).then(() => {
                                           setShareToast(`Share link copied for "${art.title}"!`);
                                           setTimeout(() => setShareToast(null), 3050);
@@ -4066,7 +4079,7 @@ Disallow:
                                     <button
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        const shareUrl = `${window.location.origin}${window.location.pathname}?art=${art.id}`;
+                                        const shareUrl = `${window.location.origin}/guides/${art.id}`;
                                         navigator.clipboard.writeText(shareUrl).then(() => {
                                           setShareToast(`Share link copied for "${art.title}"!`);
                                           setTimeout(() => setShareToast(null), 3050);
@@ -4122,7 +4135,7 @@ Disallow:
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    const shareUrl = `${window.location.origin}${window.location.pathname}?art=${art.id}`;
+                                    const shareUrl = `${window.location.origin}/guides/${art.id}`;
                                     navigator.clipboard.writeText(shareUrl).then(() => {
                                       setShareToast(`Share link copied for "${art.title}"!`);
                                       setTimeout(() => setShareToast(null), 3050);
@@ -4652,7 +4665,7 @@ Disallow:
                             <button
                               onClick={() => {
                                 const text = encodeURIComponent(`Check out "${readingArticle.title}" on Apex Utility - and learn how to optimize your web layouts!`);
-                                const shareUrl = `${window.location.origin}${window.location.pathname}?art=${readingArticle.id}`;
+                                const shareUrl = `${window.location.origin}/guides/${readingArticle.id}`;
                                 const url = encodeURIComponent(shareUrl);
                                 window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
                               }}
@@ -4666,7 +4679,7 @@ Disallow:
                             {/* LinkedIn */}
                             <button
                               onClick={() => {
-                                const shareUrl = `${window.location.origin}${window.location.pathname}?art=${readingArticle.id}`;
+                                const shareUrl = `${window.location.origin}/guides/${readingArticle.id}`;
                                 const url = encodeURIComponent(shareUrl);
                                 window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank');
                               }}
@@ -4680,7 +4693,7 @@ Disallow:
                             {/* Copy Link */}
                             <button
                               onClick={() => {
-                                const shareUrl = `${window.location.origin}${window.location.pathname}?art=${readingArticle.id}`;
+                                const shareUrl = `${window.location.origin}/guides/${readingArticle.id}`;
                                 navigator.clipboard.writeText(shareUrl).then(() => {
                                   setShareToast("Deep link copied to clipboard successfully!");
                                   setTimeout(() => setShareToast(null), 3000);
@@ -4749,7 +4762,7 @@ Disallow:
                             </button>
                             <button
                               onClick={() => {
-                                const shareUrl = `${window.location.origin}${window.location.pathname}?art=${readingArticle.id}`;
+                                const shareUrl = `${window.location.origin}/guides/${readingArticle.id}`;
                                 navigator.clipboard.writeText(shareUrl).then(() => {
                                   setShareToast("Article deep link copied to clipboard successfully!");
                                   setTimeout(() => setShareToast(null), 3000);

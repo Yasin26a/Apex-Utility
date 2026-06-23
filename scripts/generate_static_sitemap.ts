@@ -107,7 +107,9 @@ function generateSitemap() {
 
   const outputPath = path.join(outputDir, 'sitemap.xml');
   fs.writeFileSync(outputPath, xml, 'utf8');
-  console.log(`Successfully compiled physical sitemap with 274 URLs to "${outputPath}"!`);
+  
+  const urlCount = (xml.match(/<url>/g) || []).length;
+  console.log(`Successfully compiled physical sitemap with ${urlCount} URLs to "${outputPath}"!`);
 }
 
 generateSitemap();
