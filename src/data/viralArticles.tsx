@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { ActiveTab } from '../types';
 import { Article } from '../components/Guides';
+import { generate100ViralArticles } from './viral100Articles';
 
 const initialViralArticles: Article[] = [
   {
@@ -982,6 +983,7 @@ const webNewsTags: Record<string, string[]> = {
 };
 
 export const viralArticles: Article[] = [
+  ...generate100ViralArticles(),
   ...initialViralArticles,
   ...WEB_NEWS_TECH_ARTICLES.map((art): Article => {
     const creator = webNewsAuthors[art.id] || { name: 'APEX EDITORIAL', role: 'Technology Correspondent' };
