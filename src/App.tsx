@@ -318,6 +318,61 @@ export default function App() {
 
   // Article Hub States
   const [articleSearch, setArticleSearch] = useState('');
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [recentSearches, setRecentSearches] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('recent_article_searches');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const addRecentSearch = (query: string) => {
+    const trimmed = query.trim();
+    if (!trimmed || trimmed.length < 2) return;
+    setRecentSearches(prev => {
+      const filtered = prev.filter(q => q.toLowerCase() !== trimmed.toLowerCase());
+      const next = [trimmed, ...filtered].slice(0, 5);
+      try {
+        localStorage.setItem('recent_article_searches', JSON.stringify(next));
+      } catch (e) {
+        console.error(e);
+      }
+      return next;
+    });
+  };
+
+  const removeRecentSearch = (queryToRemove: string) => {
+    setRecentSearches(prev => {
+      const next = prev.filter(q => q !== queryToRemove);
+      try {
+        localStorage.setItem('recent_article_searches', JSON.stringify(next));
+      } catch (e) {
+        console.error(e);
+      }
+      return next;
+    });
+  };
+
+  const clearAllRecentSearches = () => {
+    setRecentSearches([]);
+    try {
+      localStorage.removeItem('recent_article_searches');
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  // Debounce saving recent searches as the user types
+  useEffect(() => {
+    if (!articleSearch || articleSearch.trim().length < 2) return;
+    const timer = setTimeout(() => {
+      addRecentSearch(articleSearch);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [articleSearch]);
+
   const [selectedArticleCategory, setSelectedArticleCategory] = useState<string>('All');
   const [readingArticle, setReadingArticle] = useState<Article | null>(null);
   const [readTheme, setReadTheme] = useState<'slate' | 'sepia' | 'parchment'>('slate');
@@ -3761,7 +3816,7 @@ Disallow:
 
                 {/* Filter Controls & Search bar */}
                 <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col md:flex-row gap-4 items-center justify-between">
-                  {/* Search Input */}
+                   {/* Search Input */}
                   <div className="relative w-full md:w-80">
                     <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
                       <Search className="w-4 h-4" />
@@ -3771,7 +3826,17 @@ Disallow:
                       placeholder={`Search ${AT_LEAST_20_ARTICLES.length} compliance articles...`}
                       value={articleSearch}
                       onChange={(e) => setArticleSearch(e.target.value)}
-                      className="w-full bg-slate-900 border border-slate-800 rounded-lg pl-9 pr-4 py-2 text-xs text-slate-200 placeholder-slate-550 focus:border-rose-500 focus:outline-none transition-all"
+                      onFocus={() => setIsSearchFocused(true)}
+                      onBlur={() => {
+                        setTimeout(() => setIsSearchFocused(false), 200);
+                        addRecentSearch(articleSearch);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          addRecentSearch(articleSearch);
+                        }
+                      }}
+                      className="w-full bg-slate-900 border border-slate-800 rounded-lg pl-9 pr-12 py-2 text-xs text-slate-200 placeholder-slate-550 focus:border-rose-500 focus:outline-none transition-all"
                     />
                     {articleSearch && (
                       <button
@@ -3780,6 +3845,55 @@ Disallow:
                       >
                         Clear
                       </button>
+                    )}
+
+                    {/* Recent Searches Dropdown */}
+                    {isSearchFocused && recentSearches.length > 0 && (
+                      <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-slate-950 border border-slate-800 rounded-lg shadow-2xl p-2 space-y-1">
+                        <div className="flex items-center justify-between px-2 py-1 border-b border-slate-850">
+                          <span className="text-[9px] font-mono text-slate-500 uppercase tracking-wider flex items-center gap-1">
+                            <Clock className="w-2.5 h-2.5" /> Recent Searches
+                          </span>
+                          <button
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              clearAllRecentSearches();
+                            }}
+                            className="text-[9px] font-mono text-slate-500 hover:text-rose-400 transition-colors uppercase"
+                          >
+                            Clear All
+                          </button>
+                        </div>
+                        <div className="max-h-48 overflow-y-auto pt-1 space-y-0.5">
+                          {recentSearches.map((query, index) => (
+                            <div
+                              key={`${query}-${index}`}
+                              onMouseDown={(e) => {
+                                e.preventDefault();
+                                setArticleSearch(query);
+                                setIsSearchFocused(false);
+                              }}
+                              className="flex items-center justify-between px-2 py-1.5 rounded text-xs text-slate-300 hover:bg-slate-900 hover:text-white transition-colors cursor-pointer group"
+                            >
+                              <span className="truncate flex items-center gap-2">
+                                <Search className="w-3 h-3 text-slate-550 group-hover:text-slate-400" />
+                                {query}
+                              </span>
+                              <button
+                                onMouseDown={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  removeRecentSearch(query);
+                                }}
+                                className="text-slate-500 hover:text-rose-400 p-0.5 rounded transition-colors"
+                                title="Remove search query"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     )}
                   </div>
 
@@ -4565,33 +4679,60 @@ Disallow:
                           </div>
                         </div>
 
-                        {/* Related Articles Suggested in Same Category */}
+                        {/* Recommended For You - AI/Keyword Based Recommendations */}
                         {(() => {
-                          const relatedList = [
-                            ...AT_LEAST_20_ARTICLES.filter(art => art.category === readingArticle.category && art.id !== readingArticle.id),
-                            ...AT_LEAST_20_ARTICLES.filter(art => art.id !== readingArticle.id)
-                          ].filter((item, index, self) => self.findIndex(t => t.id === item.id) === index).slice(0, 3);
+                          const currentKeywords = getArticleKeywords(readingArticle);
+                          const currentKeywordsLower = currentKeywords.map(k => k.toLowerCase());
+                          
+                          const scored = AT_LEAST_20_ARTICLES
+                            .filter(art => art.id !== readingArticle.id)
+                            .map(art => {
+                              const candidateKeywords = getArticleKeywords(art);
+                              const candidateKeywordsLower = candidateKeywords.map(k => k.toLowerCase());
+                              
+                              // Calculate intersection
+                              const intersection = candidateKeywordsLower.filter(kw => currentKeywordsLower.includes(kw));
+                              let score = intersection.length * 3; // 3 points per matching keyword
+                              
+                              // Same category bonus
+                              if (art.category === readingArticle.category) {
+                                score += 5;
+                              }
+                              
+                              // Title overlap bonus
+                              const currentTitleWords = readingArticle.title.toLowerCase().split(/\s+/).filter(w => w.length > 3);
+                              const candidateTitleWords = art.title.toLowerCase().split(/\s+/).filter(w => w.length > 3);
+                              const titleOverlap = candidateTitleWords.filter(w => currentTitleWords.includes(w));
+                              score += titleOverlap.length * 2; // 2 points per matching title word
+
+                              return { article: art, score, sharedKeywords: candidateKeywords.filter(k => currentKeywordsLower.includes(k.toLowerCase())) };
+                            });
+
+                          // Sort by score descending, then tie-breaker
+                          scored.sort((a, b) => b.score - a.score || a.article.title.localeCompare(b.article.title));
+                          
+                          const recommendedList = scored.slice(0, 3);
                           
                           return (
                             <div className={`mt-10 pt-8 border-t transition-colors ${
                               readTheme === 'parchment' ? 'border-stone-200' : 'border-slate-850/50'
                             }`}>
                               <div className="flex items-center gap-2 mb-4">
-                                <Compass className="w-4 h-4 text-rose-500" />
+                                <Compass className="w-4 h-4 text-rose-500 animate-pulse" />
                                 <h4 className={`text-sm sm:text-base font-extrabold uppercase tracking-tight ${
                                   readTheme === 'parchment' ? 'text-stone-900' : 'text-slate-100'
                                 }`}>
-                                  Related Articles
+                                  Recommended For You
                                 </h4>
                               </div>
                               <p className={`text-xs -mt-3 mb-5 ${
                                 readTheme === 'parchment' ? 'text-stone-600' : 'text-slate-400'
                               }`}>
-                                Handpicked additions from our target academies to enrich your compliance reading trail.
+                                Dynamic recommendations matched on topic footprints, category context, and semantic index keywords.
                               </p>
 
                               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                {relatedList.map((art) => (
+                                {recommendedList.map(({ article: art, sharedKeywords }) => (
                                   <button
                                     key={art.id}
                                     onClick={() => {
@@ -4617,10 +4758,17 @@ Disallow:
                                         />
                                       </div>
 
-                                      {/* Tag and category metadata */}
-                                      <span className="inline-block px-1.5 py-0.5 bg-rose-500/10 border border-rose-500/20 text-rose-400 text-[9px] font-mono font-bold tracking-wide uppercase rounded">
-                                        {art.category}
-                                      </span>
+                                      {/* Tag, category metadata & shared keywords */}
+                                      <div className="flex flex-wrap gap-1 items-center">
+                                        <span className="inline-block px-1.5 py-0.5 bg-rose-500/10 border border-rose-500/20 text-rose-400 text-[9px] font-mono font-bold tracking-wide uppercase rounded">
+                                          {art.category}
+                                        </span>
+                                        {sharedKeywords.slice(0, 2).map((kw) => (
+                                          <span key={kw} className="inline-block px-1.5 py-0.5 bg-slate-800/40 border border-slate-700/30 text-slate-350 dark:text-slate-400 text-[8px] font-mono rounded">
+                                            {kw}
+                                          </span>
+                                        ))}
+                                      </div>
 
                                       {/* Heading title */}
                                       <h5 className={`font-bold text-xs sm:text-sm line-clamp-2 leading-snug group-hover:text-rose-400 transition-colors ${

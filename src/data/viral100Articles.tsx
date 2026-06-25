@@ -652,9 +652,9 @@ export const generate100ViralArticles = (): Article[] => {
     const author = authors[i % authors.length];
     const image = unsplashPool[i % unsplashPool.length];
     
-    // Unique ID generation with suffix to make it completely unique
-    const uniqueId = `${concept.id}-viral-run-${i}`;
-    const uniqueTitle = `${concept.title} (Trending Analysis #${i + 1})`;
+    // Unique ID and title without procedural suffixes
+    const uniqueId = concept.id;
+    const uniqueTitle = concept.title;
 
     articles.push({
       id: uniqueId,
@@ -680,7 +680,7 @@ export const generate100ViralArticles = (): Article[] => {
             />
             <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-zinc-950 to-transparent p-3">
               <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-400 bg-zinc-900/95 px-2 py-1 rounded border border-zinc-800">
-                Sovereign System Context Frame #{i + 1}
+                Sovereign System Context Frame
               </span>
             </div>
           </div>
