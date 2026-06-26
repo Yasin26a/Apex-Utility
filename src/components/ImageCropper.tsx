@@ -22,11 +22,11 @@ interface AspectRatioOption {
 
 const ASPECT_RATIOS: AspectRatioOption[] = [
   { label: 'Free Crop', value: 'free' },
-  { label: '1:1 Square', value: 1 / 1 },
-  { label: '16:9 Landscape', value: 16 / 9 },
-  { label: '4:3 Standard', value: 4 / 3 },
-  { label: '2:3 Portrait', value: 2 / 3 },
-  { label: '9:16 vertical', value: 9 / 16 },
+  { label: '2:3 Pinterest Pin (1000×1500)', value: 2 / 3 },
+  { label: '1:1 IG Square (1080×1080)', value: 1 / 1 },
+  { label: '16:9 YouTube Cover (1280×720)', value: 16 / 9 },
+  { label: '9:16 Story / TikTok (1080×1920)', value: 9 / 16 },
+  { label: '4:3 Standard Photo', value: 4 / 3 },
   { label: '21:9 UltraWide', value: 21 / 9 },
 ];
 
@@ -53,6 +53,17 @@ export default function ImageCropper() {
   const [balanceMode, setBalanceMode] = useState<'crop' | 'fit'>('crop');
   const [fitPaddingColor, setFitPaddingColor] = useState<string>('#1e293b');
   const [fitPaddingBlur, setFitPaddingBlur] = useState<boolean>(true);
+
+  // Premium Social Overlay Branding properties
+  const [overlayEnabled, setOverlayEnabled] = useState<boolean>(false);
+  const [overlayTitle, setOverlayTitle] = useState<string>("Supercharge Organic Web Traffic");
+  const [overlaySubtitle, setOverlaySubtitle] = useState<string>("APEX UTILITY LABS • SOCIAL BRANDING");
+  const [overlayWebsite, setOverlayWebsite] = useState<string>("apexlabs.com");
+  const [overlayStyle, setOverlayStyle] = useState<'card' | 'stripe' | 'minimal'>('card');
+  const [overlayPosition, setOverlayPosition] = useState<'bottom' | 'top' | 'center'>('bottom');
+  const [overlayBgColor, setOverlayBgColor] = useState<string>('#0f172a');
+  const [overlayTextColor, setOverlayTextColor] = useState<string>('#c084fc'); // violet-400
+  const [overlayBorderColor, setOverlayBorderColor] = useState<string>('#a855f7'); // violet-500
 
   // Export settings
   const [exportFormat, setExportFormat] = useState<'image/png' | 'image/jpeg' | 'image/webp'>('image/png');
@@ -393,6 +404,132 @@ export default function ImageCropper() {
         ctx.drawImage(img, x, y, w, h);
       }
 
+      // Reset transform before overlay drawing to keep text upright and unrotated
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+      if (overlayEnabled) {
+        // Draw Pinterest/Social brand overlay
+        // Define dimensions of the overlay card
+        const cardW = Math.round(targetWidth * 0.88);
+        const cardH = Math.round(targetHeight * 0.24);
+        const cardX = Math.round((targetWidth - cardW) / 2);
+        
+        let cardY = targetHeight - cardH - Math.round(targetHeight * 0.04); // Bottom margin
+        if (overlayPosition === 'top') {
+          cardY = Math.round(targetHeight * 0.04);
+        } else if (overlayPosition === 'center') {
+          cardY = Math.round((targetHeight - cardH) / 2);
+        }
+
+        ctx.save();
+        
+        if (overlayStyle === 'card') {
+          // Rounded card with shadow and a custom border accent
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
+          ctx.shadowBlur = 24;
+          ctx.shadowOffsetY = 8;
+          
+          ctx.fillStyle = overlayBgColor;
+          
+          // Draw rounded rectangle
+          const radius = 16;
+          ctx.beginPath();
+          ctx.moveTo(cardX + radius, cardY);
+          ctx.lineTo(cardX + cardW - radius, cardY);
+          ctx.quadraticCurveTo(cardX + cardW, cardY, cardX + cardW, cardY + radius);
+          ctx.lineTo(cardX + cardW, cardY + cardH - radius);
+          ctx.quadraticCurveTo(cardX + cardW, cardY + cardH, cardX + cardW - radius, cardY + cardH);
+          ctx.lineTo(cardX + radius, cardY + cardH);
+          ctx.quadraticCurveTo(cardX, cardY + cardH, cardX, cardY + cardH - radius);
+          ctx.lineTo(cardX, cardY + radius);
+          ctx.quadraticCurveTo(cardX, cardY, cardX + radius, cardY);
+          ctx.closePath();
+          ctx.fill();
+          
+          // Draw a fine border accent on the card
+          ctx.shadowColor = 'transparent'; // Reset shadow
+          ctx.lineWidth = 3;
+          ctx.strokeStyle = overlayBorderColor || '#8b5cf6';
+          ctx.stroke();
+          
+        } else if (overlayStyle === 'stripe') {
+          // Stripe goes full width
+          ctx.fillStyle = overlayBgColor;
+          const stripeY = overlayPosition === 'top' ? 0 : overlayPosition === 'center' ? (targetHeight - cardH) / 2 : targetHeight - cardH;
+          const stripeH = cardH;
+          
+          ctx.fillRect(0, stripeY, targetWidth, stripeH);
+          
+          // Top or bottom accent line
+          ctx.fillStyle = overlayBorderColor || '#8b5cf6';
+          if (overlayPosition === 'top') {
+            ctx.fillRect(0, stripeY + stripeH - 6, targetWidth, 6);
+          } else {
+            ctx.fillRect(0, stripeY, targetWidth, 6);
+          }
+        } else {
+          // Minimal style: transparent background card, but with nice shadows behind the text
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
+          ctx.shadowBlur = 14;
+          ctx.shadowOffsetY = 4;
+        }
+
+        // Text rendering
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        
+        // Define base Y coordinates relative to card position
+        const activeCardY = overlayStyle === 'stripe' 
+          ? (overlayPosition === 'top' ? 0 : overlayPosition === 'center' ? (targetHeight - cardH) / 2 : targetHeight - cardH)
+          : cardY;
+        const activeCardH = cardH;
+        const activeCardX = overlayStyle === 'stripe' ? 0 : cardX;
+        const activeCardW = overlayStyle === 'stripe' ? targetWidth : cardW;
+
+        // Subtitle/brand label at the top of the card
+        const subtitleText = overlaySubtitle.toUpperCase();
+        ctx.font = `bold ${Math.round(activeCardH * 0.12)}px sans-serif`;
+        ctx.fillStyle = overlayTextColor;
+        ctx.fillText(subtitleText, activeCardX + activeCardW / 2, activeCardY + activeCardH * 0.22);
+
+        // Title in the center (bold, larger)
+        const titleText = overlayTitle;
+        const maxTitleWidth = activeCardW * 0.88;
+        ctx.font = `bold ${Math.round(activeCardH * 0.24)}px sans-serif`;
+        ctx.fillStyle = '#ffffff'; // always high-contrast white
+        
+        // Wrap title text
+        const words = titleText.split(' ');
+        let line = '';
+        const lines = [];
+        for (let n = 0; n < words.length; n++) {
+          const testLine = line + words[n] + ' ';
+          const metrics = ctx.measureText(testLine);
+          if (metrics.width > maxTitleWidth && n > 0) {
+            lines.push(line);
+            line = words[n] + ' ';
+          } else {
+            line = testLine;
+          }
+        }
+        lines.push(line);
+
+        // Render title lines
+        const lineOffset = Math.round(activeCardH * 0.18);
+        const startY = activeCardY + activeCardH * 0.48 - ((lines.length - 1) * lineOffset) / 2;
+        for (let i = 0; i < lines.length; i++) {
+          ctx.fillText(lines[i].trim(), activeCardX + activeCardW / 2, startY + i * lineOffset);
+        }
+
+        // Website or call to action at the bottom
+        const websiteText = overlayWebsite.toLowerCase();
+        ctx.font = `italic ${Math.round(activeCardH * 0.10)}px monospace`;
+        ctx.fillStyle = overlayTextColor;
+        ctx.fillText(websiteText, activeCardX + activeCardW / 2, activeCardY + activeCardH * 0.82);
+
+        ctx.restore();
+      }
+
       // Output action trigger
       if (action === 'download') {
         const dataUrl = canvas.toDataURL(exportFormat, exportQuality / 100);
@@ -563,6 +700,53 @@ export default function ImageCropper() {
                     alt="Loaded viewport element"
                     className="max-h-[400px] object-contain pointer-events-none rounded-xl"
                   />
+
+                  {/* Brand overlay preview */}
+                  {overlayEnabled && (
+                    <div 
+                      className="absolute inset-0 pointer-events-none flex flex-col p-4 select-none"
+                      style={{
+                        justifyContent: overlayPosition === 'top' ? 'flex-start' : overlayPosition === 'center' ? 'center' : 'flex-end'
+                      }}
+                    >
+                      <div 
+                        className={`w-[88%] mx-auto p-2.5 text-center border transition-all ${
+                          overlayStyle === 'card' 
+                            ? 'rounded-xl shadow-2xl' 
+                            : overlayStyle === 'stripe' 
+                            ? 'w-full border-x-0' 
+                            : 'bg-transparent border-0 shadow-none'
+                        }`}
+                        style={{
+                          backgroundColor: overlayStyle === 'minimal' ? 'transparent' : overlayBgColor,
+                          borderColor: overlayStyle === 'minimal' ? 'transparent' : overlayBorderColor,
+                          borderWidth: overlayStyle === 'minimal' ? 0 : '2px',
+                          boxShadow: overlayStyle === 'minimal' ? 'none' : '0 12px 30px -5px rgba(0,0,0,0.65)',
+                        }}
+                      >
+                        {/* Subtitle/Brand */}
+                        <div 
+                          className="text-[9px] font-bold tracking-widest uppercase mb-0.5"
+                          style={{ color: overlayTextColor }}
+                        >
+                          {overlaySubtitle || 'BRAND LABEL'}
+                        </div>
+                        {/* Title */}
+                        <div 
+                          className="text-xs font-black text-white leading-tight tracking-tight mb-0.5 drop-shadow-md uppercase"
+                        >
+                          {overlayTitle || 'Your Pin Title'}
+                        </div>
+                        {/* Website */}
+                        <div 
+                          className="text-[8px] font-mono italic opacity-95"
+                          style={{ color: overlayTextColor }}
+                        >
+                          {overlayWebsite || 'yoursite.com'}
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Standard Crop Mask Box */}
                   {balanceMode === 'crop' && (
@@ -768,6 +952,138 @@ export default function ImageCropper() {
                 </motion.div>
               )}
             </AnimatePresence>
+
+            {/* Premium Social Media Brand Overlay */}
+            <div className="flex flex-col gap-2.5 border-t border-slate-800 pt-3">
+              <div className="flex items-center justify-between">
+                <label className="text-xs text-slate-300 font-semibold flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Pinterest & Social Overlay</span>
+                </label>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={overlayEnabled}
+                    onChange={(e) => setOverlayEnabled(e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-8 h-4 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-2.5 after:w-2.5 after:transition-all peer-checked:bg-amber-500 peer-checked:after:bg-white"></div>
+                </label>
+              </div>
+              <p className="text-[10px] text-slate-500 leading-normal">
+                Draw beautiful typography titles, custom categorizations, and brand websites directly onto your images.
+              </p>
+
+              <AnimatePresence>
+                {overlayEnabled && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="flex flex-col gap-3 mt-1.5 overflow-hidden"
+                  >
+                    {/* Main Title input */}
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[9px] font-mono text-slate-500 uppercase">PIN TITLE TEXT</span>
+                      <input
+                        type="text"
+                        value={overlayTitle}
+                        onChange={(e) => setOverlayTitle(e.target.value)}
+                        placeholder="e.g. How To Grow 10x Website Traffic"
+                        className="w-full bg-slate-900 border border-slate-800 px-2 py-1.5 rounded-lg text-xs font-semibold text-slate-200 outline-none focus:border-amber-500"
+                      />
+                    </div>
+
+                    {/* Subtitle/Brand label */}
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[9px] font-mono text-slate-500 uppercase">CATEGORY / SUBTITLE</span>
+                      <input
+                        type="text"
+                        value={overlaySubtitle}
+                        onChange={(e) => setOverlaySubtitle(e.target.value)}
+                        placeholder="e.g. PINTEREST MARKETING WORKSHOP"
+                        className="w-full bg-slate-900 border border-slate-800 px-2 py-1.5 rounded-lg text-xs text-slate-300 outline-none focus:border-amber-500"
+                      />
+                    </div>
+
+                    {/* Website URL */}
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[9px] font-mono text-slate-500 uppercase">WEBSITE URL / TAG</span>
+                      <input
+                        type="text"
+                        value={overlayWebsite}
+                        onChange={(e) => setOverlayWebsite(e.target.value)}
+                        placeholder="e.g. yourwebsite.com"
+                        className="w-full bg-slate-900 border border-slate-800 px-2 py-1.5 rounded-lg text-xs font-mono text-slate-300 outline-none focus:border-amber-500"
+                      />
+                    </div>
+
+                    {/* Style and Position in 2 cols */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="flex flex-col gap-1">
+                        <span className="text-[9px] font-mono text-slate-500 uppercase">OVERLAY STYLE</span>
+                        <select
+                          value={overlayStyle}
+                          onChange={(e) => setOverlayStyle(e.target.value as any)}
+                          className="bg-slate-900 border border-slate-800 px-2 py-1.5 rounded-lg text-xs text-slate-300 outline-none focus:border-amber-500"
+                        >
+                          <option value="card">Card Badge</option>
+                          <option value="stripe">Full Stripe</option>
+                          <option value="minimal">Minimalist Clean</option>
+                        </select>
+                      </div>
+
+                      <div className="flex flex-col gap-1">
+                        <span className="text-[9px] font-mono text-slate-500 uppercase">POSITION</span>
+                        <select
+                          value={overlayPosition}
+                          onChange={(e) => setOverlayPosition(e.target.value as any)}
+                          className="bg-slate-900 border border-slate-800 px-2 py-1.5 rounded-lg text-xs text-slate-300 outline-none focus:border-amber-500"
+                        >
+                          <option value="bottom">Bottom Align</option>
+                          <option value="top">Top Align</option>
+                          <option value="center">Center Focus</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Overlay Backdrop & Text colors */}
+                    {overlayStyle !== 'minimal' && (
+                      <div className="grid grid-cols-3 gap-2">
+                        <div className="flex flex-col gap-1 col-span-1">
+                          <span className="text-[9px] font-mono text-slate-500 uppercase">BACKDROP</span>
+                          <input
+                            type="color"
+                            value={overlayBgColor}
+                            onChange={(e) => setOverlayBgColor(e.target.value)}
+                            className="w-full h-8 bg-transparent p-0 border-0 cursor-pointer rounded-lg"
+                          />
+                        </div>
+                        <div className="flex flex-col gap-1 col-span-1">
+                          <span className="text-[9px] font-mono text-slate-500 uppercase">ACCENT TEXT</span>
+                          <input
+                            type="color"
+                            value={overlayTextColor}
+                            onChange={(e) => setOverlayTextColor(e.target.value)}
+                            className="w-full h-8 bg-transparent p-0 border-0 cursor-pointer rounded-lg"
+                          />
+                        </div>
+                        <div className="flex flex-col gap-1 col-span-1">
+                          <span className="text-[9px] font-mono text-slate-500 uppercase">BORDER</span>
+                          <input
+                            type="color"
+                            value={overlayBorderColor}
+                            onChange={(e) => setOverlayBorderColor(e.target.value)}
+                            className="w-full h-8 bg-transparent p-0 border-0 cursor-pointer rounded-lg"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
 
             {/* Target dimensions picker */}
             <div className="flex flex-col gap-2.5 border-t border-slate-800 pt-3">
