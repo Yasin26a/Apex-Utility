@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   ShieldCheck, 
@@ -47,58 +47,57 @@ import { useReadingScrollTracker } from './hooks/useReadingScrollTracker';
 import { useVoicePreference } from './hooks/useVoicePreference';
 import useSEOTags from './hooks/useSEOTags';
 import { AT_LEAST_20_ARTICLES, Article } from './data/articles';
-import { jsPDF } from 'jspdf';
-import WebPConverter from './components/WebPConverter';
-import PDFJoiner from './components/PDFJoiner';
-import ContentPlanner from './components/ContentPlanner';
-import VideoRecorder from './components/VideoRecorder';
+const WebPConverter = lazy(() => import('./components/WebPConverter'));
+const PDFJoiner = lazy(() => import('./components/PDFJoiner'));
+const ContentPlanner = lazy(() => import('./components/ContentPlanner'));
+const VideoRecorder = lazy(() => import('./components/VideoRecorder'));
 import { Document as PDFDocumentView, Page as PDFPageView, pdfjs } from 'react-pdf';
 
 if (typeof window !== 'undefined') {
   pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 }
-import SchemaGenerator from './components/SchemaGenerator';
-import SEOCompetitorGapAnalyzer from './components/SEOCompetitorGapAnalyzer';
-import AIKeywordClusterTool from './components/AIKeywordClusterTool';
-import AIAssistantSupervisor from './components/AIAssistantSupervisor';
-import Dashboard from './components/Dashboard';
-import JSONBeautifier from './components/JSONBeautifier';
-import ImageToPDF from './components/ImageToPDF';
-import PasswordGenerator from './components/PasswordGenerator';
-import QRCodeGenerator from './components/QRCodeGenerator';
-import UnitConverter from './components/UnitConverter';
-import SVGRasterizer from './components/SVGRasterizer';
-import BatchProcessor from './components/BatchProcessor';
-import ImageVectorizer from './components/ImageVectorizer';
-import JSONDiffChecker from './components/JSONDiffChecker';
-import SecureHashGenerator from './components/SecureHashGenerator';
-import ColorPaletteGenerator from './components/ColorPaletteGenerator';
-import DigitalSignatureGenerator from './components/DigitalSignatureGenerator';
-import SEOOptimizer from './components/SEOOptimizer';
-import Base64Converter from './components/Base64Converter';
-import RegexTester from './components/RegexTester';
-import CSVJSONConverter from './components/CSVJSONConverter';
-import ImageCompressor from './components/ImageCompressor';
-import QuickImageOptimizer from './components/QuickImageOptimizer';
-import RichTextStatistics from './components/RichTextStatistics';
-import AudioTrimmer from './components/AudioTrimmer';
-import AIAudioTranscriber from './components/AIAudioTranscriber';
-import PDFAnalyst from './components/PDFAnalyst';
-import ExifMetadataStripper from './components/ExifMetadataStripper';
-import CodeSnapshot from './components/CodeSnapshot';
-import CaseConverter from './components/CaseConverter';
-import LoremGenerator from './components/LoremGenerator';
-import ImageCropper from './components/ImageCropper';
-import DateCalculator from './components/DateCalculator';
-import PrivateSketchpad from './components/PrivateSketchpad';
-import SEOInspect from './components/SEOInspect';
-import AIWriter from './components/AIWriter';
-import CSSGlassShadowGenerator from './components/CSSGlassShadowGenerator';
-import RobotsGenerator from './components/RobotsGenerator';
-import DNSLookup from './components/DNSLookup';
-import UserAgentAnalyzer from './components/UserAgentAnalyzer';
-import HTMLMarkdownConverter from './components/HTMLMarkdownConverter';
-import MetaTagsOptimizer from './components/MetaTagsOptimizer';
+const SchemaGenerator = lazy(() => import('./components/SchemaGenerator'));
+const SEOCompetitorGapAnalyzer = lazy(() => import('./components/SEOCompetitorGapAnalyzer'));
+const AIKeywordClusterTool = lazy(() => import('./components/AIKeywordClusterTool'));
+const AIAssistantSupervisor = lazy(() => import('./components/AIAssistantSupervisor'));
+const Dashboard = lazy(() => import('./components/Dashboard'));
+const JSONBeautifier = lazy(() => import('./components/JSONBeautifier'));
+const ImageToPDF = lazy(() => import('./components/ImageToPDF'));
+const PasswordGenerator = lazy(() => import('./components/PasswordGenerator'));
+const QRCodeGenerator = lazy(() => import('./components/QRCodeGenerator'));
+const UnitConverter = lazy(() => import('./components/UnitConverter'));
+const SVGRasterizer = lazy(() => import('./components/SVGRasterizer'));
+const BatchProcessor = lazy(() => import('./components/BatchProcessor'));
+const ImageVectorizer = lazy(() => import('./components/ImageVectorizer'));
+const JSONDiffChecker = lazy(() => import('./components/JSONDiffChecker'));
+const SecureHashGenerator = lazy(() => import('./components/SecureHashGenerator'));
+const ColorPaletteGenerator = lazy(() => import('./components/ColorPaletteGenerator'));
+const DigitalSignatureGenerator = lazy(() => import('./components/DigitalSignatureGenerator'));
+const SEOOptimizer = lazy(() => import('./components/SEOOptimizer'));
+const Base64Converter = lazy(() => import('./components/Base64Converter'));
+const RegexTester = lazy(() => import('./components/RegexTester'));
+const CSVJSONConverter = lazy(() => import('./components/CSVJSONConverter'));
+const ImageCompressor = lazy(() => import('./components/ImageCompressor'));
+const QuickImageOptimizer = lazy(() => import('./components/QuickImageOptimizer'));
+const RichTextStatistics = lazy(() => import('./components/RichTextStatistics'));
+const AudioTrimmer = lazy(() => import('./components/AudioTrimmer'));
+const AIAudioTranscriber = lazy(() => import('./components/AIAudioTranscriber'));
+const PDFAnalyst = lazy(() => import('./components/PDFAnalyst'));
+const ExifMetadataStripper = lazy(() => import('./components/ExifMetadataStripper'));
+const CodeSnapshot = lazy(() => import('./components/CodeSnapshot'));
+const CaseConverter = lazy(() => import('./components/CaseConverter'));
+const LoremGenerator = lazy(() => import('./components/LoremGenerator'));
+const ImageCropper = lazy(() => import('./components/ImageCropper'));
+const DateCalculator = lazy(() => import('./components/DateCalculator'));
+const PrivateSketchpad = lazy(() => import('./components/PrivateSketchpad'));
+const SEOInspect = lazy(() => import('./components/SEOInspect'));
+const AIWriter = lazy(() => import('./components/AIWriter'));
+const CSSGlassShadowGenerator = lazy(() => import('./components/CSSGlassShadowGenerator'));
+const RobotsGenerator = lazy(() => import('./components/RobotsGenerator'));
+const DNSLookup = lazy(() => import('./components/DNSLookup'));
+const UserAgentAnalyzer = lazy(() => import('./components/UserAgentAnalyzer'));
+const HTMLMarkdownConverter = lazy(() => import('./components/HTMLMarkdownConverter'));
+const MetaTagsOptimizer = lazy(() => import('./components/MetaTagsOptimizer'));
 
 const getArticleKeywords = (article: Article): string[] => {
   const text = [
@@ -1059,7 +1058,8 @@ export default function App() {
   }, [readingArticle, selectedArticleCategory, articleSearch, handleToggleSpeak]);
 
   // Download Article directly as structured document PDF offline using jsPDF (no browser print needed!)
-  const handleDownloadPDF = (art: Article) => {
+  const handleDownloadPDF = async (art: Article) => {
+    const { jsPDF } = await import('jspdf');
     const doc = new jsPDF('p', 'pt', 'letter');
     const pageWidth = 612;
     const pageHeight = 792;
@@ -2293,7 +2293,20 @@ Disallow:
         <div className="flex-1 overflow-y-auto flex flex-col will-change-scroll scroll-smooth" id="main-content-window" style={{ willChange: 'scroll-position, transform', WebkitOverflowScrolling: 'touch' }}>
           <main className={`flex-1 ${activeTab === 'css-generator' && cssZenMode ? 'p-0 max-w-none w-full' : activeTab === 'guides' ? 'p-4 sm:p-8 max-w-7xl w-full mx-auto' : 'p-4 sm:p-8 max-w-5xl w-full mx-auto'}`}>
             
-            <AnimatePresence mode="wait">
+            <Suspense fallback={
+              <div className="beveled-panel bg-[#050508]/80 border border-zinc-900/80 p-8 rounded-2xl flex flex-col items-center justify-center space-y-4 py-16 max-w-md mx-auto my-12 shadow-2xl backdrop-blur-md">
+                <div className="relative w-12 h-12">
+                  <div className="absolute inset-0 rounded-full border-2 border-brand/10" />
+                  <div className="absolute inset-0 rounded-full border-2 border-t-brand animate-spin" />
+                  <div className="absolute inset-2 rounded-full border border-dashed border-brand/20 animate-pulse" />
+                </div>
+                <div className="text-center space-y-1.5">
+                  <p className="font-heading text-xs font-black text-white uppercase tracking-widest animate-pulse">Spawning Sandbox Engine</p>
+                  <p className="font-mono text-[9px] text-zinc-500 uppercase tracking-wider">Assembling localized web assembly utilities...</p>
+                </div>
+              </div>
+            }>
+              <AnimatePresence mode="wait">
              {activeTab === 'dashboard' && (
               <motion.div
                 key="dashboard"
@@ -5329,7 +5342,8 @@ Disallow:
             )}
 
           </AnimatePresence>
-        </main>
+        </Suspense>
+      </main>
 
         {/* Primary Footer */}
         {!(activeTab === 'css-generator' && cssZenMode) && (
