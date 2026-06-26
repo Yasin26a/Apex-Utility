@@ -153,6 +153,10 @@ export interface BatchPDFMetadata {
   title: string;
   author: string;
   subject: string;
+  creator?: string;
+  producer?: string;
+  creationDate?: string;
+  modificationDate?: string;
 }
 
 export interface BatchPDFState {
@@ -160,7 +164,7 @@ export interface BatchPDFState {
   name: string;
   size: number;
   progress: number;
-  stage: 'idle' | 'uploading' | 'optimizing' | 'analyzing' | 'complete' | 'error';
+  stage: 'idle' | 'uploaded' | 'uploading' | 'optimizing' | 'analyzing' | 'complete' | 'error';
   originalSizeStr: string;
   compressedSizeStr: string;
   compressedBlobUrl?: string;
@@ -842,14 +846,42 @@ export default function PDFCompressor() {
       const originalBlobUrl = isPDF ? URL.createObjectURL(file) : '';
 
       let pageCount: number | undefined = undefined;
+      let pdfCreator = 'N/A';
+      let pdfProducer = 'N/A';
+      let pdfCreationDate = 'N/A';
+      let pdfModificationDate = 'N/A';
+      let pdfTitle = inferredTitle;
+      let pdfAuthor = 'N/A';
+      let pdfSubject = isImage ? 'Converted Image Document' : 'Job Application Attachment';
+
       if (isPDF) {
         try {
           const arrayBuffer = await file.arrayBuffer();
           const loadedDoc = await PDFDocument.load(arrayBuffer);
           pageCount = loadedDoc.getPageCount();
+          pdfCreator = loadedDoc.getCreator() || 'N/A';
+          pdfProducer = loadedDoc.getProducer() || 'N/A';
+          pdfTitle = loadedDoc.getTitle() || inferredTitle;
+          pdfAuthor = loadedDoc.getAuthor() || 'N/A';
+          pdfSubject = loadedDoc.getSubject() || 'Job Application Attachment';
+          
+          const creationDateObj = loadedDoc.getCreationDate();
+          if (creationDateObj) {
+            pdfCreationDate = creationDateObj.toLocaleString();
+          }
+          const modDateObj = loadedDoc.getModificationDate();
+          if (modDateObj) {
+            pdfModificationDate = modDateObj.toLocaleString();
+          }
         } catch (err) {
-          console.error("Error reading PDF page count:", err);
+          console.error("Error reading PDF page count/metadata:", err);
         }
+      } else if (isImage) {
+        pdfCreator = 'APEX UTILITY Converter';
+        pdfProducer = 'APEX Forge Client-Side Canvas Engine';
+        pdfCreationDate = new Date().toLocaleString();
+        pdfModificationDate = new Date().toLocaleString();
+        pdfAuthor = 'Local User';
       }
 
       return {
@@ -857,16 +889,20 @@ export default function PDFCompressor() {
         name: file.name,
         size: file.size,
         progress: isValid ? 12 : 0,
-        stage: isValid ? ('uploading' as const) : ('error' as const),
+        stage: isValid ? ('uploaded' as const) : ('error' as const),
         originalSizeStr,
         compressedSizeStr: '',
         originalBlobUrl,
         originalFile: file,
         pageCount,
         metadata: {
-          title: inferredTitle,
-          author: '',
-          subject: isImage ? 'Converted Image Document' : 'Job Application Attachment'
+          title: pdfTitle,
+          author: pdfAuthor,
+          subject: pdfSubject,
+          creator: pdfCreator,
+          producer: pdfProducer,
+          creationDate: pdfCreationDate,
+          modificationDate: pdfModificationDate
         },
         showMetadataEdit: false,
         watermarkType: 'none',
@@ -887,17 +923,6 @@ export default function PDFCompressor() {
     Promise.all(listPromises).then(processedList => {
       // Append to list
       setFiles(prev => [...prev, ...processedList]);
-
-      // Trigger action loaders
-      processedList.forEach(item => {
-        if (item.stage !== 'error') {
-          if (item.isImage && item.imageSrc) {
-            runImageToPDFSimulation(item.id, item.name, item.size, item.originalSizeStr, item.imageSrc);
-          } else {
-            runCompressionSimulation(item.id, item.name, item.size, item.originalSizeStr, item.originalFile);
-          }
-        }
-      });
     });
 
     // Reset input so users can select subsequently
@@ -1339,6 +1364,25 @@ export default function PDFCompressor() {
                       <Plus className="w-3.5 h-3.5" />
                       <span>Queue Files</span>
                     </button>
+                    {files.some(f => f.stage === 'uploaded') && (
+                      <button
+                        onClick={() => {
+                          const uploadedFiles = files.filter(f => f.stage === 'uploaded');
+                          setFiles(prev => prev.map(f => f.stage === 'uploaded' ? { ...f, stage: 'uploading' } : f));
+                          uploadedFiles.forEach(f => {
+                            if (f.isImage && f.imageSrc) {
+                              runImageToPDFSimulation(f.id, f.name, f.size, f.originalSizeStr, f.imageSrc);
+                            } else {
+                              runCompressionSimulation(f.id, f.name, f.size, f.originalSizeStr, f.originalFile);
+                            }
+                          });
+                        }}
+                        className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded bg-brand hover:bg-brand-hover text-zinc-950 text-xs font-heading font-black transition-all cursor-pointer uppercase tracking-wider shadow-[0_0_12px_rgba(239,68,68,0.2)]"
+                      >
+                        <Cpu className="w-3.5 h-3.5 text-zinc-950 font-black animate-pulse" />
+                        <span>Optimize All</span>
+                      </button>
+                    )}
                     {files.some(f => f.stage === 'complete') && (
                       <button
                         onClick={downloadAll}
@@ -2004,8 +2048,81 @@ export default function PDFCompressor() {
                           </motion.div>
                         )}
 
+                        {/* Summary panel of PDF document metadata before optimization starts */}
+                        {isPdf && file.stage === 'uploaded' && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="bg-[#0b0b0f] border border-brand/20 p-4 rounded-xl space-y-4 shadow-[0_0_15px_rgba(239,68,68,0.05)] relative overflow-hidden"
+                          >
+                            <div className="flex items-center justify-between border-b border-zinc-900/60 pb-2.5">
+                              <span className="text-[10px] font-mono font-bold text-zinc-300 uppercase tracking-widest flex items-center gap-1.5">
+                                <Sparkles className="w-3.5 h-3.5 text-brand animate-pulse" /> Document Uploaded Metadata Summary
+                              </span>
+                              <span className="text-[9px] font-mono text-emerald-400 bg-emerald-950/20 border border-emerald-900/20 px-2 py-0.5 rounded flex items-center gap-1 font-bold">
+                                Ready to Optimize
+                              </span>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2.5 bg-zinc-950/60 p-3 rounded-lg border border-zinc-900/80">
+                              <div className="space-y-0.5">
+                                <span className="text-[9px] font-mono uppercase text-zinc-500 block">File Name</span>
+                                <span className="text-zinc-355 text-xs font-sans truncate block">{file.name}</span>
+                              </div>
+                              <div className="space-y-0.5">
+                                <span className="text-[9px] font-mono uppercase text-zinc-500 block">Page Count</span>
+                                <span className="text-zinc-355 text-xs font-sans font-bold">
+                                  {file.pageCount !== undefined ? `${file.pageCount} ${file.pageCount === 1 ? 'Page' : 'Pages'}` : 'N/A'}
+                                </span>
+                              </div>
+                              <div className="space-y-0.5">
+                                <span className="text-[9px] font-mono uppercase text-zinc-500 block">File Creator / Author</span>
+                                <span className="text-zinc-355 text-xs font-sans truncate block">
+                                  {file.metadata?.creator || 'Unknown'} / {file.metadata?.author || 'N/A'}
+                                </span>
+                              </div>
+                              <div className="space-y-0.5">
+                                <span className="text-[9px] font-mono uppercase text-zinc-500 block">Production Tool</span>
+                                <span className="text-zinc-355 text-xs font-sans truncate block">{file.metadata?.producer || 'Unknown'}</span>
+                              </div>
+                              <div className="space-y-0.5">
+                                <span className="text-[9px] font-mono uppercase text-zinc-500 block">Created On</span>
+                                <span className="text-zinc-355 text-xs font-sans truncate block">{file.metadata?.creationDate || 'Unknown'}</span>
+                              </div>
+                              <div className="space-y-0.5">
+                                <span className="text-[9px] font-mono uppercase text-zinc-500 block">Last Modified</span>
+                                <span className="text-zinc-355 text-xs font-sans truncate block">{file.metadata?.modificationDate || 'Unknown'}</span>
+                              </div>
+                            </div>
+
+                            {/* Actions to start optimizing this file */}
+                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-1 border-t border-zinc-900/40">
+                              <p className="text-[9px] font-sans text-zinc-500 leading-normal max-w-sm">
+                                Pre-optimization checks passed. Start the custom local compression engine.
+                              </p>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  // Update file state to uploading
+                                  setFiles(prev => prev.map(f => f.id === file.id ? { ...f, stage: 'uploading' } : f));
+                                  // Trigger the simulation
+                                  if (file.isImage && file.imageSrc) {
+                                    runImageToPDFSimulation(file.id, file.name, file.size, file.originalSizeStr, file.imageSrc);
+                                  } else {
+                                    runCompressionSimulation(file.id, file.name, file.size, file.originalSizeStr, file.originalFile);
+                                  }
+                                }}
+                                className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded bg-brand hover:bg-brand-hover text-zinc-950 text-xs font-heading font-black transition-all cursor-pointer uppercase tracking-wider shadow-[0_0_12px_rgba(239,68,68,0.2)]"
+                              >
+                                <Cpu className="w-3.5 h-3.5 text-zinc-950 font-black" />
+                                <span>Optimize Document</span>
+                              </button>
+                            </div>
+                          </motion.div>
+                        )}
+
                         {/* Individual progress gauges */}
-                        {isPdf && file.stage !== 'complete' && (() => {
+                        {isPdf && file.stage !== 'complete' && file.stage !== 'uploaded' && (() => {
                           const getMicroStatusLog = (progress: number) => {
                             if (progress < 15) return "Reading header structures & scanning direct streams...";
                             if (progress < 28) return "Analyzing document layout dictionaries & subsetting embedded fonts...";
