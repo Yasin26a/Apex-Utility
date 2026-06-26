@@ -535,32 +535,39 @@ export default function ImageToPDF() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Left Column: Drag/Drop & Image Queue list */}
           <div className="lg:col-span-7 space-y-6">
-            <div
-              onDragEnter={handleDrag}
-              onDragOver={handleDrag}
-              onDragLeave={handleDrag}
-              onDrop={handleDrop}
-              onClick={images.length === 0 ? triggerInputClick : undefined}
-              className={`beveled-panel p-8 text-center border-dashed cursor-pointer transition-all duration-350 ${
-                dragActive 
-                  ? 'border-brand bg-brand/10 scale-[1.01] shadow-[0_0_20px_var(--theme-glow)]' 
-                  : images.length === 0
-                    ? 'border-zinc-800 hover:border-brand/40 hover:bg-[#09090d]/60'
-                    : 'border-zinc-900 bg-zinc-950/20 cursor-default'
-              }`}
-            >
-              <input
-                ref={fileInputRef}
-                type="file"
-                onChange={handleFileChange}
-                accept="image/png, image/jpeg, image/jpg"
-                multiple
-                className="hidden"
-              />
-
+            <AnimatePresence mode="wait">
               {images.length === 0 ? (
-                <div className="py-8 space-y-4">
-                  <div className="mx-auto w-14 h-14 rounded-xl bg-brand/5 flex items-center justify-center border border-brand/20 shadow-[0_0_15px_var(--theme-glow)]">
+                <motion.div
+                  key="image-idle-dropzone"
+                  initial={{ opacity: 0, scale: 0.96, y: 15 }}
+                  animate={{ 
+                    opacity: 1, 
+                    scale: dragActive ? 1.03 : 1, 
+                    y: 0,
+                    boxShadow: dragActive ? "0 0 35px rgba(244, 63, 94, 0.22)" : "0 0 0px rgba(0,0,0,0)"
+                  }}
+                  exit={{ opacity: 0, scale: 0.95, y: -15 }}
+                  transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+                  onDragEnter={handleDrag}
+                  onDragOver={handleDrag}
+                  onDragLeave={handleDrag}
+                  onDrop={handleDrop}
+                  onClick={triggerInputClick}
+                  className={`beveled-panel p-8 text-center cursor-pointer transition-all duration-300 min-h-[350px] flex flex-col items-center justify-center border ${
+                    dragActive 
+                      ? 'border-brand bg-brand/5' 
+                      : 'border-zinc-800 hover:border-brand/40 hover:bg-[#09090d]/60'
+                  }`}
+                >
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    onChange={handleFileChange}
+                    accept="image/png, image/jpeg, image/jpg"
+                    multiple
+                    className="hidden"
+                  />
+                  <div className="mx-auto w-14 h-14 rounded-xl bg-brand/5 flex items-center justify-center border border-brand/20 shadow-[0_0_15px_var(--theme-glow)] mb-4">
                     <Upload className="w-7 h-7 text-brand animate-bounce" />
                   </div>
                   <div className="space-y-1.5">
@@ -571,10 +578,40 @@ export default function ImageToPDF() {
                       Supports PNG, JPG, or JPEG formats. Drag multiple designs to compiling sandbox queues instantly.
                     </p>
                   </div>
-                </div>
+                </motion.div>
               ) : (
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center pb-3 border-b border-zinc-900 text-left">
+                <motion.div
+                  key="image-batch-workspace"
+                  initial="hidden"
+                  animate="show"
+                  exit="hidden"
+                  variants={{
+                    hidden: { opacity: 0 },
+                    show: {
+                      opacity: 1,
+                      transition: {
+                        staggerChildren: 0.08,
+                        delayChildren: 0.05
+                      }
+                    }
+                  }}
+                  className="space-y-4"
+                >
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    onChange={handleFileChange}
+                    accept="image/png, image/jpeg, image/jpg"
+                    multiple
+                    className="hidden"
+                  />
+                  <motion.div 
+                    variants={{
+                      hidden: { opacity: 0, y: 15 },
+                      show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 260, damping: 22 } }
+                    }}
+                    className="flex justify-between items-center pb-3 border-b border-zinc-900 text-left"
+                  >
                     <div>
                       <span className="font-heading text-xs font-bold text-zinc-400">QUEUE FILE COUNTER</span>
                       <p className="font-mono text-lg font-black text-brand tracking-tight mt-0.5">
@@ -597,7 +634,7 @@ export default function ImageToPDF() {
                         <span>Clear Queue</span>
                       </button>
                     </div>
-                  </div>
+                  </motion.div>
 
                   {/* Desktop Scroller List */}
                   <div className="max-h-[500px] overflow-y-auto pr-2 space-y-3">
@@ -606,8 +643,10 @@ export default function ImageToPDF() {
                         return (
                           <motion.div
                             key={imgItem.id}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
+                            variants={{
+                              hidden: { opacity: 0, y: 20, scale: 0.97 },
+                              show: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 260, damping: 22 } }
+                            }}
                             exit={{ opacity: 0, scale: 0.95 }}
                             transition={{ duration: 0.2 }}
                             className="beveled-panel bg-[#09090c]/90 border-zinc-920 p-3.5 flex items-center justify-between gap-4 group"
@@ -698,9 +737,9 @@ export default function ImageToPDF() {
                       })}
                     </AnimatePresence>
                   </div>
-                </div>
+                </motion.div>
               )}
-            </div>
+            </AnimatePresence>
           </div>
 
           {/* Right Column: Custom PDF properties controls */}

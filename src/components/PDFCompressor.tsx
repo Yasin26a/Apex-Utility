@@ -200,6 +200,7 @@ export default function PDFCompressor() {
 
   const [isSecureActive, setIsSecureActive] = useState(false);
   const [batchPassword, setBatchPassword] = useState('');
+  const [isDragging, setIsDragging] = useState(false);
   const isSecureActiveRef = useRef(false);
   const batchPasswordRef = useRef('');
 
@@ -1239,13 +1240,38 @@ export default function PDFCompressor() {
             {files.length === 0 ? (
               <motion.div
                 key="idle-dropzone"
-                initial={{ opacity: 0, scale: 0.98 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.98 }}
-                onDragOver={handleDragOver}
-                onDrop={handleDrop}
+                initial={{ opacity: 0, scale: 0.96, y: 15 }}
+                animate={{ 
+                  opacity: 1, 
+                  scale: isDragging ? 1.03 : 1, 
+                  y: 0,
+                  boxShadow: isDragging ? "0 0 35px rgba(244, 63, 94, 0.22)" : "0 0 0px rgba(0,0,0,0)"
+                }}
+                exit={{ opacity: 0, scale: 0.95, y: -15 }}
+                transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setIsDragging(true);
+                }}
+                onDragEnter={(e) => {
+                  e.preventDefault();
+                  setIsDragging(true);
+                }}
+                onDragLeave={(e) => {
+                  e.preventDefault();
+                  setIsDragging(false);
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setIsDragging(false);
+                  handleDrop(e);
+                }}
                 onClick={() => fileInputRef.current?.click()}
-                className="beveled-panel p-8 min-h-[350px] border-brand-border/30 hover:border-brand/50 bg-[#07070a]/60 transition-all duration-300 flex flex-col items-center justify-center text-center relative group cursor-pointer"
+                className={`beveled-panel p-8 min-h-[350px] transition-all duration-300 flex flex-col items-center justify-center text-center relative group cursor-pointer border ${
+                  isDragging 
+                    ? 'border-rose-500 bg-rose-500/5' 
+                    : 'border-brand-border/30 hover:border-brand/50 bg-[#07070a]/60'
+                }`}
               >
                 {/* Glossy overlay effect */}
                 <div className="absolute inset-0 bg-gradient-to-t from-transparent via-white/[0.01] to-transparent pointer-events-none" />
@@ -1262,20 +1288,36 @@ export default function PDFCompressor() {
                   </p>
                 </div>
                 <div className="mt-6 inline-flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-brand font-mono font-bold bg-brand/10 border border-brand/20 px-3 py-1.5 rounded transition-all duration-500">
-                  <Sparkles className="w-3.5 h-3.5 text-brand" />
+                  <Sparkles className="w-3.5 h-3.5 text-brand animate-pulse" />
                   <span>ATS Multi-Payload Target Enabled</span>
                 </div>
               </motion.div>
             ) : (
               <motion.div
                 key="batch-workspace"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
+                initial="hidden"
+                animate="show"
+                exit="hidden"
+                variants={{
+                  hidden: { opacity: 0 },
+                  show: {
+                    opacity: 1,
+                    transition: {
+                      staggerChildren: 0.08,
+                      delayChildren: 0.05
+                    }
+                  }
+                }}
                 className="space-y-4"
               >
                 {/* Real-time stats & batch controls */}
-                <div className="beveled-panel p-4 border-brand-border/20 bg-zinc-950/40 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+                <motion.div 
+                  variants={{
+                    hidden: { opacity: 0, y: 15 },
+                    show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 260, damping: 22 } }
+                  }}
+                  className="beveled-panel p-4 border-brand-border/20 bg-zinc-950/40 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4"
+                >
                   <div className="flex items-center gap-4 text-xs font-mono">
                     <div className="space-y-1">
                       <span className="text-zinc-500 block text-[9px] uppercase tracking-wider">Queue Strength</span>
@@ -1314,10 +1356,16 @@ export default function PDFCompressor() {
                       <span>Clear All</span>
                     </button>
                   </div>
-                </div>
+                </motion.div>
 
                 {/* Batch Security Controls Widget */}
-                <div className="beveled-panel p-4 border-zinc-900 bg-zinc-950/80 rounded-lg space-y-3">
+                <motion.div 
+                  variants={{
+                    hidden: { opacity: 0, y: 15 },
+                    show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 260, damping: 22 } }
+                  }}
+                  className="beveled-panel p-4 border-zinc-900 bg-zinc-950/80 rounded-lg space-y-3"
+                >
                   <div className="flex items-center justify-between">
                     <label className="flex items-center gap-2.5 cursor-pointer group">
                       <input
@@ -1364,7 +1412,7 @@ export default function PDFCompressor() {
                       </motion.div>
                     )}
                   </AnimatePresence>
-                </div>
+                </motion.div>
 
                 {/* Queue Stack List */}
                 <div className="space-y-3 max-h-[500px] overflow-y-auto pr-1">
@@ -1375,8 +1423,10 @@ export default function PDFCompressor() {
                         <motion.div
                           key={file.id}
                           layout
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
+                          variants={{
+                            hidden: { opacity: 0, y: 20, scale: 0.97 },
+                            show: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 260, damping: 22 } }
+                          }}
                           exit={{ opacity: 0, scale: 0.95 }}
                           className="beveled-panel bg-zinc-950/70 border-zinc-900 hover:border-brand-border/20 p-4 space-y-3.5 transition-all duration-300 relative group"
                         >

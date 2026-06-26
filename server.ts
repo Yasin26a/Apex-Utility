@@ -654,6 +654,75 @@ Instructions:
     }
   });
 
+  // API Summarize Article Endpoint using Gemini 3.5 Flash (3-bullet TL;DR summary)
+  app.post('/api/summarize-article', async (req, res) => {
+    try {
+      const { title, summary, content } = req.body;
+      if (!title || !content || !Array.isArray(content)) {
+        res.status(400).json({ error: 'Article title and content array are required.' });
+        return;
+      }
+
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        res.status(500).json({ 
+          error: 'GEMINI_API_KEY is not configured on the server. Please check the Secrets panel in Settings.' 
+        });
+        return;
+      }
+
+      const ai = new GoogleGenAI({
+        apiKey: apiKey,
+        httpOptions: {
+          headers: {
+            'User-Agent': 'aistudio-build'
+          }
+        }
+      });
+
+      const articleText = `Title: ${title}\nSummary: ${summary || ''}\n\nContent:\n${content.join('\n')}`;
+      const userPrompt = `Analyze the tech and compliance article below and generate a pristine, high-impact TL;DR summarizing it.
+Your summary MUST consist of exactly 3 concise, actionable bullet points. Each bullet point should be professional, clear, and highlight a critical takeaway or compliance standard from the article.
+
+Article text:
+"""
+${articleText}
+"""`;
+
+      const responseSchema = {
+        type: Type.OBJECT,
+        properties: {
+          bullets: {
+            type: Type.ARRAY,
+            items: { type: Type.STRING },
+            description: "Exactly 3 concise bullet points summarizing the key takeaways."
+          }
+        },
+        required: ["bullets"]
+      };
+
+      const result = await generateContentWithFallback(ai, {
+        model: 'gemini-3.5-flash',
+        contents: userPrompt,
+        config: {
+          systemInstruction: 'You are an elite research summarizer and compliance expert. Create a precise, high-impact, 3-bullet TL;DR summary from the provided technical article. Return strictly correct JSON matching the response schema. Keep bullets professional, concise, and direct with no conversational intro.',
+          responseMimeType: 'application/json',
+          responseSchema: responseSchema,
+          temperature: 0.3
+        }
+      });
+
+      if (!result.text) {
+        throw new Error('Gemini API returned an empty output.');
+      }
+
+      res.json(JSON.parse(result.text.trim()));
+    } catch (err: any) {
+      console.error('Error in summarize-article api:', err);
+      res.status(500).json({ error: err.message || 'Internal server error during summarization.' });
+    }
+  });
+
   // API Assistant / Supervisor Endpoint using Gemini 3.5 Flash
   app.post('/api/assistant', async (req, res) => {
     try {
