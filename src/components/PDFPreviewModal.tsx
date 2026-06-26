@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { 
@@ -50,6 +50,16 @@ export interface TextBox {
   isEditing?: boolean;
 }
 
+const parseSizeToBytes = (sizeStr: string): number => {
+  if (!sizeStr) return 0;
+  const num = parseFloat(sizeStr);
+  const unit = sizeStr.replace(/[0-9.\s]/g, '').toUpperCase();
+  if (unit.includes('GB') || unit === 'G') return num * 1024 * 1024 * 1024;
+  if (unit.includes('MB') || unit === 'M') return num * 1024 * 1024;
+  if (unit.includes('KB') || unit === 'K') return num * 1024;
+  return num;
+};
+
 interface PDFPreviewModalProps {
   file: BatchPDFState;
   onClose: () => void;
@@ -60,9 +70,48 @@ export default function PDFPreviewModal({ file, onClose, initialTab = 'annotatio
   const [numPages, setNumPages] = useState<number | null>(null);
   const [pageNumber, setPageNumber] = useState(1);
   const [scale, setScale] = useState(1.0);
-  const [previewMode, setPreviewMode] = useState<'original' | 'compressed'>('original');
+  const [previewMode, setPreviewMode] = useState<'original' | 'compressed' | 'split'>('original');
   const [pdfLoadError, setPdfLoadError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  // States supporting before/after comparison split-view slider
+  const [sliderPosition, setSliderPosition] = useState(50);
+  const [containerWidth, setContainerWidth] = useState<number | null>(null);
+  const [containerHeight, setContainerHeight] = useState<number | null>(null);
+  const sliderContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let t1: NodeJS.Timeout | undefined;
+    let t2: NodeJS.Timeout | undefined;
+    let t3: NodeJS.Timeout | undefined;
+    let t4: NodeJS.Timeout | undefined;
+
+    if (previewMode === 'split') {
+      const updateDimensions = () => {
+        const bottomEl = document.getElementById('split-bottom-page');
+        if (bottomEl) {
+          const rect = bottomEl.getBoundingClientRect();
+          if (rect.width > 0) {
+            setContainerWidth(rect.width);
+            setContainerHeight(rect.height);
+          }
+        }
+      };
+      
+      updateDimensions();
+      t1 = setTimeout(updateDimensions, 100);
+      t2 = setTimeout(updateDimensions, 400);
+      t3 = setTimeout(updateDimensions, 800);
+      t4 = setTimeout(updateDimensions, 1500);
+    }
+    
+    return () => {
+      if (t1) clearTimeout(t1);
+      if (t2) clearTimeout(t2);
+      if (t3) clearTimeout(t3);
+      if (t4) clearTimeout(t4);
+    };
+  }, [previewMode, pageNumber, scale, isLoading, file]);
 
   // States supporting customizable annotations
   const [activeTab, setActiveTab] = useState<'metadata' | 'annotations' | 'ocr'>(initialTab);
@@ -475,10 +524,10 @@ export default function PDFPreviewModal({ file, onClose, initialTab = 'annotatio
     return d;
   };
 
-  // Automatically switch to compressed preview if available on completion
+  // Automatically switch to before-vs-after comparison slider preview if available on completion
   useEffect(() => {
     if (file.stage === 'complete' && file.compressedBlobUrl) {
-      setPreviewMode('compressed');
+      setPreviewMode('split');
     } else {
       setPreviewMode('original');
     }
@@ -561,12 +610,13 @@ export default function PDFPreviewModal({ file, onClose, initialTab = 'annotatio
               </h3>
             </div>
 
-            {/* Source Switcher (Original VS Optimized) if available */}
+            {/* Source Switcher (Original VS Optimized VS Comparison Slider) if available */}
             {file.compressedBlobUrl && (
               <div className="bg-zinc-950 p-1 rounded-lg border border-zinc-900/80 flex items-center gap-1">
                 <button
+                  type="button"
                   onClick={() => setPreviewMode('original')}
-                  className={`px-2.5 py-1 rounded text-[10px] font-mono uppercase font-bold transition-all ${
+                  className={`px-2.5 py-1 rounded text-[10px] font-mono uppercase font-bold transition-all cursor-pointer ${
                     previewMode === 'original'
                       ? 'bg-zinc-900 text-white border border-zinc-800'
                       : 'text-zinc-500 hover:text-zinc-300'
@@ -575,14 +625,26 @@ export default function PDFPreviewModal({ file, onClose, initialTab = 'annotatio
                   Original
                 </button>
                 <button
+                  type="button"
                   onClick={() => setPreviewMode('compressed')}
-                  className={`px-2.5 py-1 rounded text-[10px] font-mono uppercase font-bold transition-all ${
+                  className={`px-2.5 py-1 rounded text-[10px] font-mono uppercase font-bold transition-all cursor-pointer ${
                     previewMode === 'compressed'
-                      ? 'bg-brand text-zinc-950 shadow-[0_0_12px_rgba(245,158,11,0.2)]'
+                      ? 'bg-zinc-900 text-white border border-zinc-800'
                       : 'text-zinc-500 hover:text-zinc-300'
                   }`}
                 >
-                  Compressed
+                  Optimized
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPreviewMode('split')}
+                  className={`px-2.5 py-1 rounded text-[10px] font-mono uppercase font-bold transition-all cursor-pointer ${
+                    previewMode === 'split'
+                      ? 'bg-brand text-zinc-950 shadow-[0_0_12px_rgba(239,68,68,0.25)] border border-brand/20'
+                      : 'text-zinc-500 hover:text-zinc-300'
+                  }`}
+                >
+                  Before &amp; After
                 </button>
               </div>
             )}
@@ -630,6 +692,153 @@ export default function PDFPreviewModal({ file, onClose, initialTab = 'annotatio
                       <span>Open in Browser Tab Instead</span>
                     </a>
                   </div>
+                </motion.div>
+              ) : previewMode === 'split' ? (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.98 }}
+                  className="max-w-full flex flex-col items-center justify-center space-y-4 my-auto px-4"
+                >
+                  {/* Top Header Banner: Footprint reduction stats */}
+                  <div className="w-full max-w-xl bg-[#09090e]/80 border border-zinc-900 rounded-xl p-3 flex flex-col sm:flex-row items-center justify-between gap-3 backdrop-blur-md shadow-lg">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-brand animate-pulse" />
+                      <span className="font-heading text-[10px] font-black text-white uppercase tracking-wider">Footprint Optimization Stats</span>
+                    </div>
+                    <div className="flex items-center gap-2.5 font-mono text-[11px]">
+                      <span className="text-zinc-500 line-through">{file.originalSizeStr}</span>
+                      <span className="text-brand">&rarr;</span>
+                      <span className="text-emerald-400 font-bold">{file.compressedSizeStr}</span>
+                      <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded text-[10px] font-bold">
+                        -{Math.max(1, Math.round(((() => {
+                          const origBytes = parseSizeToBytes(file.originalSizeStr) || file.size || 1;
+                          const compBytes = parseSizeToBytes(file.compressedSizeStr) || 1;
+                          return Math.max(0, Math.min(99, ((origBytes - compBytes) / origBytes) * 100));
+                        })())))}%
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* The Interactive Comparison Slider Container */}
+                  <div 
+                    ref={sliderContainerRef}
+                    className="relative select-none rounded-2xl overflow-hidden border border-zinc-900 bg-zinc-950 p-1 shadow-2xl max-w-full"
+                    style={{
+                      width: containerWidth ? `${containerWidth + 8}px` : 'auto',
+                      height: containerHeight ? `${containerHeight + 8}px` : 'auto'
+                    }}
+                  >
+                    {/* Bottom Layer: Optimized (Compressed) View */}
+                    <div id="split-bottom-page" className="rounded-xl overflow-hidden">
+                      {file.isImage && file.compressedBlobUrl ? (
+                        <img 
+                          src={file.compressedBlobUrl} 
+                          alt="Optimized document" 
+                          className="max-w-full max-h-[60vh] object-contain rounded-xl select-none"
+                        />
+                      ) : (
+                        <Document
+                          file={file.compressedBlobUrl}
+                          onLoadSuccess={onDocumentLoadSuccess}
+                          onLoadError={onDocumentLoadError}
+                          loading={
+                            <div className="py-24 text-center space-y-3 px-12">
+                              <Loader2 className="w-7 h-7 text-brand animate-spin mx-auto" />
+                              <p className="font-mono text-[10px] text-zinc-500 uppercase tracking-widest">Assembling optimized views...</p>
+                            </div>
+                          }
+                        >
+                          <Page
+                            pageNumber={pageNumber}
+                            scale={scale}
+                            renderTextLayer={false}
+                            renderAnnotationLayer={false}
+                            className="max-w-full overflow-hidden rounded-xl"
+                          />
+                        </Document>
+                      )}
+                    </div>
+
+                    {/* Top Layer: Original View (clipped based on slider percentage) */}
+                    {containerWidth && containerHeight && (
+                      <div 
+                        className="absolute top-1 left-1 bottom-1 overflow-hidden rounded-xl pointer-events-none z-10"
+                        style={{ width: `${sliderPosition}%` }}
+                      >
+                        <div 
+                          style={{ 
+                            width: `${containerWidth}px`, 
+                            height: `${containerHeight}px`,
+                            minWidth: `${containerWidth}px`,
+                            minHeight: `${containerHeight}px`
+                          }}
+                        >
+                          {file.isImage && file.imageSrc ? (
+                            <img 
+                              src={file.imageSrc} 
+                              alt="Original document" 
+                              className="max-w-full max-h-[60vh] object-contain rounded-xl select-none"
+                              style={{ width: '100%', height: '100%' }}
+                            />
+                          ) : (
+                            <Document
+                              file={file.originalBlobUrl || file.compressedBlobUrl}
+                              loading={<div />}
+                            >
+                              <Page
+                                pageNumber={pageNumber}
+                                scale={scale}
+                                renderTextLayer={false}
+                                renderAnnotationLayer={false}
+                                className="max-w-full overflow-hidden rounded-xl"
+                              />
+                            </Document>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Vertical Slider divider line & drag knob */}
+                    {containerWidth && containerHeight && (
+                      <>
+                        <div 
+                          className="absolute top-1 bottom-1 w-[2px] bg-brand pointer-events-none z-30"
+                          style={{ left: `calc(${sliderPosition}% + 4px)` }}
+                        >
+                          {/* Sliding Knob */}
+                          <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-brand hover:bg-brand-hover text-zinc-950 flex items-center justify-center shadow-lg border border-white/20 pointer-events-none z-40 transition-colors">
+                            <Sliders className="w-4 h-4 text-zinc-950 font-black rotate-90" />
+                          </div>
+                          {/* Pulsing indicator light */}
+                          <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-12 h-12 rounded-full border border-brand/40 animate-ping pointer-events-none z-20" />
+                        </div>
+
+                        {/* Labels */}
+                        <div className="absolute top-4 left-4 z-20 bg-black/75 border border-zinc-800/80 px-2.5 py-1 rounded text-[9px] font-mono font-bold text-zinc-400 uppercase tracking-widest pointer-events-none">
+                          Original (Before)
+                        </div>
+                        <div className="absolute top-4 right-4 z-20 bg-brand border border-brand/20 px-2.5 py-1 rounded text-[9px] font-mono font-bold text-zinc-950 uppercase tracking-widest pointer-events-none">
+                          Optimized (After)
+                        </div>
+
+                        {/* Invisible interactive overlay to capture drags easily & natively */}
+                        <input 
+                          type="range"
+                          min="0"
+                          max="100"
+                          value={sliderPosition}
+                          onChange={(e) => setSliderPosition(Number(e.target.value))}
+                          className="absolute inset-1 w-full h-full opacity-0 cursor-ew-resize z-30 pointer-events-auto"
+                        />
+                      </>
+                    )}
+                  </div>
+
+                  {/* Drag prompt helper text */}
+                  <p className="font-mono text-[9px] text-zinc-550 uppercase tracking-wider animate-pulse text-center">
+                    Drag the slider handle left and right to inspect structural details side-by-side
+                  </p>
                 </motion.div>
               ) : file.isImage && file.imageSrc && previewMode === 'original' ? (
                 <motion.div
