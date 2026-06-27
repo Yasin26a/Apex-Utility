@@ -1,4 +1,1 @@
-# Google AdSense ads.txt configuration for apexutility.live
-# Learn more: https://support.google.com/adsense/answer/12171612
-
 google.com, pub-3493943620806779, DIRECT, f08c47fec0942fa0
