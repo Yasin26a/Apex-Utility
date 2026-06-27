@@ -47,6 +47,7 @@ import { useReadingScrollTracker } from './hooks/useReadingScrollTracker';
 import { useVoicePreference } from './hooks/useVoicePreference';
 import useSEOTags from './hooks/useSEOTags';
 import { AT_LEAST_20_ARTICLES, Article } from './data/articles';
+import { BrandingLogo } from './components/BrandingLogo';
 const WebPConverter = lazy(() => import('./components/WebPConverter'));
 const PDFJoiner = lazy(() => import('./components/PDFJoiner'));
 const ContentPlanner = lazy(() => import('./components/ContentPlanner'));
@@ -1864,9 +1865,7 @@ Disallow:
             onClick={() => handleTabChange('dashboard')}
             className="flex items-center gap-2 cursor-pointer select-none"
           >
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand to-red-950 flex items-center justify-center shadow-lg shadow-brand/10 border border-brand/20">
-              <Compass className="w-5 h-5 text-white animate-pulse" />
-            </div>
+            <BrandingLogo size={42} className="shrink-0 drop-shadow-[0_0_12px_rgba(239,68,68,0.4)]" />
             <div>
               <h1 className="font-bold text-lg leading-tight tracking-tight bg-gradient-to-r from-white via-zinc-200 to-zinc-400 bg-clip-text text-transparent">
                 Apex Utility Labs
