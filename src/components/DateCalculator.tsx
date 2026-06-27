@@ -710,11 +710,11 @@ export default function DateCalculator() {
               >
                 <h3 className="text-sm font-semibold text-white flex items-center gap-1.5">
                   <Gift className="w-4 h-4 text-sky-400" />
-                  Birthday & Age Analysers
+                  DOB Checker &amp; Birthday Date Finder
                 </h3>
 
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Date of Birth</label>
+                  <label className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Date of Birth (Check DOB Online)</label>
                   <input
                     type="date"
                     value={birthday}
@@ -726,7 +726,7 @@ export default function DateCalculator() {
                 <div className="text-[11px] leading-relaxed text-slate-400 bg-[#0c0d12] border border-slate-800/80 p-3 rounded-lg flex items-start gap-2">
                   <Info className="w-3.5 h-3.5 text-sky-400 shrink-0 mt-0.5" />
                   <span>
-                    Get localized chronological updates including exact age in years, months, leftover physical days, leap status, or native Zodiac constellation anchors instantly.
+                    Find my DOB details, check DOB online, and calculate a person's exact age in years, months, leftover days, leap year status, or native Zodiac constellation anchors instantly.
                   </span>
                 </div>
               </motion.div>

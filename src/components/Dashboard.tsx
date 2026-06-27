@@ -8,6 +8,7 @@ import { getRecentOperations, getSessionDownloadUrl, RecentOperation } from '../
 import DashboardCaptureModal from './DashboardCaptureModal';
 import { useLanguage } from '../context/LanguageContext';
 import TaskQueue from './TaskQueue';
+import ContextMenu from './ContextMenu';
 
 interface DashboardProps {
   onTabChange: (tab: ActiveTab) => void;
@@ -1190,6 +1191,12 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'info' | 'error' } | null>(null);
+  const [contextMenu, setContextMenu] = useState<{
+    x: number;
+    y: number;
+    toolId: string;
+    toolTitle: string;
+  } | null>(null);
 
   // Layout Engine States
   const [isCustomizing, setIsCustomizing] = useState(false);
@@ -2213,7 +2220,20 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
                     </div>
                   )}
                   
-                  <div className="relative">
+                  <div 
+                    className="relative"
+                    onContextMenu={(e) => {
+                      if (!isCustomizing) {
+                        e.preventDefault();
+                        setContextMenu({
+                          x: e.clientX,
+                          y: e.clientY,
+                          toolId: card.id,
+                          toolTitle: localizedTitle,
+                        });
+                      }
+                    }}
+                  >
                     <ThreeDTiltCard 
                       onClick={() => !isCustomizing && onTabChange(card.id as ActiveTab)} 
                       className={`${getHeightClass(card.heightLevel || 2)} transition-all duration-300 relative`}
@@ -2342,6 +2362,17 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
                   key={card.id}
                   layout
                   onDragOver={(e) => handleDragOver(e, card.id)}
+                  onContextMenu={(e) => {
+                    if (!isCustomizing) {
+                      e.preventDefault();
+                      setContextMenu({
+                        x: e.clientX,
+                        y: e.clientY,
+                        toolId: card.id,
+                        toolTitle: localizedTitle,
+                      });
+                    }
+                  }}
                   className={`rounded-2xl border transition-all duration-300 relative bg-[#07070a]/90 flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 ${
                     isCustomizing
                       ? 'border-dashed border-brand/40 bg-brand/[0.015] p-4 shadow-inner'
@@ -2991,6 +3022,38 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {contextMenu && (
+        <ContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          onClose={() => setContextMenu(null)}
+          toolId={contextMenu.toolId}
+          toolTitle={contextMenu.toolTitle}
+          onLaunch={() => onTabChange(contextMenu.toolId as ActiveTab)}
+          onAskGemini={() => {
+            window.dispatchEvent(
+              new CustomEvent('open-ai-assistant', {
+                detail: {
+                  text: `How do I use the ${contextMenu.toolTitle}? Tell me about its features, search crawler relevance, and how to optimize it for Google AdSense compliance in 2026.`
+                }
+              })
+            );
+          }}
+          onCreateQR={() => {
+            onTabChange('qr-generator');
+            setTimeout(() => {
+              window.dispatchEvent(
+                new CustomEvent('populate-qr-data', {
+                  detail: {
+                    text: `${window.location.origin}/#${contextMenu.toolId}`
+                  }
+                })
+              );
+            }, 400);
+          }}
+        />
+      )}
     </div>
   );
 }

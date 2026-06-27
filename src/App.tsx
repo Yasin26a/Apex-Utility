@@ -267,6 +267,7 @@ export default function App() {
   const [cssZenMode, setCssZenMode] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isCopied, setIsCopied] = useState<string | null>(null);
+  const [isSeoIndexOpen, setIsSeoIndexOpen] = useState(false);
 
   // Sitemap Generator settings state
   const [targetUrl, setTargetUrl] = useState('https://example.com');
@@ -1865,12 +1866,12 @@ Disallow:
             onClick={() => handleTabChange('dashboard')}
             className="flex items-center gap-2 cursor-pointer select-none"
           >
-            <BrandingLogo size={42} className="shrink-0 drop-shadow-[0_0_12px_rgba(239,68,68,0.4)]" />
+            <BrandingLogo size={42} className="shrink-0 drop-shadow-[0_0_12px_rgba(234,179,8,0.45)]" />
             <div>
               <h1 className="font-bold text-lg leading-tight tracking-tight bg-gradient-to-r from-white via-zinc-200 to-zinc-400 bg-clip-text text-transparent">
                 Apex Utility Labs
               </h1>
-              <span className="text-[10px] font-mono font-medium text-red-500/80 block tracking-wider uppercase">
+              <span className="text-[10px] font-mono font-medium text-amber-500 block tracking-wider uppercase">
                 Pro Webmaster Tools
               </span>
             </div>
@@ -5346,24 +5347,242 @@ Disallow:
 
         {/* Primary Footer */}
         {!(activeTab === 'css-generator' && cssZenMode) && (
-          <footer className="bg-zinc-950/60 backdrop-blur border-t border-zinc-900/60 px-6 py-6 text-center text-zinc-500 text-xs mt-auto w-full">
-          <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="space-y-1 text-center md:text-left">
-              <p className="font-medium text-slate-300">Apex Utility Labs © 2026. All rights reserved.</p>
-              <p className="text-[10px] text-zinc-500">
-                Approved design format matching full search compliance indexes and consumer safety standards.
-              </p>
+          <footer className="bg-zinc-950/60 backdrop-blur border-t border-zinc-900/60 px-6 py-8 text-center text-zinc-500 text-xs mt-auto w-full">
+            {/* SEO Directory Index */}
+            <div className="border-b border-zinc-900/60 pb-6 mb-6 text-left max-w-5xl mx-auto">
+              <button 
+                onClick={() => setIsSeoIndexOpen(!isSeoIndexOpen)}
+                className="flex items-center justify-between w-full py-2 text-zinc-400 hover:text-slate-200 transition-colors group text-xs font-semibold tracking-wider uppercase font-mono cursor-pointer"
+              >
+                <span className="flex items-center gap-2">
+                  <Tag className="w-4 h-4 text-red-500 group-hover:animate-pulse" />
+                  Apex PDF & Utility Search Index
+                </span>
+                <span className="text-xs text-zinc-500 group-hover:text-zinc-300">
+                  {isSeoIndexOpen ? "Hide Directory [-]" : "Expand Directory [+]"}
+                </span>
+              </button>
+              
+              <AnimatePresence>
+                {isSeoIndexOpen && (
+                  <motion.div 
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="overflow-hidden mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6 gap-6 text-zinc-400"
+                  >
+                    {/* Category 1: PDF Compress & Size Reducer */}
+                    <div className="bg-zinc-950/40 p-4 rounded-xl border border-zinc-900/80">
+                      <h4 className="text-zinc-200 font-bold mb-2 text-[11px] uppercase tracking-wider border-b border-red-950 pb-1.5 flex items-center justify-between">
+                        <span>PDF Compressor</span>
+                        <span className="text-[9px] text-red-400 font-mono">100KB - 200KB</span>
+                      </h4>
+                      <p className="text-[11px] text-zinc-500 mb-2 leading-relaxed">
+                        High-efficiency offline tools to reduce PDF size online for free with premium iLovePDF equivalent speed.
+                      </p>
+                      <div className="flex flex-wrap gap-1.5 text-[9px] font-mono">
+                        <button onClick={() => handleTabChange('compress-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">compress pdf</button>
+                        <button onClick={() => handleTabChange('compress-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">ilovepdf compress</button>
+                        <button onClick={() => handleTabChange('compress-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">pdf size reducer</button>
+                        <button onClick={() => handleTabChange('compress-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">compress pdf to 100kb</button>
+                        <button onClick={() => handleTabChange('compress-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">pengecil file pdf</button>
+                        <button onClick={() => handleTabChange('compress-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">ngecilin size pdf</button>
+                        <button onClick={() => handleTabChange('compress-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">reduce pdf size</button>
+                        <button onClick={() => handleTabChange('compress-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">compress pdf online gratis</button>
+                        <button onClick={() => handleTabChange('compress-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">smallpdf compress pdf</button>
+                        <button onClick={() => handleTabChange('compress-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">smallpdf compressor</button>
+                        <button onClick={() => handleTabChange('compress-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">pdf small compress</button>
+                        <button onClick={() => handleTabChange('compress-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">very small pdf compressor</button>
+                        <button onClick={() => handleTabChange('compress-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">compress cv</button>
+                        <button onClick={() => handleTabChange('compress-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">cv size reducer</button>
+                      </div>
+                    </div>
+
+                    {/* Category 2: PDF Merger & Combiner */}
+                    <div className="bg-zinc-950/40 p-4 rounded-xl border border-zinc-900/80">
+                      <h4 className="text-zinc-200 font-bold mb-2 text-[11px] uppercase tracking-wider border-b border-red-950 pb-1.5 flex items-center justify-between">
+                        <span>PDF Merger & Joiner</span>
+                        <span className="text-[9px] text-red-400 font-mono">Multiple Files</span>
+                      </h4>
+                      <p className="text-[11px] text-zinc-500 mb-2 leading-relaxed">
+                        Merge several document pages, combine PDFs, separate documents, or stitch file elements locally.
+                      </p>
+                      <div className="flex flex-wrap gap-1.5 text-[9px] font-mono">
+                        <button onClick={() => handleTabChange('join-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">merge pdf online</button>
+                        <button onClick={() => handleTabChange('join-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">combine pdf files</button>
+                        <button onClick={() => handleTabChange('join-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">i love pdf merge</button>
+                        <button onClick={() => handleTabChange('join-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">pdf merger compressor</button>
+                        <button onClick={() => handleTabChange('join-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">2 pdf merge</button>
+                        <button onClick={() => handleTabChange('join-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">pdf joiner</button>
+                        <button onClick={() => handleTabChange('join-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">combine word and pdf</button>
+                        <button onClick={() => handleTabChange('join-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">merge pdf online gratis</button>
+                        <button onClick={() => handleTabChange('join-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">smallpdf merge pdf</button>
+                        <button onClick={() => handleTabChange('join-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">smallpdf combine</button>
+                        <button onClick={() => handleTabChange('join-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">merge 2 pdf files free online</button>
+                        <button onClick={() => handleTabChange('join-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">merge 2 pdfs online free</button>
+                        <button onClick={() => handleTabChange('join-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">pdf merge documents free</button>
+                      </div>
+                    </div>
+
+                    {/* Category 3: Image to PDF Converters */}
+                    <div className="bg-zinc-950/40 p-4 rounded-xl border border-zinc-900/80">
+                      <h4 className="text-zinc-200 font-bold mb-2 text-[11px] uppercase tracking-wider border-b border-red-950 pb-1.5 flex items-center justify-between">
+                        <span>Image To PDF</span>
+                        <span className="text-[9px] text-red-400 font-mono">JPG / PNG</span>
+                      </h4>
+                      <p className="text-[11px] text-zinc-500 mb-2 leading-relaxed">
+                        Convert raster layouts, design drafts, screenshots, and photos into optimized PDF formats free.
+                      </p>
+                      <div className="flex flex-wrap gap-1.5 text-[9px] font-mono">
+                        <button onClick={() => handleTabChange('image-to-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">convert jpg to pdf</button>
+                        <button onClick={() => handleTabChange('image-to-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">convert a jpg to pdf</button>
+                        <button onClick={() => handleTabChange('image-to-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">convert png to pdf</button>
+                        <button onClick={() => handleTabChange('image-to-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">image to pdf converter</button>
+                        <button onClick={() => handleTabChange('image-to-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">convert foto in pdf</button>
+                        <button onClick={() => handleTabChange('image-to-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">lovely jpg to pdf</button>
+                        <button onClick={() => handleTabChange('image-to-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">convert a jpg to pdf free</button>
+                        <button onClick={() => handleTabChange('image-to-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">convert jpg to pdf gratuit</button>
+                        <button onClick={() => handleTabChange('image-to-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">convert image to pdf free app</button>
+                        <button onClick={() => handleTabChange('image-to-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">free jpg to pdf converter</button>
+                        <button onClick={() => handleTabChange('image-to-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">free photo to pdf converter</button>
+                        <button onClick={() => handleTabChange('image-to-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">picture to pdf converter free</button>
+                        <button onClick={() => handleTabChange('image-to-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">photo to pdf converter free</button>
+                      </div>
+                    </div>
+
+                    {/* Category 4: Digital Signature & Signing */}
+                    <div className="bg-zinc-950/40 p-4 rounded-xl border border-zinc-900/80">
+                      <h4 className="text-zinc-200 font-bold mb-2 text-[11px] uppercase tracking-wider border-b border-red-950 pb-1.5 flex items-center justify-between">
+                        <span>Digital Signature</span>
+                        <span className="text-[9px] text-red-400 font-mono">Secure eSign</span>
+                      </h4>
+                      <p className="text-[11px] text-zinc-500 mb-2 leading-relaxed">
+                        Draw, style, and download digital e-signatures securely and sign PDF files with absolute privacy.
+                      </p>
+                      <div className="flex flex-wrap gap-1.5 text-[9px] font-mono">
+                        <button onClick={() => handleTabChange('digital-signature')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">ilovepdf signature</button>
+                        <button onClick={() => handleTabChange('digital-signature')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">ilovepdf sign pdf</button>
+                        <button onClick={() => handleTabChange('digital-signature')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">sign pdf online</button>
+                        <button onClick={() => handleTabChange('digital-signature')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">ttd di pdf</button>
+                        <button onClick={() => handleTabChange('digital-signature')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">ttd online di pdf</button>
+                        <button onClick={() => handleTabChange('digital-signature')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">pdf ttd</button>
+                        <button onClick={() => handleTabChange('digital-signature')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">smallpdf esign</button>
+                        <button onClick={() => handleTabChange('digital-signature')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">smallpdf sign</button>
+                        <button onClick={() => handleTabChange('digital-signature')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">firma pdf online free</button>
+                        <button onClick={() => handleTabChange('digital-signature')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">ttd online di pdf</button>
+                        <button onClick={() => handleTabChange('digital-signature')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">small pdf electronic signature</button>
+                      </div>
+                    </div>
+
+                    {/* Category 5: PDF Word & PPT Converter */}
+                    <div className="bg-zinc-950/40 p-4 rounded-xl border border-zinc-900/80">
+                      <h4 className="text-zinc-200 font-bold mb-2 text-[11px] uppercase tracking-wider border-b border-red-950 pb-1.5 flex items-center justify-between">
+                        <span>PDF Editor & Converter</span>
+                        <span className="text-[9px] text-red-400 font-mono">Word & PPT</span>
+                      </h4>
+                      <p className="text-[11px] text-zinc-500 mb-2 leading-relaxed">
+                        Convert PDF to editable formats or summarize documents using offline-first analysis tools.
+                      </p>
+                      <div className="flex flex-wrap gap-1.5 text-[9px] font-mono">
+                        <button onClick={() => handleTabChange('pdf-analyst')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">pdf to word converter free</button>
+                        <button onClick={() => handleTabChange('pdf-analyst')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">edit pdf for free</button>
+                        <button onClick={() => handleTabChange('pdf-analyst')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">convert pdf to powerpoint</button>
+                        <button onClick={() => handleTabChange('pdf-analyst')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">convert pdf to powerpoint free</button>
+                        <button onClick={() => handleTabChange('pdf-analyst')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">convert pdf to editable pdf</button>
+                        <button onClick={() => handleTabChange('pdf-analyst')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">pdf to ppt converter free</button>
+                        <button onClick={() => handleTabChange('pdf-analyst')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">convert pdf to editable pdf free</button>
+                        <button onClick={() => handleTabChange('pdf-analyst')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">best pdf converter</button>
+                        <button onClick={() => handleTabChange('pdf-analyst')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">smallpdf editor</button>
+                        <button onClick={() => handleTabChange('pdf-analyst')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">smallpdf to word</button>
+                        <button onClick={() => handleTabChange('ai-writer')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">convert word doc to pdf free</button>
+                        <button onClick={() => handleTabChange('pdf-analyst')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">google doc to pdf converter</button>
+                        <button onClick={() => handleTabChange('pdf-analyst')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">best free pdf converter</button>
+                        <button onClick={() => handleTabChange('pdf-analyst')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">pdf editor convert to word</button>
+                        <button onClick={() => handleTabChange('pdf-analyst')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">pdf to word editor online free</button>
+                        <button onClick={() => handleTabChange('pdf-analyst')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">word to pdf converter app</button>
+                        <button onClick={() => handleTabChange('pdf-analyst')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">word to pdf maker</button>
+                        <button onClick={() => handleTabChange('pdf-analyst')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">word to pdf editable</button>
+                      </div>
+                    </div>
+
+                    {/* Category 6: Currency & Unit Converter */}
+                    <div className="bg-zinc-950/40 p-4 rounded-xl border border-zinc-900/80">
+                      <h4 className="text-zinc-200 font-bold mb-2 text-[11px] uppercase tracking-wider border-b border-red-950 pb-1.5 flex items-center justify-between">
+                        <span>Currency & Units</span>
+                        <span className="text-[9px] text-red-400 font-mono">EGP & BTC Today</span>
+                      </h4>
+                      <p className="text-[11px] text-zinc-500 mb-2 leading-relaxed">
+                        Convert currency rates in real-time. Calculate Egyptian Pounds (EGP), Bitcoin (BTC), USD, EUR, and GBP variables completely offline.
+                      </p>
+                      <div className="flex flex-wrap gap-1.5 text-[9px] font-mono">
+                        <button onClick={() => handleTabChange('unit-converter')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">1 usd egyptian pound</button>
+                        <button onClick={() => handleTabChange('unit-converter')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">usd to egyptian pound today</button>
+                        <button onClick={() => handleTabChange('unit-converter')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">convert usd to egyptian pound</button>
+                        <button onClick={() => handleTabChange('unit-converter')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">convert eur to egp</button>
+                        <button onClick={() => handleTabChange('unit-converter')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">euros to egyptian pound</button>
+                        <button onClick={() => handleTabChange('unit-converter')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">egp to pound</button>
+                        <button onClick={() => handleTabChange('unit-converter')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">convert pound to egp</button>
+                        <button onClick={() => handleTabChange('unit-converter')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">1 pound to egyptian pound</button>
+                        <button onClick={() => handleTabChange('unit-converter')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">1bitcoin to dollars</button>
+                        <button onClick={() => handleTabChange('unit-converter')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">convert 1btc to usd</button>
+                        <button onClick={() => handleTabChange('unit-converter')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">egp exchange rate to usd</button>
+                        <button onClick={() => handleTabChange('unit-converter')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">egyptian pound currency</button>
+                        <button onClick={() => handleTabChange('unit-converter')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">egyptian pound usd</button>
+                        <button onClick={() => handleTabChange('unit-converter')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">btc to usd converter</button>
+                        <button onClick={() => handleTabChange('unit-converter')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">egp conversion</button>
+                      </div>
+                    </div>
+
+                    {/* Category 7: Specialty Calculators */}
+                    <div className="bg-zinc-950/40 p-4 rounded-xl border border-zinc-900/80">
+                      <h4 className="text-zinc-200 font-bold mb-2 text-[11px] uppercase tracking-wider border-b border-red-950 pb-1.5 flex items-center justify-between">
+                        <span>Specialty Calculators</span>
+                        <span className="text-[9px] text-red-400 font-mono">Finance &amp; Sci Suite</span>
+                      </h4>
+                      <p className="text-[11px] text-zinc-500 mb-2 leading-relaxed">
+                        Assess financial ROI, Amortization schedules, US Army body fat, wire voltage drop AWG, roof sizing squares, and binary radix math.
+                      </p>
+                      <div className="flex flex-wrap gap-1.5 text-[9px] font-mono">
+                        <button onClick={() => handleTabChange('unit-converter')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">roi calculator</button>
+                        <button onClick={() => handleTabChange('unit-converter')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">amortized loan calculator</button>
+                        <button onClick={() => handleTabChange('unit-converter')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">amortization table calculator</button>
+                        <button onClick={() => handleTabChange('unit-converter')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">roof size calculator</button>
+                        <button onClick={() => handleTabChange('unit-converter')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">roof surface area calculator</button>
+                        <button onClick={() => handleTabChange('unit-converter')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">lean body mass calc</button>
+                        <button onClick={() => handleTabChange('unit-converter')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">body fat army calculator</button>
+                        <button onClick={() => handleTabChange('unit-converter')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">voltage drop calculator</button>
+                        <button onClick={() => handleTabChange('unit-converter')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">12v dc voltage drop calculator</button>
+                        <button onClick={() => handleTabChange('unit-converter')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">scientific calculators</button>
+                        <button onClick={() => handleTabChange('unit-converter')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">binary calculator step by step</button>
+                        <button onClick={() => handleTabChange('unit-converter')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">hex addition calculator</button>
+                        <button onClick={() => handleTabChange('unit-converter')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">restaurant tips calculator</button>
+                        <button onClick={() => handleTabChange('date-calculator')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">dob checker</button>
+                        <button onClick={() => handleTabChange('date-calculator')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">birthday finder by age</button>
+                        <button onClick={() => handleTabChange('date-calculator')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">check dob online</button>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
-            
-            <div className="flex flex-wrap gap-4 text-xs font-medium justify-center">
-              <button onClick={() => handleTabChange('about-us')} className="hover:text-slate-300 transition-colors">Documentation</button>
-              <span className="text-slate-800">|</span>
-              <button onClick={() => handleTabChange('privacy-policy')} className="hover:text-slate-300 transition-colors">Privacy Policy</button>
-              <span className="text-slate-800">|</span>
-              <button onClick={() => handleTabChange('terms-of-service')} className="hover:text-slate-300 transition-colors">Terms of Service</button>
+
+            <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+              <div className="space-y-1 text-center md:text-left">
+                <p className="font-medium text-slate-300">Apex Utility Labs © 2026. All rights reserved.</p>
+                <p className="text-[10px] text-zinc-500">
+                  Approved design format matching full search compliance indexes and consumer safety standards.
+                </p>
+              </div>
+              
+              <div className="flex flex-wrap gap-4 text-xs font-medium justify-center">
+                <button onClick={() => handleTabChange('about-us')} className="hover:text-slate-300 transition-colors cursor-pointer">Documentation</button>
+                <span className="text-slate-800">|</span>
+                <button onClick={() => handleTabChange('privacy-policy')} className="hover:text-slate-300 transition-colors cursor-pointer">Privacy Policy</button>
+                <span className="text-slate-800">|</span>
+                <button onClick={() => handleTabChange('terms-of-service')} className="hover:text-slate-300 transition-colors cursor-pointer">Terms of Service</button>
+              </div>
             </div>
-          </div>
-        </footer>
+          </footer>
         )}
       </div>
     </div>

@@ -5,6 +5,7 @@ import {
   HelpCircle, Info, RefreshCw, Calculator, ClipboardCheck, Layers
 } from 'lucide-react';
 import { usePresets } from '../context/PresetContext';
+import SpecialtyCalculators from './SpecialtyCalculators';
 
 type ConversionCategory = 'length' | 'weight' | 'volume' | 'temperature';
 
@@ -68,6 +69,7 @@ const DEFAULT_TO_UNITS: Record<ConversionCategory, string> = {
 
 export default function UnitConverter() {
   const { activeSettings, updateActiveSettings } = usePresets();
+  const [viewMode, setViewMode] = useState<'conversion' | 'specialty'>('conversion');
 
   const [category, setCategory] = useState<ConversionCategory>(
     () => (activeSettings.converterCategory as ConversionCategory) || 'length'
@@ -243,7 +245,35 @@ export default function UnitConverter() {
   };
 
   return (
-    <div id="unit-converter-workspace" className="grid grid-cols-1 lg:grid-cols-12 gap-8 select-none">
+    <div className="space-y-6">
+      {/* Sub-navigation selector */}
+      <div className="flex bg-zinc-950 border border-zinc-900 rounded-xl p-1 max-w-md">
+        <button
+          onClick={() => setViewMode('conversion')}
+          className={`flex-1 py-2 text-xs font-bold font-mono uppercase tracking-wider text-center rounded-lg transition-all cursor-pointer ${
+            viewMode === 'conversion'
+              ? 'bg-brand text-zinc-950 font-extrabold shadow-md'
+              : 'text-zinc-500 hover:text-zinc-300'
+          }`}
+        >
+          Basic Unit Converter
+        </button>
+        <button
+          onClick={() => setViewMode('specialty')}
+          className={`flex-1 py-2 text-xs font-bold font-mono uppercase tracking-wider text-center rounded-lg transition-all cursor-pointer ${
+            viewMode === 'specialty'
+              ? 'bg-brand text-zinc-950 font-extrabold shadow-md'
+              : 'text-zinc-500 hover:text-zinc-300'
+          }`}
+        >
+          Specialty Calculators
+        </button>
+      </div>
+
+      {viewMode === 'specialty' ? (
+        <SpecialtyCalculators />
+      ) : (
+        <div id="unit-converter-workspace" className="grid grid-cols-1 lg:grid-cols-12 gap-8 select-none">
       
       {/* Visual Ambient Notification */}
       <AnimatePresence>
@@ -518,6 +548,8 @@ export default function UnitConverter() {
 
       </div>
 
+    </div>
+      )}
     </div>
   );
 }

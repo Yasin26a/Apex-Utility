@@ -156,6 +156,23 @@ export default function QRCodeGenerator() {
     }
   }, [activeSettings]);
 
+  // Listener to populate custom URL from card right-click actions
+  useEffect(() => {
+    const handlePopulate = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail && customEvent.detail.text) {
+        setMode('url');
+        setToolType('qr');
+        setUrl(customEvent.detail.text);
+        triggerNotification('QR code payload synchronized for active tool!', 'success');
+      }
+    };
+    window.addEventListener('populate-qr-data', handlePopulate);
+    return () => {
+      window.removeEventListener('populate-qr-data', handlePopulate);
+    };
+  }, []);
+
   // QR String payload resolver
   const getQrPayload = (): string => {
     switch (mode) {

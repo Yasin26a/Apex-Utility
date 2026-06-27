@@ -13,11 +13,11 @@ interface SEOHeaderContent {
 
 const SEO_METADATA: Record<string, SEOHeaderContent> = {
   dashboard: {
-    title: "Apex Processing Labs | Local WASM Utility Forge",
-    description: "Perform enterprise-grade media conversions and complex document compression entirely within your local browser sandbox. Unparalleled speed, absolute privacy, 100% free.",
-    keywords: "local wasm processing, client-side converter, apex processing lab, secure browser utilities, file optimizer, offline processing",
-    ogTitle: "Apex Processing Labs - High Performance Client WASM Utilities",
-    ogDescription: "Compress PDFs, format JSON arrays, and rasterize WebP graphics securely using client-side WebAssembly.",
+    title: "Apex Processing Labs | Free PDF Converter, PDF Size Reducer & Online Editor",
+    description: "Free online PDF editor, converter, merger, and compressor. Convert JPG to PDF, merge PDF files, and compress PDF offline instantly with absolute privacy.",
+    keywords: "free pdf converter, edit pdf for free, pdf to word converter free, smallpdf editor, convert pdf to powerpoint, free jpg to pdf converter, best free pdf converter, free merge pdf, photo to pdf converter free, smallpdf esign, pdf converter for free, image to pdf converter for free, merge pdf files online free",
+    ogTitle: "Apex Processing Labs - Free PDF Converter & Compressor Tools",
+    ogDescription: "Compress PDFs, merge documents, convert images to PDF, and edit files securely using 100% client-side WebAssembly.",
     schema: {
       "@context": "https://schema.org",
       "@type": "WebApplication",
@@ -33,16 +33,16 @@ const SEO_METADATA: Record<string, SEOHeaderContent> = {
     }
   },
   'compress-pdf': {
-    title: "Compress PDF to 2MB for Job Application Online Free | Apex PDF",
-    description: "Compress and structurally shrink document payload sizes to under 2MB for job application resumes on the web for free. Perfect ATS compliant indexing preservation with full file privacy.",
-    keywords: "compress pdf to 2mb for job application online free, compact resume builder, shrink pdf file size free, document compressor online, pdf optimization for jobs, jobs application PDF help",
-    ogTitle: "Compress PDF to 2MB for Job Application Online Free | APEX",
-    ogDescription: "Apply with confidence. Reduce resume size to 2MB without breaking fonts or ATS matching structures.",
+    title: "Compress PDF Online Free | PDF Size Reducer to 100kb | iLovePDF Alternative",
+    description: "Compress PDF files online free. Reduce PDF file size to 100kb, 200kb, or 1mb instantly with high quality. Pengecil file pdf size reducer 100% private & offline.",
+    keywords: "compress pdf, ilovepdf compress, pdf size reducer, compress pdf to 100kb, i love pdf compress, i love compressor pdf, i love my pdf compressor, i love pdf compress online, i love pdf size reducer, ilovepdf compress file, ilovepdf pdf compressor, ngecilin file pdf, pengecil file pdf, reduce pdf size ilovepdf, compress pdf to 200kb, reduce pdf size to 100kb i love pdf, compress pdf gratis",
+    ogTitle: "Compress PDF Online Free | PDF Size Reducer | iLovePDF Alternative",
+    ogDescription: "Compress PDF files online free. Reduce PDF file size to 100kb or 200kb with premium quality. Best iLovePDF alternative for offline PDF size reduction.",
     schema: {
       "@context": "https://schema.org",
       "@type": "WebApplication",
-      "name": "Compress PDF to 2MB Online Tool",
-      "description": "Compress and structurally shrink document payload sizes to 2MB for job applications online free.",
+      "name": "Compress PDF & Size Reducer Tool",
+      "description": "Compress and shrink PDF document sizes online free to 100kb, 200kb, or custom sizes with high-fidelity formatting preservation.",
       "applicationCategory": "BusinessApplication",
       "operatingSystem": "All Platforms",
       "offers": {
@@ -93,9 +93,9 @@ const SEO_METADATA: Record<string, SEOHeaderContent> = {
     }
   },
   'sitemap-seo': {
-    title: "Generate and Inspect Dynamic XML Sitemap Online Free | Apex SEO Hub",
-    description: "Export search-engine compliant sitemaps, inspect robots.txt rules, analyze technical page indexes, and audit dynamic priority scores for optimized crawl indexing.",
-    keywords: "generate and inspect dynamic XML sitemap online free, robots.txt inspector, technical seo indicators, priority weight matrices, sitemap exporter, free xml sitemap creator",
+    title: "Generate & Inspect XML Sitemaps Free | SEO Audit Hub",
+    description: "Export search-engine compliant sitemaps, inspect robots.txt rules, analyze technical page indexes, and generate xml sitemap structures for Google and Bing search crawling.",
+    keywords: "sitemap generator, xml sitemap generator, create sitemap, free sitemap generator, xml sitemap, site map, website sitemap generator, website sitemap, sitemap example, google sitemap, google sitemap generator, create xml sitemap, sitemap xml example, best sitemap generator, create sitemap for website, free xml sitemap generator, sitemap checker, free sitemap tool, sitemap generator tool, create sitemap from url, seo sitemap, free sitemap, xml sitemaps com, xml sitemaps com sitemap generator",
     ogTitle: "Generate and Inspect Dynamic XML Sitemap Online Free",
     ogDescription: "Technical SEO monitoring workbench. Compile and export perfect robots.txt and XML sitemap models.",
     schema: {
@@ -114,8 +114,8 @@ const SEO_METADATA: Record<string, SEOHeaderContent> = {
   },
   'sitemap-generator': {
     title: "In-Browser XML Sitemap Generator Online Free | Apex SEO Hub",
-    description: "Create fully customizable, search-compliant XML sitemaps. Input your website URL, configure crawler change frequencies and priority scores, and instantly download a valid sitemap.xml file.",
-    keywords: "in-browser xml sitemap generator, custom sitemap xml builder, free sitemap online creator, google search console sitemap, custom change frequency sitemap, prioritize website links",
+    description: "Create fully customizable, search-compliant XML sitemaps. Configure crawler change frequencies, priority scores, and instantly download sitemap.xml with our unlimited sitemap generator.",
+    keywords: "sitemap generator, xml sitemap generator, create sitemap, free sitemap generator, xml sitemap, site map, sitemap generator url, online sitemap generator, sitemap builder, visual sitemap generator, visual sitemap, free sitemap builder, sitemap creator free, automatic sitemap generator, online sitemap generator tool, visual sitemap generator from url, website sitemap template free download, free visual sitemap tool, free visual sitemap generator, sitemap xml template, xml sitemap validator, sitemap generator free unlimited, sitemap creator tool, xml sitemaps com",
     ogTitle: "In-Browser XML Sitemap Generator Online Free",
     ogDescription: "Build pristine search-engine compliant XML sitemaps with custom frequencies and priorities in seconds.",
     schema: {
@@ -133,11 +133,11 @@ const SEO_METADATA: Record<string, SEOHeaderContent> = {
     }
   },
   'image-to-pdf': {
-    title: "Merge JPG/PNG Images into PDF Online Free | Apex PDF Converter",
-    description: "Combine and merge multiple JPG, JPEG, and PNG images into a single optimized PDF document locally. Supports image reordering, page rotations, and security watermarks free.",
-    keywords: "merge jpg png images into pdf online free, merge multiple images to single pdf, image to pdf converter, convert jpg to pdf, convert png to pdf offline, optimized image pdf wrapper",
-    ogTitle: "Merge JPG/PNG Images into PDF Online Free | APEX Labs",
-    ogDescription: "Stitch multiple design files, screenshots, or scans into a single, light, watermarked PDF completely offline.",
+    title: "Convert JPG to PDF Online Free - Image to PDF | iLovePDF Alternative",
+    description: "Convert a JPG to a PDF instantly. Convert PNG, JPEG, or photos to PDF online free. Best iLovePDF alternative for image to PDF converter offline.",
+    keywords: "convert a jpg to a pdf, convert an image to a pdf, convert foto in pdf, convert jpg to pdf, convert png to pdf, convert photo to pdf i love pdf, convert picture to pdf i love pdf, i love pdf converter image to pdf, i love pdf image to pdf converter, ilovepdf convert image to pdf, ilovepdf merge jpg to pdf, lovely jpg to pdf, png to pdf converter ilovepdf, png to pdf online ilovepdf, convert image to pdf i love",
+    ogTitle: "Convert JPG to PDF Online Free | Image to PDF | iLovePDF Alternative",
+    ogDescription: "Instantly convert JPG, JPEG, and PNG images into a single optimized PDF document. Secure offline processing, no email or sign-ups required.",
     schema: {
       "@context": "https://schema.org",
       "@type": "WebApplication",
@@ -153,11 +153,11 @@ const SEO_METADATA: Record<string, SEOHeaderContent> = {
     }
   },
   'join-pdf': {
-    title: "Combine PDF Documents and Reorder Pages Free | Apex Joiner",
-    description: "Upload multiple existing PDF documents and combine them into a single file with page-by-page drag-and-drop reordering. Supporting custom rotations, deletions, and metadata injection free.",
-    keywords: "combine pdf documents and reorder pages free, merge pdf files, drag and drop pdf pages, rotate pdf pages online, duplicate pdf page free, offline pdf joiner tool",
-    ogTitle: "Combine PDF Documents and Reorder Pages Free | APEX Labs",
-    ogDescription: "High-performance browser PDF joining workstation. Rearrange, rotate, and synthesize documents with absolute data isolation.",
+    title: "Merge PDF Online Free - Combine PDF Files | iLovePDF Alternative",
+    description: "Merge PDF online free. Combine PDF files, pages, images, and Word documents easily. The best iLovePDF alternative to merge, combine, and join PDF files offline.",
+    keywords: "merge pdf online free, combine pdf files, i love pdf merge, pdf merger and compressor, merge pdf online ilovepdf, 2 pdf merge, 2pdf to 1 pdf, combine pdf online, merge pdf and compress, join pdf ilovepdf, merge files i love pdf, pdf combiner and editor, combine and compress pdf, pdf merger and splitter, pdf joiner, 2 pdf merge in one, merge pdf online gratis",
+    ogTitle: "Merge PDF Online Free | Combine PDF Files | iLovePDF Alternative",
+    ogDescription: "High-performance browser PDF joining workstation. Rearrange, rotate, merge, and synthesize documents with absolute offline data isolation.",
     schema: {
       "@context": "https://schema.org",
       "@type": "WebApplication",
@@ -253,16 +253,16 @@ const SEO_METADATA: Record<string, SEOHeaderContent> = {
     }
   },
   'unit-converter': {
-    title: "Instant Unit Converter & Metric Solver Online Free | Apex Processing Labs",
-    description: "Convert length, weight, volume, and temperature parameters in real-time. Displays full comparison matrices and exports results securely directly to click clipboard.",
-    keywords: "metric conversion solver online free, real-time unit converter, weight scale conversion, length dimensions translator, temperature convert offline, cups to ml, kg to lbs converter",
-    ogTitle: "Instant Unit Converter & Metric Solver Online Free",
-    ogDescription: "Design, compare, and instantly parse metrics in real-time. Absolute privacy via fully client-side calculations.",
+    title: "Convert USD to Egyptian Pound & Specialty Multi-Calculator Suite",
+    description: "Convert USD to EGP and BTC/Bitcoin to USD. Access our specialty suite featuring ROI, Amortization schedule table, Roof sizes, Body Fat (Army Tape), Voltage Drop, and Tip gratuity calculators.",
+    keywords: "usd to egyptian pound today, convert usd to egyptian pound, 1 usd egyptian pound, convert eur to egp, 1 pound to egyptian pound, convert pound to egp, euros to egyptian pound, 1bitcoin to dollars, convert 1btc to usd, egp to pound, btc to usd converter, egp exchange rate to usd, roi calculator, online roi calculator, annual roi calculator, return on investment percentage calculator, accounting calculator online, amortized loan calculator, amortization table calculator, monthly amortization schedule, roof size calculator, roof measurement calculator, voltage drop calculator, 12v dc voltage drop calculator, 24v voltage drop calculator, 3 phase voltage drop calculator, wire gauge voltage drop, restaurant tips calculator, tip gratuity calculator, scientific calculators, casio calculator online, binary calculator step by step, hex addition calculator with steps",
+    ogTitle: "Convert USD to Egyptian Pound & Specialty Multi-Calculator Suite",
+    ogDescription: "Free online currency, metric units, and advanced specialty calculators including Amortization tables, ROI, Body Fat (Army Tape), and Voltage drops completely offline.",
     schema: {
       "@context": "https://schema.org",
       "@type": "WebApplication",
-      "name": "Apex Responsive Unit Converter",
-      "description": "Convert weight, length, volume and temperature variables in real-time, completely offline within your browser.",
+      "name": "Apex Responsive Unit Converter & Specialty Calculator Suite",
+      "description": "Convert currency/units and solve complex amortization tables, ROI, body fat, roof sizes, or wire voltage drops in real-time, completely offline within your browser.",
       "applicationCategory": "Utility",
       "operatingSystem": "All Platforms",
       "offers": {
@@ -373,11 +373,11 @@ const SEO_METADATA: Record<string, SEOHeaderContent> = {
     }
   },
   'digital-signature': {
-    title: "Digital Signature Generator & Stylist | Apex Studio",
-    description: "Create, format, and download high-quality custom drawn vector or typography signature images for signing documents completely offline.",
-    keywords: "digital signature generator, sign document offline, e-signature maker, signature style download, electronic autograph, vector svg signature",
-    ogTitle: "Digital Signature Generator & Stylist - Apex Studio",
-    ogDescription: "Create gorgeous text or hand-drawn digital signatures, style pen width/colors, and export vector-ready PNGs or SVGs 100% locally.",
+    title: "Sign PDF Online Free - Free Document Signing Software | DocuSign Alternative",
+    description: "Sign PDF online free with a legal digital signature. Create electronic signatures, add e-signatures, sign contracts, and sign documents easily. Best free DocuSign alternative.",
+    keywords: "electronic signature, docusign pricing, docusign free, electronic signature free, free document signing, docusign alternatives, esignature free, sign documents online free, signature maker, digital signature free, online signature generator, document signer, online signature maker, create digital signature, signature creator, handwritten signature generator, online document signing, docusign cost, hellosign pricing, pandadoc pricing, document signing software, docusign account, create signature online, free docusign alternatives, online contract signing, electronic signature generator, electronic signature app, document signing app, create electronic signature, esign documents free, docusign sign up",
+    ogTitle: "Sign PDF Online Free | Digital Signature Generator | DocuSign Alternative",
+    ogDescription: "Create legal text or hand-drawn digital signatures, style pen width/colors, and sign PDF documents 100% locally with ultimate privacy.",
     schema: {
       "@context": "https://schema.org",
       "@type": "WebApplication",
@@ -394,8 +394,8 @@ const SEO_METADATA: Record<string, SEOHeaderContent> = {
   },
   'seo-optimizer': {
     title: "SEO Content Optimizer & Real-time Readability Analyzer | Apex Suite",
-    description: "Analyze your copywriting in real-time. Optimize keyword density, estimate readability with Flesch-Kincaid formula, and compile flawless Google search snippet previews.",
-    keywords: "seo content optimizer, readability checker, Flesch-Kincaid score, keyword density analyzer, google search snippet preview, copy optimizer free, real-time seo analyser",
+    description: "Analyze and optimize your copywriting in real-time. Check SEO scores, track keyword density, audit readability, and simulate flawless search snippet previews.",
+    keywords: "seo optimization, seo tools, best seo tools, seo optimization tools, best free seo tools, free seo, seo review tools, seo checker, seo tools for website, free seo tools for website, free seo checker, seo search tools, website seo checker, seo for website, seo ranking tools, seo analyzer, seo ranking, free seo optimization tools, seo analysis tool free, google seo tools, top seo tools, seo test, website seo analyzer, seo review, seo optimizer, seo tracking tools, website seo checker free, seo software, best seo checker, seo site checkup, best seo, semrush seo tools, seo score checker, seo check online, google seo checker, seo ranking checker, seo rating, free seo ranking tools, seo report, seo tester online, google seo tools free, free seo report, content optimization tool, seo writing tools, seo audit, seo testing tools, seo helper",
     ogTitle: "SEO Content Optimizer & Real-time Readability Analyzer",
     ogDescription: "Perfect your copywriting. Dynamic keyword analyzer, syllable counter Flesch-Kincaid score indicator, and premium snippet builder previews 100% offline.",
     schema: {
@@ -733,11 +733,11 @@ const SEO_METADATA: Record<string, SEOHeaderContent> = {
     }
   },
   'date-calculator': {
-    title: "Apex Time & Date Calculator | Direct Multi-Format Interval Engine",
-    description: "Calculate duration difference between two dates, add/subtract intervals, filter business working days, and analyze precise timezone offsets offline.",
-    keywords: "date calculator, time difference, business days counter, workdays calendar, days count, countdown to date, timezone offset converter",
-    ogTitle: "Apex Time & Date Calculator Engine",
-    ogDescription: "A full-featured professional client-side utility to find intervals, manage business days, and convert time offsets securely.",
+    title: "DOB Checker (Online Birthday Date Finder) | Apex Time & Date Calculator",
+    description: "Check DOB online, calculate person's exact age in years, months, and days. Find my DOB, birthday finder by age, work out someone's age, and calculate duration differences between two dates offline.",
+    keywords: "dob checker, birthday finder by age, check dob online, find my dob, age check, birthday date finder, calculate person's age, work out someone's age, date of birth cal, date calculator, time difference, business days counter, workdays calendar, days count, timezone offset converter",
+    ogTitle: "DOB Checker & Online Birthday Date Finder Engine",
+    ogDescription: "Check DOB online, find age parameters and zodiac details, or manage business day intervals securely offline with absolute confidentiality.",
     schema: {
       "@context": "https://schema.org",
       "@type": "WebApplication",

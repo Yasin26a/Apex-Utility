@@ -44,6 +44,55 @@ export default function AIAssistantSupervisor({ currentTab, onTabChange }: AIAss
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Keep messages in ref to avoid stale closure in global event listener
+  const messagesRef = useRef(messages);
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
+
+  useEffect(() => {
+    const handleOpenAssistant = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      setIsOpen(true);
+      if (customEvent.detail && customEvent.detail.text) {
+        setTimeout(() => {
+          const textToSend = customEvent.detail.text;
+          const userMessage: Message = { role: 'user', content: textToSend };
+          setMessages(prev => [...prev, userMessage]);
+          setIsTyping(true);
+
+          fetch('/api/assistant', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              messages: [...messagesRef.current, userMessage]
+            })
+          })
+          .then(res => {
+            if (!res.ok) throw new Error('Could not reach the AI Supervisor service.');
+            return res.json();
+          })
+          .then(data => {
+            setMessages(prev => [...prev, { role: 'assistant', content: data.text }]);
+          })
+          .catch(err => {
+            setMessages(prev => [...prev, {
+              role: 'assistant',
+              content: `⚠️ Error: ${err.message || 'The Gemini server did not respond.'}`
+            }]);
+          })
+          .finally(() => {
+            setIsTyping(false);
+          });
+        }, 300);
+      }
+    };
+    window.addEventListener('open-ai-assistant', handleOpenAssistant);
+    return () => {
+      window.removeEventListener('open-ai-assistant', handleOpenAssistant);
+    };
+  }, []);
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
