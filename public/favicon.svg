@@ -1,86 +1,24 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none" width="100%" height="100%">
   <defs>
-    <!-- Beautiful precise linear gradient matching the original logo -->
-    <linearGradient id="apexGradient" x1="0%" y1="100%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#0082FB" />    <!-- Premium Vibrant Blue -->
-      <stop offset="45%" stop-color="#00CBD4" />   <!-- Electrifying Cyan -->
-      <stop offset="100%" stop-color="#01F1AD" />  <!-- Luminescent Neon Mint/Green -->
+    <!-- Intense Cyber Gold/Yellow Gradient for the Lightning Bolt -->
+    <linearGradient id="lightningGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a" />
+      <stop offset="40%" stop-color="#facc15" />
+      <stop offset="100%" stop-color="#ca8a04" />
     </linearGradient>
 
-    <!-- Subtle drop glow to make it stand out on dark backgrounds -->
-    <filter id="logoGlow" x="-10%" y="-10%" width="120%" height="120%">
-      <feGaussianBlur stdDeviation="8" result="blur" />
+    <!-- Glowing backdrop shadow for high contrast on both dark and light browser tabs -->
+    <filter id="lightningGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="16" result="blur" />
       <feComposite in="SourceGraphic" in2="blur" operator="over" />
     </filter>
   </defs>
 
-  <!-- Stylized Geometric "A" with Lightning Bolt & Arrow in the exact form factor of the original logo -->
-  <g filter="url(#logoGlow)">
-    <!-- 1. LEFT DIAGONAL RIBBON (Vibrant Blue to Cyan) -->
-    <path 
-      d="M 145 375 
-         L 260 170 
-         L 282 208 
-         L 204 346 
-         L 242 346 
-         L 254 324 
-         L 211 250 
-         L 255 170 
-         L 185 295 
-         L 205 375 
-         Z" 
-      fill="url(#apexGradient)" 
-      opacity="0.95" />
-
-    <!-- 2. MAIN LIGHTNING ARROW SHAPE (Fitted perfectly with horizontal offsets & crisp arrowhead) -->
-    <!-- Starts under left rib, forms the bolt, shoots up to the arrowhead, and returns -->
-    <path 
-      d="M 230 338 
-         L 305 205 
-         H 258 
-         L 315 110 
-         L 345 162 
-         L 290 260 
-         H 338 
-         L 252 410 
-         Z" 
-      fill="url(#apexGradient)" />
-
-    <!-- Sharp Arrowhead Tips -->
-    <!-- The arrow wings pointing precisely ↗ (up-right) -->
-    <path 
-      d="M 315 110 
-         L 265 145 
-         L 285 170 
-         L 315 110 
-         Z" 
-      fill="url(#apexGradient)" />
-      
-    <path 
-      d="M 315 110 
-         L 345 162 
-         L 315 152 
-         L 315 110 
-         Z" 
-      fill="url(#apexGradient)" />
-
-    <!-- 3. RIGHT DIAGONAL LEG (Vibrant Cyan to Green transition) -->
-    <path 
-      d="M 285 260 
-         L 345 365 
-         L 380 365 
-         L 310 242 
-         Z" 
-      fill="url(#apexGradient)" />
-
-    <!-- 4. INNER ACCENTS (Parallel stylized geometric segment in the right leg) -->
-    <path 
-      d="M 320 320 
-         L 348 370 
-         H 322 
-         L 298 330 
-         Z" 
-      fill="url(#apexGradient)" 
-      opacity="0.8" />
+  <!-- Central Premium Lightning Bolt -->
+  <g filter="url(#lightningGlow)">
+    <path
+      d="M312 30 L120 270 H250 L170 482 L392 242 H262 Z"
+      fill="url(#lightningGrad)"
+    />
   </g>
 </svg>

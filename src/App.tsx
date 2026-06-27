@@ -268,6 +268,9 @@ export default function App() {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isCopied, setIsCopied] = useState<string | null>(null);
   const [isSeoIndexOpen, setIsSeoIndexOpen] = useState(false);
+  const [isIncognito, setIsIncognito] = useState(false);
+  const [isSplitChild, setIsSplitChild] = useState(false);
+  const [splitTab, setSplitTab] = useState<ActiveTab | null>(null);
 
   // Sitemap Generator settings state
   const [targetUrl, setTargetUrl] = useState('https://example.com');
@@ -523,6 +526,30 @@ export default function App() {
       console.error("Failed to copy collection link:", err);
     });
   };
+
+  // Synchronize incognito & split mode search parameters and custom event listener
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    if (searchParams.get('incognito') === 'true' || searchParams.get('private') === 'true') {
+      setIsIncognito(true);
+    }
+    if (searchParams.get('isSplitChild') === 'true' || searchParams.get('split') === 'true') {
+      setIsSplitChild(true);
+    }
+  }, [location.search]);
+
+  useEffect(() => {
+    const handleSplitTrigger = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail && customEvent.detail.toolId) {
+        setSplitTab(customEvent.detail.toolId as ActiveTab);
+      }
+    };
+    window.addEventListener('trigger-split-view', handleSplitTrigger);
+    return () => {
+      window.removeEventListener('trigger-split-view', handleSplitTrigger);
+    };
+  }, []);
 
   // Auto-scroll inside reader modal when deep linked
   useEffect(() => {
@@ -1850,7 +1877,7 @@ Disallow:
       </AnimatePresence>
 
       {/* Header Bar */}
-      {!(activeTab === 'css-generator' && cssZenMode) && (
+      {!(activeTab === 'css-generator' && cssZenMode) && !isSplitChild && (
         <header className="bg-[#050507]/95 backdrop-blur-md border-b border-red-950/45 sticky top-0 z-50 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button 
@@ -1866,12 +1893,12 @@ Disallow:
             onClick={() => handleTabChange('dashboard')}
             className="flex items-center gap-2 cursor-pointer select-none"
           >
-            <BrandingLogo size={42} className="shrink-0 drop-shadow-[0_0_12px_rgba(234,179,8,0.45)]" />
+            <BrandingLogo size={42} className="shrink-0 drop-shadow-[0_0_12px_rgba(239,68,68,0.4)]" />
             <div>
               <h1 className="font-bold text-lg leading-tight tracking-tight bg-gradient-to-r from-white via-zinc-200 to-zinc-400 bg-clip-text text-transparent">
                 Apex Utility Labs
               </h1>
-              <span className="text-[10px] font-mono font-medium text-amber-500 block tracking-wider uppercase">
+              <span className="text-[10px] font-mono font-medium text-red-500/80 block tracking-wider uppercase">
                 Pro Webmaster Tools
               </span>
             </div>
@@ -1879,6 +1906,13 @@ Disallow:
         </div>
 
         <div className="flex items-center gap-4">
+          {isIncognito && (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-950/30 border border-purple-500/30 text-purple-300 text-[10px] font-mono tracking-wide shadow-[0_0_15px_rgba(168,85,247,0.2)] animate-pulse">
+              <span className="w-2 h-2 rounded-full bg-purple-500" />
+              <span>INCOGNITO MODE ACTIVE</span>
+            </div>
+          )}
+
           <button
             onClick={() => {
               setReadingArticle(null);
@@ -2291,7 +2325,11 @@ Disallow:
 
         {/* Dynamic Content Panel */}
         <div className="flex-1 overflow-y-auto flex flex-col will-change-scroll scroll-smooth" id="main-content-window" style={{ willChange: 'scroll-position, transform', WebkitOverflowScrolling: 'touch' }}>
-          <main className={`flex-1 ${activeTab === 'css-generator' && cssZenMode ? 'p-0 max-w-none w-full' : activeTab === 'guides' ? 'p-4 sm:p-8 max-w-7xl w-full mx-auto' : 'p-4 sm:p-8 max-w-5xl w-full mx-auto'}`}>
+          
+          <div className={splitTab ? "flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 p-4 lg:p-6 min-h-0" : "flex flex-col flex-1"}>
+            
+            <div className={splitTab ? "border border-zinc-900 bg-[#040407]/40 rounded-2xl p-4 lg:p-6 shadow-inner h-full overflow-y-auto" : "flex-1 flex flex-col"}>
+              <main className={splitTab ? "w-full" : `flex-1 ${activeTab === 'css-generator' && cssZenMode ? 'p-0 max-w-none w-full' : activeTab === 'guides' ? 'p-4 sm:p-8 max-w-7xl w-full mx-auto' : 'p-4 sm:p-8 max-w-5xl w-full mx-auto'}`}>
             
             <Suspense fallback={
               <div className="beveled-panel bg-[#050508]/80 border border-zinc-900/80 p-8 rounded-2xl flex flex-col items-center justify-center space-y-4 py-16 max-w-md mx-auto my-12 shadow-2xl backdrop-blur-md">
@@ -5344,6 +5382,39 @@ Disallow:
           </AnimatePresence>
         </Suspense>
       </main>
+            </div>
+
+            {splitTab && (
+              <div className="border border-indigo-950/45 bg-zinc-950/30 rounded-2xl p-4 flex flex-col shadow-2xl h-[calc(100vh-100px)] lg:h-auto min-h-[450px]">
+                <div className="flex items-center justify-between pb-3 mb-4 border-b border-zinc-900">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse" />
+                    <span className="font-semibold text-xs tracking-wide text-indigo-300 uppercase font-mono">
+                      {splitTab.replace('-', ' ')}
+                    </span>
+                    <span className="text-[9px] font-mono font-bold text-indigo-400 bg-indigo-950/60 px-2 py-0.5 rounded border border-indigo-900/50">
+                      SPLIT VIEW ACTIVE
+                    </span>
+                  </div>
+                  <button 
+                    onClick={() => setSplitTab(null)}
+                    className="text-zinc-500 hover:text-white p-1.5 hover:bg-zinc-900/60 rounded-lg transition-colors cursor-pointer border border-transparent hover:border-zinc-800"
+                    title="Close Split View"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="flex-1 w-full rounded-xl overflow-hidden border border-zinc-900 bg-black/60 relative">
+                  <iframe 
+                    src={`${window.location.origin}/${splitTab}?isSplitChild=true`} 
+                    className="absolute inset-0 w-full h-full border-0"
+                    title="Split Workspace Frame"
+                  />
+                </div>
+              </div>
+            )}
+
+          </div>
 
         {/* Primary Footer */}
         {!(activeTab === 'css-generator' && cssZenMode) && (
