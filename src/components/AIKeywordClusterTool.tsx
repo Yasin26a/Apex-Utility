@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { 
   Sparkles, 
   HelpCircle,
@@ -19,8 +20,14 @@ import {
   Sliders, 
   BarChart3, 
   Compass, 
-  AlertCircle
+  AlertCircle,
+  Search,
+  Database,
+  TrendingUp,
+  Coins,
+  ArrowRight
 } from 'lucide-react';
+import { CSS_GENERATOR_KEYWORDS, KeywordItem } from '../data/cssGeneratorKeywords';
 
 interface ClusteredKeyword {
   keyword: string;
@@ -64,6 +71,7 @@ const PRESETS = [
 ];
 
 export default function AIKeywordClusterTool() {
+  const [activePanel, setActivePanel] = useState<'database' | 'cluster'>('database');
   const [rawKeywords, setRawKeywords] = useState('');
   const [groupingSensitivity, setGroupingSensitivity] = useState<'low' | 'medium' | 'high'>('medium');
   const [includeSearchIntent, setIncludeSearchIntent] = useState(true);
@@ -74,6 +82,15 @@ export default function AIKeywordClusterTool() {
   const [viewMode, setViewMode] = useState<'grid' | 'network' | 'outline'>('grid');
   const [copiedState, setCopiedState] = useState(false);
   const [expandedClusters, setExpandedClusters] = useState<Record<string, boolean>>({});
+
+  // Database Explore Panel States
+  const [dbSearch, setDbSearch] = useState('');
+  const [dbCompFilter, setDbCompFilter] = useState<'All' | 'Low' | 'Medium' | 'High'>('All');
+  const [dbSortBy, setDbSortBy] = useState<'avgSearches' | 'compIndex' | 'bidHigh' | 'alphabetical'>('avgSearches');
+  const [selectedKeywords, setSelectedKeywords] = useState<string[]>([]);
+  const [dbPage, setDbPage] = useState(1);
+  const [copiedKeyword, setCopiedKeyword] = useState<string | null>(null);
+  const itemsPerPage = 12;
 
   // Progression steps simulation for user friendliness
   const startLoadingProgress = () => {
@@ -197,22 +214,566 @@ export default function AIKeywordClusterTool() {
     }, 0);
   }, [result]);
 
+  // Database Filter & Sort Computations
+  const filteredKeywords = useMemo(() => {
+    return CSS_GENERATOR_KEYWORDS.filter(item => {
+      const matchesSearch = item.keyword.toLowerCase().includes(dbSearch.toLowerCase());
+      const matchesComp = dbCompFilter === 'All' || item.competition === dbCompFilter;
+      return matchesSearch && matchesComp;
+    }).sort((a, b) => {
+      if (dbSortBy === 'avgSearches') return b.avgSearches - a.avgSearches;
+      if (dbSortBy === 'compIndex') return b.competitionIndexed - a.competitionIndexed;
+      if (dbSortBy === 'bidHigh') return (b.bidHigh || 0) - (a.bidHigh || 0);
+      return a.keyword.localeCompare(b.keyword);
+    });
+  }, [dbSearch, dbCompFilter, dbSortBy]);
+
+  const paginatedKeywords = useMemo(() => {
+    const startIndex = (dbPage - 1) * itemsPerPage;
+    return filteredKeywords.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredKeywords, dbPage]);
+
+  const totalDbPages = Math.max(1, Math.ceil(filteredKeywords.length / itemsPerPage));
+
+  // Reset page when filter changes
+  useMemo(() => {
+    setDbPage(1);
+  }, [dbSearch, dbCompFilter, dbSortBy]);
+
+  // Bulk Actions
+  const handleToggleSelectAll = () => {
+    if (selectedKeywords.length === paginatedKeywords.length) {
+      setSelectedKeywords([]);
+    } else {
+      setSelectedKeywords(paginatedKeywords.map(kw => kw.keyword));
+    }
+  };
+
+  const handleToggleSelectOne = (keyword: string) => {
+    setSelectedKeywords(prev => 
+      prev.includes(keyword) ? prev.filter(k => k !== keyword) : [...prev, keyword]
+    );
+  };
+
+  const handleClusterSelected = () => {
+    if (selectedKeywords.length === 0) return;
+    setRawKeywords(selectedKeywords.join('\n'));
+    setActivePanel('cluster');
+    setSelectedKeywords([]);
+    // Smooth scroll to cluster text area
+    setTimeout(() => {
+      const el = document.getElementById('raw-keywords-input');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }, 120);
+  };
+
+  const handleCopySelected = () => {
+    if (selectedKeywords.length === 0) return;
+    navigator.clipboard.writeText(selectedKeywords.join('\n'));
+    setCopiedState(true);
+    setTimeout(() => setCopiedState(false), 2000);
+  };
+
+  // Pre-calculated Global Database Stats
+  const dbStats = useMemo(() => {
+    const total = CSS_GENERATOR_KEYWORDS.length;
+    const totalVolume = CSS_GENERATOR_KEYWORDS.reduce((acc, x) => acc + x.avgSearches, 0);
+    const lowCount = CSS_GENERATOR_KEYWORDS.filter(x => x.competition === 'Low').length;
+    const medCount = CSS_GENERATOR_KEYWORDS.filter(x => x.competition === 'Medium').length;
+    const highCount = CSS_GENERATOR_KEYWORDS.filter(x => x.competition === 'High').length;
+    const avgBid = Math.round(CSS_GENERATOR_KEYWORDS.reduce((acc, x) => acc + (x.bidHigh || 0), 0) / total);
+    return { total, totalVolume, lowCount, medCount, highCount, avgBid };
+  }, []);
+
+  // Top 8 keywords by search volume for SVG Bar Chart
+  const topSearchedKeywords = useMemo(() => {
+    return [...CSS_GENERATOR_KEYWORDS]
+      .sort((a, b) => b.avgSearches - a.avgSearches)
+      .slice(0, 8);
+  }, []);
+
   return (
-    <div className="bg-slate-950 border border-slate-900 rounded-2xl p-4 sm:p-6 text-slate-100 shadow-2xl space-y-8" id="keyword-cluster-root">
-      {/* Configuration Header Area */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
-        {/* Left Input Configuration Column */}
-        <div className="lg:col-span-12 xl:col-span-8 space-y-4">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-            <label className="text-sm font-semibold text-slate-300 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-emerald-400" />
-              Enter Raw Keywords or Search Queries
-            </label>
-            <span className="text-[10px] font-mono text-slate-500 bg-slate-900/60 px-2 py-1 rounded-md border border-slate-850">
-              One query per line or target comma separation
-            </span>
+    <div className="bg-slate-950 border border-slate-900 rounded-2xl p-4 sm:p-6 text-slate-100 shadow-2xl space-y-6" id="keyword-cluster-root">
+      
+      {/* Sub-Panel Layout Selector tabs */}
+      <div className="flex border-b border-slate-900 pb-3 gap-2">
+        <button
+          onClick={() => setActivePanel('database')}
+          className={`pb-2.5 px-4 text-xs font-bold uppercase tracking-wider transition-all relative cursor-pointer ${
+            activePanel === 'database' ? 'text-emerald-400' : 'text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            <Database className="w-4 h-4" />
+            <span>Pro CSS Keywords Index</span>
           </div>
+          {activePanel === 'database' && (
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-500 rounded-full" />
+          )}
+        </button>
+
+        <button
+          onClick={() => setActivePanel('cluster')}
+          className={`pb-2.5 px-4 text-xs font-bold uppercase tracking-wider transition-all relative cursor-pointer ${
+            activePanel === 'cluster' ? 'text-emerald-400' : 'text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4" />
+            <span>AI Semantic Clusterer</span>
+          </div>
+          {activePanel === 'cluster' && (
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-500 rounded-full" />
+          )}
+        </button>
+      </div>
+
+      {/* PANEL 1: PRO KEYWORDS DATABASE */}
+      {activePanel === 'database' && (
+        <div className="space-y-6 animate-fadeIn">
+          
+          {/* Informational Header */}
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-900/25 border border-slate-900 p-4 rounded-xl">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-xs font-bold font-mono text-emerald-400 uppercase tracking-widest">Active Keyword Intel Datapool</span>
+              </div>
+              <h2 className="text-lg font-black text-slate-100 tracking-tight">CSS Generator & Webmaster Search Intent</h2>
+              <p className="text-xs text-slate-400 max-w-2xl leading-relaxed">
+                Directly harvested from Google Ads Keyword Planner (June 2022 - May 2026). Select queries below to feed directly into the semantic clustering engine.
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  setDbSearch('');
+                  setDbCompFilter('All');
+                  setDbSortBy('avgSearches');
+                  setSelectedKeywords([]);
+                }}
+                className="py-1.5 px-3 bg-slate-900 hover:bg-slate-850 border border-slate-800 hover:border-slate-700 text-slate-300 text-xs rounded-lg transition-colors cursor-pointer font-medium"
+              >
+                Reset Database Filters
+              </button>
+            </div>
+          </div>
+
+          {/* Graphical Analytics Row (Beautiful SVG Dashboard) */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+            
+            {/* SVG Chart 1: Top Search Volume Bar Chart */}
+            <div className="lg:col-span-8 bg-slate-900/30 border border-slate-900 p-4 rounded-xl space-y-3">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-900">
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4 text-emerald-400" />
+                  <span className="text-xs font-bold font-mono text-slate-300 uppercase tracking-wider">Top 8 Highest Search Volume Queries</span>
+                </div>
+                <span className="text-[10px] text-slate-500 font-mono">Monthly Average Volume</span>
+              </div>
+
+              {/* Native responsive bar list with visual progress meters */}
+              <div className="space-y-3 pt-2">
+                {topSearchedKeywords.map((item, idx) => {
+                  const maxVolume = topSearchedKeywords[0].avgSearches;
+                  const pct = (item.avgSearches / maxVolume) * 100;
+                  return (
+                    <div key={idx} className="space-y-1">
+                      <div className="flex justify-between text-[11px] font-mono">
+                        <span className="text-slate-300 font-medium">{item.keyword}</span>
+                        <span className="text-emerald-400 font-bold">{item.avgSearches.toLocaleString()} /mo</span>
+                      </div>
+                      <div className="w-full h-3 bg-slate-950 rounded-full overflow-hidden border border-slate-900 flex">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${pct}%` }}
+                          transition={{ duration: 0.8, delay: idx * 0.05 }}
+                          className="h-full bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-400 hover:brightness-110 rounded-full transition-all"
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* SVG Chart 2: Competition Share & Stats Card */}
+            <div className="lg:col-span-4 bg-slate-900/30 border border-slate-900 p-4 rounded-xl flex flex-col justify-between space-y-4">
+              <div className="pb-2 border-b border-slate-900">
+                <div className="flex items-center gap-2">
+                  <Sliders className="w-4 h-4 text-indigo-400" />
+                  <span className="text-xs font-bold font-mono text-slate-300 uppercase tracking-wider">Indexed Competition Share</span>
+                </div>
+              </div>
+
+              {/* Pie segments visualization via a beautiful responsive SVG donut chart */}
+              <div className="flex justify-center items-center relative py-2">
+                <svg width="150" height="150" viewBox="0 0 100 100" className="transform -rotate-90">
+                  {/* Outer circle track */}
+                  <circle cx="50" cy="50" r="40" fill="transparent" stroke="#0c0c14" strokeWidth="12" />
+                  
+                  {/* Low segment: green (approx 85%) */}
+                  <circle 
+                    cx="50" 
+                    cy="50" 
+                    r="40" 
+                    fill="transparent" 
+                    stroke="#10b981" 
+                    strokeWidth="12" 
+                    strokeDasharray="251.2" 
+                    strokeDashoffset={251.2 * (1 - (dbStats.lowCount / dbStats.total))} 
+                  />
+                  {/* Medium segment: orange (approx 12%) */}
+                  <circle 
+                    cx="50" 
+                    cy="50" 
+                    r="40" 
+                    fill="transparent" 
+                    stroke="#f59e0b" 
+                    strokeWidth="12" 
+                    strokeDasharray="251.2" 
+                    strokeDashoffset={251.2 * (1 - (dbStats.medCount / dbStats.total))} 
+                    className="origin-center rotate-[210deg]"
+                  />
+                  {/* High segment: red (approx 3%) */}
+                  <circle 
+                    cx="50" 
+                    cy="50" 
+                    r="40" 
+                    fill="transparent" 
+                    stroke="#ef4444" 
+                    strokeWidth="12" 
+                    strokeDasharray="251.2" 
+                    strokeDashoffset={251.2 * (1 - (dbStats.highCount / dbStats.total))} 
+                    className="origin-center rotate-[330deg]"
+                  />
+                </svg>
+
+                {/* Center text of the donut */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                  <span className="text-xl font-black text-white">{dbStats.total}</span>
+                  <span className="text-[9px] font-mono text-slate-500 uppercase tracking-wider">Queries</span>
+                </div>
+              </div>
+
+              {/* Legends */}
+              <div className="grid grid-cols-3 gap-2 pt-2 text-[10px] font-mono border-t border-slate-900 text-center">
+                <div className="space-y-0.5 bg-emerald-950/20 border border-emerald-900/20 p-1.5 rounded-lg">
+                  <span className="text-emerald-400 font-bold block">LOW</span>
+                  <span className="text-slate-300">{dbStats.lowCount} items</span>
+                </div>
+                <div className="space-y-0.5 bg-amber-950/20 border border-amber-900/20 p-1.5 rounded-lg">
+                  <span className="text-amber-400 font-bold block">MEDIUM</span>
+                  <span className="text-slate-300">{dbStats.medCount} items</span>
+                </div>
+                <div className="space-y-0.5 bg-rose-950/20 border border-rose-900/20 p-1.5 rounded-lg">
+                  <span className="text-rose-400 font-bold block">HIGH</span>
+                  <span className="text-slate-300">{dbStats.highCount} items</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Database Performance Indicators Cards */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-slate-900/40 border border-slate-900 p-4 rounded-xl space-y-1">
+              <span className="text-[10px] font-mono text-slate-500 uppercase tracking-wider block">Total Monthly Search Vol</span>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-lg font-black text-white">{dbStats.totalVolume.toLocaleString()}</span>
+                <span className="text-[10px] text-emerald-500 font-mono font-bold">BDT</span>
+              </div>
+            </div>
+
+            <div className="bg-slate-900/40 border border-slate-900 p-4 rounded-xl space-y-1">
+              <span className="text-[10px] font-mono text-slate-500 uppercase tracking-wider block">Low Competition Weight</span>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-lg font-black text-emerald-400">{Math.round((dbStats.lowCount / dbStats.total) * 100)}%</span>
+                <span className="text-[10px] text-slate-500 font-mono">of dataset</span>
+              </div>
+            </div>
+
+            <div className="bg-slate-900/40 border border-slate-900 p-4 rounded-xl space-y-1">
+              <span className="text-[10px] font-mono text-slate-500 uppercase tracking-wider block">Avg Top-of-Page CPC Bid</span>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-lg font-black text-white">{dbStats.avgBid}</span>
+                <span className="text-[10px] text-slate-400 font-mono font-bold">BDT /click</span>
+              </div>
+            </div>
+
+            <div className="bg-slate-900/40 border border-slate-900 p-4 rounded-xl space-y-1">
+              <span className="text-[10px] font-mono text-slate-500 uppercase tracking-wider block">Forecast Trend Span</span>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-lg font-black text-indigo-400">2022-2026</span>
+                <span className="text-[10px] text-slate-500 font-mono">4-year span</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Database Controls Filter Panel */}
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-3 p-3.5 bg-slate-900/50 border border-slate-900 rounded-xl items-center">
+            
+            {/* Search Input */}
+            <div className="md:col-span-5 relative">
+              <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 transform -translate-y-1/2" />
+              <input
+                type="text"
+                value={dbSearch}
+                onChange={(e) => setDbSearch(e.target.value)}
+                placeholder="Search raw CSS keywords..."
+                className="w-full pl-9 pr-8 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-200 placeholder-slate-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-all font-mono"
+              />
+              {dbSearch && (
+                <button
+                  onClick={() => setDbSearch('')}
+                  className="absolute right-2.5 top-1/2 transform -translate-y-1/2 text-[10px] bg-slate-800 text-slate-400 px-1 rounded hover:text-white"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+
+            {/* Competition filter buttons */}
+            <div className="md:col-span-4 flex items-center gap-1">
+              <span className="text-[10px] font-mono text-slate-500 uppercase tracking-wider mr-2">Comp:</span>
+              {(['All', 'Low', 'Medium', 'High'] as const).map(cFilter => (
+                <button
+                  key={cFilter}
+                  onClick={() => setDbCompFilter(cFilter)}
+                  className={`px-2.5 py-1 text-[11px] rounded-md font-mono font-medium border transition-all cursor-pointer ${
+                    dbCompFilter === cFilter
+                      ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/40 font-bold'
+                      : 'bg-slate-950 text-slate-400 border-slate-850 hover:border-slate-800'
+                  }`}
+                >
+                  {cFilter}
+                </button>
+              ))}
+            </div>
+
+            {/* Sorting controls */}
+            <div className="md:col-span-3 flex items-center justify-end gap-2">
+              <span className="text-[10px] font-mono text-slate-500 uppercase tracking-wider">Sort:</span>
+              <select
+                value={dbSortBy}
+                onChange={(e) => setDbSortBy(e.target.value as any)}
+                className="bg-slate-950 border border-slate-800 text-slate-300 text-xs rounded-lg py-1 px-2 focus:border-emerald-500 focus:outline-none transition-all font-mono"
+              >
+                <option value="avgSearches">Search Volume</option>
+                <option value="compIndex">Competition Index</option>
+                <option value="bidHigh">High CPC Bid</option>
+                <option value="alphabetical">A-Z Name</option>
+              </select>
+            </div>
+          </div>
+
+          {/* TABLE OF METRICS */}
+          <div className="rounded-xl border border-slate-900 bg-slate-950 overflow-hidden relative">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr className="bg-slate-900/80 border-b border-slate-900 text-slate-400 font-mono text-[10px] uppercase tracking-wider">
+                    <th className="py-3 px-4 w-10">
+                      <input
+                        type="checkbox"
+                        checked={paginatedKeywords.length > 0 && selectedKeywords.length === paginatedKeywords.length}
+                        onChange={handleToggleSelectAll}
+                        className="rounded bg-slate-900 border-slate-800 text-emerald-500 focus:ring-emerald-500 cursor-pointer"
+                        title="Select all on this page"
+                      />
+                    </th>
+                    <th className="py-3 px-4">Keyword Query</th>
+                    <th className="py-3 px-4 text-right">Avg Searches</th>
+                    <th className="py-3 px-4">Competition</th>
+                    <th className="py-3 px-4">Index Value</th>
+                    <th className="py-3 px-4 text-right">Bid Range (Low - High)</th>
+                    <th className="py-3 px-4 text-center">YoY Trend</th>
+                    <th className="py-3 px-4 text-right w-12">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-900">
+                  {paginatedKeywords.length === 0 ? (
+                    <tr>
+                      <td colSpan={8} className="py-12 text-center text-slate-500 font-mono text-xs">
+                        No keywords found matching filter criteria. Try resetting.
+                      </td>
+                    </tr>
+                  ) : (
+                    paginatedKeywords.map((item, idx) => {
+                      const isChecked = selectedKeywords.includes(item.keyword);
+                      const isLow = item.competition === 'Low';
+                      const isHigh = item.competition === 'High';
+                      const badgeClass = isLow 
+                        ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
+                        : isHigh 
+                          ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' 
+                          : 'bg-amber-500/10 text-amber-400 border border-amber-500/20';
+
+                      const isYoYPos = item.yoyChange !== '0%' && !item.yoyChange.startsWith('-');
+                      const isYoYNeg = item.yoyChange.startsWith('-');
+                      const trendColor = isYoYPos ? 'text-emerald-400' : isYoYNeg ? 'text-rose-400' : 'text-slate-500';
+
+                      return (
+                        <tr key={idx} className={`hover:bg-slate-900/40 transition-colors ${isChecked ? 'bg-emerald-950/10' : ''}`}>
+                          <td className="py-3 px-4">
+                            <input
+                              type="checkbox"
+                              checked={isChecked}
+                              onChange={() => handleToggleSelectOne(item.keyword)}
+                              className="rounded bg-slate-900 border-slate-800 text-emerald-500 focus:ring-emerald-500 cursor-pointer"
+                            />
+                          </td>
+                          <td className="py-3 px-4 font-semibold text-slate-200">
+                            <div className="flex items-center gap-2">
+                              <span>{item.keyword}</span>
+                              <button
+                                onClick={() => {
+                                  navigator.clipboard.writeText(item.keyword);
+                                  setCopiedKeyword(item.keyword);
+                                  setTimeout(() => setCopiedKeyword(null), 1000);
+                                }}
+                                className="text-slate-600 hover:text-slate-300 transition-colors cursor-pointer"
+                                title="Copy keyword"
+                              >
+                                {copiedKeyword === item.keyword ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                              </button>
+                            </div>
+                          </td>
+                          <td className="py-3 px-4 text-right font-mono text-slate-300 font-medium">
+                            {item.avgSearches.toLocaleString()}
+                          </td>
+                          <td className="py-3 px-4">
+                            <span className={`text-[10px] font-bold font-mono px-2 py-0.5 rounded-full ${badgeClass}`}>
+                              {item.competition}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 w-32">
+                            <div className="flex items-center gap-2">
+                              <span className="font-mono text-[11px] text-slate-400 w-6">{item.competitionIndexed}</span>
+                              <div className="flex-1 h-1.5 bg-slate-900 rounded-full overflow-hidden border border-slate-850">
+                                <div 
+                                  className={`h-full rounded-full ${isLow ? 'bg-emerald-500' : isHigh ? 'bg-rose-500' : 'bg-amber-500'}`} 
+                                  style={{ width: `${item.competitionIndexed}%` }} 
+                                />
+                              </div>
+                            </div>
+                          </td>
+                          <td className="py-3 px-4 text-right font-mono text-slate-300">
+                            {item.bidLow && item.bidHigh ? (
+                              <span>{item.bidLow.toFixed(2)} - {item.bidHigh.toFixed(2)} <span className="text-[10px] text-slate-500">BDT</span></span>
+                            ) : (
+                              <span className="text-slate-600">N/A</span>
+                            )}
+                          </td>
+                          <td className="py-3 px-4 text-center font-mono font-bold">
+                            <span className={trendColor}>{item.yoyChange}</span>
+                          </td>
+                          <td className="py-3 px-4 text-right">
+                            <button
+                              onClick={() => {
+                                setRawKeywords(item.keyword);
+                                setActivePanel('cluster');
+                                setTimeout(() => {
+                                  const el = document.getElementById('raw-keywords-input');
+                                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                                }, 120);
+                              }}
+                              className="text-emerald-400 hover:text-emerald-300 font-semibold flex items-center justify-end gap-0.5 ml-auto cursor-pointer"
+                              title="Directly cluster this query"
+                            >
+                              <span>Cluster</span>
+                              <ArrowRight className="w-3 h-3" />
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination footer */}
+            {totalDbPages > 1 && (
+              <div className="flex items-center justify-between p-4 border-t border-slate-900 bg-slate-900/20 text-xs font-mono text-slate-400">
+                <span>
+                  Showing page <strong className="text-slate-300">{dbPage}</strong> of <strong className="text-slate-300">{totalDbPages}</strong> ({filteredKeywords.length} matching keywords)
+                </span>
+                
+                <div className="flex items-center gap-1">
+                  <button
+                    disabled={dbPage === 1}
+                    onClick={() => setDbPage(p => Math.max(1, p - 1))}
+                    className="px-2.5 py-1 bg-slate-900 hover:bg-slate-850 border border-slate-800 disabled:opacity-40 disabled:hover:bg-slate-900 text-slate-300 rounded-md transition-colors cursor-pointer"
+                  >
+                    Previous
+                  </button>
+                  <button
+                    disabled={dbPage === totalDbPages}
+                    onClick={() => setDbPage(p => Math.min(totalDbPages, p + 1))}
+                    className="px-2.5 py-1 bg-slate-900 hover:bg-slate-850 border border-slate-800 disabled:opacity-40 disabled:hover:bg-slate-900 text-slate-300 rounded-md transition-colors cursor-pointer"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Checkbox Floating Bulk Action Bar */}
+          <AnimatePresence>
+            {selectedKeywords.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 30 }}
+                className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 w-[95%] max-w-lg bg-[#0e0f14]/98 border border-emerald-500/40 p-4 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] backdrop-blur-xl flex items-center justify-between gap-4"
+              >
+                <div className="flex items-center gap-2 font-mono">
+                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
+                  <span className="text-xs text-emerald-400 font-bold">
+                    {selectedKeywords.length} Keyword{selectedKeywords.length > 1 ? 's' : ''} Selected
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleCopySelected}
+                    className="px-3 py-1.5 bg-slate-900 hover:bg-slate-850 text-slate-300 text-xs rounded-lg font-medium transition-colors cursor-pointer"
+                  >
+                    {copiedState ? 'Copied!' : 'Copy'}
+                  </button>
+
+                  <button
+                    onClick={handleClusterSelected}
+                    className="px-4 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold rounded-lg transition-all shadow-md cursor-pointer flex items-center gap-1.5 active:scale-95"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-slate-950" />
+                    <span>Cluster with AI</span>
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+        </div>
+      )}
+
+      {/* PANEL 2: AI SEMANTIC CLUSTERER */}
+      {activePanel === 'cluster' && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            {/* Left Input Configuration Column */}
+            <div className="lg:col-span-12 xl:col-span-8 space-y-4">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                <label className="text-sm font-semibold text-slate-300 flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-emerald-400" />
+                  Enter Raw Keywords or Search Queries
+                </label>
+                <span className="text-[10px] font-mono text-slate-500 bg-slate-900/60 px-2 py-1 rounded-md border border-slate-850">
+                  One query per line or target comma separation
+                </span>
+              </div>
 
           <textarea
             value={rawKeywords}
@@ -823,6 +1384,9 @@ export default function AIKeywordClusterTool() {
               </p>
             </div>
           </div>
+        </div>
+      )}
+
         </div>
       )}
     </div>
