@@ -179,16 +179,22 @@ export default function ContextMenu({
         className="fixed z-[9999] w-[240px] bg-[#101014]/98 border border-zinc-800/80 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] p-1.5 backdrop-blur-xl text-[#d4d4d8] select-none font-sans text-[13px] flex flex-col gap-0.5"
       >
         {/* Open in new tab */}
-        <button
-          onClick={handleOpenNewTab}
-          className="w-full flex items-center justify-between px-3 py-2 hover:bg-[#ef4444]/10 hover:text-white rounded-lg text-left transition-colors cursor-pointer group"
+        <a
+          href={toolUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={(e) => {
+            e.stopPropagation();
+            onClose();
+          }}
+          className="w-full flex items-center justify-between px-3 py-2 hover:bg-[#ef4444]/10 hover:text-white rounded-lg text-left transition-colors cursor-pointer group no-underline"
         >
           <div className="flex items-center gap-2.5">
             <ExternalLink className="w-4 h-4 text-zinc-400 group-hover:text-[#ef4444]" />
-            <span>Open link in new tab</span>
+            <span>Open in New Tab</span>
           </div>
           <span className="text-[10px] text-zinc-500 font-mono tracking-wider">Ctrl+T</span>
-        </button>
+        </a>
 
         {/* Open in new window */}
         <button
@@ -286,14 +292,14 @@ export default function ContextMenu({
           <span className="text-[10px] text-zinc-500 font-mono tracking-wider">Ctrl+S</span>
         </button>
 
-        {/* Copy link address */}
+        {/* Copy Tool Link */}
         <button
           onClick={handleCopyLink}
           className="w-full flex items-center justify-between px-3 py-2 hover:bg-zinc-800/80 rounded-lg text-left transition-colors cursor-pointer group"
         >
           <div className="flex items-center gap-2.5">
             <Copy className="w-4 h-4 text-zinc-500 group-hover:text-zinc-300" />
-            <span>{copiedSuccess ? 'Copied to clipboard!' : 'Copy link address'}</span>
+            <span>{copiedSuccess ? 'Copied to clipboard!' : 'Copy Tool Link'}</span>
           </div>
         </button>
 

@@ -1951,6 +1951,15 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
                   whileHover={{ y: -3, scale: 1.015 }}
                   transition={{ type: 'spring', stiffness: 350, damping: 25 }}
                   onClick={() => onTabChange(tool.id as ActiveTab)}
+                  onContextMenu={(e) => {
+                    e.preventDefault();
+                    setContextMenu({
+                      x: e.clientX,
+                      y: e.clientY,
+                      toolId: tool.id,
+                      toolTitle: tool.title,
+                    });
+                  }}
                   className="beveled-panel p-4 bg-zinc-950/40 border border-zinc-900 hover:border-brand/40 hover:bg-[#07070a]/80 transition-all duration-300 cursor-pointer flex flex-col justify-between h-28 group relative overflow-hidden select-none"
                 >
                   {/* Subtle hover backlight */}
