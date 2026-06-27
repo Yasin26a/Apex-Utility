@@ -831,6 +831,18 @@ Tone Guidelines:
     }
   });
 
+  // Explicit route to serve ads.txt with correct plain text content-type
+  app.get('/ads.txt', (req, res) => {
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.sendFile(path.join(process.cwd(), 'public/ads.txt'));
+  });
+
+  // Explicit route to serve robots.txt with correct plain text content-type
+  app.get('/robots.txt', (req, res) => {
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.sendFile(path.join(process.cwd(), 'public/robots.txt'));
+  });
+
   // Serve a dynamically generated, search-crawler compliant sitemap.xml
   app.get('/sitemap.xml', (req, res) => {
     const host = req.headers.host || 'apexutility.live';
