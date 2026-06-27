@@ -1,6 +1,7 @@
 import { CSS_GLASS_SHADOW_ARTICLES } from './cssArticles';
 import { WEB_NEWS_TECH_ARTICLES } from './webNewsArticles';
 import { generate100SEOArticles } from './seoOptimized100Articles';
+import { REDDIT_50_TOPICS } from './reddit50Articles';
 
 export interface Article {
   id: string;
@@ -1717,7 +1718,7 @@ const NEW_50_TOPICS: { id: string; title: string; category: Article['category'];
   }
 ];
 
-function generate10kWordsForTopic(topic: typeof NEW_50_TOPICS[0]): string[] {
+function generate10kWordsForTopic(topic: any): string[] {
   const content: string[] = [];
   let totalWordCount = 0;
   
@@ -1740,9 +1741,9 @@ function generate10kWordsForTopic(topic: typeof NEW_50_TOPICS[0]): string[] {
     `Comprehensive Checklist for Flawless Implementation`
   ];
 
-  const techVerbs = ["optimizes", "accelerates", "coordinates", "orchestrates", "secures", "streamlines", "standardizes", "safeguards", "leverages", "transforms", "mitigates", "decouples", "validates", "compiles", "parses", "refines", "calculates", "synchronizes", "evaluates", "manages", "allocates"];
-  const techNouns = ["crawl budget", "latency", "rendering pipeline", "sandboxed environment", "asynchronous state", "cryptographic verification", "DOM structural shift", "thread safety", "payload overhead", "resource footprint", "WebGPU shader", "Wasm compiler", "AdSense telemetry", "index integrity", "Layout Instability", "JSON context graph", "network transmission", "memory footprint", "client local cache", "garbage collector"];
-  const techAdjectives = ["pristine", "highly scaleable", "lossless", "multi-threaded", "semantic", "responsive", "edge-optimized", "zero-knowledge", "low-level", "highly synchronized", "production-ready", "high-availability", "resilient", "compliant", "deterministic", "dynamic", "state-of-the-art", "cryptographically-sound", "pixel-perfect", "offline-first"];
+  const techVerbs = ["optimizes", "accelerates", "coordinates", "orchestrates", "secures", "streamlines", "standardizes", "safeguards", "leverages", "transforms", "mitigates", "decouples", "validates", "compiles", "parses", "refines", "calculates", "synchronizes", "evaluates", "manages", "allocates", "amplifies", "boosts", "engages", "triggers", "maximizes", "promotes", "publishes", "vettes"];
+  const techNouns = ["crawl budget", "latency", "rendering pipeline", "sandboxed environment", "asynchronous state", "cryptographic verification", "DOM structural shift", "thread safety", "payload overhead", "resource footprint", "WebGPU shader", "Wasm compiler", "AdSense telemetry", "index integrity", "Layout Instability", "JSON context graph", "network transmission", "memory footprint", "client local cache", "garbage collector", "upvote velocity", "subreddit engagement", "viral strategy", "content calendar", "user feedback", "Reddit algorithm", "community guidelines", "headline hook", "narrative structure", "organic traffic", "social signals", "audience retention", "post timing", "karma accumulation", "engagement threshold"];
+  const techAdjectives = ["pristine", "highly scaleable", "lossless", "multi-threaded", "semantic", "responsive", "edge-optimized", "zero-knowledge", "low-level", "highly synchronized", "production-ready", "high-availability", "resilient", "compliant", "deterministic", "dynamic", "state-of-the-art", "cryptographically-sound", "pixel-perfect", "offline-first", "viral-ready", "high-conversion", "highly engaging", "psychologically-optimized", "consistent", "authentic", "community-driven", "algorithm-friendly", "attention-grabbing", "perfectly-timed"];
 
   const transitionStarters = [
     "To begin with, we must recognize that",
@@ -1838,7 +1839,7 @@ function generate10kWordsForTopic(topic: typeof NEW_50_TOPICS[0]): string[] {
 }
 
 function generate50ExtraArticles(): Article[] {
-  return NEW_50_TOPICS.map((topic) => {
+  return REDDIT_50_TOPICS.map((topic) => {
     return {
       id: topic.id,
       title: topic.title,
