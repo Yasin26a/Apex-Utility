@@ -844,13 +844,29 @@ Tone Guidelines:
   // Explicit route to serve ads.txt with correct plain text content-type
   app.get('/ads.txt', (req, res) => {
     res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-    res.sendFile(path.join(process.cwd(), 'public/ads.txt'));
+    const distPath = path.join(process.cwd(), 'dist', 'ads.txt');
+    const publicPath = path.join(process.cwd(), 'public', 'ads.txt');
+    if (fs.existsSync(distPath)) {
+      return res.sendFile(distPath);
+    } else if (fs.existsSync(publicPath)) {
+      return res.sendFile(publicPath);
+    } else {
+      return res.send('google.com, pub-3493943620806779, DIRECT, f08c47fec0942fa0');
+    }
   });
 
   // Explicit route to serve robots.txt with correct plain text content-type
   app.get('/robots.txt', (req, res) => {
     res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-    res.sendFile(path.join(process.cwd(), 'public/robots.txt'));
+    const distPath = path.join(process.cwd(), 'dist', 'robots.txt');
+    const publicPath = path.join(process.cwd(), 'public', 'robots.txt');
+    if (fs.existsSync(distPath)) {
+      return res.sendFile(distPath);
+    } else if (fs.existsSync(publicPath)) {
+      return res.sendFile(publicPath);
+    } else {
+      return res.status(404).send('User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /debug\nSitemap: https://apexutility.live/sitemap.xml');
+    }
   });
 
   // Serve a dynamically generated, search-crawler compliant sitemap.xml
