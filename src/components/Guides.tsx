@@ -3120,9 +3120,9 @@ export default function Guides({ onTabChange }: GuidesProps) {
 
               {/* Title & Body */}
               <div className="space-y-4 polished-article-section">
-                <h2 className={`font-heading text-xl sm:text-2xl font-black tracking-wide uppercase leading-tight polished-title-${currentArticle.id}`}>
+                <h1 className={`font-heading text-xl sm:text-2xl font-black tracking-wide uppercase leading-tight polished-title-${currentArticle.id}`}>
                   {currentArticle.title}
-                </h2>
+                </h1>
                 
                 {/* Narrator active warning */}
                 {speakingArticleId === currentArticle.id && (

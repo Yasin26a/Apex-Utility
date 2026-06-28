@@ -3893,7 +3893,7 @@ Disallow:
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div className="space-y-1">
                     <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf1544] uppercase">Compliance Master Library</span>
-                    <h2 id="compliance-directory-header" className="text-2xl font-extrabold text-white tracking-tight">APEX Global News &amp; Tool Academy</h2>
+                    <h1 id="compliance-directory-header" className="text-2xl font-extrabold text-white tracking-tight">APEX Global News &amp; Tool Academy</h1>
                     <p className="text-slate-400 text-xs sm:text-sm">
                       Discover {AT_LEAST_20_ARTICLES.length} authoritative, high-quality, fully detailed guides on SEO indexing, browser privacy buffers, media compression, and global compliance.
                     </p>
@@ -4540,11 +4540,11 @@ Disallow:
                             </span>
                           </div>
                           
-                          <h3 className={`font-extrabold text-xl sm:text-3xl leading-tight tracking-tight ${
+                          <h1 className={`font-extrabold text-xl sm:text-3xl leading-tight tracking-tight ${
                             readTheme === 'parchment' ? 'text-stone-900 font-sans' : 'text-white'
                           }`}>
                             {readingArticle.title}
-                          </h3>
+                          </h1>
                         </div>
 
                         {/* Keyboard Shortcut Hints Info Bar */}
