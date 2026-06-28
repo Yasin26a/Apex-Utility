@@ -4105,10 +4105,14 @@ Disallow:
                           }
 
                           return (
-                            <div
+                            <a
                               key={art.id}
-                              onClick={() => setReadingArticle(art)}
-                              className="bg-slate-950 p-5 rounded-xl border border-slate-850 hover:border-slate-800 hover:bg-slate-900/40 cursor-pointer hover:shadow-lg transition-all flex flex-col justify-between group h-full min-h-[410px] transform-gpu will-change-transform"
+                              href={`/${art.id}`}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                setReadingArticle(art);
+                              }}
+                              className="bg-slate-950 p-5 rounded-xl border border-slate-850 hover:border-slate-800 hover:bg-slate-900/40 cursor-pointer hover:shadow-lg transition-all flex flex-col justify-between group h-full min-h-[410px] transform-gpu will-change-transform block"
                               style={{ backfaceVisibility: 'hidden' }}
                             >
                               <div className="space-y-3 flex-grow">
@@ -4129,24 +4133,48 @@ Disallow:
                                   </span>
                                   <div className="flex items-center gap-2">
                                     <span className="text-[10px] text-slate-500 font-mono">{art.publishDate}</span>
-                                    <button
+                                    <div
+                                      role="button"
+                                      tabIndex={0}
                                       onClick={(e) => {
                                         e.stopPropagation();
+                                        e.preventDefault();
                                         const shareUrl = `${window.location.origin}/${art.id}`;
                                         navigator.clipboard.writeText(shareUrl).then(() => {
                                           setShareToast(`Share link copied for "${art.title}"!`);
                                           setTimeout(() => setShareToast(null), 3050);
                                         });
                                       }}
+                                      onKeyDown={(e) => {
+                                        if (e.key === 'Enter' || e.key === ' ') {
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          const shareUrl = `${window.location.origin}/${art.id}`;
+                                          navigator.clipboard.writeText(shareUrl).then(() => {
+                                            setShareToast(`Share link copied for "${art.title}"!`);
+                                            setTimeout(() => setShareToast(null), 3050);
+                                          });
+                                        }
+                                      }}
                                       className="p-1 rounded text-slate-500 hover:text-emerald-400 hover:bg-slate-900 transition-all cursor-pointer flex items-center justify-center"
                                       title="Copy Social Shareable Link"
                                     >
                                       <Share2 className="w-3.5 h-3.5" />
-                                    </button>
-                                    <button
+                                    </div>
+                                    <div
+                                      role="button"
+                                      tabIndex={0}
                                       onClick={(e) => {
                                         e.stopPropagation();
+                                        e.preventDefault();
                                         toggleBookmark(art.id);
+                                      }}
+                                      onKeyDown={(e) => {
+                                        if (e.key === 'Enter' || e.key === ' ') {
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          toggleBookmark(art.id);
+                                        }
                                       }}
                                       className="p-1 rounded text-slate-500 hover:text-rose-400 hover:bg-slate-900 transition-all cursor-pointer"
                                       title={bookmarkedIds.includes(art.id) ? "Remove from Reading List" : "Add to Reading List"}
@@ -4156,7 +4184,7 @@ Disallow:
                                       ) : (
                                         <Bookmark className="w-3.5 h-3.5" />
                                       )}
-                                    </button>
+                                    </div>
                                   </div>
                                 </div>
                                 <h3 className="font-bold text-slate-200 group-hover:text-rose-400 text-sm leading-snug group-hover:underline transition-colors line-clamp-2">
@@ -4178,7 +4206,7 @@ Disallow:
                                   Read Guide <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
                                 </span>
                               </div>
-                            </div>
+                            </a>
                           );
                         })}
                       </div>
@@ -4276,10 +4304,14 @@ Disallow:
                                 {AT_LEAST_20_ARTICLES.filter(art => 
                                   ['psychology-dark-patterns', 'seo-secrets-spa-no-backend', 'double-adsense-rpm-insider-tricks'].includes(art.id)
                                 ).map((art) => (
-                                  <div
+                                  <a
                                     key={art.id}
-                                    onClick={() => setReadingArticle(art)}
-                                    className="group p-2 flex items-center gap-3 bg-slate-900/45 hover:bg-slate-900/90 rounded-lg border border-slate-850 hover:border-slate-700 transition-all cursor-pointer"
+                                    href={`/${art.id}`}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      setReadingArticle(art);
+                                    }}
+                                    className="group p-2 flex items-center gap-3 bg-slate-900/45 hover:bg-slate-900/90 rounded-lg border border-slate-850 hover:border-slate-700 transition-all cursor-pointer block"
                                   >
                                     {/* Small Thumbnail */}
                                     <div className="w-12 h-12 rounded overflow-hidden border border-slate-950 shrink-0">
@@ -4300,31 +4332,55 @@ Disallow:
                                         <span>{art.readTime}</span>
                                       </div>
                                     </div>
-                                    <button
+                                    <div
+                                      role="button"
+                                      tabIndex={0}
                                       onClick={(e) => {
                                         e.stopPropagation();
+                                        e.preventDefault();
                                         const shareUrl = `${window.location.origin}/${art.id}`;
                                         navigator.clipboard.writeText(shareUrl).then(() => {
                                           setShareToast(`Share link copied for "${art.title}"!`);
                                           setTimeout(() => setShareToast(null), 3050);
                                         });
                                       }}
+                                      onKeyDown={(e) => {
+                                        if (e.key === 'Enter' || e.key === ' ') {
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          const shareUrl = `${window.location.origin}/${art.id}`;
+                                          navigator.clipboard.writeText(shareUrl).then(() => {
+                                            setShareToast(`Share link copied for "${art.title}"!`);
+                                            setTimeout(() => setShareToast(null), 3050);
+                                          });
+                                        }
+                                      }}
                                       className="p-1 px-1.5 text-slate-400 hover:text-white hover:bg-emerald-600 bg-slate-900 border border-slate-800 rounded transition-all shrink-0 flex items-center justify-center cursor-pointer"
                                       title="Copy Social Shareable Link"
                                     >
                                       <Share2 className="w-3 h-3" />
-                                    </button>
-                                    <button
+                                    </div>
+                                    <div
+                                      role="button"
+                                      tabIndex={0}
                                       onClick={(e) => {
                                         e.stopPropagation();
+                                        e.preventDefault();
                                         toggleBookmark(art.id);
+                                      }}
+                                      onKeyDown={(e) => {
+                                        if (e.key === 'Enter' || e.key === ' ') {
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          toggleBookmark(art.id);
+                                        }
                                       }}
                                       className="p-1 px-1.5 text-slate-400 hover:text-white hover:bg-rose-500 bg-slate-900 hover:border-rose-400 border border-slate-800 rounded transition-all shrink-0 flex items-center justify-center cursor-pointer"
                                       title="Add to Reading List"
                                     >
                                       <Bookmark className="w-3 h-3" />
-                                    </button>
-                                  </div>
+                                    </div>
+                                  </a>
                                 ))}
                               </div>
                             </div>
@@ -4332,10 +4388,14 @@ Disallow:
                         ) : (
                           <div className="space-y-2.5 max-h-[280px] overflow-y-auto pr-1">
                             {AT_LEAST_20_ARTICLES.filter((art) => bookmarkedIds.includes(art.id)).map((art) => (
-                              <div 
+                              <a 
                                 key={art.id}
-                                onClick={() => setReadingArticle(art)}
-                                className="group p-2 flex items-center gap-3 bg-slate-900/60 hover:bg-slate-900 rounded-lg border border-slate-850 hover:border-slate-755 transition-all cursor-pointer"
+                                href={`/${art.id}`}
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  setReadingArticle(art);
+                                }}
+                                className="group p-2 flex items-center gap-3 bg-slate-900/60 hover:bg-slate-900 rounded-lg border border-slate-850 hover:border-slate-755 transition-all cursor-pointer block"
                               >
                                 {/* Small Thumbnail */}
                                 <div className="w-12 h-12 rounded overflow-hidden border border-slate-950 shrink-0">
@@ -4356,31 +4416,55 @@ Disallow:
                                     <span>{art.readTime}</span>
                                   </div>
                                 </div>
-                                <button
+                                <div
+                                  role="button"
+                                  tabIndex={0}
                                   onClick={(e) => {
                                     e.stopPropagation();
+                                    e.preventDefault();
                                     const shareUrl = `${window.location.origin}/${art.id}`;
                                     navigator.clipboard.writeText(shareUrl).then(() => {
                                       setShareToast(`Share link copied for "${art.title}"!`);
                                       setTimeout(() => setShareToast(null), 3050);
                                     });
                                   }}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                      e.stopPropagation();
+                                      e.preventDefault();
+                                      const shareUrl = `${window.location.origin}/${art.id}`;
+                                      navigator.clipboard.writeText(shareUrl).then(() => {
+                                        setShareToast(`Share link copied for "${art.title}"!`);
+                                        setTimeout(() => setShareToast(null), 3050);
+                                      });
+                                    }
+                                  }}
                                   className="p-1.5 text-slate-500 hover:text-emerald-400 hover:bg-slate-950 rounded transition-colors shrink-0 cursor-pointer flex items-center justify-center placeholder:"
                                   title="Copy Article Social Link"
                                 >
                                   <Share2 className="w-3.5 h-3.5" />
-                                </button>
-                                <button
+                                </div>
+                                <div
+                                  role="button"
+                                  tabIndex={0}
                                   onClick={(e) => {
                                     e.stopPropagation();
+                                    e.preventDefault();
                                     toggleBookmark(art.id);
+                                  }}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                      e.stopPropagation();
+                                      e.preventDefault();
+                                      toggleBookmark(art.id);
+                                    }
                                   }}
                                   className="p-1.5 text-slate-500 hover:text-rose-400 hover:bg-slate-950 rounded transition-colors shrink-0 cursor-pointer"
                                   title="Remove bookmark"
                                 >
                                   <Trash2 className="w-3.5 h-3.5" />
-                                </button>
-                              </div>
+                                </div>
+                              </a>
                             ))}
                           </div>
                         )}
@@ -4950,13 +5034,15 @@ Disallow:
 
                               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 {recommendedList.map(({ article: art, sharedKeywords }) => (
-                                  <button
+                                  <a
                                     key={art.id}
-                                    onClick={() => {
+                                    href={`/${art.id}`}
+                                    onClick={(e) => {
+                                      e.preventDefault();
                                       setReadingArticle(art);
                                       readerScrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
                                     }}
-                                    className={`group text-left rounded-xl overflow-hidden border transition-all duration-300 p-3 hover:-translate-y-1 hover:shadow-lg flex flex-col justify-between ${
+                                    className={`group text-left rounded-xl overflow-hidden border transition-all duration-300 p-3 hover:-translate-y-1 hover:shadow-lg flex flex-col justify-between block ${
                                       readTheme === 'sepia'
                                         ? 'bg-[#1a1412] border-[#ece4db]/10 hover:border-[#ece4db]/25 text-[#ece4db]'
                                         : readTheme === 'parchment'
@@ -5010,7 +5096,7 @@ Disallow:
                                         Read Now <ArrowRight className="w-2.5 h-2.5" />
                                       </span>
                                     </div>
-                                  </button>
+                                  </a>
                                 ))}
                               </div>
                             </div>

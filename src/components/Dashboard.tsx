@@ -19,10 +19,12 @@ function ThreeDTiltCard({
   children,
   onClick,
   className = '',
+  href,
 }: {
   children: React.ReactNode;
-  onClick: () => void;
+  onClick: (e: React.MouseEvent<HTMLDivElement | HTMLAnchorElement>) => void;
   className?: string;
+  href?: string;
 }) {
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -38,7 +40,7 @@ function ThreeDTiltCard({
   // Dynamic GPU-accelerated backdrop gradient template
   const background = useMotionTemplate`radial-gradient(circle 240px at ${shineX} ${shineY}, rgba(255, 255, 255, 0.08) 0%, var(--theme-glow) 45%, transparent 100%)`;
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement | HTMLAnchorElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const width = rect.width;
     const height = rect.height;
@@ -53,6 +55,50 @@ function ThreeDTiltCard({
     x.set(0);
     y.set(0);
   };
+
+  if (href) {
+    return (
+      <motion.a
+        href={href}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        onClick={onClick}
+        style={{
+          rotateX,
+          rotateY,
+          transformStyle: 'preserve-3d',
+          display: 'block',
+        }}
+        whileHover={{
+          scale: 1.018,
+          boxShadow: '0 20px 45px rgba(0, 0, 0, 0.75), 0 0 30px var(--theme-glow)',
+        }}
+        transition={{ type: 'spring', stiffness: 320, damping: 22 }}
+        className={`perspective-container cursor-pointer text-left ${className}`}
+      >
+        <div 
+          className="beveled-panel p-6 h-full flex flex-col justify-between border-neutral-800/80 hover:border-brand/60 transition-all duration-300 relative group"
+          style={{
+            transform: 'translateZ(18px)',
+            transformStyle: 'preserve-3d',
+          }}
+        >
+          {/* Hardware Reflection Glistening Overlay - Activated dynamically via Framer Motion */}
+          <motion.div 
+            className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 rounded-xl"
+            style={{ background }}
+          />
+          
+          {/* Dynamic Category Bottom Ambient Inset Glow */}
+          <div className="absolute inset-x-0 bottom-0 h-[80px] pointer-events-none bg-gradient-to-t from-brand/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0 rounded-b-xl" />
+
+          <div className="relative z-10 h-full flex flex-col justify-between" style={{ transformStyle: 'preserve-3d' }}>
+            {children}
+          </div>
+        </div>
+      </motion.a>
+    );
+  }
 
   return (
     <motion.div
@@ -2244,7 +2290,13 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
                     }}
                   >
                     <ThreeDTiltCard 
-                      onClick={() => !isCustomizing && onTabChange(card.id as ActiveTab)} 
+                      href={`/${card.id}`}
+                      onClick={(e) => {
+                        if (!isCustomizing) {
+                          e.preventDefault();
+                          onTabChange(card.id as ActiveTab);
+                        }
+                      }}
                       className={`${getHeightClass(card.heightLevel || 2)} transition-all duration-300 relative`}
                     >
                       <div className="space-y-4 h-full flex flex-col justify-between" style={{ transformStyle: 'preserve-3d' }}>
