@@ -430,7 +430,8 @@ export default function SEOInspect() {
         keywordInTitle: { status: 'fail' as 'pass'|'warning'|'fail', score: 0, msg: '', details: '' },
         keywordInDesc: { status: 'fail' as 'pass'|'warning'|'fail', score: 0, msg: '', details: '' },
         keywordDensity: { status: 'fail' as 'pass'|'warning'|'fail', score: 0, msg: '', details: '' },
-        schema: { status: 'fail' as 'pass'|'warning'|'fail', score: 0, msg: '', details: '' }
+        schema: { status: 'fail' as 'pass'|'warning'|'fail', score: 0, msg: '', details: '' },
+        outgoingLinks: { status: 'fail' as 'pass'|'warning'|'fail', score: 0, msg: '', details: '' }
       },
       recommendations: [] as string[]
     };
@@ -649,6 +650,38 @@ export default function SEOInspect() {
       }
     }
 
+    // Rule 5: Outgoing / Outbound Links Check
+    const linksMatch = inputPageContent.match(/href=["'](https?:\/\/[^"']+)["']/gi) || [];
+    const externalLinks = linksMatch.filter(url => {
+      const isLocal = url.includes('apexutility.live') || url.includes('localhost') || url.includes('example.com') || url.includes('ais-dev') || url.includes('ais-pre');
+      return !isLocal;
+    });
+
+    if (externalLinks.length === 0) {
+      result.metrics.outgoingLinks = {
+        status: 'warning',
+        score: 5,
+        msg: '0 Outgoing reference links',
+        details: 'Adding authoritative outgoing links (e.g., to Wikipedia, W3C, or Google) helps crawlers establish topical relations and boosts domain trust.'
+      };
+      result.recommendations.push('Add at least 1-2 outbound references (outgoing links with rel="noopener noreferrer") to high-authority developer or industry platforms.');
+    } else if (externalLinks.length < 2) {
+      result.metrics.outgoingLinks = {
+        status: 'pass',
+        score: 15,
+        msg: `${externalLinks.length} Outgoing link detected`,
+        details: 'Good, but having at least 2-3 authoritative external links is optimal for on-page SEO frameworks.'
+      };
+      result.recommendations.push('Include 1 more relevant outgoing link to an authoritative specification or standard (e.g., MDN, Schema.org).');
+    } else {
+      result.metrics.outgoingLinks = {
+        status: 'pass',
+        score: 20,
+        msg: `${externalLinks.length} Outgoing links (Optimal)`,
+        details: 'Excellent! Your content incorporates high-quality outbound citation structures, signaling research authority to scanning index engines.'
+      };
+    }
+
     // Calculate sum of rules score
     const baseScore = 
       result.metrics.title.score +
@@ -656,11 +689,12 @@ export default function SEOInspect() {
       result.metrics.keywordInTitle.score +
       result.metrics.keywordInDesc.score +
       result.metrics.keywordDensity.score +
-      result.metrics.schema.score;
+      result.metrics.schema.score +
+      result.metrics.outgoingLinks.score;
     result.score = Math.min(Math.max(baseScore, 0), 100);
 
     return result;
-  }, [inputTitle, inputDesc, inputKeyword, inputSchema]);
+  }, [inputTitle, inputDesc, inputKeyword, inputSchema, inputPageContent]);
 
   const websiteUrl = useMemo(() => {
     try {
@@ -797,6 +831,13 @@ Allow: /`;
       data: evaluation.metrics.schema,
       optimal: 'Valid JSON-LD',
       actual: inputSchema.trim() ? 'Present' : 'Absent'
+    },
+    {
+      key: 'outgoingLinks',
+      label: 'Outbound Citations (Outgoing Links)',
+      data: evaluation.metrics.outgoingLinks,
+      optimal: 'At least 2-3 authoritative outgoing links',
+      actual: `${(inputPageContent.match(/href=["'](https?:\/\/[^"']+)["']/gi) || []).filter(url => !url.includes('apexutility.live') && !url.includes('localhost') && !url.includes('example.com') && !url.includes('ais-dev') && !url.includes('ais-pre')).length} detected`
     }
   ];
 

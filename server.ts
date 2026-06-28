@@ -865,7 +865,7 @@ Tone Guidelines:
     } else if (fs.existsSync(publicPath)) {
       return res.sendFile(publicPath);
     } else {
-      return res.status(404).send('User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /debug\nSitemap: https://apexutility.live/sitemap.xml');
+      return res.status(200).send('User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /debug\nSitemap: https://apexutility.live/sitemap.xml');
     }
   });
 
@@ -1133,13 +1133,29 @@ Tone Guidelines:
         const rawPath = req.path;
         const cleanPath = rawPath.replace(/^\/|\/$/g, '').toLowerCase();
         
+        // Match deep article queries to resolve duplicate page layouts
+        const queryArtId = (req.query.id || req.query.art || req.query.article) as string;
+        let matchedArt = null;
+        if (queryArtId) {
+          matchedArt = AT_LEAST_20_ARTICLES.find(art => art && art.id && art.id.toLowerCase() === queryArtId.toLowerCase());
+        }
+        if (!matchedArt && Array.isArray(AT_LEAST_20_ARTICLES) && AT_LEAST_20_ARTICLES.some(art => art && art.id && art.id.toLowerCase() === cleanPath)) {
+          matchedArt = AT_LEAST_20_ARTICLES.find(art => art && art.id && art.id.toLowerCase() === cleanPath);
+        }
+
         let title = "Apex Processing Labs | Best Free PDF Converter, PDF Size Reducer & AI Tools";
         let desc = "Compress PDF online free to 100kb, convert JPG to PDF, merge PDF files offline, draw digital signatures, and convert WebP to JPG safely in your browser. 100% private & secure.";
         let ogImage = "https://apexutility.live/favicon.svg";
         let seoBody = "";
         
-        // 1. Root / Home route
-        if (cleanPath === "") {
+        // 1. Article route (either via query parameters or direct path segment)
+        if (matchedArt) {
+          title = `${matchedArt.title} | Apex Processing Labs`;
+          desc = matchedArt.summary.substring(0, 155);
+          seoBody = getArticleSEOBody(matchedArt);
+        }
+        // 2. Root / Home route or Dashboard
+        else if (cleanPath === "" || cleanPath === "dashboard") {
           title = "Apex Processing Labs | Ultimate Free Client-Side PDF, WebP & Developer Tools";
           desc = "The ultimate collection of 100% offline, privacy-first browser tools. Compress PDF to 100kb, convert WebP to JPG, write articles with AI, and generate XML sitemaps safely.";
           seoBody = `
@@ -1168,15 +1184,6 @@ Tone Guidelines:
             </div>
           `;
         }
-        // 2. Article route
-        else if (Array.isArray(AT_LEAST_20_ARTICLES) && AT_LEAST_20_ARTICLES.some(art => art && art.id && art.id.toLowerCase() === cleanPath)) {
-          const matchedArt = AT_LEAST_20_ARTICLES.find(art => art && art.id && art.id.toLowerCase() === cleanPath);
-          if (matchedArt) {
-            title = `${matchedArt.title} | Apex Processing Labs`;
-            desc = matchedArt.summary.substring(0, 155);
-            seoBody = getArticleSEOBody(matchedArt);
-          }
-        }
         // 3. Tool route
         else {
           const toolMeta = getToolMetadata(cleanPath);
@@ -1188,7 +1195,18 @@ Tone Guidelines:
         }
         
         // Construct canonical tag link URL
-        const canonicalUrl = `https://apexutility.live${req.path === '/' ? '' : req.path}`;
+        let canonicalUrl = 'https://apexutility.live';
+        if (matchedArt) {
+          canonicalUrl = `https://apexutility.live/guides?id=${matchedArt.id}`;
+        } else if (cleanPath && cleanPath !== 'dashboard') {
+          canonicalUrl = `https://apexutility.live/${cleanPath}`;
+        }
+        
+        // Enforce strict stripping of trailing slashes to eliminate duplicate page penalties
+        if (canonicalUrl.endsWith('/') && canonicalUrl !== 'https://apexutility.live') {
+          canonicalUrl = canonicalUrl.slice(0, -1);
+        }
+        
         const canonicalTag = `<link rel="canonical" href="${canonicalUrl}" />`;
         
         // Dynamically replace head metadata in static index.html

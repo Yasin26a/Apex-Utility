@@ -60,6 +60,91 @@ export const TAG_CATEGORIES = [
   }
 ];
 
+const getOutboundLinks = (article: Article) => {
+  const links = [];
+  const titleLower = (article.title || '').toLowerCase();
+  const tagsLower = (article.tags || []).map(t => t.toLowerCase());
+  const topicLower = (article.topic || '').toLowerCase();
+
+  // 1. Check if SEO & Indexing, sitemaps, crawlers, robots.txt
+  if (topicLower.includes('seo') || tagsLower.some(t => t.includes('seo') || t.includes('sitemap') || t.includes('robots') || t.includes('crawler') || t.includes('googlebot'))) {
+    links.push({
+      title: 'Google Search Central Documentation',
+      desc: 'Official guidelines on indexing, crawling, and rich snippets.',
+      url: 'https://developers.google.com/search'
+    });
+    links.push({
+      title: 'Official Sitemaps XML Standard Protocol',
+      desc: 'Technical specification for sitemap.xml schema formatting.',
+      url: 'https://www.sitemaps.org'
+    });
+    links.push({
+      title: 'IETF RFC 9309 (Robots.txt Specifications)',
+      desc: 'Official RFC defining compliant directives for robot exclusions.',
+      url: 'https://datatracker.ietf.org/doc/html/rfc9309'
+    });
+  }
+
+  // 2. Check if Cybersecurity, Security, Privacy, Cryptography, EXIF, hashing
+  if (topicLower.includes('cyber') || topicLower.includes('security') || topicLower.includes('privacy') || tagsLower.some(t => t.includes('security') || t.includes('privacy') || t.includes('cve') || t.includes('exif') || t.includes('hash') || t.includes('cryptography'))) {
+    links.push({
+      title: 'OWASP Top 10 Security Risks',
+      desc: 'The golden standard of web application vulnerability profiles.',
+      url: 'https://owasp.org/www-project-top-ten/'
+    });
+    links.push({
+      title: 'W3C Web Cryptography API',
+      desc: 'Official specifications on client-side crypto structures.',
+      url: 'https://www.w3.org/TR/WebCryptoAPI/'
+    });
+    links.push({
+      title: 'MDN Web Security Guidelines',
+      desc: 'Best practices for securing browsers and asset sharing protocols.',
+      url: 'https://developer.mozilla.org/en-US/docs/Web/Security'
+    });
+  }
+
+  // 3. Check if Asset Optimization, images, WebP, PDF, compression, video, audio, code snapshot, vectorizer, WASM
+  if (topicLower.includes('asset') || topicLower.includes('opti') || tagsLower.some(t => t.includes('webp') || t.includes('compress') || t.includes('pdf') || t.includes('image') || t.includes('vector') || t.includes('wasm') || t.includes('video') || t.includes('audio'))) {
+    links.push({
+      title: 'W3C Scalable Vector Graphics (SVG) 2.0',
+      desc: 'The definitive architectural standards for vector graphics.',
+      url: 'https://www.w3.org/Graphics/SVG/'
+    });
+    links.push({
+      title: 'Web.dev High-Ratio Image Performance Guide',
+      desc: 'Modern browser assets delivery, resizing, and WebP compression.',
+      url: 'https://web.dev/fast/#optimize-your-images'
+    });
+    links.push({
+      title: 'Mozilla Web Performance Engineering Manual',
+      desc: 'Core rules for fast load times and optimized rendering trees.',
+      url: 'https://developer.mozilla.org/en-US/docs/Web/Performance'
+    });
+  }
+
+  // 4. Fallback/General links if we need more or if list is short
+  if (links.length < 3) {
+    links.push({
+      title: 'WHATWG HTML Live Standard',
+      desc: 'The official canonical definition of the HTML specification.',
+      url: 'https://html.spec.whatwg.org/multipage/'
+    });
+    links.push({
+      title: 'W3C World Wide Web Consortium',
+      desc: 'The international standards organization for the web.',
+      url: 'https://www.w3.org'
+    });
+    links.push({
+      title: 'CanIUse Web Compatibility Tables',
+      desc: 'Up-to-date compatibility support tables for HTML5/CSS features.',
+      url: 'https://caniuse.com'
+    });
+  }
+
+  return links.slice(0, 3);
+};
+
 interface GuidesProps {
   onTabChange: (tab: ActiveTab) => void;
 }
@@ -3153,6 +3238,57 @@ export default function Guides({ onTabChange }: GuidesProps) {
                     #{t}
                   </span>
                 ))}
+              </div>
+
+              {/* Authoritative Outbound Links & Reference Citations */}
+              <div className={`p-5 rounded-xl border mt-6 transition-all text-left ${
+                theme === 'slate' 
+                  ? 'bg-zinc-950/40 border-zinc-900/80' 
+                  : theme === 'sepia' 
+                    ? 'bg-[#eedbc5]/60 border-[#e3caa2]/80' 
+                    : 'bg-[#ebe6da]/60 border-[#dfd9c8]/80'
+              }`}>
+                <div className="flex items-center gap-2 mb-3.5">
+                  <ExternalLink className="w-4 h-4 text-brand animate-pulse" />
+                  <h4 className={`font-heading text-xs font-black uppercase tracking-wider ${
+                    theme === 'slate' ? 'text-zinc-200' : 'text-zinc-900'
+                  }`}>
+                    Authoritative Outbound Reference Standards:
+                  </h4>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  {getOutboundLinks(currentArticle).map((link, idx) => (
+                    <a 
+                      key={idx}
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`p-3.5 rounded-lg border flex flex-col justify-between group transition-all duration-200 cursor-pointer text-left ${
+                        theme === 'slate'
+                          ? 'bg-zinc-900/20 border-zinc-800/40 hover:bg-zinc-900/60 hover:border-brand/30'
+                          : theme === 'sepia'
+                            ? 'bg-[#eed9b3]/40 border-[#dfcaa1]/40 hover:bg-[#eed9b3]/80 hover:border-brand/30'
+                            : 'bg-[#e5dfd2]/40 border-[#d1c8b3]/40 hover:bg-[#e5dfd2]/80 hover:border-brand/30'
+                      }`}
+                    >
+                      <div>
+                        <span className={`text-[10px] font-mono font-bold tracking-wider uppercase block ${theme === 'slate' ? 'text-zinc-500' : 'text-zinc-650'}`}>
+                          Reference 0{idx + 1}
+                        </span>
+                        <h5 className={`font-sans text-xs font-bold mt-1 group-hover:text-brand transition-colors leading-snug ${theme === 'slate' ? 'text-zinc-200' : 'text-zinc-900'}`}>
+                          {link.title}
+                        </h5>
+                        <p className={`font-sans text-[10px] mt-1 line-clamp-2 leading-relaxed ${theme === 'slate' ? 'text-zinc-400' : 'text-zinc-700'}`}>
+                          {link.desc}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-1.5 mt-2.5 pt-2 border-t border-dashed border-zinc-800/20 text-[9px] font-mono uppercase text-brand font-bold tracking-wide">
+                        <span>Read Document</span>
+                        <ExternalLink className="w-2.5 h-2.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                      </div>
+                    </a>
+                  ))}
+                </div>
               </div>
 
               {/* Action Board (Related Tool link & Likes count) */}

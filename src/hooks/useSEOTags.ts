@@ -53,11 +53,11 @@ const SEO_METADATA: Record<string, SEOHeaderContent> = {
     }
   },
   'webp-converter': {
-    title: "Convert WebP to JPG Instantly without Registration | Apex Image Converter",
-    description: "Convert high-resolution WebP images to crisp JPG or PNG formats instantly with premium layout results. No email registration or sign-ups required. Processing runs 100% offline.",
-    keywords: "convert webp to jpg instantly without registration, webp to png converter free, batch rasterize webp, image quality converter, convert webp offline, convert webp instantly",
-    ogTitle: "Convert WebP to JPG Instantly without Registration",
-    ogDescription: "Instant graphical sandbox converts high-density WebP graphics to PNG or JPG within local cache storage.",
+    title: "WebP Converter & PNG Image Converter Online Free | Apex Swiss",
+    description: "Free online WebP converter and PNG image converter. Convert WebP to JPG instantly without registration, convert images to WebP, or convert PNG/JPG online free. 100% private & offline.",
+    keywords: "webp converter, png converter, png converter free, to png converter, png converter online, png converter free online, to png online, to png online converter, text to png online, text to png converter, text to png converter online, text png converter, free online png converter, free image converter to png, free image to png converter, png converter online free, online image converter, free image converter, image converter tool, freeware image converter, free online image converter, webp convert online, webp online, webp converter free, webp conversion tool, online webp converter, online webp image converter, to webp converter, free webp converter, image to png converter free, free image converter to png, image convert to png online, convert to png free online, free png converter online, free image to png converter, image converter to jpg free online, image to png converter free, image converter, convert image to png free online",
+    ogTitle: "Convert WebP, PNG & JPG Instantly without Registration | Apex Suite",
+    ogDescription: "Instant graphical sandbox converts WebP to PNG or JPG, and other raster formats 100% locally within your browser.",
     schema: {
       "@context": "https://schema.org",
       "@type": "WebApplication",
@@ -673,11 +673,11 @@ const SEO_METADATA: Record<string, SEOHeaderContent> = {
     }
   },
   'case-converter': {
-    title: "Free Case Converter & Text Formatter Online Offline | Apex Copy Code",
-    description: "Instantly transform word casing styles (UPPERCASE, lowercase, camelCase, snake_case, Title Case, Sentence case), remove blank rows, strip tags, and calculate statistics offline.",
-    keywords: "case converter online, free text formatter client-side, camelcase snake case translator, strip HTML tags copy paste tool, character counter text statistics",
-    ogTitle: "Apex Free Case Converter & Text Formatter",
-    ogDescription: "Secure local-first application to clean and format text, convert letter casing, clean spaces, and output files with complete offline security.",
+    title: "Case Converter, Text Editor & Duplicate Remover Online Free | Apex Swiss",
+    description: "Free online case converter, text formatter, and duplicate text remover. Convert sentence case online, remove duplicate lines or duplicate words, remove commas, convert word to text, and clean text online instantly.",
+    keywords: "case converter online, case converter, duplicate checker online, online duplicate remover, duplicate text remover, remove duplicate words, remove duplicate text online, text duplicate checker, remove commas from text, remove commas, clean text, clean text online, clean online, clear text online, text line remover, caps converter, paragraph converter, paragraph converter online, convert paragraph, words to paragraph converter, convert to text, text converter online, online text tools, word to text, convert png to text, text conversion tool, text online converter, free online text converter, online word to text converter, text to word converter, text to word, online to text, text converter free, word to text converter, free text converter, online word converter, text to text converter, text to text online, text converter online free, convert to sentence case online, word to text converter online, convert text to text, sentence case converter online, text to word online, convert words to text, text converter to word, word to text online, plaintext converter, words conversion, convert text word, word to text converter online free, text to word converter online, word to word text converter, remove duplicate words",
+    ogTitle: "Apex Free Case Converter, Paragraph Editor & Duplicate Remover",
+    ogDescription: "Secure local-first application to clean text, remove duplicates, convert letter casing, clean spaces, remove commas, and edit documents offline.",
     schema: {
       "@context": "https://schema.org",
       "@type": "WebApplication",
@@ -1118,11 +1118,16 @@ export default function useSEOTags(activeTab: ActiveTab, readingArticle?: Articl
 
     // 6. Dynamic Canonical Link Tag Injection
     let canonicalUrl = 'https://apexutility.live';
-    if (activeTab === 'guides' && readingArticle) {
-      // Standardize to use the Google Search Console / sitemap.xml format
-      canonicalUrl = `https://apexutility.live/${readingArticle.id}`;
+    if (readingArticle) {
+      // Standardize to match sitemap.xml exactly to prevent duplicate page penalties
+      canonicalUrl = `https://apexutility.live/guides?id=${readingArticle.id}`;
     } else if (activeTab && activeTab !== 'dashboard') {
       canonicalUrl = `https://apexutility.live/${activeTab}`;
+    }
+
+    // Strip trailing slashes to prevent duplicate indexing
+    if (canonicalUrl.endsWith('/') && canonicalUrl !== 'https://apexutility.live') {
+      canonicalUrl = canonicalUrl.slice(0, -1);
     }
     injectCanonicalLink(canonicalUrl);
 

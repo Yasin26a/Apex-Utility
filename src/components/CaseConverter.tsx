@@ -291,6 +291,36 @@ export default function CaseConverter() {
     updateText(converted, 'Stripped Empty Lines');
   };
 
+  const removeDuplicateLines = () => {
+    const lines = inputText.split('\n');
+    const uniqueLines = Array.from(new Set(lines));
+    const converted = uniqueLines.join('\n');
+    updateText(converted, 'Removed Duplicate Lines');
+  };
+
+  const removeDuplicateWords = () => {
+    const lines = inputText.split('\n');
+    const converted = lines.map(line => {
+      const words = line.split(/\s+/);
+      const uniqueWords: string[] = [];
+      const seen = new Set<string>();
+      for (const word of words) {
+        const normalized = word.toLowerCase().replace(/[^a-z0-9]/g, '');
+        if (word === '' || normalized === '' || !seen.has(normalized)) {
+          if (normalized !== '') seen.add(normalized);
+          uniqueWords.push(word);
+        }
+      }
+      return uniqueWords.join(' ');
+    }).join('\n');
+    updateText(converted, 'Removed Duplicate Words');
+  };
+
+  const removeCommas = () => {
+    const converted = inputText.replace(/,/g, '');
+    updateText(converted, 'Removed All Commas');
+  };
+
   const handleFindReplace = () => {
     if (!searchQuery) return;
     const flags = caseSensitiveSearch ? 'g' : 'gi';
@@ -791,6 +821,36 @@ export default function CaseConverter() {
               >
                 <span>Strip empty blank lines</span>
                 <span className="text-[10px] text-zinc-600 font-mono">[COMPACT lines]</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={removeDuplicateLines}
+                disabled={!inputText}
+                className="w-full p-2 text-left text-xs bg-zinc-950 border border-zinc-900 hover:border-zinc-800 text-zinc-300 rounded transition-all cursor-pointer hover:text-white hover:bg-zinc-900/30 flex items-center justify-between"
+              >
+                <span>Remove duplicate lines</span>
+                <span className="text-[10px] text-brand font-mono font-bold">[DUP LINES]</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={removeDuplicateWords}
+                disabled={!inputText}
+                className="w-full p-2 text-left text-xs bg-zinc-950 border border-zinc-900 hover:border-zinc-800 text-zinc-300 rounded transition-all cursor-pointer hover:text-white hover:bg-zinc-900/30 flex items-center justify-between"
+              >
+                <span>Remove duplicate words</span>
+                <span className="text-[10px] text-brand font-mono font-bold">[DUP WORDS]</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={removeCommas}
+                disabled={!inputText}
+                className="w-full p-2 text-left text-xs bg-zinc-950 border border-zinc-900 hover:border-zinc-800 text-zinc-300 rounded transition-all cursor-pointer hover:text-white hover:bg-zinc-900/30 flex items-center justify-between"
+              >
+                <span>Strip all commas (`,`)</span>
+                <span className="text-[10px] text-zinc-650 font-mono">[NO COMMAS]</span>
               </button>
             </div>
           </div>
