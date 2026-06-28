@@ -1,5 +1,6 @@
 import express from 'express';
 import path from 'path';
+import fs from 'fs';
 import { GoogleGenAI, Type } from '@google/genai';
 import { AT_LEAST_20_ARTICLES } from './src/data/articles';
 
@@ -42,6 +43,15 @@ async function createServer() {
 
   // Disable X-Powered-By header to prevent fingerprinting/tech-profiling
   app.disable('x-powered-by');
+
+  // 301 Redirect www.apexutility.live to apexutility.live to prevent duplicate indexing and solve multi-sitemap issues
+  app.use((req, res, next) => {
+    const host = req.headers.host || '';
+    if (host.startsWith('www.apexutility.live')) {
+      return res.redirect(301, `https://apexutility.live${req.originalUrl}`);
+    }
+    next();
+  });
 
   // Hardened Security Headers Middleware
   app.use((req, res, next) => {
@@ -850,7 +860,7 @@ Tone Guidelines:
     const baseUrl = `${protocol}://${host}`;
     
     const tools = [
-      'compress-pdf', 'webp-converter', 'json-beautifier', 
+      'css-generator', 'compress-pdf', 'webp-converter', 'json-beautifier', 
       'sitemap-seo', 'sitemap-generator', 'image-to-pdf', 'join-pdf', 'ai-writer', 
       'password-generator', 'qr-generator', 'unit-converter', 'svg-rasterizer', 'batch-processor', 'json-diff', 'secure-hash', 'color-palette', 'digital-signature', 'seo-optimizer', 'base64-converter', 'regex-tester', 'csv-json-converter', 'image-compressor', 'rich-text-stats', 'audio-trimmer', 'ai-transcriber', 'pdf-analyst', 'exif-stripper', 'video-recorder', 'image-vectorizer', 'code-snapshot', 'private-sketchpad', 'case-converter', 'lorem-generator', 'image-cropper', 'date-calculator', 'privacy-policy', 'terms-of-service', 'about-us', 'guides', 'content-planner', 'schema-generator', 'content-gap', 'keyword-cluster'
     ];
@@ -1090,17 +1100,478 @@ Tone Guidelines:
     });
     app.use(vite.middlewares);
   } else {
-    // Serve static files in production
+    // Serve static assets in production, but disable index.html auto-serving so we can dynamically parse the / path
     const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath));
-    app.get('*', (_req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
+    app.use(express.static(distPath, { index: false }));
+    
+    app.get('*', (req, res) => {
+      try {
+        const indexPath = path.join(distPath, 'index.html');
+        if (!fs.existsSync(indexPath)) {
+          return res.status(404).send('Index template not found');
+        }
+        
+        let html = fs.readFileSync(indexPath, 'utf-8');
+        
+        // Resolve path segments to extract matching tools or articles
+        const rawPath = req.path;
+        const cleanPath = rawPath.replace(/^\/|\/$/g, '').toLowerCase();
+        
+        let title = "Apex Processing Labs | Best Free PDF Converter, PDF Size Reducer & AI Tools";
+        let desc = "Compress PDF online free to 100kb, convert JPG to PDF, merge PDF files offline, draw digital signatures, and convert WebP to JPG safely in your browser. 100% private & secure.";
+        let ogImage = "https://apexutility.live/favicon.svg";
+        let seoBody = "";
+        
+        // 1. Root / Home route
+        if (cleanPath === "") {
+          title = "Apex Processing Labs | Ultimate Free Client-Side PDF, WebP & Developer Tools";
+          desc = "The ultimate collection of 100% offline, privacy-first browser tools. Compress PDF to 100kb, convert WebP to JPG, write articles with AI, and generate XML sitemaps safely.";
+          seoBody = `
+            <div id="seo-home" style="max-width: 800px; margin: 0 auto; padding: 40px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #f4f4f5; line-height: 1.6; background-color: #09090b;">
+              <span style="text-transform: uppercase; font-size: 0.85rem; font-weight: 700; color: #ef4444; letter-spacing: 0.05em;">Apex Processing Labs</span>
+              <h1 style="font-size: 2.5rem; font-weight: 800; margin-top: 10px; margin-bottom: 20px; color: #ffffff; letter-spacing: -0.02em;">Ultimate 100% Secure Client-Side Web Utilities</h1>
+              <p style="font-size: 1.15rem; color: #a1a1aa; margin-bottom: 30px;">Welcome to the premier hub for high-performance browser utilities. Our next-generation platform leverages browser-native technologies such as WebAssembly, HTML5 Canvas API, and the Web Cryptography API to execute 100% of all operations completely locally in your browser. Absolutely zero files or inputs are ever uploaded to any external servers, ensuring complete and ironclad privacy compliance.</p>
+              
+              <h2 style="font-size: 1.75rem; font-weight: 700; margin-top: 40px; margin-bottom: 15px; color: #ffffff;">Our High-Performance Web Tools Categories:</h2>
+              <ul style="list-style-type: none; padding-left: 0; margin-bottom: 40px;">
+                <li style="margin-bottom: 15px; padding-left: 15px; border-left: 3px solid #ef4444;"><strong style="color: #ffffff;">Document & PDF Optimization:</strong> Shrink PDF file sizes to under 100kb/2mb natively, merge image portfolios into PDFs, and join or reorder PDF pages with smooth drag-and-drop.</li>
+                <li style="margin-bottom: 15px; padding-left: 15px; border-left: 3px solid #f97316;"><strong style="color: #ffffff;">Media & Graphic Laboratories:</strong> Convert JPG/PNG/GIF assets to lightweight WebP, convert vector SVGs to high-resolution PNGs, strip sensitive geographic camera EXIF tags, or trace raster photos into scalable vectors.</li>
+                <li style="margin-bottom: 15px; padding-left: 15px; border-left: 3px solid #3b82f6;"><strong style="color: #ffffff;">Developer Operations & Data Tools:</strong> Cleanly parse and beautifier JSON blocks, calculate diff mappings, generate standardized XML sitemaps, test regular expressions, and convert CSV tables to arrays instantly.</li>
+                <li style="margin-bottom: 15px; padding-left: 15px; border-left: 3px solid #10b981;"><strong style="color: #ffffff;">Privacy & Cryptographic Vaults:</strong> Draw professional digital signatures, generate secure high-entropy passwords, compile MD5/SHA-256 secure hash values, and analyze readability metrics.</li>
+              </ul>
+              
+              <h2 style="font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-bottom: 15px;">Discover Other Native Utilities</h2>
+              <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; margin-top: 20px;">
+                <a href="/compress-pdf" style="text-decoration: none; color: #38bdf8; font-weight: 600; padding: 12px; border: 1px solid #27272a; background-color: #18181b; text-align: center; display: block; border-radius: 8px;">Smart PDF Compressor</a>
+                <a href="/webp-converter" style="text-decoration: none; color: #38bdf8; font-weight: 600; padding: 12px; border: 1px solid #27272a; background-color: #18181b; text-align: center; display: block; border-radius: 8px;">WebP Image Converter</a>
+                <a href="/json-beautifier" style="text-decoration: none; color: #38bdf8; font-weight: 600; padding: 12px; border: 1px solid #27272a; background-color: #18181b; text-align: center; display: block; border-radius: 8px;">JSON Parser & Beautifier</a>
+                <a href="/sitemap-generator" style="text-decoration: none; color: #38bdf8; font-weight: 600; padding: 12px; border: 1px solid #27272a; background-color: #18181b; text-align: center; display: block; border-radius: 8px;">XML Sitemap Generator</a>
+                <a href="/seo-optimizer" style="text-decoration: none; color: #38bdf8; font-weight: 600; padding: 12px; border: 1px solid #27272a; background-color: #18181b; text-align: center; display: block; border-radius: 8px;">SEO Tag Optimizer</a>
+                <a href="/password-generator" style="text-decoration: none; color: #38bdf8; font-weight: 600; padding: 12px; border: 1px solid #27272a; background-color: #18181b; text-align: center; display: block; border-radius: 8px;">Shield Vault Generator</a>
+              </div>
+            </div>
+          `;
+        }
+        // 2. Article route
+        else if (Array.isArray(AT_LEAST_20_ARTICLES) && AT_LEAST_20_ARTICLES.some(art => art && art.id && art.id.toLowerCase() === cleanPath)) {
+          const matchedArt = AT_LEAST_20_ARTICLES.find(art => art && art.id && art.id.toLowerCase() === cleanPath);
+          if (matchedArt) {
+            title = `${matchedArt.title} | Apex Processing Labs`;
+            desc = matchedArt.summary.substring(0, 155);
+            seoBody = getArticleSEOBody(matchedArt);
+          }
+        }
+        // 3. Tool route
+        else {
+          const toolMeta = getToolMetadata(cleanPath);
+          if (toolMeta) {
+            title = `${toolMeta.title} - Free & Secure | Apex Processing Labs`;
+            desc = toolMeta.desc.substring(0, 155);
+            seoBody = getToolSEOBody(cleanPath, toolMeta.title, toolMeta.desc, toolMeta.tagline, toolMeta.category);
+          }
+        }
+        
+        // Construct canonical tag link URL
+        const canonicalUrl = `https://apexutility.live${req.path === '/' ? '' : req.path}`;
+        const canonicalTag = `<link rel="canonical" href="${canonicalUrl}" />`;
+        
+        // Dynamically replace head metadata in static index.html
+        html = html.replace(/<title>[^]*?<\/title>/, `<title>${title}</title>`);
+        
+        // Try replacing description
+        if (html.includes('name="description"')) {
+          html = html.replace(/<meta\s+name="description"\s+content="[^]*?"\s*\/?>/, `<meta name="description" content="${desc}" />`);
+        } else {
+          html = html.replace('</head>', `<meta name="description" content="${desc}" />\n</head>`);
+        }
+        
+        // Handle Canonical tag injection
+        if (html.includes('rel="canonical"')) {
+          html = html.replace(/<link\s+rel="canonical"\s+href="[^]*?"\s*\/?>/, canonicalTag);
+        } else {
+          html = html.replace('</head>', `${canonicalTag}\n</head>`);
+        }
+        
+        // Inject / replace OpenGraph & Twitter title, description, and url properties
+        if (html.includes('property="og:title"')) {
+          html = html.replace(/<meta\s+property="og:title"\s+content="[^]*?"\s*\/?>/, `<meta property="og:title" content="${title}" />`);
+        } else {
+          html = html.replace('</head>', `<meta property="og:title" content="${title}" />\n</head>`);
+        }
+        
+        if (html.includes('property="og:description"')) {
+          html = html.replace(/<meta\s+property="og:description"\s+content="[^]*?"\s*\/?>/, `<meta property="og:description" content="${desc}" />`);
+        } else {
+          html = html.replace('</head>', `<meta property="og:description" content="${desc}" />\n</head>`);
+        }
+        
+        if (html.includes('property="og:url"')) {
+          html = html.replace(/<meta\s+property="og:url"\s+content="[^]*?"\s*\/?>/, `<meta property="og:url" content="${canonicalUrl}" />`);
+        } else {
+          html = html.replace('</head>', `<meta property="og:url" content="${canonicalUrl}" />\n</head>`);
+        }
+        
+        // Dynamically inject body fallback HTML inside <div id="root">
+        if (seoBody) {
+          html = html.replace('<div id="root"></div>', `<div id="root">\n${seoBody}\n</div>`);
+        }
+        
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        return res.send(html);
+      } catch (err: any) {
+        console.error('[SEO pre-renderer] Failed to pre-render page:', err);
+        return res.sendFile(path.join(distPath, 'index.html'));
+      }
     });
   }
 
   app.listen(port, '0.0.0.0', () => {
     console.log(`Server starting on port ${port} (mode: ${isProd ? 'production' : 'development'})`);
   });
+}
+
+// -----------------------------------------------------------------
+// Server-Side SEO Dynamic Pre-Rendering Helper Functions
+// -----------------------------------------------------------------
+
+function getToolMetadata(toolId: string) {
+  const meta: Record<string, { title: string; desc: string; tagline: string; category: string }> = {
+    'css-generator': {
+      title: 'CSS Glass & Shadow Generator',
+      desc: 'Design backdrop filters, interactive glass surfaces, and complex organic box-shadow layers with production-ready CSS and Tailwind exporters.',
+      tagline: 'interactive glassmorphism builder and soft ambient shadow tester offline',
+      category: 'Design & Signals'
+    },
+    'webp-converter': {
+      title: 'WebP Image Converter',
+      desc: 'Convert standard images (JPEG, PNG, GIF) into highly-optimized WebP files using Canvas API structures, with side-by-side comparative previews.',
+      tagline: 'optimize images to webp to boost page load speed',
+      category: 'Media Lab'
+    },
+    'compress-pdf': {
+      title: 'Smart PDF Compressor',
+      desc: 'Compress and structurally shrink document payload sizes without rasterization errors.',
+      tagline: 'compress pdf to 2mb for job application online free',
+      category: 'Document Optimization'
+    },
+    'image-to-pdf': {
+      title: 'JPG/PNG to PDF Converter',
+      desc: 'Merge multiple JPG, JPEG, and PNG images into a single highly optimized PDF document locally.',
+      tagline: 'merge and compile raster designs into pdf portfolio',
+      category: 'PDF Compilation'
+    },
+    'join-pdf': {
+      title: 'PDF Joiner & Reorder',
+      desc: 'Upload multiple existing PDF documents and merge them into a single file with page-by-page drag-and-drop reordering.',
+      tagline: 'combine multiple pdf documents and reorder pages free',
+      category: 'PDF Joiner'
+    },
+    'json-beautifier': {
+      title: 'JSON Parser & Beautifier',
+      desc: 'Validate structural arrays and format complex unreadable telemetry blocks instantly with clean layouts.',
+      tagline: 'format unreadable json data tool',
+      category: 'Developer Operations'
+    },
+    'ai-writer': {
+      title: 'Apex AI Content Writer',
+      desc: 'Draft publications, articles, formal emails, or markdown instantly and refine their structure using Gemini.',
+      tagline: 'ai copywriter and professional editor',
+      category: 'AI Copywriting'
+    },
+    'password-generator': {
+      title: 'Shield Vault Generator',
+      desc: 'Generate strong random password keys or memorable multi-word passphrases locally offline.',
+      tagline: 'secure cryptographic key builder and entropy diagnostic offline',
+      category: 'Security Vault'
+    },
+    'qr-generator': {
+      title: 'QR & Barcode Studio',
+      desc: 'Generate highly custom QR codes and multi-format linear barcodes offline. Personalize colors, margins, text sizes, and error levels.',
+      tagline: 'custom high-resolution client-side vector qr and linear barcode generator',
+      category: 'Design & Signals'
+    },
+    'unit-converter': {
+      title: 'Metric Solver & Converter',
+      desc: 'Convert length, weight, volume, and temperature metrics in real-time with an instant preview comparison matrix.',
+      tagline: 'custom high-resolution secure metric conversion grid',
+      category: 'Design & Signals'
+    },
+    'svg-rasterizer': {
+      title: 'Vector SVG Rasterizer',
+      desc: 'Load or paste raw SVG code, edit in real-time, scale up to 8x for high-resolution PNG, JPG, or WebP outputs natively.',
+      tagline: 'custom high-resolution client-side vector to raster image compiler',
+      category: 'Design & Signals'
+    },
+    'batch-processor': {
+      title: 'Multi-threaded Batch Processor',
+      desc: 'Load or drag multiple image assets, adjust compression quality, apply scales, and optimize files dynamically in parallel with fluid metrics.',
+      tagline: 'secure client-side multi-threaded image transformation engine',
+      category: 'Design & Signals'
+    },
+    'image-vectorizer': {
+      title: 'Local Image Vectorizer',
+      desc: 'Convert PNG, JPEG, and WebP images into high-quality scalable SVG vectors offline with customizable tracing styles.',
+      tagline: 'free offline PNG/JPEG to scalable SVG vectorizer',
+      category: 'Media Lab'
+    },
+    'json-diff': {
+      title: 'JSON Object Diff Checker',
+      desc: 'Compare two JSON schemas, detect additions, deletions, slight drifts or value updates, side-by-side with color-coded highlights.',
+      tagline: 'accurate client-side structural diff compiler',
+      category: 'Design & Signals'
+    },
+    'secure-hash': {
+      title: 'Cryptographic Hash Vault',
+      desc: 'Input text parameters to instantly compile multiple secure cryptographic hashes (MD5, SHA-1, SHA-256, SHA-512) completely offline.',
+      tagline: 'secure client-side password hash and cryptography machine',
+      category: 'Security Vault'
+    },
+    'color-palette': {
+      title: 'Aesthetic Color Palette Suite',
+      desc: 'Generate perfect harmonious color schemes from hex base codes, extract dominant brand palettes from images, and compile exportable CSS/Tailwind variables 100% offline.',
+      tagline: 'premium offline color palette studio & brand extractor',
+      category: 'Design & Signals'
+    },
+    'digital-signature': {
+      title: 'Digital Signature Studio',
+      desc: 'Create beautiful, high-fidelity drawn or text-based signatures. Customize pen style, sizing, and color, and export vector-ready PNGs/SVGs for documents.',
+      tagline: 'professional ink and typography signature builder',
+      category: 'Design & Signals'
+    },
+    'seo-optimizer': {
+      title: 'SEO Content Optimizer',
+      desc: 'Analyze text in real-time for keyword targets, Flesch-Kincaid readability ease, word counts, and metadata. Preview instant Google and social media snippets.',
+      tagline: 'ultra-premium search snippet builder & copy optimizer',
+      category: 'Design & Signals'
+    },
+    'content-planner': {
+      title: 'AI Content & Intent Planner',
+      desc: 'Establish semantic cluster outlines, generate programmatic user intent roadmaps, and structure target articles with advanced Gemini models.',
+      tagline: 'hierarchical topic generator and keyword intent builder',
+      category: 'AI Copywriting'
+    },
+    'schema-generator': {
+      title: 'JSON-LD Schema Generator',
+      desc: 'Create fully compliant structured search snippets (Article, LocalBusiness, FAQ, Product, JobPosting) with instant JSON-LD clipboard exports.',
+      tagline: 'validated rich schema markup machine offline',
+      category: 'Developer Operations'
+    },
+    'content-gap': {
+      title: 'SEO Content Gap Analyzer',
+      desc: 'Compare your target article outline against top competitors to identify missing contextual sub-topics and missing entities natively with AI recommendations.',
+      tagline: 'advanced visual layout gap analysis engine offline',
+      category: 'Developer Operations'
+    },
+    'keyword-cluster': {
+      title: 'Keyword Clustering Engine',
+      desc: 'Group thousands of unorganized raw keyword phrases into semantic logical search hubs based on parent relevance, mapping intent pathways with high density.',
+      tagline: 'automated semantic clustering machine offline',
+      category: 'Developer Operations'
+    },
+    'base64-converter': {
+      title: 'Base64 Encoder & Decoder',
+      desc: 'Convert strings or files to base64 encoding and decode them instantly in your browser.',
+      tagline: 'safe offline base64 file and string converter',
+      category: 'Developer Operations'
+    },
+    'regex-tester': {
+      title: 'Regex Diagnostic Lab',
+      desc: 'Test, visualize, and debug regular expressions with real-time matching highlights, explanatory breakdowns, and quick reference cheatsheets.',
+      tagline: 'real-time regular expression playground offline',
+      category: 'Developer Operations'
+    },
+    'csv-json-converter': {
+      title: 'CSV to JSON Converter',
+      desc: 'Convert CSV spreadsheets to JSON arrays and JSON arrays back to CSV spreadsheets with intelligent automatic delimiter detection and formatting.',
+      tagline: 'instant client-side flat csv schema mapper',
+      category: 'Developer Operations'
+    },
+    'image-compressor': {
+      title: 'WebAssembly Image Compressor',
+      desc: 'Compress and resize JPEG/PNG images locally inside WebAssembly worker nodes for maximum size reduction while retaining pristine visual fidelity.',
+      tagline: 'advanced client-side webassembly multi-image compressor',
+      category: 'Media Lab'
+    },
+    'rich-text-stats': {
+      title: 'Rich Text Word Counter & Stats',
+      desc: 'Calculate detailed word metrics, character distributions, reading times, readability grades, and word frequency histograms.',
+      tagline: 'comprehensive text character analysis suite',
+      category: 'AI Copywriting'
+    },
+    'audio-trimmer': {
+      title: 'Client-Side Audio Trimmer',
+      desc: 'Trim, slice, and crop audio files (MP3, WAV, OGG) with a high-fidelity visual waveform editor locally inside your browser.',
+      tagline: 'instant offline web audio wave trimmer',
+      category: 'Media Lab'
+    },
+    'ai-transcriber': {
+      title: 'AI Audio Transcriber',
+      desc: 'Transcribe audio tracks, voice notes, and recordings to text using standard browser speech-to-text models or offline APIs.',
+      tagline: 'instant localized speech recognition engine',
+      category: 'AI Copywriting'
+    },
+    'pdf-analyst': {
+      title: 'PDF Structure Analyst',
+      desc: 'Inspect internal PDF file streams, cross-reference tables, structural dictionaries, embedded fonts, and page object hierarchies.',
+      tagline: 'expert diagnostic pdf object structure viewer',
+      category: 'Document Optimization'
+    },
+    'exif-stripper': {
+      title: 'EXIF Metadata Stripper',
+      desc: 'Upload images to scan, review, and completely strip sensitive EXIF camera parameters, GPS coordinates, and date timestamps before sharing.',
+      tagline: 'privacy-first geographic tag cleaner offline',
+      category: 'Security Vault'
+    },
+    'video-recorder': {
+      title: 'Video Screen Recorder',
+      desc: 'Record screen viewports, individual application windows, or webcam streams with live mic audio overlays, saving standard WebM movies offline.',
+      tagline: 'client-side html5 capture media studio',
+      category: 'Media Lab'
+    },
+    'image-cropper': {
+      title: 'Image Cropper Studio',
+      desc: 'Crop, rotate, and flip image assets with pixel-perfect aspect ratios and drag handles, exporting outputs natively in WebP, PNG, or JPEG.',
+      tagline: 'flexible client-side raster crop tool',
+      category: 'Media Lab'
+    },
+    'date-calculator': {
+      title: 'Date Calculator & Time Zone Studio',
+      desc: 'Compute intervals between days, analyze workdays, generate calendar ranges, and inspect time coordinates across various zones.',
+      tagline: 'comprehensive offline coordinate date builder',
+      category: 'Developer Operations'
+    },
+    'sitemap-seo': {
+      title: 'Sitemap SEO Crawler & Validator',
+      desc: 'Analyze XML sitemaps for response status codes, redirect loops, and crawl errors with interactive grids.',
+      tagline: 'professional xml schema indexing analyzer',
+      category: 'Developer Operations'
+    },
+    'sitemap-generator': {
+      title: 'XML Sitemap Generator',
+      desc: 'Generate, validate, and download standard-compliant XML sitemaps with custom frequencies, prioritizations, and change schedules.',
+      tagline: 'dynamic web crawler map constructor',
+      category: 'Developer Operations'
+    },
+    'about-us': {
+      title: 'About Apex Processing Labs',
+      desc: 'Learn about our core mission of providing 100% offline, secure, private, and high-performance client-side browser utilities.',
+      tagline: 'the team behind the browser privacy revolution',
+      category: 'Information'
+    },
+    'privacy-policy': {
+      title: 'Privacy Policy',
+      desc: 'Read our strict commitment to privacy. We operate on a zero-upload model where your files and data never leave your browser.',
+      tagline: 'our zero-upload absolute confidentiality assurance',
+      category: 'Legal'
+    },
+    'terms-of-service': {
+      title: 'Terms of Service',
+      desc: 'Read the terms of use for Apex Processing Labs. Learn about browser licensing, offline operations, and usage permissions.',
+      tagline: 'licensing and usage parameters for browser suites',
+      category: 'Legal'
+    },
+    'guides': {
+      title: 'SEO and Asset Optimization Guides',
+      desc: 'Discover expert guides on XML sitemaps, browser performance optimization, security, and AdSense compliance.',
+      tagline: 'authoritative technical education library',
+      category: 'Information'
+    }
+  };
+  return meta[toolId];
+}
+
+function getToolSEOBody(toolId: string, title: string, desc: string, tagline: string, category: string): string {
+  return `
+    <article style="max-width: 800px; margin: 0 auto; padding: 40px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #f4f4f5; line-height: 1.6; background-color: #09090b;">
+      <header style="margin-bottom: 30px; border-bottom: 1px solid #27272a; padding-bottom: 20px;">
+        <span style="text-transform: uppercase; font-size: 0.85rem; font-weight: 700; color: #ef4444; letter-spacing: 0.05em;">${category}</span>
+        <h1 style="font-size: 2.25rem; font-weight: 800; margin-top: 10px; margin-bottom: 15px; color: #ffffff; letter-spacing: -0.02em;">${title}</h1>
+        <p style="font-size: 1.2rem; color: #a1a1aa; line-height: 1.5;">${desc} ${tagline ? tagline.replace(/"/g, '') : ''}</p>
+      </header>
+      
+      <section style="margin-bottom: 40px;">
+        <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 15px; color: #ffffff;">What is ${title}?</h2>
+        <p style="color: #d4d4d8; margin-bottom: 15px;">Welcome to <strong>${title}</strong> by Apex Processing Labs, the premier professional browser-based utility designed for high-speed, secure, and fully private processing. Unlike legacy cloud tools that upload your sensitive documents and private information to external third-party database servers, our advanced client-side framework executes 100% of the conversion, compression, and diagnostic computations locally inside your web browser using cutting-edge WebAssembly (WASM), Javascript Canvas API, and Web Cryptography protocols.</p>
+        <p style="color: #d4d4d8; margin-bottom: 15px;">This serverless, zero-upload architecture guarantees absolute confidentiality, security compliance, and defense against data leaks or unauthorized data collection. Whether you are an enterprise developer formatting massive JSON structures, a designer rendering precise vector graphics, or an office professional compressing confidential PDF files, our browser utilities provide instant desktop-grade performance directly inside your viewport.</p>
+      </section>
+
+      <section style="margin-bottom: 40px;">
+        <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 15px; color: #ffffff;">Key Features & Advanced Engineering Capabilities</h2>
+        <ul style="padding-left: 20px; margin-bottom: 20px; color: #d4d4d8;">
+          <li style="margin-bottom: 10px;"><strong style="color: #ffffff;">100% Client-Side Privacy:</strong> All data, files, hashes, and inputs remain locally in your browser memory buffer. We enforce a strict zero-upload policy for absolute security compliance.</li>
+          <li style="margin-bottom: 10px;"><strong style="color: #ffffff;">High-Performance Execution:</strong> Harnesses modern browser capabilities, including multi-threaded worker pools, hardware-accelerated rendering, and localized cryptography.</li>
+          <li style="margin-bottom: 10px;"><strong style="color: #ffffff;">Responsive UX Interface:</strong> Styled with modern fluid layouts, elegant interactive buttons, touch-friendly components, and smooth transitions.</li>
+          <li style="margin-bottom: 10px;"><strong style="color: #ffffff;">Cross-Platform Compatibility:</strong> Seamlessly operates across desktop, mobile, and tablet viewports without requiring external plugins or account signups.</li>
+        </ul>
+      </section>
+
+      <section style="margin-bottom: 40px;">
+        <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 15px; color: #ffffff;">How to Use ${title} Successfully</h2>
+        <p style="color: #d4d4d8; margin-bottom: 15px;">Getting started with ${title} is simple and intuitive. First, navigate to the utility card within our comprehensive dashboard. Depending on the tool, you can upload your files via standard drag-and-drop zones, paste raw input text into our optimized editor panels, or adjust configurations using responsive dials and buttons. Once your input is prepared, trigger the processing engine. The results are calculated in milliseconds, and you can instantly download the output file, copy formatted code to your clipboard, or review diagnostic visual charts.</p>
+        <p style="color: #d4d4d8; margin-bottom: 15px;">By leveraging local browser memory caches and local persistence layers, you can seamlessly save your progress and access your previous configurations across different tabs without losing work or leaking data.</p>
+      </section>
+
+      <section style="margin-bottom: 40px; border-top: 1px solid #27272a; padding-top: 30px;">
+        <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 15px; color: #ffffff;">Explore More High-Performance Developer & PDF Utilities</h2>
+        <p style="color: #a1a1aa;">Apex Processing Labs offers an entire suite of search-crawler compliant, privacy-first tools designed to streamline your daily digital workflows. Explore some of our other high-performance, responsive browser systems:</p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; margin-top: 20px;">
+          <a href="/compress-pdf" style="text-decoration: none; color: #38bdf8; font-weight: 600; padding: 12px; border: 1px solid #27272a; background-color: #18181b; text-align: center; display: block; border-radius: 8px;">Smart PDF Compressor</a>
+          <a href="/webp-converter" style="text-decoration: none; color: #38bdf8; font-weight: 600; padding: 12px; border: 1px solid #27272a; background-color: #18181b; text-align: center; display: block; border-radius: 8px;">WebP Image Converter</a>
+          <a href="/json-beautifier" style="text-decoration: none; color: #38bdf8; font-weight: 600; padding: 12px; border: 1px solid #27272a; background-color: #18181b; text-align: center; display: block; border-radius: 8px;">JSON Parser & Beautifier</a>
+          <a href="/sitemap-generator" style="text-decoration: none; color: #38bdf8; font-weight: 600; padding: 12px; border: 1px solid #27272a; background-color: #18181b; text-align: center; display: block; border-radius: 8px;">XML Sitemap Generator</a>
+          <a href="/seo-optimizer" style="text-decoration: none; color: #38bdf8; font-weight: 600; padding: 12px; border: 1px solid #27272a; background-color: #18181b; text-align: center; display: block; border-radius: 8px;">SEO Tag Optimizer</a>
+          <a href="/password-generator" style="text-decoration: none; color: #38bdf8; font-weight: 600; padding: 12px; border: 1px solid #27272a; background-color: #18181b; text-align: center; display: block; border-radius: 8px;">Shield Vault Generator</a>
+        </div>
+      </section>
+    </article>
+  `;
+}
+
+function getArticleSEOBody(art: any): string {
+  const paragraphs = Array.isArray(art.content) 
+    ? art.content.map((p: string) => {
+        if (p.startsWith('###')) {
+          return `<h3 style="font-size: 1.25rem; font-weight: 700; margin-top: 25px; margin-bottom: 10px; color: #ffffff;">${p.replace('###', '').trim()}</h3>`;
+        } else if (p.startsWith('##')) {
+          return `<h2 style="font-size: 1.5rem; font-weight: 700; margin-top: 30px; margin-bottom: 12px; color: #ffffff;">${p.replace('##', '').trim()}</h2>`;
+        } else if (p.startsWith('```')) {
+          return ''; // omit raw code blocks from fallback text
+        }
+        return `<p style="margin-bottom: 15px; color: #d4d4d8;">${p}</p>`;
+      }).join('\n')
+    : `<p style="color: #d4d4d8;">${art.summary}</p>`;
+
+  return `
+    <article style="max-width: 800px; margin: 0 auto; padding: 40px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #f4f4f5; line-height: 1.6; background-color: #09090b;">
+      <header style="margin-bottom: 30px; border-bottom: 1px solid #27272a; padding-bottom: 20px;">
+        <span style="text-transform: uppercase; font-size: 0.85rem; font-weight: 700; color: #38bdf8; letter-spacing: 0.05em;">${art.category}</span>
+        <h1 style="font-size: 2.25rem; font-weight: 800; margin-top: 10px; margin-bottom: 15px; color: #ffffff; letter-spacing: -0.02em; line-height: 1.2;">${art.title}</h1>
+        <div style="font-size: 0.9rem; color: #71717a; display: flex; gap: 15px; margin-bottom: 15px;">
+          <span>Published: ${art.publishDate}</span>
+          <span>Read time: ${art.readTime}</span>
+          <span>Words: ${art.wordCount}</span>
+        </div>
+        <p style="font-size: 1.15rem; color: #a1a1aa; line-height: 1.5; font-style: italic;">${art.summary}</p>
+      </header>
+      
+      <section style="margin-bottom: 40px;">
+        ${paragraphs}
+      </section>
+
+      <section style="margin-bottom: 40px; border-top: 1px solid #27272a; padding-top: 30px;">
+        <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 15px; color: #ffffff;">Explore Our Premium Utilities</h2>
+        <p style="color: #a1a1aa;">After reviewing our technical guide, feel free to use our suite of offline-first, browser-safe tools. All calculations are performed 100% locally on your computer for maximum security compliance:</p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; margin-top: 20px;">
+          <a href="/compress-pdf" style="text-decoration: none; color: #38bdf8; font-weight: 600; padding: 12px; border: 1px solid #27272a; background-color: #18181b; text-align: center; display: block; border-radius: 8px;">Smart PDF Compressor</a>
+          <a href="/webp-converter" style="text-decoration: none; color: #38bdf8; font-weight: 600; padding: 12px; border: 1px solid #27272a; background-color: #18181b; text-align: center; display: block; border-radius: 8px;">WebP Image Converter</a>
+          <a href="/json-beautifier" style="text-decoration: none; color: #38bdf8; font-weight: 600; padding: 12px; border: 1px solid #27272a; background-color: #18181b; text-align: center; display: block; border-radius: 8px;">JSON Parser & Beautifier</a>
+          <a href="/sitemap-generator" style="text-decoration: none; color: #38bdf8; font-weight: 600; padding: 12px; border: 1px solid #27272a; background-color: #18181b; text-align: center; display: block; border-radius: 8px;">XML Sitemap Generator</a>
+          <a href="/seo-optimizer" style="text-decoration: none; color: #38bdf8; font-weight: 600; padding: 12px; border: 1px solid #27272a; background-color: #18181b; text-align: center; display: block; border-radius: 8px;">SEO Tag Optimizer</a>
+          <a href="/password-generator" style="text-decoration: none; color: #38bdf8; font-weight: 600; padding: 12px; border: 1px solid #27272a; background-color: #18181b; text-align: center; display: block; border-radius: 8px;">Shield Vault Generator</a>
+        </div>
+      </section>
+    </article>
+  `;
 }
 
 createServer().catch((err) => {
