@@ -777,19 +777,9 @@ export default function NavigationSidebar({ activeTab, onTabChange, isMobileOpen
           </div>
         </div>
 
-        {/* Sitemap Crawler Access Link */}
         <div className="px-1 flex items-center justify-between text-[10px] font-mono text-zinc-500">
-          <span className="text-zinc-600">Crawler indexing:</span>
-          <a 
-            href="/sitemap.xml" 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="flex items-center gap-1 text-brand/85 hover:text-brand transition-all hover:underline"
-            title="Access dynamically generated sitemap XML"
-          >
-            <Globe className="w-3.5 h-3.5" />
-            <span>sitemap.xml</span>
-          </a>
+          <span className="text-zinc-600">Client engine context:</span>
+          <span className="text-zinc-400">Sandbox Ready</span>
         </div>
       </div>
 

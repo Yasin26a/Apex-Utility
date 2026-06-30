@@ -6196,17 +6196,6 @@ Disallow:
                 <button onClick={() => handleTabChange('privacy-policy')} className="hover:text-slate-300 transition-colors cursor-pointer">Privacy Policy</button>
                 <span className="text-slate-800">|</span>
                 <button onClick={() => handleTabChange('terms-of-service')} className="hover:text-slate-300 transition-colors cursor-pointer">Terms of Service</button>
-                <span className="text-slate-800">|</span>
-                <a 
-                  href="/sitemap.xml" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="hover:text-slate-300 transition-colors cursor-pointer flex items-center gap-1 text-indigo-400 font-mono"
-                  title="View Dynamic Sitemap XML"
-                >
-                  <Globe className="w-3.5 h-3.5" />
-                  sitemap.xml
-                </a>
               </div>
             </div>
           </footer>
