@@ -125,6 +125,9 @@ const ChecksumVerifier = lazy(() => import('./components/ChecksumVerifier'));
 const AgeCalculator = lazy(() => import('./components/AgeCalculator'));
 const LoanCalculator = lazy(() => import('./components/LoanCalculator'));
 const BMICalculator = lazy(() => import('./components/BMICalculator'));
+const VoiceRecorder = lazy(() => import('./components/VoiceRecorder'));
+const VideoStudioSuite = lazy(() => import('./components/VideoStudioSuite'));
+const HardwareTestSuite = lazy(() => import('./components/HardwareTestSuite'));
 
 const getArticleKeywords = (article: Article): string[] => {
   const text = [
@@ -5727,6 +5730,101 @@ Disallow:
                 </div>
 
                 <VideoRecorder />
+              </motion.div>
+            )}
+
+            {activeTab === 'screen-recorder' && (
+              <motion.div
+                key="screen-recorder"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                className="space-y-6"
+              >
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-mono font-bold tracking-widest text-cyan-400 uppercase">Live Media Sandbox</span>
+                    <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Screen Recorder</h2>
+                    <p className="text-slate-400 text-xs sm:text-sm">
+                      Capture dedicated browser tabs, specific app windows, or your full desktop with internal and external audio tracks.
+                    </p>
+                  </div>
+                </div>
+                <VideoRecorder mode="screen" />
+              </motion.div>
+            )}
+
+            {activeTab === 'webcam-recorder' && (
+              <motion.div
+                key="webcam-recorder"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                className="space-y-6"
+              >
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-mono font-bold tracking-widest text-rose-400 uppercase">Live Media Sandbox</span>
+                    <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Webcam Recorder</h2>
+                    <p className="text-slate-400 text-xs sm:text-sm">
+                      Record raw high-definition video from connected cameras alongside synchronized microphone streams.
+                    </p>
+                  </div>
+                </div>
+                <VideoRecorder mode="webcam" />
+              </motion.div>
+            )}
+
+            {activeTab === 'voice-recorder' && (
+              <motion.div
+                key="voice-recorder"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                className="space-y-6"
+              >
+                <VoiceRecorder />
+              </motion.div>
+            )}
+
+            {([
+              'video-compressor',
+              'video-resizer',
+              'video-cutter',
+              'mute-video',
+              'video-speed',
+              'video-rotator',
+              'video-merger',
+              'video-converter',
+              'video-to-gif',
+              'video-to-mp3',
+              'audio-converter',
+              'subtitle-converter'
+            ] as const).includes(activeTab as any) && (
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                className="space-y-6"
+              >
+                <VideoStudioSuite initialTool={activeTab as any} />
+              </motion.div>
+            )}
+
+            {([
+              'microphone-tester',
+              'webcam-check',
+              'speaker-tester'
+            ] as const).includes(activeTab as any) && (
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                className="space-y-6"
+              >
+                <HardwareTestSuite initialTab={activeTab as any} />
               </motion.div>
             )}
 

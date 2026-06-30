@@ -73,7 +73,25 @@ export type ActiveTab =
   | 'checksum-verifier'
   | 'age-calculator'
   | 'loan-calculator'
-  | 'bmi-calculator';
+  | 'bmi-calculator'
+  | 'screen-recorder'
+  | 'webcam-recorder'
+  | 'voice-recorder'
+  | 'video-compressor'
+  | 'video-resizer'
+  | 'video-cutter'
+  | 'mute-video'
+  | 'video-speed'
+  | 'video-rotator'
+  | 'video-merger'
+  | 'video-converter'
+  | 'video-to-gif'
+  | 'video-to-mp3'
+  | 'audio-converter'
+  | 'subtitle-converter'
+  | 'microphone-tester'
+  | 'webcam-check'
+  | 'speaker-tester';
 
 export interface JSONBeautifierState {
   rawInput: string;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutGrid, FileText, Image as ImageIcon, FileImage, Braces, Globe, Terminal, ShieldCheck, Settings, Search, Layers, Monitor, Trash2, Plus, Check, X, Sparkles, Download, Upload, QrCode, Scale, FileCode, Sliders, GitPullRequest, Hash, Palette, Gauge, Binary, Regex, ArrowLeftRight, Shrink, Database, Volume2, Mic, Eye, Video, PenTool, VolumeX, Music, Type, AlignLeft, Crop, Calendar } from 'lucide-react';
+import { LayoutGrid, FileText, Image as ImageIcon, FileImage, Braces, Globe, Terminal, ShieldCheck, Settings, Search, Layers, Monitor, Trash2, Plus, Check, X, Sparkles, Download, Upload, QrCode, Scale, FileCode, Sliders, GitPullRequest, Hash, Palette, Gauge, Binary, Regex, ArrowLeftRight, Shrink, Database, Volume2, Mic, Eye, Video, PenTool, VolumeX, Music, Type, AlignLeft, Crop, Calendar, Scissors, Maximize, Camera, RotateCw, Film } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ActiveTab } from '../types';
 import { useLanguage } from '../context/LanguageContext';
@@ -292,6 +292,24 @@ export default function NavigationSidebar({ activeTab, onTabChange, isMobileOpen
     { id: 'user-agent' as ActiveTab, label: 'User-Agent Parser', icon: Terminal, description: 'Deconstruct and identify active browser client-agent strings' },
     { id: 'html-markdown' as ActiveTab, label: 'HTML &lt;&gt; Markdown', icon: FileText, description: 'Seamlessly convert markup between Markdown syntax and HTML tags' },
     { id: 'meta-tags' as ActiveTab, label: 'Meta Tags Optimizer', icon: Sliders, description: 'Preview page meta tags snippets for Google, Facebook, and Twitter' },
+    { id: 'screen-recorder' as ActiveTab, label: 'Screen Recorder', icon: Monitor, description: 'Record browser windows, specific apps or full desktop' },
+    { id: 'webcam-recorder' as ActiveTab, label: 'Webcam Recorder', icon: Camera, description: 'Record high-definition video from connected cameras' },
+    { id: 'voice-recorder' as ActiveTab, label: 'Voice Recorder', icon: Mic, description: 'Capture lossless raw mic audio and export WAV' },
+    { id: 'video-compressor' as ActiveTab, label: 'Video Compressor', icon: Shrink, description: 'Reduce video file sizes completely locally' },
+    { id: 'video-resizer' as ActiveTab, label: 'Video Resizer', icon: Maximize, description: 'Change aspect ratios to 16:9, 9:16, 1:1, 4:3' },
+    { id: 'video-cutter' as ActiveTab, label: 'Video Cutter & Trimmer', icon: Scissors, description: 'Trim timeline clips and cut segments' },
+    { id: 'mute-video' as ActiveTab, label: 'Mute Video', icon: VolumeX, description: 'Remove audio track from video clip' },
+    { id: 'video-speed' as ActiveTab, label: 'Video Speed Controller', icon: Gauge, description: 'Adjust speed from 0.25x to 4.0x' },
+    { id: 'video-rotator' as ActiveTab, label: 'Video Rotator', icon: RotateCw, description: 'Rotate 90, 180, 270 or flip video' },
+    { id: 'video-merger' as ActiveTab, label: 'Video Merger', icon: Plus, description: 'Combine multiple video clips into one file' },
+    { id: 'video-converter' as ActiveTab, label: 'Video Converter', icon: ArrowLeftRight, description: 'Convert containers to MP4, WebM, MKV' },
+    { id: 'video-to-gif' as ActiveTab, label: 'Video to GIF', icon: Film, description: 'Transcode video clips to loopable GIFs' },
+    { id: 'video-to-mp3' as ActiveTab, label: 'Video to MP3', icon: Music, description: 'Extract audio channel tracks' },
+    { id: 'audio-converter' as ActiveTab, label: 'Audio Converter', icon: ArrowLeftRight, description: 'Transcode MP3, WAV, OGG, M4A' },
+    { id: 'subtitle-converter' as ActiveTab, label: 'Subtitle Converter', icon: Type, description: 'Convert SRT and VTT formats' },
+    { id: 'microphone-tester' as ActiveTab, label: 'Microphone Tester', icon: Mic, description: 'Check mic capture levels with dB meter' },
+    { id: 'webcam-check' as ActiveTab, label: 'Webcam Check', icon: Video, description: 'Check resolutions and snap photos' },
+    { id: 'speaker-tester' as ActiveTab, label: 'Speaker Tester', icon: Volume2, description: 'Stereo balance and frequency sweeps' },
   ];
 
   return (

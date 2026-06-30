@@ -16,13 +16,13 @@ interface DeviceOption {
   label: string;
 }
 
-export default function VideoRecorder() {
+export default function VideoRecorder({ mode = 'all' }: { mode?: 'all' | 'screen' | 'webcam' }) {
   const { language } = useLanguage();
   
   // Applet Log Trace
   useEffect(() => {
-    logToolUsage('video-recorder');
-  }, []);
+    logToolUsage(mode === 'screen' ? 'screen-recorder' : mode === 'webcam' ? 'webcam-recorder' : 'video-recorder');
+  }, [mode]);
 
   // Media Capture states
   const [screenStream, setScreenStream] = useState<MediaStream | null>(null);
@@ -37,9 +37,9 @@ export default function VideoRecorder() {
   const [selectedMic, setSelectedMic] = useState<string>('');
 
   // Preference switches
-  const [recordScreen, setRecordScreen] = useState(true);
-  const [recordCam, setRecordCam] = useState(false);
-  const [recordMic, setRecordMic] = useState(false);
+  const [recordScreen, setRecordScreen] = useState(mode !== 'webcam');
+  const [recordCam, setRecordCam] = useState(mode === 'webcam' || mode === 'all');
+  const [recordMic, setRecordMic] = useState(mode === 'webcam' || mode === 'all');
   const [camShape, setCamShape] = useState<'circle' | 'square'>('circle');
   const [camSize, setCamSize] = useState<'sm' | 'md' | 'lg'>('md');
   const [camPosition, setCamPosition] = useState<'bottom-left' | 'bottom-right' | 'top-right' | 'top-left'>('bottom-left');
