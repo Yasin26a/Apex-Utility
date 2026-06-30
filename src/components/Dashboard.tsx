@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, useMotionValue, useTransform, useMotionTemplate, AnimatePresence } from 'motion/react';
-import { FileDown, Image, Sparkles, Braces, ArrowRight, ShieldCheck, Zap, Globe, Cpu, Clock, Download, CheckCircle, FileText, FileImage, Trash2, Camera, Loader2, Search, Copy, Check, Info, Activity, AlertCircle, Layers, ChevronLeft, ChevronRight, GripVertical, Minus, Plus, RotateCcw, Settings, ArrowLeft, Upload, Database, QrCode, Scale, FileCode, Sliders, GitPullRequest, LayoutGrid, List, Hash, Palette, Gauge, Binary, Regex, ArrowLeftRight, Shrink, Pin, Volume2, Mic, Eye, Video, PenTool, History, Type } from 'lucide-react';
+import { FileDown, Image, Sparkles, Braces, ArrowRight, ShieldCheck, Zap, Globe, Cpu, Clock, Download, CheckCircle, FileText, FileImage, Trash2, Camera, Loader2, Search, Copy, Check, Info, Activity, AlertCircle, Layers, ChevronLeft, ChevronRight, GripVertical, Minus, Plus, RotateCcw, Settings, ArrowLeft, Upload, Database, QrCode, Scale, FileCode, Sliders, GitPullRequest, LayoutGrid, List, Hash, Palette, Gauge, Binary, Regex, ArrowLeftRight, Shrink, Pin, Volume2, Mic, Eye, Video, PenTool, History, Type, Lock, ShieldAlert, TrendingUp, Heart } from 'lucide-react';
 import { ActiveTab } from '../types';
 import { AlignLeft, Crop, Calendar } from 'lucide-react';
 import html2canvas from 'html2canvas';
@@ -141,7 +141,7 @@ function ThreeDTiltCard({
   );
 }
 
-interface DashboardCard {
+export interface DashboardCard {
   id: string;
   title: string;
   desc: string;
@@ -156,7 +156,7 @@ interface DashboardCard {
   pinned?: boolean;
 }
 
-const DEFAULT_CARDS: DashboardCard[] = [
+export const DEFAULT_CARDS: DashboardCard[] = [
   {
     id: 'css-generator',
     title: 'CSS Glass & Shadow Generator',
@@ -276,9 +276,9 @@ const DEFAULT_CARDS: DashboardCard[] = [
   },
   {
     id: 'unit-converter',
-    title: 'Metric Solver & Converter',
+    title: 'Unit Converter – Free Online Tool',
     desc: 'Convert length, weight, volume, and temperature metrics in real-time with an instant preview comparison matrix.',
-    tagline: '"custom high-resolution secure metric conversion grid"',
+    tagline: '"unit converter online"',
     category: 'Design & Signals',
     categoryIcon: 'Scale',
     cardIcon: 'Scale',
@@ -414,6 +414,19 @@ const DEFAULT_CARDS: DashboardCard[] = [
     cardIcon: 'Braces',
     textClass: 'text-rose-400 font-bold',
     buttonLabel: 'Launch Schema Studio',
+    colSpan: 1,
+    heightLevel: 2
+  },
+  {
+    id: 'meta-tags',
+    title: 'Meta Description Generator (Free SEO Tool)',
+    desc: 'Generate, optimize, and preview SEO-compliant title tags and meta descriptions for Google, Facebook, and Twitter to maximize your organic search click-through rates.',
+    tagline: '"meta description generator"',
+    category: 'AI Copywriting',
+    categoryIcon: 'Sparkles',
+    cardIcon: 'Sliders',
+    textClass: 'text-indigo-400 font-bold',
+    buttonLabel: 'Optimize Meta Tags',
     colSpan: 1,
     heightLevel: 2
   },
@@ -562,9 +575,9 @@ const DEFAULT_CARDS: DashboardCard[] = [
   },
   {
     id: 'exif-stripper',
-    title: 'EXIF Metadata Inspector',
+    title: 'Remove EXIF Data from Photo Online Free',
     desc: 'Load image uploads, analyze hidden EXIF binary streams, detect exact location details, and purge data tags instantly to strip online fingerprint tracks.',
-    tagline: '"analyze headers, visual maps logging, and wipe markers before publishing"',
+    tagline: '"remove exif data online"',
     category: 'Media Lab',
     categoryIcon: 'Eye',
     cardIcon: 'Eye',
@@ -614,14 +627,27 @@ const DEFAULT_CARDS: DashboardCard[] = [
   },
   {
     id: 'lorem-generator',
-    title: 'Lorem Ipsum & Placeholders',
+    title: 'Lorem Ipsum Generator – Fake/Dummy Data Tool',
     desc: 'Generate customizable classical Latin paragraphs, lists or HTML wraps, and construct beautifully styled multi-gradient vector placeholder image layers instantly.',
-    tagline: '"secure client-side lorem ipsum maker, random latin generator, responsive dummy placeholder svg"',
+    tagline: '"lorem ipsum generator, fake data generator"',
     category: 'Developer Operations',
     categoryIcon: 'Braces',
     cardIcon: 'AlignLeft',
     textClass: 'text-indigo-400',
     buttonLabel: 'Open Mockup Generator',
+    colSpan: 1,
+    heightLevel: 2
+  },
+  {
+    id: 'html-markdown',
+    title: 'Markdown to HTML Converter Free',
+    desc: 'Convert raw Markdown strings into clean HTML code blocks or transform HTML documents back to readable Markdown syntax offline.',
+    tagline: '"markdown to html converter"',
+    category: 'Developer Operations',
+    categoryIcon: 'Braces',
+    cardIcon: 'FileCode',
+    textClass: 'text-sky-400',
+    buttonLabel: 'Convert Markdown',
     colSpan: 1,
     heightLevel: 2
   },
@@ -689,6 +715,305 @@ const DEFAULT_CARDS: DashboardCard[] = [
     buttonLabel: 'Cluster Keywords',
     colSpan: 1,
     heightLevel: 2
+  },
+  {
+    id: 'ai-humanizer',
+    title: 'AI Humanizer – Make AI Text Undetectable',
+    desc: 'Bypass AI detectors with advanced content optimization. Refine robotic generated articles into natural, engaging, readable human-like prose.',
+    tagline: '"ai text humanizer, bypass ai detector"',
+    category: 'AI Copywriting',
+    categoryIcon: 'Sparkles',
+    cardIcon: 'Sparkles',
+    textClass: 'text-indigo-400 font-bold',
+    buttonLabel: 'Humanize Content',
+    colSpan: 1,
+    heightLevel: 2
+  },
+  {
+    id: 'tone-analyzer',
+    title: 'Email Tone Checker – Analyze Before You Send',
+    desc: 'Scan emails, messages, or sales pitches for communication impact. Adjust and tune confidence, politeness, and professional sentiment instantly.',
+    tagline: '"email tone analyzer free"',
+    category: 'AI Copywriting',
+    categoryIcon: 'Sparkles',
+    cardIcon: 'Gauge',
+    textClass: 'text-violet-400',
+    buttonLabel: 'Analyze Tone',
+    colSpan: 1,
+    heightLevel: 2
+  },
+  {
+    id: 'resume-optimizer',
+    title: 'Free ATS Resume Checker & Score',
+    desc: 'Align your resume and cover letters with target job definitions using AI. Enhance layout metrics and score high on automated tracking filters.',
+    tagline: '"ats resume checker free, resume score"',
+    category: 'AI Copywriting',
+    categoryIcon: 'Sparkles',
+    cardIcon: 'FileText',
+    textClass: 'text-emerald-400',
+    buttonLabel: 'Optimize Resume',
+    colSpan: 1,
+    heightLevel: 2
+  },
+  {
+    id: 'text-summarizer',
+    title: 'AI Text Summarizer – Summarize Articles Instantly',
+    desc: 'Condense articles, papers, or legal templates into scannable lists, core highlights, and brief executive summaries with key insights.',
+    tagline: '"ai summarizer free, article summarizer"',
+    category: 'AI Copywriting',
+    categoryIcon: 'Sparkles',
+    cardIcon: 'FileCode',
+    textClass: 'text-amber-400',
+    buttonLabel: 'Generate Summary',
+    colSpan: 1,
+    heightLevel: 2
+  },
+  {
+    id: 'passport-photo',
+    title: 'Passport Photo Maker – Free Online (US/UK/India/Canada)',
+    desc: 'Structure and upscale standard photographs to match official passport, biometric ID, and visa size constraints natively in your browser.',
+    tagline: '"passport photo size online free"',
+    category: 'Media Lab',
+    categoryIcon: 'Image',
+    cardIcon: 'Camera',
+    textClass: 'text-cyan-400',
+    buttonLabel: 'Create Passport Photo',
+    colSpan: 1,
+    heightLevel: 2
+  },
+  {
+    id: 'meme-generator',
+    title: 'Meme Generator – Free, No Watermark',
+    desc: 'Add custom texts, headers, overlays, and custom margins to classic and trending meme canvases fully offline with live preview rendering.',
+    tagline: '"meme generator free no watermark"',
+    category: 'Media Lab',
+    categoryIcon: 'Image',
+    cardIcon: 'Type',
+    textClass: 'text-orange-400',
+    buttonLabel: 'Launch Meme Creator',
+    colSpan: 1,
+    heightLevel: 2
+  },
+  {
+    id: 'headshot-generator',
+    title: 'AI Headshot Generator – Free Professional Photos',
+    desc: 'Create highly professional corporate headshots or unique visual avatars instantly using specialized custom prompt pipelines.',
+    tagline: '"ai headshot generator free"',
+    category: 'Media Lab',
+    categoryIcon: 'Image',
+    cardIcon: 'Sparkles',
+    textClass: 'text-fuchsia-400 animate-pulse',
+    buttonLabel: 'Generate Avatar',
+    colSpan: 1,
+    heightLevel: 2
+  },
+  {
+    id: 'image-upscaler',
+    title: 'Image Upscaler – Increase Photo Resolution Free',
+    desc: 'Breathe life into low-resolution illustrations, photos, or textures. Enhance resolution up to 400% without introducing pixel noise.',
+    tagline: '"image upscaler online free, increase image resolution"',
+    category: 'Media Lab',
+    categoryIcon: 'Image',
+    cardIcon: 'Sliders',
+    textClass: 'text-indigo-400',
+    buttonLabel: 'Scale Photograph',
+    colSpan: 1,
+    heightLevel: 2
+  },
+  {
+    id: 'mockup-generator',
+    title: 'Free Mockup Generator – Website & App Screenshots',
+    desc: 'Embed your responsive designs or screenshots into beautiful 3D device frames, laptop screens, or mobile outlines for presentations.',
+    tagline: '"free mockup generator online"',
+    category: 'Media Lab',
+    categoryIcon: 'Image',
+    cardIcon: 'Layers',
+    textClass: 'text-sky-400',
+    buttonLabel: 'Assemble Mockup',
+    colSpan: 1,
+    heightLevel: 2
+  },
+  {
+    id: 'pdf-converter',
+    title: 'PDF to Word Converter – Free, No Signup',
+    desc: 'Convert text vectors from PDF documents into editable Word files or tabular Excel spreadsheets safely on the client-side.',
+    tagline: '"pdf to word converter free online"',
+    category: 'Document Optimization',
+    categoryIcon: 'FileDown',
+    cardIcon: 'ArrowLeftRight',
+    textClass: 'text-red-400',
+    buttonLabel: 'Convert Document',
+    colSpan: 1,
+    heightLevel: 2
+  },
+  {
+    id: 'pdf-form-filler',
+    title: 'Fill PDF Form Online Free',
+    desc: 'Load standard interactive PDFs and input text directly into fillable fields, checkboxes, and form grids locally in your browser.',
+    tagline: '"fill pdf form online free"',
+    category: 'Document Optimization',
+    categoryIcon: 'FileDown',
+    cardIcon: 'FileText',
+    textClass: 'text-teal-400',
+    buttonLabel: 'Fill PDF Fields',
+    colSpan: 1,
+    heightLevel: 2
+  },
+  {
+    id: 'pdf-signer',
+    title: 'Free E-Signature Tool – Sign PDF Online',
+    desc: 'Apply hand-drawn signatures, official typographic names, or custom seal graphics securely onto PDF document pages.',
+    tagline: '"sign pdf online free, esignature free"',
+    category: 'Document Optimization',
+    categoryIcon: 'FileDown',
+    cardIcon: 'PenTool',
+    textClass: 'text-emerald-400',
+    buttonLabel: 'Sign Document',
+    colSpan: 1,
+    heightLevel: 2
+  },
+  {
+    id: 'uuid-generator',
+    title: 'UUID Generator – Free Online v4 GUID Tool',
+    desc: 'Instantly generate high-entropy v4 UUIDs or Microsoft GUIDs in custom formats with custom dividers and casing.',
+    tagline: '"uuid generator online"',
+    category: 'Developer Operations',
+    categoryIcon: 'Braces',
+    cardIcon: 'Binary',
+    textClass: 'text-indigo-400',
+    buttonLabel: 'Generate IDs',
+    colSpan: 1,
+    heightLevel: 2
+  },
+  {
+    id: 'cron-builder',
+    title: 'Cron Expression Generator & Tester',
+    desc: 'Synthesize custom crontab schedule parameters using visual selectors and preview scheduled timelines.',
+    tagline: '"cron expression generator"',
+    category: 'Developer Operations',
+    categoryIcon: 'Braces',
+    cardIcon: 'Calendar',
+    textClass: 'text-rose-400',
+    buttonLabel: 'Build Cron Syntax',
+    colSpan: 1,
+    heightLevel: 2
+  },
+  {
+    id: 'jwt-decoder',
+    title: 'JWT Decoder – Free Online Token Debugger',
+    desc: 'Analyze JSON Web Token (JWT) headers and payloads natively inside your browser. Verify token lifespans and expired claims.',
+    tagline: '"jwt decoder online"',
+    category: 'Developer Operations',
+    categoryIcon: 'Braces',
+    cardIcon: 'ShieldCheck',
+    textClass: 'text-emerald-400',
+    buttonLabel: 'Inspect JWT',
+    colSpan: 1,
+    heightLevel: 2
+  },
+  {
+    id: 'favicon-generator',
+    title: 'Favicon Generator – Free ICO/PNG Maker',
+    desc: 'Form custom favicons from emojis, symbols, or images. Export multi-format size packages including Apple Touch Icons.',
+    tagline: '"favicon generator free"',
+    category: 'Design & Signals',
+    categoryIcon: 'Palette',
+    cardIcon: 'Palette',
+    textClass: 'text-amber-400',
+    buttonLabel: 'Create Favicon',
+    colSpan: 1,
+    heightLevel: 2
+  },
+  {
+    id: 'gradient-generator',
+    title: 'CSS Gradient Generator – Free Online Tool',
+    desc: 'Design beautiful, smooth CSS linear and radial background gradients. Copy instant styles or Tailwind utility classes.',
+    tagline: '"css gradient generator"',
+    category: 'Design & Signals',
+    categoryIcon: 'Palette',
+    cardIcon: 'Layers',
+    textClass: 'text-fuchsia-400',
+    buttonLabel: 'Create Gradient',
+    colSpan: 1,
+    heightLevel: 2
+  },
+  {
+    id: 'password-sharer',
+    title: 'Self-Destructing Note – Share Passwords Securely',
+    desc: 'Transmit highly confidential passphrases or keys safely with encrypted single-read messages that delete themselves after being read.',
+    tagline: '"secure note sharing, self destructing message"',
+    category: 'Security Vault',
+    categoryIcon: 'ShieldCheck',
+    cardIcon: 'Lock',
+    textClass: 'text-indigo-400',
+    buttonLabel: 'Encrypt Message',
+    colSpan: 1,
+    heightLevel: 2
+  },
+  {
+    id: 'data-breach',
+    title: 'Free Data Breach Checker – Has My Email Been Hacked',
+    desc: 'Verify if your personal email or developer accounts have been compromised in historical threat list registry leaks.',
+    tagline: '"check if email was hacked free"',
+    category: 'Security Vault',
+    categoryIcon: 'ShieldCheck',
+    cardIcon: 'ShieldAlert',
+    textClass: 'text-rose-400',
+    buttonLabel: 'Check Compromises',
+    colSpan: 1,
+    heightLevel: 2
+  },
+  {
+    id: 'checksum-verifier',
+    title: 'File Checksum/Hash Verifier Online',
+    desc: 'Calculate high-entropy SHA-256 and SHA-1 cryptographic file integrity signatures locally inside the browser.',
+    tagline: '"md5 sha256 checksum online"',
+    category: 'Security Vault',
+    categoryIcon: 'ShieldCheck',
+    cardIcon: 'Hash',
+    textClass: 'text-emerald-400',
+    buttonLabel: 'Verify Checksum',
+    colSpan: 1,
+    heightLevel: 2
+  },
+  {
+    id: 'age-calculator',
+    title: 'Age Calculator – Find Your Exact Age Free',
+    desc: 'Compute precise chronological age milestones down to years, months, weeks, days, and hours with birthdays countdown.',
+    tagline: '"age calculator online"',
+    category: 'Developer Operations',
+    categoryIcon: 'Braces',
+    cardIcon: 'Calendar',
+    textClass: 'text-sky-400',
+    buttonLabel: 'Calculate Age',
+    colSpan: 1,
+    heightLevel: 2
+  },
+  {
+    id: 'loan-calculator',
+    title: 'EMI Calculator – Free Loan Calculator',
+    desc: 'Calculate monthly equated payments, life of loan interest charges, and review dynamic principal schedules.',
+    tagline: '"emi calculator online free"',
+    category: 'Developer Operations',
+    categoryIcon: 'Braces',
+    cardIcon: 'TrendingUp',
+    textClass: 'text-rose-400',
+    buttonLabel: 'Calculate EMI',
+    colSpan: 1,
+    heightLevel: 2
+  },
+  {
+    id: 'bmi-calculator',
+    title: 'BMI Calculator – Free Body Mass Index Tool',
+    desc: 'Map body mass indexes, Basal Metabolic Rates, and customize calorie intake metrics based on activity levels.',
+    tagline: '"bmi calculator free"',
+    category: 'Developer Operations',
+    categoryIcon: 'Braces',
+    cardIcon: 'Heart',
+    textClass: 'text-indigo-400',
+    buttonLabel: 'Calculate BMI',
+    colSpan: 1,
+    heightLevel: 2
   }
 ];
 
@@ -723,7 +1048,12 @@ const iconMap: Record<string, React.ComponentType<any>> = {
   Crop: Crop,
   Calendar: Calendar,
   PenTool: PenTool,
-  Globe: Globe
+  Globe: Globe,
+  Camera: Camera,
+  Lock: Lock,
+  ShieldAlert: ShieldAlert,
+  TrendingUp: TrendingUp,
+  Heart: Heart
 };
 
 const recentToolsLabels = {

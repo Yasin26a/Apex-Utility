@@ -48,6 +48,7 @@ import { useVoicePreference } from './hooks/useVoicePreference';
 import useSEOTags from './hooks/useSEOTags';
 import { AT_LEAST_20_ARTICLES, Article } from './data/articles';
 import { BrandingLogo } from './components/BrandingLogo';
+import { DEFAULT_CARDS } from './components/Dashboard';
 const WebPConverter = lazy(() => import('./components/WebPConverter'));
 const PDFJoiner = lazy(() => import('./components/PDFJoiner'));
 const ContentPlanner = lazy(() => import('./components/ContentPlanner'));
@@ -99,6 +100,31 @@ const DNSLookup = lazy(() => import('./components/DNSLookup'));
 const UserAgentAnalyzer = lazy(() => import('./components/UserAgentAnalyzer'));
 const HTMLMarkdownConverter = lazy(() => import('./components/HTMLMarkdownConverter'));
 const MetaTagsOptimizer = lazy(() => import('./components/MetaTagsOptimizer'));
+
+const AIHumanizer = lazy(() => import('./components/AIHumanizer'));
+const ToneAnalyzer = lazy(() => import('./components/ToneAnalyzer'));
+const AIResumeOptimizer = lazy(() => import('./components/AIResumeOptimizer'));
+const AITextSummarizer = lazy(() => import('./components/AITextSummarizer'));
+const PassportPhotoMaker = lazy(() => import('./components/PassportPhotoMaker'));
+const MemeGenerator = lazy(() => import('./components/MemeGenerator'));
+const AIHeadshotGenerator = lazy(() => import('./components/AIHeadshotGenerator'));
+const ImageUpscaler = lazy(() => import('./components/ImageUpscaler'));
+const MockupGenerator = lazy(() => import('./components/MockupGenerator'));
+const PDFConverter = lazy(() => import('./components/PDFConverter'));
+const PDFFormFiller = lazy(() => import('./components/PDFFormFiller'));
+const PDFSigner = lazy(() => import('./components/PDFSigner'));
+const UUIDGenerator = lazy(() => import('./components/UUIDGenerator'));
+const CronBuilder = lazy(() => import('./components/CronBuilder'));
+const JWTDecoder = lazy(() => import('./components/JWTDecoder'));
+const FaviconGenerator = lazy(() => import('./components/FaviconGenerator'));
+const GradientGenerator = lazy(() => import('./components/GradientGenerator'));
+const PasswordSharer = lazy(() => import('./components/PasswordSharer'));
+const DataBreachChecker = lazy(() => import('./components/DataBreachChecker'));
+const EXIFStripper = lazy(() => import('./components/EXIFStripper'));
+const ChecksumVerifier = lazy(() => import('./components/ChecksumVerifier'));
+const AgeCalculator = lazy(() => import('./components/AgeCalculator'));
+const LoanCalculator = lazy(() => import('./components/LoanCalculator'));
+const BMICalculator = lazy(() => import('./components/BMICalculator'));
 
 const getArticleKeywords = (article: Article): string[] => {
   const text = [
@@ -1358,7 +1384,41 @@ export default function App() {
     setTimeout(() => {
       const today = new Date().toISOString().split('T')[0];
       const parsedUrl = targetUrl.replace(/\/$/, '');
-      const sdoc = `<?xml version="1.0" encoding="UTF-8"?>
+      
+      const dynamicTools = DEFAULT_CARDS.map(card => {
+        // Dynamically compute priority based on tool categories or flags, requiring zero manual updates in future
+        let basePriority = 0.80;
+        
+        if (card.id === 'sitemap-generator') {
+          basePriority = 0.95;
+        } else if (card.pinned) {
+          basePriority = 0.90;
+        } else if (['Document Optimization', 'PDF Compilation', 'PDF Joiner', 'AI Copywriting', 'Content Operations'].includes(card.category)) {
+          basePriority = 0.90;
+        } else if (['Media Lab', 'Developer Operations'].includes(card.category)) {
+          basePriority = 0.85;
+        } else if (['Security Vault', 'Calculators'].includes(card.category) || card.id.includes('calculator')) {
+          basePriority = 0.75;
+        } else if (card.id === 'case-converter' || card.id === 'lorem-generator' || card.id === 'date-calculator') {
+          basePriority = 0.70;
+        }
+
+        return {
+          tab: card.id,
+          priority: includePriority ? basePriority.toFixed(2) : '0.80',
+          freq: changeFreq
+        };
+      });
+
+      const items = [
+        { tab: 'about-us', priority: '0.50', freq: 'monthly' },
+        { tab: 'privacy-policy', priority: '0.40', freq: 'monthly' },
+        { tab: 'terms-of-service', priority: '0.40', freq: 'monthly' },
+        { tab: 'guides', priority: includePriority ? '0.80' : '0.50', freq: changeFreq },
+        ...dynamicTools
+      ];
+
+      let sdoc = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <!-- Primary URL -->
   <url>
@@ -1367,32 +1427,18 @@ export default function App() {
     <changefreq>daily</changefreq>
     <priority>1.00</priority>
   </url>
-  <!-- Dynamic Subpages index -->
-  <url>
-    <loc>${parsedUrl}/about-us</loc>
+`;
+
+      items.forEach(item => {
+        sdoc += `  <url>
+    <loc>${parsedUrl}/${item.tab}</loc>
     <lastmod>${today}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.50</priority>
-  </url>
-  <url>
-    <loc>${parsedUrl}/privacy-policy</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.40</priority>
-  </url>
-  <url>
-    <loc>${parsedUrl}/terms-of-service</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.40</priority>
-  </url>
-  <url>
-    <loc>${parsedUrl}/guides</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>${changeFreq}</changefreq>
-    <priority>${includePriority ? '0.80' : '0.50'}</priority>
-  </url>
-</urlset>`;
+    <changefreq>${item.freq}</changefreq>
+    <priority>${item.priority}</priority>
+  </url>\n`;
+      });
+
+      sdoc += `</urlset>`;
 
       let robotDoc = `# Standard robots.txt for Search Engines
 User-agent: *
@@ -2668,6 +2714,305 @@ Disallow:
                   <p className="text-slate-400 text-xs sm:text-sm">Crop local imagery to custom standards, target widths, or round shapes completely offline.</p>
                 </div>
                 <ImageCropper />
+              </motion.div>
+            )}
+
+            {activeTab === 'ai-humanizer' && (
+              <motion.div key="ai-humanizer" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-indigo-400 uppercase">AI Copywriting &amp; Strategy</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">AI Text Humanizer &amp; Bypass</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Bypass AI detectors with advanced content optimization. Refine robotic text into natural, readable, engaging human prose.</p>
+                </div>
+                <Suspense fallback={<div className="text-white font-mono text-xs">Loading AI Humanizer...</div>}>
+                  <AIHumanizer />
+                </Suspense>
+              </motion.div>
+            )}
+
+            {activeTab === 'tone-analyzer' && (
+              <motion.div key="tone-analyzer" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-violet-400 uppercase">AI Copywriting &amp; Strategy</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Email &amp; Message Tone Analyzer</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Scan emails, messages, or sales pitches for communication impact. Adjust and tune confidence, politeness, and professional sentiment.</p>
+                </div>
+                <Suspense fallback={<div className="text-white font-mono text-xs">Loading Tone Analyzer...</div>}>
+                  <ToneAnalyzer />
+                </Suspense>
+              </motion.div>
+            )}
+
+            {activeTab === 'resume-optimizer' && (
+              <motion.div key="resume-optimizer" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-emerald-400 uppercase">AI Copywriting &amp; Strategy</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">AI Resume &amp; Cover Letter Optimizer</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Align your resume and cover letters with target job definitions using AI. Enhance layout metrics and score high on applicant tracking systems.</p>
+                </div>
+                <Suspense fallback={<div className="text-white font-mono text-xs">Loading Resume Optimizer...</div>}>
+                  <AIResumeOptimizer />
+                </Suspense>
+              </motion.div>
+            )}
+
+            {activeTab === 'text-summarizer' && (
+              <motion.div key="text-summarizer" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-amber-400 uppercase">AI Copywriting &amp; Strategy</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">AI Text &amp; Article Summarizer</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Condense articles, papers, or legal templates into scannable lists, core highlights, and brief executive summaries with key insights.</p>
+                </div>
+                <Suspense fallback={<div className="text-white font-mono text-xs">Loading Text Summarizer...</div>}>
+                  <AITextSummarizer />
+                </Suspense>
+              </motion.div>
+            )}
+
+            {activeTab === 'passport-photo' && (
+              <motion.div key="passport-photo" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-cyan-400 uppercase">Media &amp; Image</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Passport &amp; ID Photo Maker</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Structure and upscale standard photographs to match official passport, biometric ID, and visa size constraints natively in your browser.</p>
+                </div>
+                <Suspense fallback={<div className="text-white font-mono text-xs">Loading Passport Photo Maker...</div>}>
+                  <PassportPhotoMaker />
+                </Suspense>
+              </motion.div>
+            )}
+
+            {activeTab === 'meme-generator' && (
+              <motion.div key="meme-generator" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-orange-400 uppercase">Media &amp; Image</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Meme Generator &amp; Studio</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Add custom texts, headers, overlays, and custom margins to classic and trending meme canvases fully offline with live preview rendering.</p>
+                </div>
+                <Suspense fallback={<div className="text-white font-mono text-xs">Loading Meme Generator...</div>}>
+                  <MemeGenerator />
+                </Suspense>
+              </motion.div>
+            )}
+
+            {activeTab === 'headshot-generator' && (
+              <motion.div key="headshot-generator" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-fuchsia-400 uppercase">Media &amp; Image</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">AI Headshot &amp; Avatar Generator</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Create highly professional corporate headshots or unique visual avatars instantly using specialized custom prompt pipelines.</p>
+                </div>
+                <Suspense fallback={<div className="text-white font-mono text-xs">Loading AI Headshot Generator...</div>}>
+                  <AIHeadshotGenerator />
+                </Suspense>
+              </motion.div>
+            )}
+
+            {activeTab === 'image-upscaler' && (
+              <motion.div key="image-upscaler" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-indigo-400 uppercase">Media &amp; Image</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">AI Image Upscaler &amp; Enhancer</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Breathe life into low-resolution illustrations, photos, or textures. Enhance resolution up to 400% without introducing pixel noise.</p>
+                </div>
+                <Suspense fallback={<div className="text-white font-mono text-xs">Loading Image Upscaler...</div>}>
+                  <ImageUpscaler />
+                </Suspense>
+              </motion.div>
+            )}
+
+            {activeTab === 'mockup-generator' && (
+              <motion.div key="mockup-generator" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-sky-400 uppercase">Media &amp; Image</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Mockup &amp; Device Frame Studio</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Embed your responsive designs or screenshots into beautiful 3D device frames, laptop screens, or mobile outlines for presentations.</p>
+                </div>
+                <Suspense fallback={<div className="text-white font-mono text-xs">Loading Mockup Generator...</div>}>
+                  <MockupGenerator />
+                </Suspense>
+              </motion.div>
+            )}
+
+            {activeTab === 'pdf-converter' && (
+              <motion.div key="pdf-converter" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-red-400 uppercase">Document &amp; PDF</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">PDF ⇄ Word/Excel Converter</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Convert text vectors from PDF documents into editable Word files or tabular Excel spreadsheets safely on the client-side.</p>
+                </div>
+                <Suspense fallback={<div className="text-white font-mono text-xs">Loading PDF Converter...</div>}>
+                  <PDFConverter />
+                </Suspense>
+              </motion.div>
+            )}
+
+            {activeTab === 'pdf-form-filler' && (
+              <motion.div key="pdf-form-filler" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-teal-400 uppercase">Document &amp; PDF</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">PDF Form Filler &amp; Field Editor</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Load standard interactive PDFs and input text directly into fillable fields, checkboxes, and form grids locally in your browser.</p>
+                </div>
+                <Suspense fallback={<div className="text-white font-mono text-xs">Loading PDF Form Filler...</div>}>
+                  <PDFFormFiller />
+                </Suspense>
+              </motion.div>
+            )}
+
+            {activeTab === 'pdf-signer' && (
+              <motion.div key="pdf-signer" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-emerald-400 uppercase">Document &amp; PDF</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">PDF E-Signature &amp; Secure Sealer</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Apply hand-drawn signatures, official typographic names, or custom seal graphics securely onto PDF document pages.</p>
+                </div>
+                <Suspense fallback={<div className="text-white font-mono text-xs">Loading PDF Signer...</div>}>
+                  <PDFSigner />
+                </Suspense>
+              </motion.div>
+            )}
+
+            {activeTab === 'uuid-generator' && (
+              <motion.div key="uuid-generator" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-indigo-400 uppercase">Developer Utilities</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">UUID &amp; GUID Batch Generator</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Instantly generate high-entropy v4 UUIDs or Microsoft GUIDs in custom formats with custom dividers and casing.</p>
+                </div>
+                <Suspense fallback={<div className="text-white font-mono text-xs">Loading UUID Generator...</div>}>
+                  <UUIDGenerator />
+                </Suspense>
+              </motion.div>
+            )}
+
+            {activeTab === 'cron-builder' && (
+              <motion.div key="cron-builder" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-rose-400 uppercase">Developer Utilities</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Cron Expression Scheduler</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Synthesize custom crontab schedule parameters using visual selectors and preview scheduled timelines.</p>
+                </div>
+                <Suspense fallback={<div className="text-white font-mono text-xs">Loading Cron Builder...</div>}>
+                  <CronBuilder />
+                </Suspense>
+              </motion.div>
+            )}
+
+            {activeTab === 'jwt-decoder' && (
+              <motion.div key="jwt-decoder" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-emerald-400 uppercase">Developer Utilities</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">JWT Decoder &amp; Inspector</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Analyze JSON Web Token (JWT) headers and payloads natively inside your browser. Verify token lifespans and expired claims.</p>
+                </div>
+                <Suspense fallback={<div className="text-white font-mono text-xs">Loading JWT Decoder...</div>}>
+                  <JWTDecoder />
+                </Suspense>
+              </motion.div>
+            )}
+
+            {activeTab === 'favicon-generator' && (
+              <motion.div key="favicon-generator" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-amber-400 uppercase">Design &amp; Layout</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Favicon Generator &amp; Studio</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Form custom favicons from emojis, symbols, or images. Export multi-format size packages including Apple Touch Icons.</p>
+                </div>
+                <Suspense fallback={<div className="text-white font-mono text-xs">Loading Favicon Generator...</div>}>
+                  <FaviconGenerator />
+                </Suspense>
+              </motion.div>
+            )}
+
+            {activeTab === 'gradient-generator' && (
+              <motion.div key="gradient-generator" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-fuchsia-400 uppercase">Design &amp; Layout</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Interactive Gradient Generator</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Design beautiful, smooth CSS linear and radial background gradients. Copy instant styles or Tailwind utility classes.</p>
+                </div>
+                <Suspense fallback={<div className="text-white font-mono text-xs">Loading Gradient Generator...</div>}>
+                  <GradientGenerator />
+                </Suspense>
+              </motion.div>
+            )}
+
+            {activeTab === 'password-sharer' && (
+              <motion.div key="password-sharer" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-indigo-400 uppercase">Privacy &amp; Security</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Self-Destructing Password Sharer</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Transmit highly confidential passphrases or keys safely with encrypted single-read messages that delete themselves after being read.</p>
+                </div>
+                <Suspense fallback={<div className="text-white font-mono text-xs">Loading Password Sharer...</div>}>
+                  <PasswordSharer />
+                </Suspense>
+              </motion.div>
+            )}
+
+            {activeTab === 'data-breach' && (
+              <motion.div key="data-breach" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-rose-400 uppercase">Privacy &amp; Security</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Secured Data Breach Checker</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Verify if your personal email or developer accounts have been compromised in historical threat list registry leaks.</p>
+                </div>
+                <Suspense fallback={<div className="text-white font-mono text-xs">Loading Data Breach Checker...</div>}>
+                  <DataBreachChecker />
+                </Suspense>
+              </motion.div>
+            )}
+
+            {activeTab === 'checksum-verifier' && (
+              <motion.div key="checksum-verifier" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-emerald-400 uppercase">Privacy &amp; Security</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">File Checksum Hash Verifier</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Calculate high-entropy SHA-256 and SHA-1 cryptographic file integrity signatures locally inside the browser.</p>
+                </div>
+                <Suspense fallback={<div className="text-white font-mono text-xs">Loading Checksum Verifier...</div>}>
+                  <ChecksumVerifier />
+                </Suspense>
+              </motion.div>
+            )}
+
+            {activeTab === 'age-calculator' && (
+              <motion.div key="age-calculator" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-sky-400 uppercase">Everyday Calculators</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Chronological Age Calculator</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Compute precise chronological age milestones down to years, months, weeks, days, and hours with birthdays countdown.</p>
+                </div>
+                <Suspense fallback={<div className="text-white font-mono text-xs">Loading Age Calculator...</div>}>
+                  <AgeCalculator />
+                </Suspense>
+              </motion.div>
+            )}
+
+            {activeTab === 'loan-calculator' && (
+              <motion.div key="loan-calculator" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-rose-400 uppercase">Everyday Calculators</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">EMI &amp; Loan Amortization Calculator</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Calculate monthly equated payments, life of loan interest charges, and review dynamic principal schedules.</p>
+                </div>
+                <Suspense fallback={<div className="text-white font-mono text-xs">Loading Loan Calculator...</div>}>
+                  <LoanCalculator />
+                </Suspense>
+              </motion.div>
+            )}
+
+            {activeTab === 'bmi-calculator' && (
+              <motion.div key="bmi-calculator" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-indigo-400 uppercase">Everyday Calculators</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">BMI &amp; Calorie Burn Calculator</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Map body mass indexes, Basal Metabolic Rates, and customize calorie intake metrics based on activity levels.</p>
+                </div>
+                <Suspense fallback={<div className="text-white font-mono text-xs">Loading BMI Calculator...</div>}>
+                  <BMICalculator />
+                </Suspense>
               </motion.div>
             )}
 
@@ -5731,12 +6076,23 @@ Disallow:
                 </p>
               </div>
               
-              <div className="flex flex-wrap gap-4 text-xs font-medium justify-center">
+              <div className="flex flex-wrap gap-4 text-xs font-medium justify-center items-center">
                 <button onClick={() => handleTabChange('about-us')} className="hover:text-slate-300 transition-colors cursor-pointer">Documentation</button>
                 <span className="text-slate-800">|</span>
                 <button onClick={() => handleTabChange('privacy-policy')} className="hover:text-slate-300 transition-colors cursor-pointer">Privacy Policy</button>
                 <span className="text-slate-800">|</span>
                 <button onClick={() => handleTabChange('terms-of-service')} className="hover:text-slate-300 transition-colors cursor-pointer">Terms of Service</button>
+                <span className="text-slate-800">|</span>
+                <a 
+                  href="/sitemap.xml" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="hover:text-slate-300 transition-colors cursor-pointer flex items-center gap-1 text-indigo-400 font-mono"
+                  title="View Dynamic Sitemap XML"
+                >
+                  <Globe className="w-3.5 h-3.5" />
+                  sitemap.xml
+                </a>
               </div>
             </div>
           </footer>

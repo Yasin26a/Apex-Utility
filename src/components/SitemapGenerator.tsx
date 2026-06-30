@@ -107,7 +107,30 @@ const DISCOVERED_APP_TABS = [
   { tab: 'dns-lookup', path: '/dns-lookup', defaultPriority: 0.8, defaultFreq: 'weekly' },
   { tab: 'user-agent', path: '/user-agent', defaultPriority: 0.8, defaultFreq: 'weekly' },
   { tab: 'html-markdown', path: '/html-markdown', defaultPriority: 0.8, defaultFreq: 'weekly' },
-  { tab: 'meta-tags', path: '/meta-tags', defaultPriority: 0.85, defaultFreq: 'weekly' }
+  { tab: 'meta-tags', path: '/meta-tags', defaultPriority: 0.85, defaultFreq: 'weekly' },
+  { tab: 'ai-humanizer', path: '/ai-humanizer', defaultPriority: 0.9, defaultFreq: 'weekly' },
+  { tab: 'tone-analyzer', path: '/tone-analyzer', defaultPriority: 0.85, defaultFreq: 'weekly' },
+  { tab: 'resume-optimizer', path: '/resume-optimizer', defaultPriority: 0.9, defaultFreq: 'weekly' },
+  { tab: 'text-summarizer', path: '/text-summarizer', defaultPriority: 0.85, defaultFreq: 'weekly' },
+  { tab: 'passport-photo', path: '/passport-photo', defaultPriority: 0.85, defaultFreq: 'weekly' },
+  { tab: 'meme-generator', path: '/meme-generator', defaultPriority: 0.8, defaultFreq: 'weekly' },
+  { tab: 'headshot-generator', path: '/headshot-generator', defaultPriority: 0.9, defaultFreq: 'weekly' },
+  { tab: 'image-upscaler', path: '/image-upscaler', defaultPriority: 0.9, defaultFreq: 'weekly' },
+  { tab: 'mockup-generator', path: '/mockup-generator', defaultPriority: 0.85, defaultFreq: 'weekly' },
+  { tab: 'pdf-converter', path: '/pdf-converter', defaultPriority: 0.9, defaultFreq: 'weekly' },
+  { tab: 'pdf-form-filler', path: '/pdf-form-filler', defaultPriority: 0.85, defaultFreq: 'weekly' },
+  { tab: 'pdf-signer', path: '/pdf-signer', defaultPriority: 0.85, defaultFreq: 'weekly' },
+  { tab: 'uuid-generator', path: '/uuid-generator', defaultPriority: 0.75, defaultFreq: 'weekly' },
+  { tab: 'cron-builder', path: '/cron-builder', defaultPriority: 0.8, defaultFreq: 'weekly' },
+  { tab: 'jwt-decoder', path: '/jwt-decoder', defaultPriority: 0.8, defaultFreq: 'weekly' },
+  { tab: 'favicon-generator', path: '/favicon-generator', defaultPriority: 0.8, defaultFreq: 'weekly' },
+  { tab: 'gradient-generator', path: '/gradient-generator', defaultPriority: 0.8, defaultFreq: 'weekly' },
+  { tab: 'password-sharer', path: '/password-sharer', defaultPriority: 0.8, defaultFreq: 'weekly' },
+  { tab: 'data-breach', path: '/data-breach', defaultPriority: 0.85, defaultFreq: 'weekly' },
+  { tab: 'checksum-verifier', path: '/checksum-verifier', defaultPriority: 0.75, defaultFreq: 'weekly' },
+  { tab: 'age-calculator', path: '/age-calculator', defaultPriority: 0.75, defaultFreq: 'weekly' },
+  { tab: 'loan-calculator', path: '/loan-calculator', defaultPriority: 0.75, defaultFreq: 'weekly' },
+  { tab: 'bmi-calculator', path: '/bmi-calculator', defaultPriority: 0.75, defaultFreq: 'weekly' }
 ];
 
 

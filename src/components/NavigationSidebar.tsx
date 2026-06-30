@@ -731,7 +731,7 @@ export default function NavigationSidebar({ activeTab, onTabChange, isMobileOpen
 
       {/* Footer Technical Matrix Panel */}
       <div className="border-t border-brand-border/30 pt-6">
-        <div className={`beveled-panel p-4 border-brand-border transition-all duration-500 relative overflow-hidden ${secretDevMode ? 'bg-zinc-950/45 border-emerald-500/40 shadow-[0_0_15px_rgba(16,185,129,0.1)]' : 'bg-[#0a0a0f]'}`}>
+        <div className={`beveled-panel p-4 border-brand-border transition-all duration-500 relative overflow-hidden mb-3 ${secretDevMode ? 'bg-zinc-950/45 border-emerald-500/40 shadow-[0_0_15px_rgba(16,185,129,0.1)]' : 'bg-[#0a0a0f]'}`}>
           {secretDevMode && (
             <div className="absolute inset-0 bg-emerald-500/[0.02] pointer-events-none animate-pulse" />
           )}
@@ -757,6 +757,21 @@ export default function NavigationSidebar({ activeTab, onTabChange, isMobileOpen
             <ShieldCheck className="w-3.5 h-3.5" />
             <span>{secretDevMode ? 'Quantum Protected & Isolated' : '100% Secure & Offline'}</span>
           </div>
+        </div>
+
+        {/* Sitemap Crawler Access Link */}
+        <div className="px-1 flex items-center justify-between text-[10px] font-mono text-zinc-500">
+          <span className="text-zinc-600">Crawler indexing:</span>
+          <a 
+            href="/sitemap.xml" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="flex items-center gap-1 text-brand/85 hover:text-brand transition-all hover:underline"
+            title="Access dynamically generated sitemap XML"
+          >
+            <Globe className="w-3.5 h-3.5" />
+            <span>sitemap.xml</span>
+          </a>
         </div>
       </div>
 

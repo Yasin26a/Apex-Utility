@@ -50,7 +50,30 @@ export type ActiveTab =
   | 'dns-lookup'
   | 'user-agent'
   | 'html-markdown'
-  | 'meta-tags';
+  | 'meta-tags'
+  | 'ai-humanizer'
+  | 'tone-analyzer'
+  | 'resume-optimizer'
+  | 'text-summarizer'
+  | 'passport-photo'
+  | 'meme-generator'
+  | 'headshot-generator'
+  | 'image-upscaler'
+  | 'mockup-generator'
+  | 'pdf-converter'
+  | 'pdf-form-filler'
+  | 'pdf-signer'
+  | 'uuid-generator'
+  | 'cron-builder'
+  | 'jwt-decoder'
+  | 'favicon-generator'
+  | 'gradient-generator'
+  | 'password-sharer'
+  | 'data-breach'
+  | 'checksum-verifier'
+  | 'age-calculator'
+  | 'loan-calculator'
+  | 'bmi-calculator';
 
 export interface JSONBeautifierState {
   rawInput: string;
