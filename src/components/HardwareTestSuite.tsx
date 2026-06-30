@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { logToolUsage } from '../utils/toolAnalytics';
+import { SEO_H1_MAPPING, SEO_DESC_MAPPING } from '../seo-mapping';
 
 export type HardwareTestTab = 'microphone-tester' | 'webcam-check' | 'speaker-tester';
 
@@ -375,13 +376,11 @@ export default function HardwareTestSuite({ initialTab = 'microphone-tester' }: 
         {/* Title row */}
         <div className="flex items-center justify-between border-b border-zinc-850 pb-3">
           <div>
-            <h3 className="font-heading text-lg font-bold text-white uppercase tracking-wider">
-              {activeTab === 'microphone-tester' ? 'Microphone Hardware Tester' :
-               activeTab === 'webcam-check' ? 'High Precision Webcam Check' :
-               'Speaker Frequency Tester'}
-            </h3>
+            <h1 className="font-heading text-lg sm:text-xl font-bold text-white uppercase tracking-wider">
+              {SEO_H1_MAPPING[activeTab] || (activeTab === 'microphone-tester' ? 'Free Online Microphone Tester' : activeTab === 'webcam-check' ? 'Free Webcam Check Online' : 'Free Speaker Test Online')}
+            </h1>
             <p className="font-sans text-xs text-zinc-400">
-              Audit hardware streams securely client-side in physical isolation.
+              {SEO_DESC_MAPPING[activeTab] || (activeTab === 'microphone-tester' ? 'Mic tester for Google Meet and Zoom with playback loopback and live decibel level charts' : activeTab === 'webcam-check' ? 'Check webcam resolution, aspect ratios, and camera lighting online with zero watermark' : 'Stereo speaker test left right channel sound, balance sweeps, and custom frequency sweeps')}
             </p>
           </div>
           <div className="flex items-center gap-2 px-2.5 py-1 bg-zinc-900 border border-zinc-850 rounded-lg text-[10px] font-mono text-zinc-400">

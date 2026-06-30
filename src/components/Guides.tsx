@@ -4,7 +4,8 @@ import {
   Terminal, Sparkles, User, Calendar, ExternalLink, ThumbsUp, 
   ChevronRight, ArrowLeft, Bookmark, Heart, Share2, MessageSquare,
   QrCode, FileCode, Wand2, Shield, Zap, TrendingUp,
-  Volume2, VolumeX, Pause, Play, Square, Eye, EyeOff
+  Volume2, VolumeX, Pause, Play, Square, Eye, EyeOff,
+  Download, Loader2
 } from 'lucide-react';
 import { ActiveTab } from '../types';
 import { viralArticles } from '../data/viralArticles';
@@ -351,6 +352,46 @@ export default function Guides({ onTabChange }: GuidesProps) {
       }
     }
     return '';
+  };
+
+  const [isDownloadingAudio, setIsDownloadingAudio] = useState(false);
+
+  const downloadNarratedAudio = async (article: Article) => {
+    try {
+      setIsDownloadingAudio(true);
+      const parsedText = extractTextFromNode(article.content);
+      const fullText = `${article.title}. Written by ${article.author}. ${article.excerpt}. ${parsedText}`;
+
+      const response = await fetch('/api/tts-download', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          text: fullText,
+          title: article.title
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate audio file from backend API.');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${article.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.mp3`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (error: any) {
+      console.error('Error downloading narrated audio:', error);
+      alert('Error generating or downloading narrated audio: ' + (error.message || error));
+    } finally {
+      setIsDownloadingAudio(false);
+    }
   };
 
   const speakArticle = (article: Article) => {
@@ -3073,6 +3114,23 @@ export default function Guides({ onTabChange }: GuidesProps) {
                       {r}x
                     </button>
                   ))}
+                </div>
+
+                {/* Download Audio MP3 Button */}
+                <div className="border-l border-zinc-900 ml-1.5 pl-1.5">
+                  <button
+                    onClick={() => downloadNarratedAudio(currentArticle)}
+                    disabled={isDownloadingAudio}
+                    className="px-2 py-1 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-350 hover:text-white rounded text-[9px] font-bold flex items-center gap-1 cursor-pointer transition-all disabled:opacity-50"
+                    title="Download narration as MP3 file"
+                  >
+                    {isDownloadingAudio ? (
+                      <Loader2 className="w-3 h-3 animate-spin text-brand" />
+                    ) : (
+                      <Download className="w-3 h-3 text-brand" />
+                    )}
+                    <span>{isDownloadingAudio ? "CREATING MP3..." : "DOWNLOAD AUDIO"}</span>
+                  </button>
                 </div>
               </div>
             </div>

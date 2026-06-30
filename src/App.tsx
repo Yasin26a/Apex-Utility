@@ -43,6 +43,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ActiveTab } from './types';
+import { SEO_H1_MAPPING, SEO_DESC_MAPPING } from './seo-mapping';
 import { useReadingScrollTracker } from './hooks/useReadingScrollTracker';
 import { useVoicePreference } from './hooks/useVoicePreference';
 import useSEOTags from './hooks/useSEOTags';
@@ -51,6 +52,7 @@ import { BrandingLogo } from './components/BrandingLogo';
 import { DEFAULT_CARDS } from './components/Dashboard';
 const WebPConverter = lazy(() => import('./components/WebPConverter'));
 const PDFJoiner = lazy(() => import('./components/PDFJoiner'));
+const PDFSplitter = lazy(() => import('./components/PDFSplitter'));
 const ContentPlanner = lazy(() => import('./components/ContentPlanner'));
 const VideoRecorder = lazy(() => import('./components/VideoRecorder'));
 import { Document as PDFDocumentView, Page as PDFPageView, pdfjs } from 'react-pdf';
@@ -244,6 +246,28 @@ const getArticleCover = (category: string, id: string): string => {
   return "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=800&q=80";
 };
 
+interface SEOPageHeaderProps {
+  tabId: ActiveTab;
+  category: string;
+  colorClass?: string;
+  defaultDesc?: string;
+}
+
+function SEOPageHeader({ tabId, category, colorClass = 'text-brand', defaultDesc }: SEOPageHeaderProps) {
+  const h1Text = SEO_H1_MAPPING[tabId] || tabId;
+  const descText = SEO_DESC_MAPPING[tabId] || defaultDesc || '';
+
+  return (
+    <div className="space-y-1 mb-6">
+      <span className={`text-[10px] font-mono font-bold tracking-widest ${colorClass} uppercase`}>{category}</span>
+      <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight font-sans">
+        {h1Text}
+      </h1>
+      {descText && <p className="text-slate-400 text-xs sm:text-sm">{descText}</p>}
+    </div>
+  );
+}
+
 export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -310,7 +334,7 @@ export default function App() {
   const [isGenerating, setIsGenerating] = useState(false);
 
   // PDF Optimizer States
-  const [pdfSubTab, setPdfSubTab] = useState<'optimize' | 'merge'>('optimize');
+  const [pdfSubTab, setPdfSubTab] = useState<'optimize' | 'merge' | 'split'>('optimize');
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [pdfPageCount, setPdfPageCount] = useState<number | null>(null);
   const [compressionIntensity, setCompressionIntensity] = useState<'standard' | 'balanced' | 'ultra'>('balanced');
@@ -3490,12 +3514,14 @@ Disallow:
                   <div className="space-y-1">
                     <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf1544] uppercase">Document &amp; Assets compliance</span>
                     <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">
-                      {pdfSubTab === 'optimize' ? 'PDF Document Optimizer' : 'PDF Document merger'}
+                      {pdfSubTab === 'optimize' ? 'PDF Document Optimizer' : pdfSubTab === 'merge' ? 'PDF Document merger' : 'PDF Document Splitter'}
                     </h2>
                     <p className="text-slate-400 text-xs sm:text-sm">
                       {pdfSubTab === 'optimize'
                         ? 'Clears tracking headers, compresses stream objects, and rebuilds file trees safely inside your browser thread.'
-                        : 'Arrange, rotate, duplicate, and merge multiple standalone PDF documents into a single integrated output.'}
+                        : pdfSubTab === 'merge'
+                        ? 'Arrange, rotate, duplicate, and merge multiple standalone PDF documents into a single integrated output.'
+                        : 'Split a large PDF document into individual page files or custom page ranges, packaged neatly in a compressed ZIP folder.'}
                     </p>
                   </div>
 
@@ -3519,6 +3545,16 @@ Disallow:
                       }`}
                     >
                       PDF Merge
+                    </button>
+                    <button
+                      onClick={() => setPdfSubTab('split')}
+                      className={`px-3.5 py-1.5 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
+                        pdfSubTab === 'split'
+                          ? 'bg-rose-505 bg-rose-600 text-white shadow-lg'
+                          : 'text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      PDF Split
                     </button>
                   </div>
                 </div>
@@ -4222,8 +4258,10 @@ Disallow:
                     </div>
                   </div>
                 </div>
-                ) : (
+                ) : pdfSubTab === 'merge' ? (
                   <PDFJoiner />
+                ) : (
+                  <PDFSplitter />
                 )}
               </motion.div>
             )}
@@ -5715,13 +5753,7 @@ Disallow:
                 className="space-y-6"
               >
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div className="space-y-1">
-                    <span className="text-[10px] font-mono font-bold tracking-widest text-cyan-400 uppercase">Live Media Sandbox</span>
-                    <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Screen Recorder &amp; Video Studio</h2>
-                    <p className="text-slate-400 text-xs sm:text-sm">
-                      Record raw displays, individual browser application windows, customized webcams and mic voices. Quantize, dither, and export back to fluid inline GIF/WebM files completely client-side.
-                    </p>
-                  </div>
+                  <SEOPageHeader tabId="video-recorder" category="Live Media Sandbox" colorClass="text-cyan-400" defaultDesc="Record raw displays, individual browser application windows, customized webcams and mic voices. Quantize, dither, and export back to fluid inline GIF/WebM files completely client-side." />
                   
                   <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-slate-900 border border-slate-850 rounded-xl">
                     <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
@@ -5741,15 +5773,7 @@ Disallow:
                 exit={{ opacity: 0, y: -15 }}
                 className="space-y-6"
               >
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div className="space-y-1">
-                    <span className="text-[10px] font-mono font-bold tracking-widest text-cyan-400 uppercase">Live Media Sandbox</span>
-                    <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Screen Recorder</h2>
-                    <p className="text-slate-400 text-xs sm:text-sm">
-                      Capture dedicated browser tabs, specific app windows, or your full desktop with internal and external audio tracks.
-                    </p>
-                  </div>
-                </div>
+                <SEOPageHeader tabId="screen-recorder" category="Live Media Sandbox" colorClass="text-cyan-400" defaultDesc="Online screen and audio recorder with no watermark – how to screen record on Chrome without extensions or lag." />
                 <VideoRecorder mode="screen" />
               </motion.div>
             )}
@@ -5762,15 +5786,7 @@ Disallow:
                 exit={{ opacity: 0, y: -15 }}
                 className="space-y-6"
               >
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div className="space-y-1">
-                    <span className="text-[10px] font-mono font-bold tracking-widest text-rose-400 uppercase">Live Media Sandbox</span>
-                    <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Webcam Recorder</h2>
-                    <p className="text-slate-400 text-xs sm:text-sm">
-                      Record raw high-definition video from connected cameras alongside synchronized microphone streams.
-                    </p>
-                  </div>
-                </div>
+                <SEOPageHeader tabId="webcam-recorder" category="Live Media Sandbox" colorClass="text-rose-400" defaultDesc="Record raw high-definition video from connected cameras with synchronized microphone streams and zero lag." />
                 <VideoRecorder mode="webcam" />
               </motion.div>
             )}

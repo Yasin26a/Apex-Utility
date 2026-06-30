@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { logToolUsage } from '../utils/toolAnalytics';
+import { SEO_H1_MAPPING, SEO_DESC_MAPPING } from '../seo-mapping';
 
 export type VideoStudioToolId = 
   | 'video-compressor'
@@ -362,6 +363,57 @@ export default function VideoStudioSuite({ initialTool = 'video-compressor' }: V
     { id: 'subtitle-converter', label: 'Subtitle Converter', icon: Type, desc: 'Convert SRT and VTT subtitle formats' }
   ];
 
+  const seoDetails: Record<VideoStudioToolId, { title: string; desc: string }> = {
+    'video-compressor': {
+      title: 'Free Online Video Compressor',
+      desc: 'Compress video online free with zero watermark. Set quality targets or compression ratios to easily fit files for Discord under 25MB.',
+    },
+    'video-resizer': {
+      title: 'Resize Video Online Free',
+      desc: 'Convert 16:9 videos to 9:16 vertical format online free. Easily crop videos for TikTok, Instagram Reels, and YouTube Shorts.',
+    },
+    'video-cutter': {
+      title: 'Cut Video Online Free',
+      desc: 'Trim video clips and cut segments online completely locally. High-precision video trimmer with timeline crop controls.',
+    },
+    'mute-video': {
+      title: 'Remove Audio from MP4 Online',
+      desc: 'Mute videos and remove audio tracks from MP4, WebM, and MKV files online free. Clean soundless clips processed entirely offline.',
+    },
+    'video-speed': {
+      title: 'Change Video Speed Online',
+      desc: 'Fast and slow motion video speed controller. Adjust playback speeds easily from slow 0.25x up to fast 4.0x.',
+    },
+    'video-rotator': {
+      title: 'Rotate Video 90 Degrees Online Free',
+      desc: 'Rotate and flip video clips 90, 180, or 270 degrees clockwise. Fix upside-down smartphone video orientations instantly.',
+    },
+    'video-merger': {
+      title: 'Video Merger Free',
+      desc: 'Combine multiple video clips into one file. Drag, order, and join video segments offline with premium export quality.',
+    },
+    'video-converter': {
+      title: 'Free Online Video Converter',
+      desc: 'Convert WebM to MP4 online free or transcode MOV to MP4, MKV, or other container formats safely in your browser.',
+    },
+    'video-to-gif': {
+      title: 'Video to GIF Maker',
+      desc: 'Turn video clips into looping GIFs online. Control resolution widths, frame rate buffers, and palette dither strategies.',
+    },
+    'video-to-mp3': {
+      title: 'Extract Audio from Video Online',
+      desc: 'Convert video to MP3 high bitrate online. Cleanly extract and download raw sound tracks from MP4 or WebM files.',
+    },
+    'audio-converter': {
+      title: 'Audio Format Converter',
+      desc: 'Transcode MP3, WAV, OGG, and M4A audio formats offline. Convert sampling rates and containers instantly.',
+    },
+    'subtitle-converter': {
+      title: 'SRT to VTT Subtitle Converter Online',
+      desc: 'Convert SRT subtitle tracks into standard WebVTT (VTT) or vice-versa with automated timeline adjustments.',
+    },
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
       {/* Sidebar Tool Chooser Panel */}
@@ -396,11 +448,11 @@ export default function VideoStudioSuite({ initialTool = 'video-compressor' }: V
       <div className="lg:col-span-9 bg-[#08080c] border border-brand-border/30 rounded-2xl p-6 shadow-xl space-y-6">
         <div className="flex items-center justify-between border-b border-zinc-850 pb-3">
           <div>
-            <h3 className="font-heading text-lg font-bold text-white uppercase tracking-wider">
-              {toolsList.find(t => t.id === activeTool)?.label}
-            </h3>
+            <h1 className="font-heading text-lg sm:text-xl font-bold text-white uppercase tracking-wider">
+              {SEO_H1_MAPPING[activeTool] || seoDetails[activeTool]?.title || toolsList.find(t => t.id === activeTool)?.label}
+            </h1>
             <p className="font-sans text-xs text-zinc-400">
-              {toolsList.find(t => t.id === activeTool)?.desc} (100% Secure & offline)
+              {SEO_DESC_MAPPING[activeTool] || seoDetails[activeTool]?.desc || toolsList.find(t => t.id === activeTool)?.desc} (100% Secure & offline)
             </p>
           </div>
           <div className="flex items-center gap-2 px-2.5 py-1 bg-zinc-900 border border-zinc-850 rounded-lg text-[10px] font-mono text-zinc-400">

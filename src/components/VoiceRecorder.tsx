@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { logToolUsage } from '../utils/toolAnalytics';
+import { SEO_H1_MAPPING, SEO_DESC_MAPPING } from '../seo-mapping';
 
 interface DeviceOption {
   deviceId: string;
@@ -312,11 +313,11 @@ export default function VoiceRecorder() {
             <Mic className="w-5 h-5 animate-pulse" />
           </div>
           <div>
-            <h3 className="font-heading text-lg font-bold text-white uppercase tracking-wider">
-              {language === 'es' ? 'Grabadora de Voz Offline' : 'Offline Voice Recorder'}
-            </h3>
+            <h1 className="font-heading text-lg sm:text-xl font-bold text-white uppercase tracking-wider">
+              {SEO_H1_MAPPING['voice-recorder']}
+            </h1>
             <p className="font-sans text-xs text-zinc-400">
-              {language === 'es' ? 'Graba tu voz localmente sin conexiones a Internet' : 'Record raw mic voice streams with live visual waveform level meters.'}
+              {SEO_DESC_MAPPING['voice-recorder']}
             </p>
           </div>
         </div>

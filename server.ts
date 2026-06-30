@@ -664,6 +664,103 @@ Instructions:
     }
   });
 
+  // Helper to chunk text safely for TTS requests (limit 200 chars)
+  function chunkText(text: string, maxLen: number = 200): string[] {
+    const sentences = text.match(/[^.!?]+[.!?]+(\s+|$)|[^.!?]+$/g) || [text];
+    const chunks: string[] = [];
+    let currentChunk = '';
+
+    for (const sentence of sentences) {
+      const trimmed = sentence.trim();
+      if (!trimmed) continue;
+
+      if ((currentChunk + ' ' + trimmed).length <= maxLen) {
+        currentChunk = currentChunk ? (currentChunk + ' ' + trimmed) : trimmed;
+      } else {
+        if (currentChunk) {
+          chunks.push(currentChunk);
+        }
+        // If a single sentence is extremely long, split it by spaces
+        if (trimmed.length > maxLen) {
+          const words = trimmed.split(/\s+/);
+          let wordChunk = '';
+          for (const word of words) {
+            if ((wordChunk + ' ' + word).length <= maxLen) {
+              wordChunk = wordChunk ? (wordChunk + ' ' + word) : word;
+            } else {
+              if (wordChunk) chunks.push(wordChunk);
+              wordChunk = word;
+            }
+          }
+          if (wordChunk) {
+            currentChunk = wordChunk;
+          } else {
+            currentChunk = '';
+          }
+        } else {
+          currentChunk = trimmed;
+        }
+      }
+    }
+    if (currentChunk) {
+      chunks.push(currentChunk);
+    }
+    return chunks;
+  }
+
+  // API Text-To-Speech audio download endpoint (concatenates audio streams into high-quality MP3)
+  app.post('/api/tts-download', async (req, res) => {
+    try {
+      const { text, title } = req.body;
+      if (!text || typeof text !== 'string') {
+        res.status(400).json({ error: 'Text content is required' });
+        return;
+      }
+
+      // Chunk the narration text to stay within Translate TTS API limits (safely below 200)
+      const chunks = chunkText(text, 180);
+      const buffers: Buffer[] = [];
+
+      // Limit length to avoid infinite/extremely long fetches (safely max out at 60 chunks)
+      const activeChunks = chunks.slice(0, 60);
+
+      for (const chunk of activeChunks) {
+        const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(chunk)}&tl=en&client=tw-ob`;
+        const response = await fetch(url, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+          }
+        });
+        if (!response.ok) {
+          throw new Error(`Failed to fetch TTS segment from provider (status ${response.status})`);
+        }
+        const arrayBuffer = await response.arrayBuffer();
+        buffers.push(Buffer.from(arrayBuffer));
+        
+        // Politeness delay to prevent rate-limiting triggers
+        await new Promise(resolve => setTimeout(resolve, 80));
+      }
+
+      if (buffers.length === 0) {
+        res.status(400).json({ error: 'No audio segments were successfully synthesized.' });
+        return;
+      }
+
+      const combinedBuffer = Buffer.concat(buffers);
+      const safeTitle = (title || 'narration')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+
+      res.setHeader('Content-Type', 'audio/mpeg');
+      res.setHeader('Content-Disposition', `attachment; filename="${safeTitle || 'narration'}.mp3"`);
+      res.send(combinedBuffer);
+    } catch (error: any) {
+      console.error('Error generating TTS download:', error);
+      res.status(500).json({ error: error.message || 'Failed to generate and synthesize audio download' });
+    }
+  });
+
   // API Summarize Article Endpoint using Gemini 3.5 Flash (3-bullet TL;DR summary)
   app.post('/api/summarize-article', async (req, res) => {
     try {

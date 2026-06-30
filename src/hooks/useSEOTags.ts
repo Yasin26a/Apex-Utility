@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { ActiveTab } from '../types';
 import { Article } from '../data/articles';
+import { SEO_H1_MAPPING, SEO_DESC_MAPPING } from '../seo-mapping';
 
 interface SEOHeaderContent {
   title: string;
@@ -1025,8 +1026,34 @@ export function injectCanonicalLink(url: string) {
 
 export default function useSEOTags(activeTab: ActiveTab, readingArticle?: Article | null) {
   useEffect(() => {
-    const meta = SEO_METADATA[activeTab as string];
-    if (!meta) return;
+    let meta = SEO_METADATA[activeTab as string];
+    if (!meta) {
+      const h1Title = SEO_H1_MAPPING[activeTab] || activeTab;
+      const cleanTitle = h1Title.includes('|') ? h1Title : `${h1Title} | Apex Swiss`;
+      const desc = SEO_DESC_MAPPING[activeTab] || `Free online developer, design, and SEO productivity utility. 100% private, client-side execution with zero trackers.`;
+      const fallbackKeywords = `${activeTab.replace(/-/g, ' ')}, free online tool, apex utility, client side wasm, offline tools`;
+      
+      meta = {
+        title: cleanTitle,
+        description: desc,
+        keywords: fallbackKeywords,
+        ogTitle: h1Title,
+        ogDescription: desc,
+        schema: {
+          "@context": "https://schema.org",
+          "@type": "WebApplication",
+          "name": h1Title,
+          "description": desc,
+          "applicationCategory": "Utility",
+          "operatingSystem": "All Platforms",
+          "offers": {
+            "@type": "Offer",
+            "price": "0.00",
+            "priceCurrency": "USD"
+          }
+        }
+      };
+    }
 
     let title = meta.title;
     let description = meta.description;
