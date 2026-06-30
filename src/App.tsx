@@ -39,7 +39,9 @@ import {
   WifiOff,
   Tag,
   Highlighter,
-  Share2
+  Share2,
+  Loader2,
+  CheckCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ActiveTab } from './types';
@@ -48,6 +50,14 @@ import { useReadingScrollTracker } from './hooks/useReadingScrollTracker';
 import { useVoicePreference } from './hooks/useVoicePreference';
 import useSEOTags from './hooks/useSEOTags';
 import { AT_LEAST_20_ARTICLES, Article } from './data/articles';
+import {
+  saveArticleForOffline,
+  deleteArticleFromOffline,
+  isArticleSavedOffline,
+  getSavedArticleIds,
+  getOfflineArticle,
+  getAllOfflineArticles
+} from './utils/offlineArticlesDB';
 import { BrandingLogo } from './components/BrandingLogo';
 import { DEFAULT_CARDS } from './components/Dashboard';
 const WebPConverter = lazy(() => import('./components/WebPConverter'));
@@ -707,6 +717,59 @@ export default function App() {
     }
   }, [bookmarkedIds]);
 
+  // Save for Offline States utilizing IndexedDB
+  const [savedOfflineIds, setSavedOfflineIds] = useState<string[]>([]);
+  const [offlineArticles, setOfflineArticles] = useState<{ article: Article, localCoverUrl?: string, savedAt: string }[]>([]);
+  const [isDeviceOffline, setIsDeviceOffline] = useState<boolean>(() => {
+    return typeof navigator !== 'undefined' ? !navigator.onLine : false;
+  });
+  const [isSavingOffline, setIsSavingOffline] = useState<boolean>(false);
+
+  // Sync / Load saved offline articles on mount and register connection status listeners
+  useEffect(() => {
+    const loadOfflineData = async () => {
+      try {
+        const ids = await getSavedArticleIds();
+        setSavedOfflineIds(ids);
+        const allSaved = await getAllOfflineArticles();
+        setOfflineArticles(allSaved);
+      } catch (err) {
+        console.error("Failed to load IndexedDB offline data", err);
+      }
+    };
+    loadOfflineData();
+
+    if (typeof window !== 'undefined') {
+      const handleOnline = () => {
+        setIsDeviceOffline(false);
+        loadOfflineData();
+      };
+      const handleOffline = () => {
+        setIsDeviceOffline(true);
+      };
+
+      window.addEventListener('online', handleOnline);
+      window.addEventListener('offline', handleOffline);
+
+      return () => {
+        window.removeEventListener('online', handleOnline);
+        window.removeEventListener('offline', handleOffline);
+      };
+    }
+    return () => {};
+  }, []);
+
+  const refreshOfflineList = async () => {
+    try {
+      const ids = await getSavedArticleIds();
+      setSavedOfflineIds(ids);
+      const allSaved = await getAllOfflineArticles();
+      setOfflineArticles(allSaved);
+    } catch (err) {
+      console.error("Failed to refresh offline articles", err);
+    }
+  };
+
   // Skeleton loader state for authoritative articles
   const [articlesLoading, setArticlesLoading] = useState<boolean>(true);
 
@@ -753,6 +816,28 @@ export default function App() {
     setBookmarkedIds(prev => 
       prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
     );
+  };
+
+  const handleToggleOffline = async (art: Article) => {
+    const isSaved = savedOfflineIds.includes(art.id);
+    setIsSavingOffline(true);
+    try {
+      if (isSaved) {
+        await deleteArticleFromOffline(art.id);
+        setShareToast("Article removed from offline storage.");
+      } else {
+        const coverUrl = getArticleCover(art.category, art.id);
+        await saveArticleForOffline(art, coverUrl);
+        setShareToast("Article saved successfully for offline reading!");
+      }
+      await refreshOfflineList();
+    } catch (err) {
+      console.error("Failed to toggle offline article", err);
+      setShareToast("Error accessing local offline database.");
+    } finally {
+      setIsSavingOffline(false);
+      setTimeout(() => setShareToast(null), 3500);
+    }
   };
 
   // Load page count dynamically for single PDF file optimizer
@@ -4389,26 +4474,63 @@ Disallow:
                   <div className="flex flex-wrap gap-1.5 justify-center md:justify-end w-full md:w-auto">
                     {[
                       'All',
+                      'Saved Offline',
                       'SEO & Indexing',
                       'Security & Privacy',
                       'Asset Optimization',
                       'AdSense & Monetization',
                       'Web Technology'
-                    ].map((cat) => (
-                      <button
-                        key={cat}
-                        onClick={() => setSelectedArticleCategory(cat)}
-                        className={`px-2.5 py-1.5 rounded-lg text-[10px] font-semibold border transition-all ${
-                          selectedArticleCategory === cat
-                            ? 'bg-rose-500/10 border-rose-500 text-rose-400 font-bold'
-                            : 'bg-slate-900/60 border-slate-850 text-slate-400 hover:text-slate-200'
-                        }`}
-                      >
-                        {cat}
-                      </button>
-                    ))}
+                    ].map((cat) => {
+                      const isOfflineTab = cat === 'Saved Offline';
+                      return (
+                        <button
+                          key={cat}
+                          onClick={() => setSelectedArticleCategory(cat)}
+                          className={`px-2.5 py-1.5 rounded-lg text-[10px] font-semibold border transition-all flex items-center gap-1 ${
+                            selectedArticleCategory === cat
+                              ? isOfflineTab
+                                ? 'bg-emerald-500/10 border-emerald-500 text-emerald-400 font-bold shadow-[0_0_8px_rgba(16,185,129,0.1)]'
+                                : 'bg-rose-500/10 border-rose-500 text-rose-400 font-bold'
+                              : isOfflineTab
+                              ? 'bg-slate-900/60 border-slate-850 text-emerald-500/80 hover:text-emerald-400 hover:border-emerald-500/30'
+                              : 'bg-slate-900/60 border-slate-850 text-slate-400 hover:text-slate-200'
+                          }`}
+                        >
+                          {isOfflineTab && <Wifi className="w-2.5 h-2.5" />}
+                          {cat}
+                          {isOfflineTab && ` (${savedOfflineIds.length})`}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
+
+                {/* Offline Device Banner */}
+                {isDeviceOffline && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-amber-500/10 border border-amber-500/20 text-amber-400 px-4 py-3 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3 text-xs mb-6 text-left"
+                  >
+                    <div className="flex items-center gap-2.5 text-left">
+                      <div className="p-1 bg-amber-500/20 rounded-lg animate-pulse shrink-0">
+                        <WifiOff className="w-4 h-4 text-amber-400" />
+                      </div>
+                      <div>
+                        <p className="font-bold">You are currently offline</p>
+                        <p className="text-amber-500/80 font-mono text-[10px]">Browsing cached guides. Live features like search and AI summaries are limited.</p>
+                      </div>
+                    </div>
+                    {selectedArticleCategory !== 'Saved Offline' && (
+                      <button
+                        onClick={() => setSelectedArticleCategory('Saved Offline')}
+                        className="px-3 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 rounded-lg font-bold border border-amber-500/30 transition-all text-[10px] uppercase tracking-wider shrink-0 cursor-pointer"
+                      >
+                        Show Saved Guides Only
+                      </button>
+                    )}
+                  </motion.div>
+                )}
 
                 {/* Base Grid Content & Checklist */}
                 <div className="space-y-12">
@@ -4451,7 +4573,10 @@ Disallow:
                         ))}
                       </div>
                     ) : AT_LEAST_20_ARTICLES.filter((art) => {
-                      const matchesCategory = selectedArticleCategory === 'All' || art.category === selectedArticleCategory;
+                      const matchesCategory = 
+                        selectedArticleCategory === 'All' || 
+                        (selectedArticleCategory === 'Saved Offline' && savedOfflineIds.includes(art.id)) ||
+                        art.category === selectedArticleCategory;
                       const matchesSearch = 
                         art.title.toLowerCase().includes(articleSearch.toLowerCase()) ||
                         art.summary.toLowerCase().includes(articleSearch.toLowerCase()) ||
@@ -4471,7 +4596,10 @@ Disallow:
                     ) : (
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 gap-y-10 text-left">
                         {AT_LEAST_20_ARTICLES.filter((art) => {
-                          const matchesCategory = selectedArticleCategory === 'All' || art.category === selectedArticleCategory;
+                          const matchesCategory = 
+                            selectedArticleCategory === 'All' || 
+                            (selectedArticleCategory === 'Saved Offline' && savedOfflineIds.includes(art.id)) ||
+                            art.category === selectedArticleCategory;
                           const matchesSearch = 
                         art.title.toLowerCase().includes(articleSearch.toLowerCase()) ||
                         art.summary.toLowerCase().includes(articleSearch.toLowerCase()) ||
@@ -4505,12 +4633,17 @@ Disallow:
                                 {/* Article Card Cover Photo */}
                                 <div className="w-full h-36 rounded-lg overflow-hidden border border-slate-900/60 relative mb-3.5 shrink-0">
                                   <img 
-                                    src={getArticleCover(art.category, art.id)} 
+                                    src={offlineArticles.find(r => r.article.id === art.id)?.localCoverUrl || getArticleCover(art.category, art.id)} 
                                     alt={art.title} 
                                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                     referrerPolicy="no-referrer"
                                   />
                                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent opacity-50" />
+                                  {savedOfflineIds.includes(art.id) && (
+                                    <div className="absolute top-2.5 right-2.5 bg-emerald-500/90 text-white backdrop-blur-sm px-2 py-0.5 rounded-md text-[9px] font-bold font-mono uppercase flex items-center gap-1 shadow-lg border border-emerald-400/30">
+                                      <Check className="w-2.5 h-2.5 stroke-[3]" /> Saved Offline
+                                    </div>
+                                  )}
                                 </div>
 
                                 <div className="flex justify-between items-center">
@@ -5219,7 +5352,7 @@ Disallow:
                         {/* 3. Cover Photo */}
                         <div className="w-full h-48 sm:h-80 rounded-xl overflow-hidden border border-slate-850/40 relative shadow-2xl group shrink-0">
                           <img 
-                            src={getArticleCover(readingArticle.category, readingArticle.id)} 
+                            src={offlineArticles.find(r => r.article.id === readingArticle.id)?.localCoverUrl || getArticleCover(readingArticle.category, readingArticle.id)} 
                             alt={readingArticle.title} 
                             className="w-full h-full object-cover group-hover:scale-[1.01] transition-transform duration-700 ease-out"
                             referrerPolicy="no-referrer"
@@ -5601,6 +5734,32 @@ Disallow:
                               ) : (
                                 <>
                                   <Bookmark className="w-3.5 h-3.5" /> Read Later
+                                </>
+                              )}
+                            </button>
+                            <button
+                              disabled={isSavingOffline}
+                              onClick={() => handleToggleOffline(readingArticle)}
+                              className={`flex-1 md:flex-initial py-2.5 px-4 rounded-lg text-xs font-bold transition-all inline-flex items-center justify-center gap-1.5 border ${
+                                savedOfflineIds.includes(readingArticle.id)
+                                  ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.15)]'
+                                  : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border-slate-805'
+                              } ${isSavingOffline ? 'opacity-70 cursor-not-allowed' : ''}`}
+                            >
+                              {isSavingOffline ? (
+                                <>
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-400" />
+                                  <span>Saving...</span>
+                                </>
+                              ) : savedOfflineIds.includes(readingArticle.id) ? (
+                                <>
+                                  <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />
+                                  <span>Offline Saved</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Wifi className="w-3.5 h-3.5 text-sky-400" />
+                                  <span>Save Offline</span>
                                 </>
                               )}
                             </button>

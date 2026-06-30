@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, useMotionValue, useTransform, useMotionTemplate, AnimatePresence } from 'motion/react';
 import { FileDown, Image, Sparkles, Braces, ArrowRight, ShieldCheck, Zap, Globe, Cpu, Clock, Download, CheckCircle, FileText, FileImage, Trash2, Camera, Loader2, Search, Copy, Check, Info, Activity, AlertCircle, Layers, ChevronLeft, ChevronRight, GripVertical, Minus, Plus, RotateCcw, Settings, ArrowLeft, Upload, Database, QrCode, Scale, FileCode, Sliders, GitPullRequest, LayoutGrid, List, Hash, Palette, Gauge, Binary, Regex, ArrowLeftRight, Shrink, Pin, Volume2, Mic, Eye, Video, PenTool, History, Type, Lock, ShieldAlert, TrendingUp, Heart } from 'lucide-react';
 import { ActiveTab } from '../types';
-import { AlignLeft, Crop, Calendar } from 'lucide-react';
+import { AlignLeft, Crop, Calendar, HelpCircle, ChevronDown, ChevronUp, X } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { getRecentOperations, getSessionDownloadUrl, RecentOperation } from '../utils/recentOperations';
 import DashboardCaptureModal from './DashboardCaptureModal';
@@ -1795,6 +1795,8 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
   const [recentOps, setRecentOps] = useState<RecentOperation[]>([]);
   const [isExporting, setIsExporting] = useState(false);
   const [isCaptureModalOpen, setIsCaptureModalOpen] = useState(false);
+  const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
+  const [faqSearchQuery, setFaqSearchQuery] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<'All' | 'PDF Compression' | 'WebP Conversion' | 'Image to PDF'>('All');
   const [toolSearch, setToolSearch] = useState('');
@@ -3596,6 +3598,273 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
           <div className="p-3 bg-zinc-950 rounded border border-zinc-900">
             <span className="text-zinc-500 block mb-1">Sitemap Priority Weights:</span>
             <span className="text-emerald-400 font-bold">1.0 / 0.8 Weekly</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Frequently Asked Questions (FAQ) Accordion */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "What is Apex Utility Labs?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Apex Utility Labs is a high-performance, client-side productivity workbench designed for developers, SEO professionals, and digital creators. It packs a rich suite of tools including high-fidelity PDF compression, rapid WebP converters, organic schema structures, secure sitemaps, robots.txt builders, and more—all operating in memory with strict, fully offline data safety."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How does the Sitemap Generator boost SEO?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Our XML Sitemap Generator builds dynamic maps of all public assets and priority landing routes. By declaring precise crawl-frequency directives and priority weight ratios, search engines (like Googlebot and Bingbot) can index your site faster and allocate crawl budgets with maximum efficiency."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Are my uploaded documents and files secure?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes, 100% of the conversions, compressions, image formatting, and data structures are processed locally inside your browser's private virtual memory using sandboxed WebAssembly and local RAM. Absolutely zero bytes of your content are ever sent to remote servers, securing absolute privacy."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How do I implement the generated robots.txt file?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Once our validator generates your custom crawler instructions, click download to retrieve the robots.txt file and deploy it in the root folder of your domain (e.g., yourdomain.com/robots.txt). It guides organic spiders perfectly while protecting sensitive admin pathways from rogue search index indexing."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Why should I convert images to WebP?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Converting heavy media templates to Google's specialized WebP format decreases overall image sizes by up to 80% without introducing visible noise. This directly accelerates your page loading speed, improves mobile Core Web Vitals, and helps satisfy Google's critical ranking metrics."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Can I use these tools completely offline?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Absolutely. Because Apex Utility Labs utilizes modern progressive caching techniques, once loaded, the entire dashboard and every utility module remains fully active and operational without requiring an active internet connection."
+                }
+              }
+            ]
+          })
+        }}
+      />
+      <div id="dashboard-faq-section" className="beveled-panel p-6 md:p-8 border-brand-border/30 bg-[#07070a]/60">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-900/60 pb-6 mb-8">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-brand/10 border border-brand/20">
+              <HelpCircle className="w-5 h-5 text-brand" />
+            </div>
+            <div>
+              <h3 className="font-heading text-base font-black text-white uppercase tracking-wider">Frequently Asked Questions</h3>
+              <p className="font-sans text-xs text-zinc-400 mt-0.5">Quick technical insights into search crawl indexation, sandbox execution, and offline tools.</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 text-[10px] font-mono text-zinc-500 bg-zinc-950/40 px-3 py-1.5 rounded-lg border border-zinc-900">
+            <span className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" />
+            <span>Search Compliance Live</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* Left Column: Custom Thematic Iconography Panels */}
+          <div className="lg:col-span-5 space-y-4">
+            <div className="text-xs font-mono uppercase tracking-widest text-zinc-500 mb-2 px-1">
+              Platform Pillars
+            </div>
+            
+            {/* Thematic Icon 1: Sandbox Privacy */}
+            <div className="group relative p-4 rounded-xl border border-zinc-900 bg-zinc-950/30 hover:bg-zinc-950/50 hover:border-brand/20 transition-all duration-300 flex gap-4 items-center overflow-hidden">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-brand/2 rounded-full blur-2xl group-hover:bg-brand/5 transition-all duration-300" />
+              <div className="flex-shrink-0 p-1.5 bg-zinc-950 rounded-xl border border-zinc-900/80 group-hover:border-brand/10 transition-colors">
+                <svg className="w-12 h-12 text-brand/80 group-hover:text-brand drop-shadow-[0_0_8px_rgba(239,68,68,0.25)] transition-all duration-300" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="15" y="15" width="70" height="70" rx="12" stroke="currentColor" strokeWidth="2" strokeDasharray="4 4" className="origin-center animate-[spin_120s_linear_infinite]" />
+                  <rect x="25" y="25" width="50" height="50" rx="8" stroke="currentColor" strokeWidth="1.5" />
+                  <path d="M50 35 V65 M35 50 H65" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                  <circle cx="50" cy="50" r="14" fill="#000" stroke="currentColor" strokeWidth="2" />
+                  <path d="M47 52 h6 v5 h-6 z M48.5 52 v-2 a1.5 1.5 0 0 1 3 0 v2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  <circle cx="15" cy="50" r="2.5" fill="currentColor" />
+                  <circle cx="85" cy="50" r="2.5" fill="currentColor" />
+                  <circle cx="50" cy="15" r="2.5" fill="currentColor" />
+                  <circle cx="50" cy="85" r="2.5" fill="currentColor" />
+                </svg>
+              </div>
+              <div>
+                <h4 className="font-heading text-xs font-bold text-zinc-100 uppercase tracking-wider group-hover:text-white transition-colors">100% Offline Sandbox</h4>
+                <p className="font-sans text-[11px] text-zinc-500 mt-1 leading-normal">WebAssembly compiles in your client-side virtual RAM. Zero file uploads or remote storage transits.</p>
+              </div>
+            </div>
+
+            {/* Thematic Icon 2: Crawler Engine */}
+            <div className="group relative p-4 rounded-xl border border-zinc-900 bg-zinc-950/30 hover:bg-zinc-950/50 hover:border-brand/20 transition-all duration-300 flex gap-4 items-center overflow-hidden">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-brand/2 rounded-full blur-2xl group-hover:bg-brand/5 transition-all duration-300" />
+              <div className="flex-shrink-0 p-1.5 bg-zinc-950 rounded-xl border border-zinc-900/80 group-hover:border-brand/10 transition-colors">
+                <svg className="w-12 h-12 text-brand/80 group-hover:text-brand drop-shadow-[0_0_8px_rgba(239,68,68,0.25)] transition-all duration-300" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="50" cy="50" r="32" stroke="currentColor" strokeWidth="1" strokeDasharray="3 3" />
+                  <circle cx="50" cy="50" r="18" stroke="currentColor" strokeWidth="1" />
+                  <circle cx="50" cy="18" r="3.5" fill="currentColor" />
+                  <circle cx="50" cy="82" r="3.5" fill="currentColor" />
+                  <circle cx="18" cy="50" r="3.5" fill="currentColor" />
+                  <circle cx="82" cy="50" r="3.5" fill="currentColor" />
+                  <line x1="50" y1="18" x2="50" y2="82" stroke="currentColor" strokeWidth="0.75" />
+                  <line x1="18" y1="50" x2="82" y2="50" stroke="currentColor" strokeWidth="0.75" />
+                  <line x1="50" y1="50" x2="72" y2="28" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="origin-center animate-[spin_8s_linear_infinite]" />
+                </svg>
+              </div>
+              <div>
+                <h4 className="font-heading text-xs font-bold text-zinc-100 uppercase tracking-wider group-hover:text-white transition-colors">SEO Crawl Optimization</h4>
+                <p className="font-sans text-[11px] text-zinc-500 mt-1 leading-normal">Deploy structured robots.txt and high-priority sitemap pathways compliant with Googlebot rules.</p>
+              </div>
+            </div>
+
+            {/* Thematic Icon 3: High-Performance Assets */}
+            <div className="group relative p-4 rounded-xl border border-zinc-900 bg-zinc-950/30 hover:bg-zinc-950/50 hover:border-brand/20 transition-all duration-300 flex gap-4 items-center overflow-hidden">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-brand/2 rounded-full blur-2xl group-hover:bg-brand/5 transition-all duration-300" />
+              <div className="flex-shrink-0 p-1.5 bg-zinc-950 rounded-xl border border-zinc-900/80 group-hover:border-brand/10 transition-colors">
+                <svg className="w-12 h-12 text-brand/80 group-hover:text-brand drop-shadow-[0_0_8px_rgba(239,68,68,0.25)] transition-all duration-300" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <line x1="10" y1="35" x2="30" y2="35" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="4 4" />
+                  <line x1="5" y1="50" x2="35" y2="50" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeDasharray="6 3" />
+                  <line x1="12" y1="65" x2="28" y2="65" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="2 2" />
+                  <path d="M45 50 L70 35 L82 50 L70 65 Z" fill="#000" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+                  <path d="M53 50 L70 39 L76 50 L70 61 Z" fill="currentColor" opacity="0.25" />
+                  <circle cx="82" cy="50" r="2.5" fill="currentColor" className="animate-pulse" />
+                </svg>
+              </div>
+              <div>
+                <h4 className="font-heading text-xs font-bold text-zinc-100 uppercase tracking-wider group-hover:text-white transition-colors">Media Speed Pipelines</h4>
+                <p className="font-sans text-[11px] text-zinc-500 mt-1 leading-normal">Reduce raw payload density. Elevate mobile PageSpeed scores and maximize core organic indexing.</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: Beautiful Accordion Grid */}
+          <div className="lg:col-span-7 space-y-4">
+            {/* FAQ Search Bar */}
+            <div className="relative mb-5">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <Search className="w-4 h-4 text-zinc-500" />
+              </span>
+              <input
+                type="text"
+                value={faqSearchQuery}
+                onChange={(e) => setFaqSearchQuery(e.target.value)}
+                placeholder="Search FAQs (e.g., offline, SEO, WebP, robots)..."
+                className="w-full pl-9 pr-9 py-2.5 bg-zinc-950/70 border border-zinc-900 focus:border-brand/40 rounded-xl font-sans text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none transition-all duration-200"
+              />
+              {faqSearchQuery && (
+                <button
+                  onClick={() => setFaqSearchQuery('')}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-zinc-500 hover:text-zinc-300 transition-colors"
+                  title="Clear search"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
+            {(() => {
+              const faqs = [
+                {
+                  id: 1,
+                  question: "What is Apex Utility Labs?",
+                  answer: "Apex Utility Labs is a high-performance, client-side productivity workbench designed for developers, SEO professionals, and digital creators. It packs a rich suite of tools including high-fidelity PDF compression, rapid WebP converters, organic schema structures, secure sitemaps, robots.txt builders, and more—all operating in memory with strict, fully offline data safety."
+                },
+                {
+                  id: 2,
+                  question: "How does the Sitemap Generator boost SEO?",
+                  answer: "Our XML Sitemap Generator builds dynamic maps of all public assets and priority landing routes. By declaring precise crawl-frequency directives and priority weight ratios, search engines (like Googlebot and Bingbot) can index your site faster and allocate crawl budgets with maximum efficiency."
+                },
+                {
+                  id: 3,
+                  question: "Are my uploaded documents and files secure?",
+                  answer: "Yes, 100% of the conversions, compressions, image formatting, and data structures are processed locally inside your browser's private virtual memory using sandboxed WebAssembly and local RAM. Absolutely zero bytes of your content are ever sent to remote servers, securing absolute privacy."
+                },
+                {
+                  id: 4,
+                  question: "How do I implement the generated robots.txt file?",
+                  answer: "Once our validator generates your custom crawler instructions, click download to retrieve the robots.txt file and deploy it in the root folder of your domain (e.g., yourdomain.com/robots.txt). It guides organic spiders perfectly while protecting sensitive admin pathways from rogue search index indexing."
+                },
+                {
+                  id: 5,
+                  question: "Why should I convert images to WebP?",
+                  answer: "Converting heavy media templates to Google's specialized WebP format decreases overall image sizes by up to 80% without introducing visible noise. This directly accelerates your page loading speed, improves mobile Core Web Vitals, and helps satisfy Google's critical ranking metrics."
+                },
+                {
+                  id: 6,
+                  question: "Can I use these tools completely offline?",
+                  answer: "Absolutely. Because Apex Utility Labs utilizes modern progressive caching techniques, once loaded, the entire dashboard and every utility module remains fully active and operational without requiring an active internet connection."
+                }
+              ];
+
+              const filtered = faqs.filter(
+                faq =>
+                  faq.question.toLowerCase().includes(faqSearchQuery.toLowerCase()) ||
+                  faq.answer.toLowerCase().includes(faqSearchQuery.toLowerCase())
+              );
+
+              if (filtered.length === 0) {
+                return (
+                  <div className="text-center py-10 px-4 rounded-xl border border-dashed border-zinc-900 bg-zinc-950/20">
+                    <Search className="w-8 h-8 text-zinc-700 mx-auto mb-2.5" />
+                    <p className="font-heading text-xs font-bold text-zinc-400 uppercase tracking-wider">No matching FAQs found</p>
+                    <p className="font-sans text-[11px] text-zinc-600 mt-1">Try adjusting your keywords or search query.</p>
+                  </div>
+                );
+              }
+
+              return filtered.map((faq) => {
+                const isOpen = expandedFaq === faq.id;
+                return (
+                  <div 
+                    key={faq.id}
+                    className="border border-zinc-900 hover:border-zinc-800/80 bg-zinc-950/45 rounded-xl transition-all duration-300 overflow-hidden"
+                  >
+                    <button
+                      onClick={() => setExpandedFaq(isOpen ? null : faq.id)}
+                      className="w-full flex items-center justify-between p-4 text-left font-heading text-sm font-semibold text-zinc-100 hover:text-white transition-colors cursor-pointer select-none"
+                    >
+                      <span className="flex items-center gap-2.5">
+                        <span className="font-mono text-[10px] text-zinc-500 font-bold bg-zinc-900 px-2 py-0.5 rounded border border-zinc-900">
+                          Q{faq.id}
+                        </span>
+                        <span>{faq.question}</span>
+                      </span>
+                      <div className="flex-shrink-0 p-1 rounded bg-zinc-900/50 text-zinc-400">
+                        {isOpen ? (
+                          <Minus className="w-3.5 h-3.5" />
+                        ) : (
+                          <Plus className="w-3.5 h-3.5" />
+                        )}
+                      </div>
+                    </button>
+
+                    <motion.div
+                      initial={false}
+                      animate={{ height: isOpen ? "auto" : 0 }}
+                      transition={{ duration: 0.25, ease: "easeInOut" }}
+                      className="overflow-hidden"
+                    >
+                      <div className="p-4 pt-0 border-t border-zinc-900/35 font-sans text-xs text-zinc-400 leading-relaxed bg-zinc-950/20">
+                        {faq.answer}
+                      </div>
+                    </motion.div>
+                  </div>
+                );
+              });
+            })()}
           </div>
         </div>
       </div>
