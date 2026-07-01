@@ -134,6 +134,9 @@ const GradientGenerator = lazy(() => import('./components/GradientGenerator'));
 const BentoGridComposer = lazy(() => import('./components/BentoGridComposer'));
 const PatternBlobGenerator = lazy(() => import('./components/PatternBlobGenerator'));
 const JSONNodeMap = lazy(() => import('./components/JSONNodeMap'));
+const BezierSpline = lazy(() => import('./components/BezierSpline'));
+const GlassBrutalistGenerator = lazy(() => import('./components/GlassBrutalistGenerator'));
+const RegexFlowchart = lazy(() => import('./components/RegexFlowchart'));
 const PasswordSharer = lazy(() => import('./components/PasswordSharer'));
 const DataBreachChecker = lazy(() => import('./components/DataBreachChecker'));
 const EXIFStripper = lazy(() => import('./components/EXIFStripper'));
@@ -2918,6 +2921,30 @@ Disallow:
               <motion.div key="json-node-map" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
                 <Suspense fallback={<div className="text-white font-mono text-xs">Loading JSON Spatial Canvas...</div>}>
                   <JSONNodeMap />
+                </Suspense>
+              </motion.div>
+            )}
+
+            {activeTab === 'bezier-spline' && (
+              <motion.div key="bezier-spline" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <Suspense fallback={<div className="text-white font-mono text-xs">Loading Bézier Spline Playground...</div>}>
+                  <BezierSpline />
+                </Suspense>
+              </motion.div>
+            )}
+
+            {activeTab === 'glass-brutalist' && (
+              <motion.div key="glass-brutalist" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <Suspense fallback={<div className="text-white font-mono text-xs">Loading CSS Glass &amp; Brutalism Generator...</div>}>
+                  <GlassBrutalistGenerator />
+                </Suspense>
+              </motion.div>
+            )}
+
+            {activeTab === 'regex-flowchart' && (
+              <motion.div key="regex-flowchart" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <Suspense fallback={<div className="text-white font-mono text-xs">Loading Regex Flowchart &amp; Sandbox...</div>}>
+                  <RegexFlowchart />
                 </Suspense>
               </motion.div>
             )}

@@ -104,6 +104,12 @@ export interface Translations {
     patternBlobDesc?: string;
     jsonNodeMap?: string;
     jsonNodeMapDesc?: string;
+    bezierSpline?: string;
+    bezierSplineDesc?: string;
+    glassBrutalist?: string;
+    glassBrutalistDesc?: string;
+    regexFlowchart?: string;
+    regexFlowchartDesc?: string;
   };
   settings: {
     title: string;
@@ -241,6 +247,12 @@ export const translations: Record<Language, Translations> = {
       patternBlobDesc: 'Generate custom organic liquid blobs, geometric patterns, or mesh textures with high-contrast SVG code export',
       jsonNodeMap: 'Spatial JSON Node Map & Canvas',
       jsonNodeMapDesc: 'Interactive 2D mind map node visualization for structured JSON arrays and nested telemetry payloads',
+      bezierSpline: 'Bézier Spline Playground & SVG Path Illustrator',
+      bezierSplineDesc: 'Interactive vector sandbox to draw cubic and quadratic Bézier splines directly on a live canvas with instant SVG path code exports',
+      glassBrutalist: 'CSS Glassmorphic & Neo-Brutalist Generator',
+      glassBrutalistDesc: 'Fine-tune modern translucent backdrops with glassmorphism or design high-impact retro elements with neo-brutalism layout codes',
+      regexFlowchart: 'Regex Flowchart & Visual Sandbox',
+      regexFlowchartDesc: 'Interactive 2D sequential railroad diagram parsing regex strings with group, lookahead, and quantifier illustration alongside a matching playground',
     },
     settings: {
       title: 'System Aesthetics',

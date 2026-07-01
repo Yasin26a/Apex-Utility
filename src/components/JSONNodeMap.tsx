@@ -120,6 +120,14 @@ export default function JSONNodeMap() {
   const [copiedType, setCopiedType] = useState<'json' | 'branch' | null>(null);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
 
+  // Force-Directed Layout physics states & refs
+  const [isForceLayout, setIsForceLayout] = useState<boolean>(false);
+  const [forcePositions, setForcePositions] = useState<Record<string, { x: number; y: number }>>({});
+  const velocitiesRef = useRef<Record<string, { vx: number; vy: number }>>({});
+  const draggedNodeIdRef = useRef<string | null>(null);
+  const dragNodeOffset = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [draggedNodeId, setDraggedNodeId] = useState<string | null>(null);
+
   // Parse JSON & build the initial flat node dictionary
   const parseJsonToNodes = (rawText: string) => {
     try {
@@ -255,10 +263,238 @@ export default function JSONNodeMap() {
     };
     
     assignCoords(rootId, 40, 50);
+
+    // If Force-directed layout is active, override with simulated force coordinates
+    if (isForceLayout) {
+      Object.keys(layoutNodes).forEach(id => {
+        if (forcePositions[id]) {
+          layoutNodes[id].x = forcePositions[id].x;
+          layoutNodes[id].y = forcePositions[id].y;
+        }
+      });
+    }
+
     return layoutNodes;
   };
 
   const computedNodes = getLayoutComputedNodes();
+
+  // Get currently visible node IDs
+  const getVisibleNodeIds = (): Set<string> => {
+    const visible = new Set<string>();
+    if (!nodes[rootId]) return visible;
+    
+    const traverse = (id: string) => {
+      visible.add(id);
+      const node = nodes[id];
+      if (node && !node.collapsed) {
+        node.childrenIds.forEach(traverse);
+      }
+    };
+    traverse(rootId);
+    return visible;
+  };
+
+  // Initialize force positions based on current tidy layout
+  const initializeForcePositions = () => {
+    const defaultNodes = getLayoutComputedNodes();
+    const newPositions: Record<string, { x: number; y: number }> = {};
+    const newVelocities: Record<string, { vx: number; vy: number }> = {};
+
+    Object.keys(nodes).forEach(id => {
+      const defaultNode = defaultNodes[id];
+      if (defaultNode) {
+        newPositions[id] = { x: defaultNode.x, y: defaultNode.y };
+      } else {
+        newPositions[id] = { x: Math.random() * 400 + 100, y: Math.random() * 300 + 100 };
+      }
+      newVelocities[id] = { vx: 0, vy: 0 };
+    });
+
+    setForcePositions(newPositions);
+    velocitiesRef.current = newVelocities;
+  };
+
+  // Toggle Force Directed simulation ON or OFF
+  const handleToggleForceLayout = () => {
+    if (!isForceLayout) {
+      initializeForcePositions();
+    }
+    setIsForceLayout(!isForceLayout);
+  };
+
+  // Run a single tick of force-directed layout physics
+  const runPhysicsTick = (
+    visibleIds: Set<string>,
+    currentPositions: Record<string, { x: number; y: number }>,
+    currentVelocities: Record<string, { vx: number; vy: number }>
+  ) => {
+    const nextPositions = { ...currentPositions };
+    const nextVelocities = { ...currentVelocities };
+
+    const ids = Array.from(visibleIds);
+    const defaultNodes = getLayoutComputedNodes();
+
+    // 1. Initialize positions/velocities for any new node that isn't yet tracked
+    ids.forEach(id => {
+      if (!nextPositions[id]) {
+        nextPositions[id] = { 
+          x: defaultNodes[id]?.x ?? (Math.random() * 400 + 100), 
+          y: defaultNodes[id]?.y ?? (Math.random() * 300 + 100) 
+        };
+      }
+      if (!nextVelocities[id]) {
+        nextVelocities[id] = { vx: 0, vy: 0 };
+      }
+    });
+
+    // Forces parameters
+    const idealLength = 220; // Ideal link spring length between connected parent/child
+    const springConstant = 0.05; // Spring force stiffness
+    const repelConstant = 180000; // Strong repulsive force to avoid node overlaps
+    const gravityConstant = 0.015; // Pull force to prevent nodes from drifting out of view
+    const damping = 0.85; // Air friction to stabilize node oscillations
+
+    // Gravitational anchor center coordinates
+    const centerX = 350;
+    const centerY = 280;
+
+    // Forces accumulators
+    const fx: Record<string, number> = {};
+    const fy: Record<string, number> = {};
+    ids.forEach(id => {
+      fx[id] = 0;
+      fy[id] = 0;
+    });
+
+    // A. Repulsive Force: push all pairs of nodes apart
+    for (let i = 0; i < ids.length; i++) {
+      const idA = ids[i];
+      const posA = nextPositions[idA];
+      if (!posA) continue;
+
+      for (let j = i + 1; j < ids.length; j++) {
+        const idB = ids[j];
+        const posB = nextPositions[idB];
+        if (!posB) continue;
+
+        const dx = posA.x - posB.x;
+        const dy = posA.y - posB.y;
+        const distSq = dx * dx + dy * dy + 1; // prevent divide-by-zero
+        const dist = Math.sqrt(distSq);
+
+        if (dist < 550) { // repel nodes within vicinity
+          const force = repelConstant / distSq;
+          const forceX = (dx / dist) * force;
+          const forceY = (dy / dist) * force;
+
+          fx[idA] += forceX;
+          fy[idA] += forceY;
+          fx[idB] -= forceX;
+          fy[idB] -= forceY;
+        }
+      }
+    }
+
+    // B. Spring Hooke's Law: pull connected parent & children nodes together
+    ids.forEach(id => {
+      const node = nodes[id];
+      if (!node) return;
+      
+      const posA = nextPositions[id];
+      if (!posA) return;
+
+      node.childrenIds.forEach(childId => {
+        if (!visibleIds.has(childId)) return;
+        const posB = nextPositions[childId];
+        if (!posB) return;
+
+        const dx = posB.x - posA.x;
+        const dy = posB.y - posA.y;
+        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+
+        const displacement = dist - idealLength;
+        const force = springConstant * displacement;
+        const forceX = (dx / dist) * force;
+        const forceY = (dy / dist) * force;
+
+        fx[id] += forceX;
+        fy[id] += forceY;
+        fx[childId] -= forceX;
+        fy[childId] -= forceY;
+      });
+    });
+
+    // C. Apply Gravity, velocity damping, and compute next coordinates
+    ids.forEach(id => {
+      // If node is currently being dragged by user mouse, pin it to cursor
+      if (id === draggedNodeIdRef.current) {
+        nextVelocities[id] = { vx: 0, vy: 0 };
+        return;
+      }
+
+      const pos = nextPositions[id];
+      if (!pos) return;
+
+      // Center gravity pull
+      const gX = (centerX - pos.x) * gravityConstant;
+      const gY = (centerY - pos.y) * gravityConstant;
+
+      fx[id] += gX;
+      fy[id] += gY;
+
+      // Update velocity with damping
+      const vel = nextVelocities[id] || { vx: 0, vy: 0 };
+      const vx = (vel.vx + fx[id]) * damping;
+      const vy = (vel.vy + fy[id]) * damping;
+
+      // Clamp max velocity for simulation stability
+      const speed = Math.sqrt(vx * vx + vy * vy);
+      const speedLimit = 35;
+      if (speed > speedLimit) {
+        nextVelocities[id] = {
+          vx: (vx / speed) * speedLimit,
+          vy: (vy / speed) * speedLimit
+        };
+      } else {
+        nextVelocities[id] = { vx, vy };
+      }
+
+      // Update coordinates
+      nextPositions[id] = {
+        x: pos.x + nextVelocities[id].vx,
+        y: pos.y + nextVelocities[id].vy
+      };
+    });
+
+    return { nextPositions, nextVelocities };
+  };
+
+  // Continuous animation loop for physics simulation
+  useEffect(() => {
+    if (!isForceLayout) return;
+
+    let animationId: number;
+
+    const tick = () => {
+      const visibleIds = getVisibleNodeIds();
+      setForcePositions(prevPositions => {
+        const { nextPositions, nextVelocities } = runPhysicsTick(
+          visibleIds,
+          prevPositions,
+          velocitiesRef.current
+        );
+        velocitiesRef.current = nextVelocities;
+        return nextPositions;
+      });
+      animationId = requestAnimationFrame(tick);
+    };
+
+    animationId = requestAnimationFrame(tick);
+    return () => {
+      cancelAnimationFrame(animationId);
+    };
+  }, [isForceLayout, nodes, rootId]);
 
   // Handle Search Queries (highlights matching nodes)
   useEffect(() => {
@@ -361,12 +597,62 @@ export default function JSONNodeMap() {
 
   // --- PAN & DRAG CANVAS CONTROLS ---
   const handleMouseDown = (e: React.MouseEvent) => {
+    const nodeCard = (e.target as HTMLElement).closest('.interactive-node-card');
+    if (nodeCard) {
+      const nodeId = nodeCard.getAttribute('data-node-id');
+      if (nodeId && isForceLayout) {
+        draggedNodeIdRef.current = nodeId;
+        setDraggedNodeId(nodeId);
+
+        // Get cursor coordinates relative to viewport canvas
+        const canvasRect = viewportRef.current?.getBoundingClientRect();
+        if (canvasRect) {
+          const mouseX = e.clientX - canvasRect.left;
+          const mouseY = e.clientY - canvasRect.top;
+
+          // Convert viewport cursor to canvas-space (accounting for pan & scale)
+          const canvasX = (mouseX - pan.x) / scale;
+          const canvasY = (mouseY - pan.y) / scale;
+
+          // Find current position of the node
+          const layoutPos = computedNodes[nodeId];
+          if (layoutPos) {
+            dragNodeOffset.current = {
+              x: canvasX - layoutPos.x,
+              y: canvasY - layoutPos.y
+            };
+          }
+        }
+        return;
+      }
+    }
+
     if ((e.target as HTMLElement).closest('.interactive-node-card')) return;
     setIsDragging(true);
     dragStart.current = { x: e.clientX - pan.x, y: e.clientY - pan.y };
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
+    if (draggedNodeIdRef.current && isForceLayout) {
+      const canvasRect = viewportRef.current?.getBoundingClientRect();
+      if (canvasRect) {
+        const mouseX = e.clientX - canvasRect.left;
+        const mouseY = e.clientY - canvasRect.top;
+
+        const canvasX = (mouseX - pan.x) / scale;
+        const canvasY = (mouseY - pan.y) / scale;
+
+        const nextX = canvasX - dragNodeOffset.current.x;
+        const nextY = canvasY - dragNodeOffset.current.y;
+
+        setForcePositions(prev => ({
+          ...prev,
+          [draggedNodeIdRef.current!]: { x: nextX, y: nextY }
+        }));
+      }
+      return;
+    }
+
     if (!isDragging) return;
     setPan({
       x: e.clientX - dragStart.current.x,
@@ -376,6 +662,10 @@ export default function JSONNodeMap() {
 
   const handleMouseUp = () => {
     setIsDragging(false);
+    if (draggedNodeIdRef.current) {
+      draggedNodeIdRef.current = null;
+      setDraggedNodeId(null);
+    }
   };
 
   const handleWheelZoom = (e: React.WheelEvent) => {
@@ -640,7 +930,7 @@ export default function JSONNodeMap() {
             </div>
 
             {/* Global Tree Expand Controllers */}
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <button
                 onClick={() => setAllCollapseState(false)}
                 className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors text-slate-300"
@@ -652,6 +942,21 @@ export default function JSONNodeMap() {
                 className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors text-slate-300"
               >
                 <EyeOff className="w-3.5 h-3.5 text-rose-400" /> Collapse All
+              </button>
+
+              {/* Force Auto-Layout physics engine switch */}
+              <button
+                onClick={handleToggleForceLayout}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all border ${
+                  isForceLayout
+                    ? 'bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border-emerald-500/40 shadow-lg shadow-emerald-500/10'
+                    : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-white/5'
+                }`}
+                title="Toggle spring-force-directed auto-layout model with live physics interaction"
+              >
+                <Sliders className={`w-3.5 h-3.5 ${isForceLayout ? 'animate-spin text-emerald-400' : ''}`} />
+                <span>Force Auto-Layout</span>
+                <span className={`inline-block w-2 h-2 rounded-full ${isForceLayout ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500'}`} />
               </button>
             </div>
 
@@ -733,28 +1038,41 @@ export default function JSONNodeMap() {
                       if (!child) return null;
 
                       // Start coordinate coordinates
-                      const startX = node.x + node.width;
-                      const startY = node.y + node.height / 2;
+                      let startX = node.x + node.width;
+                      let startY = node.y + node.height / 2;
                       // Target coordinates
-                      const endX = child.x;
-                      const endY = child.y + child.height / 2;
+                      let endX = child.x;
+                      let endY = child.y + child.height / 2;
 
-                      // Create beautiful cubic bezier paths
-                      const cp1x = startX + 60;
-                      const cp2x = endX - 60;
+                      if (isForceLayout) {
+                        // Center-to-Center coordinates for fluid force lines
+                        startX = node.x + node.width / 2;
+                        startY = node.y + node.height / 2;
+                        endX = child.x + child.width / 2;
+                        endY = child.y + child.height / 2;
+                      }
+
+                      // Create beautiful paths
+                      const cp1x = isForceLayout ? startX + (endX - startX) * 0.25 : startX + 60;
+                      const cp1y = isForceLayout ? startY + (endY - startY) * 0.25 : startY;
+                      const cp2x = isForceLayout ? endX - (endX - startX) * 0.25 : endX - 60;
+                      const cp2y = isForceLayout ? endY - (endY - startY) * 0.25 : endY;
                       
                       const isHighlightedPath = highlightedNodes.has(child.id) || highlightedNodes.has(node.id);
+
+                      const pathD = isForceLayout 
+                        ? `M ${startX} ${startY} L ${endX} ${endY}`
+                        : `M ${startX} ${startY} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${endX} ${endY}`;
 
                       return (
                         <path
                           key={`${node.id}-${child.id}`}
-                          d={`M ${startX} ${startY} C ${cp1x} ${startY}, ${cp2x} ${endY}, ${endX} ${endY}`}
+                          d={pathD}
                           fill="none"
                           stroke={isHighlightedPath ? '#fbbf24' : '#1e293b'}
                           strokeWidth={isHighlightedPath ? 2.5 : 1.5}
-                          strokeDasharray={isHighlightedPath ? 'none' : 'none'}
                           opacity={isHighlightedPath ? 0.9 : 0.6}
-                          className="transition-all duration-300"
+                          className={isForceLayout ? '' : 'transition-all duration-300'}
                         />
                       );
                     });
@@ -771,7 +1089,7 @@ export default function JSONNodeMap() {
                 return (
                   <div
                     key={node.id}
-                    className="absolute transition-all duration-300"
+                    className={`absolute ${isForceLayout ? '' : 'transition-all duration-300'}`}
                     style={{
                       left: `${node.x}px`,
                       top: `${node.y}px`,
@@ -781,6 +1099,7 @@ export default function JSONNodeMap() {
                   >
                     <div
                       onClick={() => handleFocusNode(node)}
+                      data-node-id={node.id}
                       className={`interactive-node-card select-none group w-full h-full bg-[#0d1527]/95 border-2 rounded-xl p-2 flex flex-col justify-between transition-all duration-200 hover:scale-[1.03] cursor-pointer hover:shadow-lg ${
                         colors.border
                       } ${isSelected ? 'ring-2 ring-indigo-500 border-indigo-400' : ''} ${

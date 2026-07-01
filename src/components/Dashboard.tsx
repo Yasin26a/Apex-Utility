@@ -249,6 +249,45 @@ export const DEFAULT_CARDS: DashboardCard[] = [
     heightLevel: 2
   },
   {
+    id: 'bezier-spline',
+    title: 'Bézier Spline Playground',
+    desc: 'Interactive vector sandbox where you place control anchors to draw cubic and quadratic Bézier splines directly on a live canvas with instant SVG path code export.',
+    tagline: '"bezier spline playground, vector anchor pen tool, svg path exporter"',
+    category: 'Developer Operations',
+    categoryIcon: 'Braces',
+    cardIcon: 'PenTool',
+    textClass: 'text-amber-400',
+    buttonLabel: 'Open Spline Sandbox',
+    colSpan: 1,
+    heightLevel: 2
+  },
+  {
+    id: 'glass-brutalist',
+    title: 'CSS Glass & Brutalism Generator',
+    desc: 'Fine-tune modern translucent backdrops with glassmorphism blurs and glows, or design high-impact retro elements with neo-brutalism thick solid borders.',
+    tagline: '"css glassmorphism generator, neo-brutalist design playground, tailwind class exporter"',
+    category: 'Developer Operations',
+    categoryIcon: 'Braces',
+    cardIcon: 'Palette',
+    textClass: 'text-teal-400',
+    buttonLabel: 'Open CSS Designer',
+    colSpan: 1,
+    heightLevel: 2
+  },
+  {
+    id: 'regex-flowchart',
+    title: 'Regex Flowchart & Visual Sandbox',
+    desc: 'Parse regular expression patterns on-the-fly and generate 2D sequential railroad diagrams illustrating groups, character sets, capture classes, lookarounds, and quantifiers.',
+    tagline: '"regex railroad diagram generator, regex sandbox tester, interactive syntax visualizer"',
+    category: 'Developer Operations',
+    categoryIcon: 'Braces',
+    cardIcon: 'Regex',
+    textClass: 'text-emerald-400',
+    buttonLabel: 'Open Regex Visualizer',
+    colSpan: 1,
+    heightLevel: 2
+  },
+  {
     id: 'ai-writer',
     title: 'Apex AI Content Writer',
     desc: 'Draft publications, articles, formal emails, or markdown instantly and refine their structure using Gemini.',

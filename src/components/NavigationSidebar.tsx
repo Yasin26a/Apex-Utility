@@ -321,6 +321,9 @@ export default function NavigationSidebar({ activeTab, onTabChange, isMobileOpen
     { id: 'bento-grid' as ActiveTab, label: 'Bento Grid Composer', icon: LayoutGrid, description: 'Design custom visual bento portfolio layouts with instant CSS/Tailwind exports' },
     { id: 'pattern-blob' as ActiveTab, label: 'SVG Pattern & Blob Studio', icon: Layers, description: 'Create organic liquid blobs, custom abstract noise meshes, and geometric tiles' },
     { id: 'json-node-map' as ActiveTab, label: t.navigation.jsonNodeMap || 'JSON Spatial Canvas', icon: Network, description: t.navigation.jsonNodeMapDesc || 'Interactive 2D mind map node visualization for structured JSON data' },
+    { id: 'bezier-spline' as ActiveTab, label: t.navigation.bezierSpline || 'Bézier Spline Playground', icon: PenTool, description: t.navigation.bezierSplineDesc || 'Interactive vector sandbox to draw cubic and quadratic Bézier splines with SVG path code export' },
+    { id: 'glass-brutalist' as ActiveTab, label: t.navigation.glassBrutalist || 'CSS Glass & Brutalism', icon: Palette, description: t.navigation.glassBrutalistDesc || 'Fine-tune translucent backdrops or design high-impact neo-brutalist retro cards' },
+    { id: 'regex-flowchart' as ActiveTab, label: t.navigation.regexFlowchart || 'Regex Flowchart Studio', icon: Regex, description: t.navigation.regexFlowchartDesc || 'Interactive 2D sequential railroad diagram & regular expression playground' },
   ];
 
   return (

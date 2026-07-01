@@ -97,6 +97,9 @@ export const SEO_H1_MAPPING: Record<ActiveTab, string> = {
   'bento-grid': 'Free Modern Bento Grid Composer & Layout Builder',
   'pattern-blob': 'Free Interactive SVG Pattern & Blob Generator',
   'json-node-map': 'Free Spatial JSON Node Map & Interactive Visual Canvas',
+  'bezier-spline': 'Free Bézier Spline Playground & SVG Path Illustrator',
+  'glass-brutalist': 'Free CSS Glassmorphic & Neo-Brutalist Layout Generator',
+  'regex-flowchart': 'Free Interactive Regex Flowchart & Visual Sandbox Generator',
 };
 
 export const SEO_DESC_MAPPING: Partial<Record<ActiveTab, string>> = {
@@ -121,4 +124,7 @@ export const SEO_DESC_MAPPING: Partial<Record<ActiveTab, string>> = {
   'bento-grid': 'Build and preview ultra-modern Bento Grid portfolio layout options, customize column and row spans, backgrounds, borders, and copy responsive code.',
   'pattern-blob': 'Generate stunning geometric tile patterns, organic liquid vectors, or noise-textured meshes. Customize waves, complexity, colors, and download clean SVG code or high-res PNGs.',
   'json-node-map': 'Visualize complex JSON objects as interactive 2D node networks. Drill down, expand, collapse nested keys or arrays, search nodes, and export clean graphics or formatted code.',
+  'bezier-spline': 'Interactive vector sandbox where you click to place control anchors, manipulating cubic and quadratic Bézier splines directly on a live canvas with instant SVG path code export.',
+  'glass-brutalist': 'Fine-tune translucent glassmorphic card elements with custom backdrop blurs and glows, or design neo-brutalist retro cards with thick black offset borders.',
+  'regex-flowchart': 'Parse regular expressions on-the-fly to generate interactive 2D sequential railroad diagrams/flowcharts, and test patterns against live strings inside a visual matches playground.',
 };

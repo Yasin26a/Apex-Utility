@@ -94,7 +94,10 @@ export type ActiveTab =
   | 'speaker-tester'
   | 'bento-grid'
   | 'pattern-blob'
-  | 'json-node-map';
+  | 'json-node-map'
+  | 'bezier-spline'
+  | 'glass-brutalist'
+  | 'regex-flowchart';
 
 export interface JSONBeautifierState {
   rawInput: string;
