@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutGrid, FileText, Image as ImageIcon, FileImage, Braces, Globe, Terminal, ShieldCheck, Settings, Search, Layers, Monitor, Trash2, Plus, Check, X, Sparkles, Download, Upload, QrCode, Scale, FileCode, Sliders, GitPullRequest, Hash, Palette, Gauge, Binary, Regex, ArrowLeftRight, Shrink, Database, Volume2, Mic, Eye, Video, PenTool, VolumeX, Music, Type, AlignLeft, Crop, Calendar, Scissors, Maximize, Camera, RotateCw, Film } from 'lucide-react';
+import { LayoutGrid, FileText, Image as ImageIcon, FileImage, Braces, Globe, Terminal, ShieldCheck, Settings, Search, Layers, Monitor, Trash2, Plus, Check, X, Sparkles, Download, Upload, QrCode, Scale, FileCode, Sliders, GitPullRequest, Hash, Palette, Gauge, Binary, Regex, ArrowLeftRight, Shrink, Database, Volume2, Mic, Eye, Video, PenTool, VolumeX, Music, Type, AlignLeft, Crop, Calendar, Scissors, Maximize, Camera, RotateCw, Film, Network } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ActiveTab } from '../types';
 import { useLanguage } from '../context/LanguageContext';
@@ -310,6 +310,17 @@ export default function NavigationSidebar({ activeTab, onTabChange, isMobileOpen
     { id: 'microphone-tester' as ActiveTab, label: 'Microphone Tester', icon: Mic, description: 'Check mic capture levels with dB meter' },
     { id: 'webcam-check' as ActiveTab, label: 'Webcam Check', icon: Video, description: 'Check resolutions and snap photos' },
     { id: 'speaker-tester' as ActiveTab, label: 'Speaker Tester', icon: Volume2, description: 'Stereo balance and frequency sweeps' },
+    { id: 'passport-photo' as ActiveTab, label: t.navigation.passportPhoto || 'Passport Photo Maker', icon: Camera, description: t.navigation.passportPhotoDesc || 'Create print-ready US, UK, EU, or India passport size photos instantly' },
+    { id: 'meme-generator' as ActiveTab, label: t.navigation.memeGenerator || 'Meme Studio', icon: Palette, description: t.navigation.memeGeneratorDesc || 'Add custom captions to classic and trending meme canvases fully offline' },
+    { id: 'headshot-generator' as ActiveTab, label: t.navigation.headshotGenerator || 'AI Headshot Studio', icon: Sparkles, description: t.navigation.headshotGeneratorDesc || 'Generate professional corporate headshots or unique visual avatars via AI' },
+    { id: 'image-upscaler' as ActiveTab, label: t.navigation.imageUpscaler || 'AI Image Upscaler', icon: Maximize, description: t.navigation.imageUpscalerDesc || 'Enhance photo resolution up to 4x cleanly without pixel noise' },
+    { id: 'mockup-generator' as ActiveTab, label: t.navigation.mockupGenerator || 'Mockup & Device Frames', icon: Monitor, description: t.navigation.mockupGeneratorDesc || 'Wrap screenshots in beautiful 3D device frames and laptop mockups' },
+    { id: 'pdf-converter' as ActiveTab, label: t.navigation.pdfConverter || 'PDF ⇄ Word Converter', icon: FileText, description: t.navigation.pdfConverterDesc || 'Convert text vectors from PDF to editable Word or Excel on the fly' },
+    { id: 'pdf-form-filler' as ActiveTab, label: t.navigation.pdfFormFiller || 'PDF Form Filler', icon: Sliders, description: t.navigation.pdfFormFillerDesc || 'Type text directly into standard interactive form fields and checkboxes' },
+    { id: 'pdf-signer' as ActiveTab, label: t.navigation.pdfSigner || 'PDF E-Signature & Sealer', icon: PenTool, description: t.navigation.pdfSignerDesc || 'Draw, type, or upload custom signatures securely onto PDF documents' },
+    { id: 'bento-grid' as ActiveTab, label: 'Bento Grid Composer', icon: LayoutGrid, description: 'Design custom visual bento portfolio layouts with instant CSS/Tailwind exports' },
+    { id: 'pattern-blob' as ActiveTab, label: 'SVG Pattern & Blob Studio', icon: Layers, description: 'Create organic liquid blobs, custom abstract noise meshes, and geometric tiles' },
+    { id: 'json-node-map' as ActiveTab, label: t.navigation.jsonNodeMap || 'JSON Spatial Canvas', icon: Network, description: t.navigation.jsonNodeMapDesc || 'Interactive 2D mind map node visualization for structured JSON data' },
   ];
 
   return (

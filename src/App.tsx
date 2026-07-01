@@ -41,7 +41,8 @@ import {
   Highlighter,
   Share2,
   Loader2,
-  CheckCircle
+  CheckCircle,
+  Mail
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ActiveTab } from './types';
@@ -130,6 +131,9 @@ const CronBuilder = lazy(() => import('./components/CronBuilder'));
 const JWTDecoder = lazy(() => import('./components/JWTDecoder'));
 const FaviconGenerator = lazy(() => import('./components/FaviconGenerator'));
 const GradientGenerator = lazy(() => import('./components/GradientGenerator'));
+const BentoGridComposer = lazy(() => import('./components/BentoGridComposer'));
+const PatternBlobGenerator = lazy(() => import('./components/PatternBlobGenerator'));
+const JSONNodeMap = lazy(() => import('./components/JSONNodeMap'));
 const PasswordSharer = lazy(() => import('./components/PasswordSharer'));
 const DataBreachChecker = lazy(() => import('./components/DataBreachChecker'));
 const EXIFStripper = lazy(() => import('./components/EXIFStripper'));
@@ -2894,6 +2898,30 @@ Disallow:
               </motion.div>
             )}
 
+            {activeTab === 'bento-grid' && (
+              <motion.div key="bento-grid" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <Suspense fallback={<div className="text-white font-mono text-xs">Loading Bento Grid Composer...</div>}>
+                  <BentoGridComposer />
+                </Suspense>
+              </motion.div>
+            )}
+
+            {activeTab === 'pattern-blob' && (
+              <motion.div key="pattern-blob" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <Suspense fallback={<div className="text-white font-mono text-xs">Loading SVG Pattern &amp; Blob Studio...</div>}>
+                  <PatternBlobGenerator />
+                </Suspense>
+              </motion.div>
+            )}
+
+            {activeTab === 'json-node-map' && (
+              <motion.div key="json-node-map" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+                <Suspense fallback={<div className="text-white font-mono text-xs">Loading JSON Spatial Canvas...</div>}>
+                  <JSONNodeMap />
+                </Suspense>
+              </motion.div>
+            )}
+
             {activeTab === 'meme-generator' && (
               <motion.div key="meme-generator" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
                 <div className="space-y-1">
@@ -5254,6 +5282,137 @@ Disallow:
                           </div>
                         </div>
 
+                        {/* 2.5. Audio Narration TTS Control Panel */}
+                        <div className={`p-4 rounded-xl border flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between text-xs transition-colors duration-200 ${
+                          readTheme === 'sepia'
+                            ? 'bg-[#1a1412] border-[#ece4db]/10 text-[#ece4db]'
+                            : readTheme === 'parchment'
+                            ? 'bg-stone-50 border border-stone-200 text-stone-900 shadow-sm'
+                            : 'bg-slate-900/40 border border-slate-850 text-slate-100'
+                        }`}>
+                          {/* Left controls: Play/Pause/Stop and Voice Selector */}
+                          <div className="flex flex-wrap items-center gap-3">
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              <span className="relative flex h-2 w-2">
+                                {isSpeaking && !isPaused && (
+                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                                )}
+                                <span className={`relative inline-flex rounded-full h-2 w-2 ${
+                                  isSpeaking && !isPaused ? 'bg-rose-500' : 'bg-slate-500'
+                                }`}></span>
+                              </span>
+                              <span className={`text-[10px] font-mono uppercase font-bold tracking-wider ${
+                                readTheme === 'parchment' ? 'text-stone-500' : 'text-slate-400'
+                              }`}>Narration:</span>
+                            </div>
+
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              {/* Play / Pause button */}
+                              <button
+                                onClick={handleToggleSpeak}
+                                className={`px-2.5 py-1.5 rounded-lg font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer text-[10.5px] ${
+                                  isSpeaking && !isPaused
+                                    ? 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 border border-amber-500/20'
+                                    : readTheme === 'parchment'
+                                    ? 'bg-rose-600 hover:bg-rose-700 text-white shadow-sm'
+                                    : 'bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20'
+                                }`}
+                                title={isSpeaking && !isPaused ? "Pause Narration" : "Start Narration"}
+                              >
+                                {isSpeaking && !isPaused ? (
+                                  <>
+                                    <Pause className="w-3 h-3" />
+                                    <span>Pause</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Play className="w-3 h-3 fill-current" />
+                                    <span>{isPaused ? "Resume" : "Speak Guide"}</span>
+                                  </>
+                                )}
+                              </button>
+
+                              {/* Stop Button */}
+                              {(isSpeaking || isPaused) && (
+                                <button
+                                  onClick={handleStopSpeak}
+                                  className={`px-2.5 py-1.5 rounded-lg font-bold transition-all flex items-center justify-center gap-1 cursor-pointer text-[10.5px] ${
+                                    readTheme === 'parchment'
+                                      ? 'bg-stone-200 hover:bg-stone-300 text-stone-900 border border-stone-300'
+                                      : 'bg-slate-950 hover:bg-slate-900 text-slate-400 border border-slate-800'
+                                  }`}
+                                  title="Stop Narration"
+                                >
+                                  <Square className="w-3 h-3 fill-current" />
+                                  <span>Stop</span>
+                                </button>
+                              )}
+                            </div>
+
+                            {/* Voice selector */}
+                            {availableVoices.length > 0 && (
+                              <div className="flex items-center gap-1 shrink-0">
+                                <select
+                                  value={selectedVoiceName || ''}
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    setSelectedVoiceName(val);
+                                    if (isSpeaking || isPaused) {
+                                      setTimeout(() => {
+                                        handleStopSpeak();
+                                        setTimeout(() => {
+                                          handleToggleSpeak();
+                                        }, 100);
+                                      }, 50);
+                                    }
+                                  }}
+                                  className={`px-2 py-1.5 rounded-lg text-[10px] font-sans font-semibold outline-none border cursor-pointer max-w-[150px] sm:max-w-[200px] truncate ${
+                                    readTheme === 'parchment'
+                                      ? 'bg-stone-50 border-stone-250 text-stone-900'
+                                      : 'bg-slate-950 border-slate-800 text-slate-300'
+                                  }`}
+                                >
+                                  <option value="">Default Voice</option>
+                                  {availableVoices.map((voice) => (
+                                    <option key={voice.name} value={voice.name}>
+                                      {voice.name.replace('Microsoft', '').replace('Google', '').trim()} ({voice.lang})
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Right control: Speech Rate Speed Slider */}
+                          <div className="flex items-center gap-3 w-full md:w-auto md:max-w-xs flex-1 justify-end mt-2 md:mt-0">
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              <Volume2 className={`w-3.5 h-3.5 ${isSpeaking && !isPaused ? 'text-rose-400 animate-pulse' : 'text-slate-400'}`} />
+                              <span className={`text-[10px] font-mono uppercase font-bold tracking-wider ${
+                                readTheme === 'parchment' ? 'text-stone-500' : 'text-slate-400'
+                              }`}>Speed:</span>
+                              <span className="font-mono font-bold text-rose-500 text-xs w-9 text-right shrink-0">{speechRate.toFixed(1)}x</span>
+                            </div>
+
+                            <input
+                              type="range"
+                              min="0.5"
+                              max="2.0"
+                              step="0.1"
+                              value={speechRate}
+                              onChange={(e) => {
+                                const newRate = parseFloat(e.target.value);
+                                setSpeechRate(newRate);
+                              }}
+                              className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-rose-500 focus:outline-none shrink"
+                              style={{
+                                background: `linear-gradient(to right, #f43f5e 0%, #f43f5e ${((speechRate - 0.5) / 1.5) * 100}%, ${
+                                  readTheme === 'parchment' ? '#e5e7eb' : '#1e293b'
+                                } ${((speechRate - 0.5) / 1.5) * 100}%, ${readTheme === 'parchment' ? '#e5e7eb' : '#1e293b'} 100%)`
+                              }}
+                            />
+                          </div>
+                        </div>
+
                         {/* AI Summary Block (collapsible, fully responsive and beautifully styled) */}
                         <AnimatePresence>
                           {isSummaryVisible && (
@@ -5665,6 +5824,21 @@ Disallow:
                             >
                               <Linkedin className="w-3.5 h-3.5 fill-current" />
                               <span>LinkedIn</span>
+                            </button>
+
+                            {/* Email */}
+                            <button
+                              onClick={() => {
+                                const shareUrl = `${window.location.origin}/${readingArticle.id}`;
+                                const subject = encodeURIComponent(`Read: ${readingArticle.title}`);
+                                const body = encodeURIComponent(`Hi,\n\nI thought you might find this technical guide useful:\n\n"${readingArticle.title}"\n\nRead the full guide here:\n${shareUrl}\n\nBest regards!`);
+                                window.location.href = `mailto:?subject=${subject}&body=${body}`;
+                              }}
+                              className="px-3 py-1.5 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 border border-indigo-500/20 hover:border-indigo-500/40 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer hover:scale-105"
+                              title="Share via Email"
+                            >
+                              <Mail className="w-3.5 h-3.5" />
+                              <span>Email</span>
                             </button>
 
                             {/* Copy Link */}

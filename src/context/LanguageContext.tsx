@@ -84,6 +84,26 @@ export interface Translations {
     contentGapDesc?: string;
     quickImageOptimizer?: string;
     quickImageOptimizerDesc?: string;
+    passportPhoto?: string;
+    passportPhotoDesc?: string;
+    memeGenerator?: string;
+    memeGeneratorDesc?: string;
+    headshotGenerator?: string;
+    headshotGeneratorDesc?: string;
+    imageUpscaler?: string;
+    imageUpscalerDesc?: string;
+    mockupGenerator?: string;
+    mockupGeneratorDesc?: string;
+    pdfConverter?: string;
+    pdfConverterDesc?: string;
+    pdfFormFiller?: string;
+    pdfFormFillerDesc?: string;
+    pdfSigner?: string;
+    pdfSignerDesc?: string;
+    patternBlob?: string;
+    patternBlobDesc?: string;
+    jsonNodeMap?: string;
+    jsonNodeMapDesc?: string;
   };
   settings: {
     title: string;
@@ -201,6 +221,26 @@ export const translations: Record<Language, Translations> = {
       schemaGeneratorDesc: 'Generate search-optimized JSON-LD schema markup templates or let AI extract microdata automatically',
       contentGap: 'Competitor Content-Gap Analyzer',
       contentGapDesc: 'Highlight missing keyword opportunities, topical deficits, and structured guidelines comparing drafts with rivals via AI',
+      passportPhoto: 'Passport Photo Maker',
+      passportPhotoDesc: 'Create print-ready US, UK, EU, or India passport size photos instantly',
+      memeGenerator: 'Meme Studio',
+      memeGeneratorDesc: 'Add custom captions to classic and trending meme canvases fully offline',
+      headshotGenerator: 'AI Headshot Studio',
+      headshotGeneratorDesc: 'Generate professional corporate headshots or unique visual avatars via AI',
+      imageUpscaler: 'AI Image Upscaler',
+      imageUpscalerDesc: 'Enhance photo resolution up to 4x cleanly without pixel noise',
+      mockupGenerator: 'Mockup & Device Frames',
+      mockupGeneratorDesc: 'Wrap screenshots in beautiful 3D device frames and laptop mockups',
+      pdfConverter: 'PDF ⇄ Word Converter',
+      pdfConverterDesc: 'Convert text vectors from PDF to editable Word or Excel on the fly',
+      pdfFormFiller: 'PDF Form Filler',
+      pdfFormFillerDesc: 'Type text directly into standard interactive form fields and checkboxes',
+      pdfSigner: 'PDF E-Signature & Sealer',
+      pdfSignerDesc: 'Draw, type, or upload custom signatures securely onto PDF documents',
+      patternBlob: 'SVG Pattern & Blob Studio',
+      patternBlobDesc: 'Generate custom organic liquid blobs, geometric patterns, or mesh textures with high-contrast SVG code export',
+      jsonNodeMap: 'Spatial JSON Node Map & Canvas',
+      jsonNodeMapDesc: 'Interactive 2D mind map node visualization for structured JSON arrays and nested telemetry payloads',
     },
     settings: {
       title: 'System Aesthetics',

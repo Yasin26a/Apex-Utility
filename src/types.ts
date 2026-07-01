@@ -91,7 +91,10 @@ export type ActiveTab =
   | 'subtitle-converter'
   | 'microphone-tester'
   | 'webcam-check'
-  | 'speaker-tester';
+  | 'speaker-tester'
+  | 'bento-grid'
+  | 'pattern-blob'
+  | 'json-node-map';
 
 export interface JSONBeautifierState {
   rawInput: string;

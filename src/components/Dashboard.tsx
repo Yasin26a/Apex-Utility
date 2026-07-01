@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, useMotionValue, useTransform, useMotionTemplate, AnimatePresence } from 'motion/react';
-import { FileDown, Image, Sparkles, Braces, ArrowRight, ShieldCheck, Zap, Globe, Cpu, Clock, Download, CheckCircle, FileText, FileImage, Trash2, Camera, Loader2, Search, Copy, Check, Info, Activity, AlertCircle, Layers, ChevronLeft, ChevronRight, GripVertical, Minus, Plus, RotateCcw, Settings, ArrowLeft, Upload, Database, QrCode, Scale, FileCode, Sliders, GitPullRequest, LayoutGrid, List, Hash, Palette, Gauge, Binary, Regex, ArrowLeftRight, Shrink, Pin, Volume2, Mic, Eye, Video, PenTool, History, Type, Lock, ShieldAlert, TrendingUp, Heart } from 'lucide-react';
+import { FileDown, Image, Sparkles, Braces, ArrowRight, ShieldCheck, Zap, Globe, Cpu, Clock, Download, CheckCircle, FileText, FileImage, Trash2, Camera, Loader2, Search, Copy, Check, Info, Activity, AlertCircle, Layers, ChevronLeft, ChevronRight, GripVertical, Minus, Plus, RotateCcw, Settings, ArrowLeft, Upload, Database, QrCode, Scale, FileCode, Sliders, GitPullRequest, LayoutGrid, List, Hash, Palette, Gauge, Binary, Regex, ArrowLeftRight, Shrink, Pin, Volume2, Mic, Eye, Video, PenTool, History, Type, Lock, ShieldAlert, TrendingUp, Heart, Network } from 'lucide-react';
 import { ActiveTab } from '../types';
 import { AlignLeft, Crop, Calendar, HelpCircle, ChevronDown, ChevronUp, X } from 'lucide-react';
 import html2canvas from 'html2canvas';
@@ -232,6 +232,19 @@ export const DEFAULT_CARDS: DashboardCard[] = [
     cardIcon: 'Braces',
     textClass: 'text-indigo-400',
     buttonLabel: 'Boot Formatting Terminal',
+    colSpan: 1,
+    heightLevel: 2
+  },
+  {
+    id: 'json-node-map',
+    title: 'Spatial JSON Node Map & Canvas',
+    desc: 'Map complex JSON structures visually onto an interactive zoomable 2D mind map. Smoothly expand, collapse, and search nested node keys and array blocks.',
+    tagline: '"interactive json map, visual json schema explorer, json node link network"',
+    category: 'Developer Operations',
+    categoryIcon: 'Braces',
+    cardIcon: 'Network',
+    textClass: 'text-emerald-400',
+    buttonLabel: 'Explore JSON Spatially',
     colSpan: 1,
     heightLevel: 2
   },
@@ -934,6 +947,32 @@ export const DEFAULT_CARDS: DashboardCard[] = [
     cardIcon: 'Layers',
     textClass: 'text-fuchsia-400',
     buttonLabel: 'Create Gradient',
+    colSpan: 1,
+    heightLevel: 2
+  },
+  {
+    id: 'bento-grid',
+    title: 'Modern Bento Grid Composer & Layout Builder',
+    desc: 'An interactive visual playground where developers and designers can build, size, and style ultra-modern "Bento Grid" portfolio layouts with real-time CSS/Tailwind exports.',
+    tagline: '"bento grid generator, custom layout builder"',
+    category: 'Design & Signals',
+    categoryIcon: 'Palette',
+    cardIcon: 'Layout',
+    textClass: 'text-indigo-400',
+    buttonLabel: 'Compose Bento Grid',
+    colSpan: 1,
+    heightLevel: 2
+  },
+  {
+    id: 'pattern-blob',
+    title: 'Interactive SVG Pattern & Blob Generator',
+    desc: 'Generate geometric tile patterns, organic liquid vectors, or noise-textured meshes. Fine-tune waves, colors, complexity, and copy flawless SVG vectors or PNG assets.',
+    tagline: '"svg pattern generator, organic liquid blobs, tile mesh maker"',
+    category: 'Design & Signals',
+    categoryIcon: 'Palette',
+    cardIcon: 'Layers',
+    textClass: 'text-emerald-400',
+    buttonLabel: 'Generate Patterns',
     colSpan: 1,
     heightLevel: 2
   },
