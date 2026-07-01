@@ -92,6 +92,9 @@ export default function VideoRecorder({ mode = 'all' }: { mode?: 'all' | 'screen
   const animationFrameRef = useRef<number | null>(null);
   const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Search query for video recorder FAQs
+  const [recorderFaqSearchQuery, setRecorderFaqSearchQuery] = useState('');
+
   // Enumerating media capture nodes
   useEffect(() => {
     enumerateInputs(false);
@@ -1382,6 +1385,64 @@ export default function VideoRecorder({ mode = 'all' }: { mode?: 'all' | 'screen
                 )}
               </div>
             )}
+
+            {/* Expanded Searchable FAQ section for Video & Screen Recorder */}
+            <div className="p-5 border border-zinc-900 bg-[#0a0a0f] rounded-2xl space-y-4">
+              <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+                <div>
+                  <h4 className="font-heading text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+                    <HelpCircle className="w-4 h-4 text-cyan-400" />
+                    <span>Screen &amp; Webcam Recorder FAQ Hub</span>
+                  </h4>
+                  <p className="font-sans text-[10px] text-zinc-500">Learn how to record screen, capture webcam overlay, sync audio, and export without watermarks</p>
+                </div>
+
+                <div className="relative">
+                  <input 
+                    type="text"
+                    placeholder="Search recorder topics..."
+                    value={recorderFaqSearchQuery}
+                    onChange={(e) => setRecorderFaqSearchQuery(e.target.value)}
+                    className="w-full sm:w-64 bg-zinc-950 text-white placeholder-zinc-650 text-xs px-3 py-1.5 rounded-lg border border-zinc-900 focus:border-cyan-500/40 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                {[
+                  {
+                    q: "How can I use this screen recorder free online with no watermark?",
+                    a: "Our in-browser screen recorder free online tool requires no account and puts absolutely zero watermarks on your files. You can capture any tab, browser window, or your entire desktop. It runs as a free screen recording tool entirely client-side, making it one of the best choices for secure, free online screen capture without time limits. It works flawlessly as a screen recorder free no time limit option on windows 10, windows 11, and macOS."
+                  },
+                  {
+                    q: "How do I record a video on my computer with both screen and webcam at the same time?",
+                    a: "Simply toggle the screen recorder with webcam preferences before starting your capture. By selecting both 'Record Screen' and 'Record Camera Feed', you activate the webcam and screen recorder composite mode. This places a highly customizable webcam overlay bubble anywhere on your screen. You can position, resize, and style it as a circle or square. It's the ultimate screen recorder with camera configuration for tutorial makers and streamers alike."
+                  },
+                  {
+                    q: "Can I capture high-quality system sound and microphone voice audio?",
+                    a: "Yes! By utilizing our computer screen recorder with audio features, you can capture crystal-clear sound feeds. When initiating the screen share, make sure to enable the 'Share system audio' checkbox in your browser's prompt. Additionally, toggle on the microphone stream to record voiceovers with our screen recorder for pc with audio. This delivers a fully synchronized screen recorder with camera and audio track in high definition."
+                  },
+                  {
+                    q: "What tools does this webcam recorder and camera app for pc offer?",
+                    a: "Beyond desktop recording, this suite is a complete online webcam recorder and camera app for pc. You can use it to test and record raw camera streams, adjust overlay shapes, capture frames, or use it as a standalone webcam video recorder. You can choose your preferred device from any connected usb webcam or laptop camera, perform a camera check online, and download raw recorded footage instantly without uploads."
+                  },
+                  {
+                    q: "Is there any post-processing, compression, or AI video support?",
+                    a: "Our companion Video Studio Suite includes comprehensive utilities like a video compressor, video cutter, format transcoder, and subtitle converter. If you need to boost or enhance your clips, you can pair your recorded files with our offline video booster or local ai video utilities. It's like having professional-grade recording and editing software completely offline."
+                  }
+                ]
+                .filter(faq => 
+                  faq.q.toLowerCase().includes(recorderFaqSearchQuery.toLowerCase()) || 
+                  faq.a.toLowerCase().includes(recorderFaqSearchQuery.toLowerCase())
+                )
+                .map((faq, idx) => (
+                  <div key={idx} className="p-3 bg-zinc-950/40 border border-zinc-900 rounded-xl space-y-1">
+                    <span className="text-[11px] font-heading font-extrabold text-cyan-400 uppercase tracking-wide block">Q: {faq.q}</span>
+                    <p className="text-[11px] font-sans text-zinc-400 leading-relaxed">{faq.a}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
 
             {/* Quick documentation guidance banner */}
             <div className="p-4 bg-[#0a0a0f] border border-zinc-850/50 rounded-lg text-zinc-400 text-xs">

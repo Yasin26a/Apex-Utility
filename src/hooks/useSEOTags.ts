@@ -1004,6 +1004,366 @@ const SEO_METADATA: Record<string, SEOHeaderContent> = {
         "priceCurrency": "USD"
       }
     }
+  },
+  'webcam-check': {
+    title: "Free Webcam Check & Online Camera Test | Browser Camera Tester",
+    description: "Check your webcam, resolution, aspect ratio, and camera lighting online with zero watermark. 100% private in-browser camera hardware test tool.",
+    keywords: "web camera, webcam test, camera online, camera test, online webcam, webcam for laptop, computer camera, laptop camera, pc camera, webcam with microphone, webcam for pc, free web cam, video cam, best webcam, webcam site, live webcam, streaming camera, best webcam for streaming, best webcam for zoom meetings, live cam to cam, computer camera and microphone, usb webcam, live video cam, webcam and microphone, hd cams, webcam for streaming, camera logitech, web cams, best webcam for video conferencing, wide angle webcam, usb kamera, webcam website, webcam with microphone and speaker, hd webcam, video camera online, best video conference camera, webcam recorder, best webcam for mac, webcam app, computer camera for zoom, external camera for laptop, video conferencing camera, best camera for zoom meetings, kamera online, streaming camera for pc, best webcam for teams, 1080p webcam, webcam with light, video cams, web cameras, external webcam, desktop camera, camera for zoom meetings, pc kamera, webcam with mic, best webcam with microphone, best camera for teams meetings, computer webcam, live cam website, camera for computer monitor, best webcam for meetings, best webcam for zoom, webcam with zoom, web test, best camera for zoom, best computer cameras, my camera, web camera laptop, webcam wifi, webcam for tv, webcam wireless, webcam full hd, external webcam for laptop, webcam with speaker, live free cam, professional webcam, best quality webcam, computer camera with microphone, webcam video recorder, computer video camera, camera usb, streaming cam, webcam software, webcam usb c, desktop camera and microphone, desktop webcam, pc camera and mic, test camera and microphone, camera for desktop computer, best webcam websites, best camera for zoom meetings mac, webcam download, webcam for video conferencing, external camera, best webcam for teams meetings, best webcam for work, show webcam, best online cams, camera for zoom, webcam to webcam, best webcam with light, pc cam, logitech web camera, live kamera, live web testing, video tester, pc camera and microphone, live streaming webcam, live cam online, live cam streaming, best camera for meetings, live free webcam, webcam for pc with mic, google webcam, webcam for meetings, webcam with mic and speaker, pc camera with microphone, best camera for video calls, usb video camera, top webcams for streaming, best 3 in 1 webcam with microphone and speaker, zoomable webcam, top webcam, best teams webcam, webcam for zoom meetings, camera for tv, top cams, camera check, live stream cam, best camera for zoom calls, camera for pc monitor, best hd webcam for streaming, webcam hd 1080p, webcam and microphone for pc, webcam for teams, webcam sites for laptop, usb webcam for laptop, best video camera for zoom, meeting webcam, best conference webcam, webcam for teams meetings, best webcam with microphone and speaker, the best webcam for streaming, usb camera for laptop, best wide angle webcam, external computer camera, camera for tv video calls, best hd webcam, best computer camera for zoom, webcam 2k, detect camera, webcam check, camera for video calls, best webcam for live streaming, webcam for computer monitor, best zoom conference camera, best zoom meeting camera, computer camera and microphone for zoom, quality webcam, webcam that makes you look good, best computer webcam, best external camera for laptop, best pc camera for streaming, cam streaming, usb web camera, online webcam recorder, webcam for live streaming, web camera full hd 1080p, camera with speaker and microphone, webcam software free, webcam with good microphone, best zoom camera and microphone, best webcam and microphone, best meeting camera, video camera for zoom, computer cameras for zoom meetings, 1080p webcam with microphone, best computer camera for streaming, best professional webcam, best webcam for macbook, best logitech webcam for streaming, camera for laptop computer, hd camera online, best webcam for conference calls, best camera for teams, webcam high quality, best external webcam for laptop, best logitech camera, monitor camera for zoom, best camera for conference calls, web cam to cam, hd web camera, webcam that can zoom in and out, best webcam for google meet, camera for zoom calls, webcam for desktop computer, best camera for virtual meetings, free online webcams, webcam and mic, live camera viewer, webcam to webcam live, online camera test, wide angle camera for zoom meetings, best webcam for video calls, best external camera for zoom meetings, camera for meetings, video camera for laptop, webcam and speaker, wide angle camera for video conferencing, best camera for online meetings, hd camera for computer, best usb camera for streaming, best video conferencing camera and microphone, camera for online meetings, best camera for google meet, video cam website, logitech webcam test, usb webcam with microphone, best external webcam, webcam with light and microphone, webcam optical zoom, computer camera with light, best webcam for zoom calls, best webcam for windows 11, webcam with usb c, free live video cam, usb camera with microphone, webcam for conference calls, camera and microphone for desktop computer, free webcam websites, computer video camera with microphone, best video call camera, best zoom camera for mac, best pc camera for zoom meetings, camera for computer for zoom, best camera for zoom interviews, test video camera, camera for desktop, best webcam for tv, best video camera for meetings, best webcam and microphone for zoom meetings, webcam test online, logitech camera for computer, desktop camera with microphone, webcam pages, best quality webcam for streaming, live cam on cam, computer webcam with microphone, web camera with light, best computer camera for zoom meetings, best webcam with light and microphone, video conference camera for pc, pc webcam test, webcam with microphone for pc, best webcam for video recording, camera for tv for video conference, test my camera, best camera for tv video calling, webcam live show, camera for computer with microphone, camera for my computer, best meeting webcam, usb webcam test, online webcam sites, hd webcam for streaming, best webcam with speakers, tv video conference camera, cheap webcam for streaming, room webcam, best conference video camera, desktop computer camera and microphone, best webcam with microphone for zoom meetings, tv mounted webcam, best wide angle webcam for video conferencing, online video cams, full hd 1080p webcam, camera for tv zoom, laptop camera test, best pc webcams, best laptop camera for video conferencing, best camera for mac, best webcam for recording, usb computer camera, best camera and microphone for zoom meetings, best computer camera with light, webcam camera for laptop, best camera for video meetings, webcam with built in microphone, conferencing webcam, hd usb camera, test my webcam, best camera for teams calls, webcam for zoom calls, video camera for zoom meetings, camera and mic for computer, usb camera with zoom, website camera, camera recorder online, computer camera online, best video camera for zoom meetings, external camera for zoom, video camera for computer monitor, best camera for meeting room, best video conference webcam, best desktop camera for zoom meetings, best conference room camera for zoom, best webcam with mic, webcam for pc download, webcam for windows 10, good quality webcam for streaming, zoom camera for computer, webcam for desktop monitor, webcam speaker and microphone, new webcam, camera and mic for zoom meetings, veb kamera, wide view webcam, camera and speaker for computer, best webcam teams, best webcam for meeting rooms, best camera for zoom meeting, camera speaker and microphone for computer, external laptop camera with microphone, video camera for meetings, web streaming camera, best external camera, my webcam, internet cameras live, best camera for zoom video conferencing, webcam for pc streaming, view camera online, webcam and microphone for desktop, wide angle computer camera, free webcam to webcam, webcam in front of screen, wide webcam, cam online free, webcam with built in speakers, desktop camera for zoom, external camera and microphone for laptop, professional webcam for live streaming, camera web pc, cheap webcam with microphone, webkamera 4k, cctv webcam, desktop webcam with microphone, real webcam, best video meeting camera, usb camera and microphone, the best webcams, best conference call camera, web meeting camera, external video camera for laptop, usb camera pc, top webcams for meetings, video camera for zoom calls, the best webcam for zoom meetings, free webcam apps, laptop camera for zoom meetings, high fps webcam, best webcam camera for video conferencing, webcam with audio, webcam app for pc, camera for desktop monitor, see camera, webcam setup, hd webcam with microphone, webcam and light, camera for virtual meetings, best webcam with speaker and microphone, best online webcam, check your camera, webcam test laptop, test video camera online, high res webcam, webcam test full screen, webcam test check camera online, webcam for laptop test, micro camera test, video camera check online, pc camera test, test camera laptop online, online laptop camera test, web camera online test, test my webcam online, test camera microphone online, webcam online check, check online camera, test camera online free, test video online, usb webcam test online, web webcam test, test your webcam, camera webcam test, check video cam, laptop camera check online, online laptop camera check, web camera check, browser webcam test, pc camera test online, webcam for pc test, webcam for test, video check online, check my cameras, live cam test, test your cam, webcam test windows 10, test cam online, camera live test, check my camera online, free webcam test online, facecam test, camera test in laptop, cam check, logitech webcam test online, free online webcam test, usb camera test, test camera in laptop, check cam online, test usb camera online, camera browser test, try your camera, test for webcam, webcam camera check, camera web check, laptop web camera test, web test cam, my camera check, see my webcam, live webcam test, webcam test camera, testing my computer camera, check my webcam online, live camera test, preview webcam, verify camera, webcam live test, camera try, test of camera, camera test webcam, test camera webcam, try my webcam, webcam test for laptop, webcam video test, online test with camera, web camera check online, browser camera test, webcam test live, free webcam test, web camera with microphone, test my laptop camera, test camera macbook online, cam web test, camera test online laptop, detect webcam, online test camera and microphone, camera website test, online camera test laptop, check your webcam, internet camera test, test my pc camera, camera check on laptop, test camera of laptop, view my webcam, my camera online, check my web camera, check my webcam, camera test computer, internet webcam test, test my webcam camera, check video online, check camera and microphone online, try my camera, webcam test online free, check your camera online, video camera online test, check webcam on laptop, web camera open, website camera test, webcam speaker test, check video camera online, video webcam test, webcam test for pc, test webcam test, webcam test test, test camera usb, laptop test camera, test my camera online, camera test for pc, camera test on laptop, front camera check, webcam test pc, camera test browser, webcam test website, test cam web, full screen webcam test, webcam test for mobile, test facecam, front camera laptop test, web camera pc test, online video camera test, test my desktop camera, check if my webcam is working, front camera testing, try camera online, online usb camera, webcam test site, system camera check, test webcam usb, web check camera, my web camera, check my camera and microphone online, free online camera test, webcam check test, face cam test, detect camera online, best microphone and camera for zoom meetings, check webcam and microphone online, check system camera, try webcam, cammic test, free camera test, online test with webcam, open my camera online, open camera online test, check my video camera, video quality test online, google webcam test, video test camera, webcam test usb, my laptop camera test, webcam test hd, webcam test with mic, face cam tester, free cam test, online exam camera test, test your laptop camera, test your camera online, camera check test, test computer camera, webcam and audio test, view my camera online, check my laptop camera online, laptop camera check, camera test video, computer webcam test, test your camera, check my camera is working, laptop front camera check, best usb webcam for streaming, detect my camera, logitech camera test online, check webcam and mic, test camera computer, webcam with mic test, usb camera check, check my front camera, check camera and mic online, best webcam for zoom meetings mac, mic and camera, check camera quality, check front camera, logitech webcam online test, webcam check in, desktop camera test, test external camera, laptop video test, webcam sample, online exam camera, check my webcam and mic, test my usb camera, check webcam and microphone, test camera and speakers, detect my webcam, webcam test and mic, try camera on laptop, view my webcam online, live cam check, webcam quality test, camera check laptop, computer camera check, system camera test, external camera test, check my camera and mic, view my camera, best webcam live, check my laptop camera, webcam test com, front camera test laptop, hd camera test, test camera website, check my pc camera, online video check, test my webcam and mic, camera laptop check, online mic and camera test, camera check for laptop, online camera and mic check, camera hardware test, safe webcam test, check camera working, desktop camera check, camera check in laptop, webcam for zoom meeting, webcam sound, free cameras online, webcam with microphone test, camera test site, webcam test tool, facecam check, my webcam room, camera working test, check usb camera, webcam test for online exam, camera and sound test, test video camera on laptop, test camera quality, test my video camera, check my webcam is working, find my webcam, open my webcam, test computer webcam, view your webcam, webcam sound test, check if my camera is working, see my camera, web video test, online webcam viewer, test camera mic laptop, check my computer camera, test camera on computer, check the camera on my computer, cam and mic test, test my webcam free, camera and microphone check, tv camera for video call, pc camera check, test webcam and mic, test your webcam and microphone, camera preview online, logitech camera test, webcam mic and camera test, check camera pc, test camera and microphone online, test pc camera and microphone, online camera and mic test, camera test and mic test, check your laptop camera, front camera check online, see my cam, check laptop camera and microphone, logitech webcam check, camera and microphone for video conferencing, online mic test webcam, test my webcam and microphone, webcam test audio, check pc camera, webcam trial, microphone and webcam test, best webcam and light for zoom meetings, online camera on, check camera and mic, chrome webcam test, cam try, webcam hd full, camera audio test, test desktop camera, test my camera laptop, camera test tool, camera app test, test the camera on my laptop, test external webcam, check camera and microphone, external webcam test, testing camera on pc, watch my webcam, camera test web, show my webcam, test camera and mic, check computer camera, webcam test windows 7, logitech camera check, webcam practice, open camera test, webcam and mic check, camera and audio test, selfie camera test, best webcam for content creation, check webcam quality, test your camera and microphone, web camera on, check if webcam is working, selfie camera test online, webcam mic test online, test camera on my laptop, best work webcam, webcam start, webcam working, mic and camera test, test video on laptop, test camera and mic online, start webcam, webcam mic test, open my laptop camera, web camera with zoom, laptop camera online, camera quality test, webcam test mic, test out camera, check if camera is working, my webcam online, camera and mic check, camera microphone test, audio and camera test, online cctv camera check, camera check up, test laptop camera and microphone, testing webcam and microphone, test online camera and microphone, camera testing app, camera and microphone test online, check my camera quality, html5 webcam test, test my camera on my laptop, test webcam and audio, microphone camera test, check laptop camera working, live video test, online camera open pc, check my camera and microphone, computer camera microphone and speaker, camera exam, webcam and microphone test for pc, test my video, camera testing website, pc camera online, self camera test, check my video, test mycam, cam to cam webcam, best computer camera for mac, webcam exam, pc webcam for streaming, camera test windows 7, test video camera and microphone, front camera online, webcam for hp laptop, webcam demo, ca0era test, mic and camera test online, web camera view, www web camera, test camera and audio, web camera recorder, test webcam and microphone online, webcam microphone test, live camera feed, test my webcam audio, tv webcam for video conferencing, your webcam, usb camera viewer online, check camera and microphone on laptop, test camera and sound, webcam test google, test mic camera, test camera laptop windows 10, test my camera and microphone, test computer camera and microphone, webcam and microphone test online, test webcam audio, video camera for video conferencing, camera usb c, mic webcam test, best webcam for teams meeting, webcam test chrome, preview camera, test my camera and mic, laptop webcam online, chrome camera test, camera mic check, phone camera test online, webcamtests com check, webcam in browser, webcam microphone check, best video conference camera for conference calls, cam viewer online, mic cam, see your camera, show my cam, webcam test chromebook, camera mic test, streaming camera and mic, test camera microphone, html5 camera test, test mic webcam, mobile camera test online, camera laptop web, video check, check webcam microphone, online webcam for pc, mic and camera check, webcam live webcam, test mic and camera, web camera access, best computer camera for video conferencing, laptop front camera, webcam test app, detect camera on laptop, desktop camera and microphone for zoom, test video and microphone, webcam resolution test, use webcam online, web camera quality, web camera pc online, quality webcam for streaming, webcam access, online cam website, show me my webcam, video and mic test, online web test, check logitech camera, my laptop camera, webcam user, test my microphone and camera, computer camera with microphone and speakers, open webcam online, speaker and camera for computer, check mic and camera, use my webcam, check mobile camera quality online, best camera for conference, test integrated camera, camera test google, usb camera web, webcam test software, mac webcam test, camera test chrome, wide angle streaming camera, best webcam for green screen, hd webcam online, google chrome camera test, webcam for laptop online, video call camera for tv, mic and camera for streaming, mic and video test, wide angle webcam for zoom, camera browser, mock test with camera, use webcam, camera test windows, camera see, webcam for pc online, webcam with audio input, https webcam, test camera app, check my mic and camera, mic for webcam, open my cam, open front camera online, best webcam show, test camera windows 10, best video conference camera for mac, live video webcam, trust webcam test, cam te, test computer microphone and camera, video camera and microphone for computer, google camera test, test camera on chrome, best webcam for chromebook, laptop camera website, desktop camera with microphone and speaker, hd camera web, webcam for online exam, best video camera for mac, best video camera for teams, webcam privacy covers, camera text, online webcam connect, chrome test camera, test microphone on webcam, best online meeting camera, usb camera for tv, test my webcam microphone, web camera and mic, best hd camera for zoom, live camera laptop, professional web camera, video mic test, top webcam for streaming, find my cam, my video camera, camera diagnostic, camera view, mic and cam, camera microphone speaker for computer, web camera for zoom, webcam info, microphone camera for computer, cam and mic, zoom camera with microphone, cam live cam, headset camera for live streaming, run webcam, cctv cameras online, webcam for virtual meetings, high quality camera for zoom meetings, best usb camera for laptop, conference web camera, test microphone and video, best cam web, interactive webcam, pc camera with microphone and speaker, website cam, best webcam microphone for video conferencing, hd laptop camera, video camera for conference calls, best new webcam, check my web, webcam for android tv, camera online website, best webcams for macbook pro, online camera site, logitech web kamera, google camera check, best camera setup for zoom meetings, open laptop camera, test camera in chrome, best laptop camera for zoom meetings, online camera detector, best usb camera for video conferencing, video camera for pc monitor, webcam test download, best webcam for picture quality, live hd webcam, computer camera with zoom, best webcam for online meetings, show my camera, camera with microphone and speaker, webcam clip, windows webcam, kamera web laptop, desktop webcam with microphone and speaker, laptop camera and microphone, test camera android, webcam full screen, test camera google chrome, webcam with built in light, video webcams, camera webcam pc, webcam compatible with windows 11, check cctv camera online, 360 camera webcam, hd camera pc, best webcam for virtual meetings, web kamera pc, front camera website, cam live tv, webcam mic and speaker, webcam pc camera, top 10 webcams for streaming, best webcam with filters, webcam software for pc, video camera for computer with microphone, usb laptop camera, camera with mic and speaker, web camera and microphone, camera to attach to computer monitor, best pc webcam for streaming, live video cam to cam, usb camera microphone, best webcam for tv video conferencing, external web camera, webcam with no mic, webcam for tv video conferencing, camera and mic for laptop, webcam and microphone for laptop, webcam web, online camera access, webcam calls, best camera and microphone for video conferencing, web camera for meetings, usb webcam for pc, pc computer camera, webcam for video calls, webcam with speaker and microphone for pc, web camera mac, video checker, camera microphone for desktop computer, cam checker tool, best webcam for teams calls, web camera for video conferencing, vep kamera",
+    ogTitle: "Free Webcam Check & Online Camera Test | Apex Swiss",
+    ogDescription: "Test your computer camera or laptop webcam online instantly. Check resolution, aspect ratios, and permissions 100% privately in-browser.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Free Webcam Checker and Camera Test Online",
+      "description": "100% offline, privacy-first webcam checking, prober, and troubleshooting suite.",
+      "applicationCategory": "Utility",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
+  'microphone-tester': {
+    title: "Free Online Microphone Tester | Mic Test, Voice Check & Audio Test Tool",
+    description: "Free online mic test, microphone test, voice check and audio test tool. Check your microphone online, listen to voice loopback, and measure decibel level volume sensitivity.",
+    keywords: "mic test, microphone test, test mic, test microphone, mic test online, microphone tester, microphone test online, check microphone, online mic test, test your microphone, mic check online, check mic, mic check, free mic test, test mic online, microphone check, check microphone online, test my microphone, mic check tool, test my mic, test microphone online, check your microphone, mic audio test, test mic and camera, test microphone and speakers, check microphone volume, headset mic test, test headset microphone, microphone test with sound playback, voice check online",
+    ogTitle: "Free Online Microphone Tester | Mic Test & Voice Check Tool",
+    ogDescription: "Verify microphone performance, test voice quality with live playback loopback, and check volume input sensitivity offline.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Free Online Microphone Tester and Voice Check",
+      "description": "Privacy-focused browser microphone testing workspace with sound metrics and feedback diagnostic charts.",
+      "applicationCategory": "Utility",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
+  'speaker-tester': {
+    title: "Free Speaker Test Online | Sound Check, Left/Right Stereo Panner & Subwoofer Tester",
+    description: "Free online speaker test, sound check and audio tester. Check left and right speakers balance, test woofer and subwoofer, and run custom frequency sweeps.",
+    keywords: "speaker test, speaker tester, test speakers, speaker test online, online speaker test, test my speakers, sound check speakers, stereo test left right, left right speaker test, test sound speakers, audio test speakers, soundbar test, subwoofer test, frequency sweep test, hifi audio test",
+    ogTitle: "Free Speaker Test Online | Sound Check & Stereo Balance Tester",
+    ogDescription: "Run comprehensive speaker diagnostic sweeps, check left/right audio panning, and test subwoofers safely online.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Free Speaker Test & Audio Balance Diagnostic Utility",
+      "description": "Interactive browser speaker checking environment with custom sweep tools and panning tests.",
+      "applicationCategory": "Utility",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
+  'screen-recorder': {
+    title: "Free Screen Recorder Online | No Watermark Screen Capturer",
+    description: "Free online screen recorder with no watermark and zero lag. Screen record your browser, desktop, window, or webcam overlay completely privately offline in-browser.",
+    keywords: "screen recorder with webcam, free screen recorder with webcam, screen recorder camera, screen recorder and webcam free, veed screen recorder, webcam and screen recorder free, webcam and screen recorder, video your screen, screen record chrome, screen capture online free, live stream recorder, record my screen",
+    ogTitle: "Free Screen Recorder Online | No Watermark Screen Capturer",
+    ogDescription: "Record your screen, window, or webcam directly in-browser. Private offline capture with zero watermarks and lag-free exports.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Free Screen Recorder Online",
+      "description": "Completely secure, client-side screen recording software to capture video and voice loopbacks.",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
+  'webcam-recorder': {
+    title: "Free Webcam Recorder Online | HD Camera & Mic Video Recorder",
+    description: "Free webcam recorder online. Record video from your laptop camera and microphone, adjust filter overlays, and export raw MP4 or WebM files with zero watermark.",
+    keywords: "webcam recorder, online webcam recorder, webcam recorder free, free online webcam recorder, webcam video recorder free, veed webcam recorder, webcam record video, camera recorder online, web camera recorder, cam recorder online, video recorder online, computer camera and microphone",
+    ogTitle: "Free Webcam Recorder Online | HD Camera & Mic Video Recorder",
+    ogDescription: "Record high-definition video feeds from your laptop or PC camera with synced microphone audio overlays offline.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Free Webcam Recorder Online",
+      "description": "Record raw camera video streams with local mic synchronization entirely in your browser.",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
+  'voice-recorder': {
+    title: "Free Online Voice Recorder | Mic Recorder & Sound Audio Capturer",
+    description: "Free online voice recorder and audio capturer. Record raw microphone voice streams, check real-time waveforms, and export high-bitrate WAV or MP3 audio files completely offline.",
+    keywords: "voice recorder camera, voice and video recorder, voice recorder editor free, audio video recording, edit voice recording online free, voice from video, audio recorder online free, sound recorder, micro voice recorder, audio recorder free",
+    ogTitle: "Free Online Voice Recorder | Mic Recorder & Sound Audio Capturer",
+    ogDescription: "Record microphone voice files offline with real-time spectrum analysis. Download high-quality WAV files with absolute security.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Free Online Voice Recorder",
+      "description": "In-browser voice dictation and microphone recording tool.",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
+  'video-compressor': {
+    title: "Free Video Compressor Online | Reduce Video Size without Watermark",
+    description: "Free online video compressor to reduce video file size offline. Compress MP4, WebM, and MKV files for Discord under 25MB, or shrink files securely to any size with no watermark.",
+    keywords: "video compressor online free, video compressor, free video background removal, free video compression, compress video for discord, video shrink online, reduce mp4 size, video background noise removal online free, video noise reduction online free",
+    ogTitle: "Free Video Compressor Online | Reduce Video Size without Watermark",
+    ogDescription: "Compress videos locally in your browser. Shrink MP4, MKV, and WebM file sizes with high compression ratios and zero watermarks.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Free Video Compressor Online",
+      "description": "Optimize video file dimensions and container bitrates entirely client-side.",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
+  'video-resizer': {
+    title: "Resize Video Online Free | Crop Video to 16:9, 9:16 & 1:1 Aspect Ratios",
+    description: "Resize video online free. Crop videos for TikTok, YouTube Shorts, Instagram Reels, or Zoom meetings easily. Change aspect ratios with zero watermark.",
+    keywords: "video resizer, resize video online free, crop video online free, video trimmer online free, crop video online free, crop video, video format changer, resize video for tiktok, video dimensions editor",
+    ogTitle: "Resize Video Online Free | Crop Video to 16:9, 9:16 & 1:1 Aspect Ratios",
+    ogDescription: "Crop video dimensions to custom presets. Instantly convert widescreen landscape videos to portrait for mobile socials offline.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Free Video Resizer Online",
+      "description": "Quick aspect-ratio changer and dimension cropper.",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
+  'video-cutter': {
+    title: "Cut Video Online Free | High-Precision Video Trimmer & Splitter",
+    description: "Free online video cutter and trimmer. Cut MP4, WebM, and MKV video segments with custom timeline controls. 100% private, client-side execution.",
+    keywords: "video cutter, cut video online free, video trimmer, video trimmer online free, free video trimmer, simple video editor, simple video editor online, edit clips, clip editor free, free video cut software",
+    ogTitle: "Cut Video Online Free | High-Precision Video Trimmer & Splitter",
+    ogDescription: "Trim, split, and cut segments out of your raw video tracks with high precision timeline controls in-browser.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Free Video Cutter Online",
+      "description": "Surgically split and trim video container timelines fully offline.",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
+  'mute-video': {
+    title: "Mute Video Online Free | Remove Audio from Video (MP4/WebM)",
+    description: "Mute video online free and remove audio tracks from MP4, WebM, or MKV files securely in your browser. Clean soundless clips processed entirely offline.",
+    keywords: "mute video, remove audio from mp4 online, remove audio track, sound remover from video, mute video online free, clear sound from video, remove background noise",
+    ogTitle: "Mute Video Online Free | Remove Audio from Video (MP4/WebM)",
+    ogDescription: "Strip the voice, music, and background audio streams from your MP4 or WebM video tracks privately online.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Free Online Video Muter",
+      "description": "Remove audio and sound layers from any video container.",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
+  'video-speed': {
+    title: "Change Video Speed Online | Fast & Slow Motion Video Controller",
+    description: "Change video speed online free. Speed up video clips to 2x/4x or slow down to 0.25x/0.5x with high-quality audio pitch adjustment. Processed entirely in-browser.",
+    keywords: "video speed, change video speed online, slow motion video online, fast motion video, speed controller video, adjust playback speed, video trimmer and speed changer",
+    ogTitle: "Change Video Speed Online | Fast & Slow Motion Video Controller",
+    ogDescription: "Fast-forward or decelerate video tracks with fluid speed parameters (0.25x to 4.0x) and safe pitch control.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Free Online Video Speed Changer",
+      "description": "Adjust video playback rates with full sound synchronicity offline.",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
+  'video-rotator': {
+    title: "Rotate Video Online Free | Flip & Rotate 90 Degrees Widescreen",
+    description: "Rotate video online free. Rotate and flip video clips 90 degrees clockwise, 180 degrees, or flip horizontally/vertically. Fix vertical smartphone video orientation instantly.",
+    keywords: "video rotator, rotate video 90 degrees online free, flip video online, fix portrait video, turn video sideways, rotate mp4 online free, change video direction",
+    ogTitle: "Rotate Video Online Free | Flip & Rotate 90 Degrees Widescreen",
+    ogDescription: "Rectify upside-down or landscape orientation issues by rotating video files 90, 180, or 270 degrees.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Free Video Rotator Online",
+      "description": "Quickly adjust and re-encode video frame orientation blocks.",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
+  'video-merger': {
+    title: "Video Merger Free | Combine & Join Multiple Video Clips Online",
+    description: "Combine multiple video files into one fluid clip online free. Drag, reorder, and join MP4, WebM, or MKV segments together with zero upload delay.",
+    keywords: "video merger free, video merger online free, merge video clips online free, combine video files, join mp4 online, combine video segments, edit videos into one",
+    ogTitle: "Video Merger Free | Combine & Join Multiple Video Clips Online",
+    ogDescription: "Stitch multiple video tracks together sequentially. Secure, fully client-side joining process with premium exports.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Free Video Merger Online",
+      "description": "Merge separate video clips into a single contiguous output file.",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
+  'video-converter': {
+    title: "Free Online Video Converter | Convert WebM to MP4, MOV, MKV",
+    description: "Free online video converter. Transcode WebM to MP4, MOV to MP4, or extract audio format files offline securely in your browser with high-fidelity output.",
+    keywords: "video converter, audio video converter, veed video converter, online free video converter, video to gif maker, extract audio from video online, convert webm to mp4 online free, transcode video file",
+    ogTitle: "Free Online Video Converter | Convert WebM to MP4, MOV, MKV",
+    ogDescription: "Convert and re-encode video containers locally inside your browser sandbox safely and securely.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Free Online Video Converter",
+      "description": "Fast multi-format video conversion and transcode tool.",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
+  'video-to-gif': {
+    title: "Video to GIF Maker Online Free | High-Resolution Dynamic GIF Creator",
+    description: "Convert video to looping GIF online free. Adjust resolution widths, frame rate buffers, and palette dither strategies with zero watermarks. Processed 100% offline.",
+    keywords: "video to gif, video to gif maker, convert mp4 to gif online free, video to looping gif, free gif generator, high fps gif, animated gif creator",
+    ogTitle: "Video to GIF Maker Online Free | High-Resolution Dynamic GIF Creator",
+    ogDescription: "Turn any video clip into an animated looping GIF. High resolution exports with offline quantization styles.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Free Video to GIF Maker Online",
+      "description": "Render high-DPI custom-dithered looping GIF files from source video timelines.",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
+  'video-to-mp3': {
+    title: "Extract Audio from Video Online | High Bitrate Video to MP3 Converter",
+    description: "Convert video to MP3 online free. Cleanly extract and download high-quality audio tracks (WAV/MP3) from MP4 or WebM files. 100% private in-browser conversion.",
+    keywords: "video to mp3, extract audio from video online, convert video to mp3 online, video audio converter, extract mp3 from mp4 free, video audio into text",
+    ogTitle: "Extract Audio from Video Online | High Bitrate Video to MP3 Converter",
+    ogDescription: "Isolate and save high-fidelity sound tracks from WebM or MP4 videos instantly to local MP3 or WAV formats.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Free Online Video to MP3 Extractor",
+      "description": "Demux and convert video container tracks into standalone audio formats.",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
+  'audio-converter': {
+    title: "Audio Format Converter Online | Transcode MP3, WAV, OGG, M4A",
+    description: "Transcode MP3, WAV, OGG, and M4A audio files offline. Convert sampling rates, bitrates, and channels instantly and privately inside your local browser.",
+    keywords: "audio converter, audio format converter, transcode mp3 to wav, convert m4a to mp3 free, audio bitrate converter, offline audio converter, audio editor and converter",
+    ogTitle: "Audio Format Converter Online | Transcode MP3, WAV, OGG, M4A",
+    ogDescription: "Convert sampling frequencies, bitrates, and file formats (WAV, MP3, FLAC, AAC, OGG) fully client-side.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Free Audio Format Converter Online",
+      "description": "High-fidelity local-first audio transcoding and formatting workspace.",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
+  'subtitle-converter': {
+    title: "SRT to VTT Subtitle Converter | Create & Edit Subtitles for Video",
+    description: "Convert subtitle formats online free. Transform SRT files into VTT, WebVTT, or vice versa with automated timeline sync. High-precision subtitle translator and converter.",
+    keywords: "subtitle converter, srt to vtt subtitle converter online, create subtitles for video, video subtitle generator, veed subtitles, veed captions, auto captions, subtitle generator video, video editor subtitles, srt editor",
+    ogTitle: "SRT to VTT Subtitle Converter | Create & Edit Subtitles for Video",
+    ogDescription: "Transcode SRT closed-captions to WebVTT styles, shift timing offsets, and customize text tracks privately offline.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Free Subtitle Format Converter Online",
+      "description": "Re-align and sync closed caption SRT and VTT tracking layers.",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
   }
 };
 

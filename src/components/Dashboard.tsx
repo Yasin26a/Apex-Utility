@@ -1401,6 +1401,155 @@ const recentToolsLabels = {
   }
 };
 
+interface DashboardGroup {
+  id: string;
+  title: string;
+  desc: string;
+  icon: React.ComponentType<any>;
+  borderColor: string;
+  colorClass: string;
+  glowColor: string;
+  cards: DashboardCard[];
+}
+
+const getGroupLocalization = (groupId: string, lang: string) => {
+  const dicts: Record<string, Record<string, { title: string; desc: string }>> = {
+    en: {
+      pinned: {
+        title: '📌 Pinned Workstations',
+        desc: 'Your preferred fast-access workstations, anchored to the top of your workspace.'
+      },
+      pdf_docs: {
+        title: '📂 PDF & Document Optimization',
+        desc: 'Compress, merge, compile, and sign document payloads locally with zero server lag.'
+      },
+      ai_seo: {
+        title: '✍️ AI Copywriting & SEO Suite',
+        desc: 'Draft optimized articles, analyze meta tags, and audit content gaps with Gemini AI.'
+      },
+      dev_ops_security: {
+        title: '💻 Developer Operations & Security Vault',
+        desc: 'Format JSON blocks, debug regular expressions, build cron jobs, and verify checksums offline.'
+      },
+      design_graphics: {
+        title: '🎨 Design & Custom Graphics',
+        desc: 'Design backdrop filters, interactive glass surfaces, custom gradients, QR codes, and custom layouts.'
+      },
+      media_lab: {
+        title: '🎬 Media Lab & Asset Studio',
+        desc: 'Batch optimize image dimensions, record screen reels, convert audio, and crop screenshots.'
+      }
+    },
+    es: {
+      pinned: {
+        title: '📌 Estaciones de Trabajo Fijadas',
+        desc: 'Tus herramientas de acceso rápido preferidas, ancladas en la parte superior.'
+      },
+      pdf_docs: {
+        title: '📂 PDF y Optimización de Documentos',
+        desc: 'Comprime, une, compila y firma documentos localmente sin demoras de servidor.'
+      },
+      ai_seo: {
+        title: '✍️ Redacción de IA y Herramientas SEO',
+        desc: 'Redacta artículos optimizados, analiza etiquetas meta y audita brechas de contenido con Gemini.'
+      },
+      dev_ops_security: {
+        title: '💻 Operaciones de Desarrollo y Seguridad',
+        desc: 'Formatea bloques JSON, depura expresiones regulares, crea tareas cron y verifica sumas de comprobación.'
+      },
+      design_graphics: {
+        title: '🎨 Diseño y Gráficos Personalizados',
+        desc: 'Diseña filtros de fondo, superficies de vidrio interactivas, degradados personalizados y códigos QR.'
+      },
+      media_lab: {
+        title: '🎬 Laboratorio de Medios y Activos',
+        desc: 'Optimiza dimensiones de imágenes por lote, graba pantallas, convierte audio y recorta capturas.'
+      }
+    },
+    fr: {
+      pinned: {
+        title: '📌 Postes de Travail Épinglés',
+        desc: 'Vos outils d\'accès rapide préférés, ancrés en haut de votre espace de travail.'
+      },
+      pdf_docs: {
+        title: '📂 PDF & Optimisation de Documents',
+        desc: 'Compressez, fusionnez, compilez et signez des documents localement sans aucun délai de serveur.'
+      },
+      ai_seo: {
+        title: '✍️ Rédaction IA & Suite SEO',
+        desc: 'Rédigez des articles optimisés, analysez les balises méta et auditez les lacunes de contenu avec Gemini.'
+      },
+      dev_ops_security: {
+        title: '💻 Opérations Développeur & Sécurité',
+        desc: 'Formatez des blocs JSON, déboguez des expressions régulières, créez des tâches cron et vérifiez des sommes de contrôle.'
+      },
+      design_graphics: {
+        title: '🎨 Design & Graphismes Personnalisés',
+        desc: 'Concevez des filtres d\'arrière-plan, des surfaces en verre interactives, des dégradés personnalisés et des codes QR.'
+      },
+      media_lab: {
+        title: '🎬 Laboratoire Média & Studio d\'Actifs',
+        desc: 'Optimisez les dimensions d\'images par lot, enregistrez l\'écran, convertissez l\'audio et recadrez les captures.'
+      }
+    },
+    de: {
+      pinned: {
+        title: '📌 Angeheftete Werkzeuge',
+        desc: 'Ihre bevorzugten Schnellzugriffs-Werkzeuge, oben in Ihrem Arbeitsbereich verankert.'
+      },
+      pdf_docs: {
+        title: '📂 PDF & Dokumentenoptimierung',
+        desc: 'PDF-Dateien komprimieren, zusammenfügen, konvertieren und Dokumente lokal signieren.'
+      },
+      ai_seo: {
+        title: '✍️ KI-Texterstellung & SEO-Suite',
+        desc: 'Optimierte Artikel entwerfen, Meta-Tags analysieren und Inhaltslücken mit Gemini KI prüfen.'
+      },
+      dev_ops_security: {
+        title: '💻 Entwickler-Tools & Sicherheits-Tresor',
+        desc: 'JSON-Blöcke formatieren, reguläre Ausdrücke prüfen, Cron-Jobs erstellen und Prüfsummen offline verifizieren.'
+      },
+      design_graphics: {
+        title: '🎨 Design & Benutzerdefinierte Grafiken',
+        desc: 'Hintergrundfilter entwerfen, interaktive Glasflächen erstellen, Verläufe und QR-Codes generieren.'
+      },
+      media_lab: {
+        title: '🎬 Medien-Labor & Asset-Studio',
+        desc: 'Bildgrößen im Batch optimieren, Bildschirme aufzeichnen, Audio konvertieren und Screenshots zuschneiden.'
+      }
+    },
+    pt: {
+      pinned: {
+        title: '📌 Estações de Trabalho Fixadas',
+        desc: 'Suas ferramentas de acesso rápido favoritas, ancoradas no topo do seu espaço de trabalho.'
+      },
+      pdf_docs: {
+        title: '📂 PDF e Otimização de Documentos',
+        desc: 'Comprima, mescle, compile e assine documentos localmente sem atraso no servidor.'
+      },
+      ai_seo: {
+        title: '✍️ Redação com IA e Ferramentas de SEO',
+        desc: 'Escreva artigos otimizados, analise tags meta e audite lacunas de conteúdo com a IA do Gemini.'
+      },
+      dev_ops_security: {
+        title: '💻 Operações de Desenvolvedor e Segurança',
+        desc: 'Formate blocos JSON, depure expressões regulares, crie tarefas cron e verifique checksums offline.'
+      },
+      design_graphics: {
+        title: '🎨 Design e Gráficos Personalizados',
+        desc: 'Crie filtros de fundo, superfícies de vidro interativas, gradientes personalizados e códigos QR.'
+      },
+      media_lab: {
+        title: '🎬 Laboratório de Mídia e Studio de Ativos',
+        desc: 'Otimize dimensões de imagem em lote, grave telas, converta áudio e corte capturas.'
+      }
+    }
+  };
+
+  const selectedLang = dicts[lang] || dicts.en;
+  return selectedLang[groupId] || dicts.en[groupId];
+};
+
 export default function Dashboard({ onTabChange }: DashboardProps) {
   const { t, language } = useLanguage();
 
@@ -2825,102 +2974,789 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
             </button>
           </div>
         ) : (
-          dashboardViewMode === 'grid' ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 grid-flow-row-dense gap-x-8 gap-y-12 lg:gap-x-10 lg:gap-y-16 pb-16">
-              {filteredCards.map((card, index) => {
-                const CategoryIcon = iconMap[card.categoryIcon] || Image;
-                const CardIcon = iconMap[card.cardIcon] || Image;
-                const isAiWriter = card.id === 'ai-writer';
-                const colSpanClass = getGridSpanClass(card.colSpan || 1);
-              
-              const localizedCat = getTranslatedCategory(card.category, language);
-              const { title: localizedTitle, desc: localizedDesc, buttonLabel: localizedBtn } = getCardTranslations(card.id, card.title, card.desc, card.buttonLabel);
-              const localizedTagline = getTranslatedTagline(card.id, card.tagline, language);
+          selectedCategory === 'All' && toolSearch === '' ? (
+            <div className="space-y-24 pb-24">
+              {(() => {
+                // Determine pinned cards
+                const pinnedCards = filteredCards.filter(c => c.pinned);
+                // Unpinned cards are divided into groups
+                const unpinnedCards = filteredCards.filter(c => !c.pinned);
 
-              return (
-                <motion.div
-                  key={card.id}
-                  layout
-                  onDragOver={(e) => handleDragOver(e, card.id)}
-                  className={`space-y-4 rounded-2xl transition-all duration-300 relative ${colSpanClass} ${
-                    isCustomizing 
-                      ? 'border-2 border-dashed border-brand/30 bg-brand/[0.015] p-3 shadow-inner' 
-                      : ''
-                  }`}
-                >
-                  {/* Visual Card customizer metrics details */}
-                  <div className="flex items-center justify-between pl-1">
-                    <div className="flex items-center gap-2 select-none min-w-0">
-                      <CategoryIcon className="w-4.5 h-4.5 text-brand transition-colors duration-500 flex-shrink-0" />
-                      <h3 className="font-heading text-xs uppercase font-bold text-[#f8fafc] tracking-widest truncate">{localizedCat}</h3>
+                // Create lists of cards per group
+                const groupDefinitions = [
+                  {
+                    id: 'pdf_docs',
+                    title: '📂 PDF & Document Optimization',
+                    desc: 'Compress, merge, compile, and sign document payloads locally with zero server lag.',
+                    icon: FileDown,
+                    borderColor: 'border-red-500/20',
+                    colorClass: 'text-red-400',
+                    glowColor: 'from-red-500/5',
+                    cards: unpinnedCards.filter(card => 
+                      card.id.includes('pdf') || 
+                      card.category.includes('PDF') || 
+                      card.category === 'Document Optimization' || 
+                      card.title.toLowerCase().includes('pdf')
+                    )
+                  },
+                  {
+                    id: 'ai_seo',
+                    title: '✍️ AI Copywriting & SEO Suite',
+                    desc: 'Draft optimized articles, analyze meta tags, and audit content gaps with Gemini AI.',
+                    icon: Sparkles,
+                    borderColor: 'border-indigo-500/20',
+                    colorClass: 'text-indigo-400',
+                    glowColor: 'from-indigo-500/5',
+                    cards: unpinnedCards.filter(card => 
+                      card.category === 'AI Copywriting' || 
+                      card.id.includes('seo') || 
+                      card.id.includes('keyword') || 
+                      card.id.includes('humanizer') || 
+                      card.id.includes('summarizer') || 
+                      card.id.includes('tone') || 
+                      card.id.includes('resume') || 
+                      card.id.includes('writer') ||
+                      card.id.includes('planner')
+                    )
+                  },
+                  {
+                    id: 'dev_ops_security',
+                    title: '💻 Developer Operations & Security Vault',
+                    desc: 'Format JSON blocks, debug regular expressions, build cron jobs, and verify checksums offline.',
+                    icon: Braces,
+                    borderColor: 'border-emerald-500/20',
+                    colorClass: 'text-emerald-400',
+                    glowColor: 'from-emerald-500/5',
+                    cards: unpinnedCards.filter(card => 
+                      card.category === 'Developer Operations' || 
+                      card.category === 'Security Vault' || 
+                      card.id.includes('json') || 
+                      card.id.includes('regex') || 
+                      card.id.includes('uuid') || 
+                      card.id.includes('cron') || 
+                      card.id.includes('jwt') || 
+                      card.id.includes('password') || 
+                      card.id.includes('hash') || 
+                      card.id.includes('breach') || 
+                      card.id.includes('checksum') ||
+                      card.id.includes('bezier')
+                    )
+                  },
+                  {
+                    id: 'design_graphics',
+                    title: '🎨 Design & Custom Graphics',
+                    desc: 'Design backdrop filters, interactive glass surfaces, custom gradients, QR codes, and custom layouts.',
+                    icon: Palette,
+                    borderColor: 'border-violet-500/20',
+                    colorClass: 'text-violet-400',
+                    glowColor: 'from-violet-500/5',
+                    cards: unpinnedCards.filter(card => 
+                      card.category === 'Design & Signals' || 
+                      card.id.includes('css') || 
+                      card.id.includes('glass') || 
+                      card.id.includes('qr') || 
+                      card.id.includes('svg') || 
+                      card.id.includes('color') || 
+                      card.id.includes('signature') || 
+                      card.id.includes('favicon') || 
+                      card.id.includes('gradient') || 
+                      card.id.includes('bento') || 
+                      card.id.includes('pattern') || 
+                      card.id.includes('sketchpad') || 
+                      card.id.includes('sitemap') || 
+                      card.id.includes('base64') ||
+                      card.id.includes('unit')
+                    )
+                  },
+                  {
+                    id: 'media_lab',
+                    title: '🎬 Media Lab & Asset Studio',
+                    desc: 'Batch optimize image dimensions, record screen reels, convert audio, and crop screenshots.',
+                    icon: Video,
+                    borderColor: 'border-cyan-500/20',
+                    colorClass: 'text-cyan-400',
+                    glowColor: 'from-cyan-500/5',
+                    cards: [] as DashboardCard[]
+                  }
+                ];
+
+                // Gather assigned IDs to make sure Media Lab acts as a perfect fallback catch-all
+                const assignedIds = new Set<string>();
+                groupDefinitions.forEach(g => {
+                  if (g.id !== 'media_lab') {
+                    g.cards.forEach(c => assignedIds.add(c.id));
+                  }
+                });
+
+                // Populate fallback media_lab group
+                groupDefinitions[4].cards = unpinnedCards.filter(c => !assignedIds.has(c.id));
+
+                // If we have pinned cards, unshift the Pinned Workstations group
+                const activeGroups = [...groupDefinitions];
+                if (pinnedCards.length > 0) {
+                  activeGroups.unshift({
+                    id: 'pinned',
+                    title: '📌 Pinned Workstations',
+                    desc: 'Your preferred fast-access workstations, anchored to the top of your workspace.',
+                    icon: Pin,
+                    borderColor: 'border-amber-500/25',
+                    colorClass: 'text-amber-400',
+                    glowColor: 'from-amber-500/5',
+                    cards: pinnedCards
+                  });
+                }
+
+                return activeGroups.map((group, groupIdx) => {
+                  if (group.cards.length === 0) return null;
+
+                  const localized = getGroupLocalization(group.id, language);
+                  const GroupIcon = group.icon;
+
+                  return (
+                    <div key={group.id} className="space-y-10">
+                      {groupIdx > 0 && (
+                        <div className="pt-16 border-t border-zinc-900/60 relative">
+                          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-[1px] bg-gradient-to-r from-transparent via-brand/20 to-transparent animate-pulse" />
+                        </div>
+                      )}
+                      {/* Section Header */}
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-zinc-900/60 pb-4 mb-8">
+                        <div className="flex items-center gap-3">
+                          <div className={`p-2 rounded-xl bg-zinc-950 border ${group.borderColor} ${group.colorClass}`}>
+                            <GroupIcon className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <h3 className="font-heading text-sm font-extrabold text-white tracking-wider uppercase flex items-center gap-2">
+                              {localized.title}
+                              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-zinc-900 border border-zinc-850 text-zinc-500 font-bold">
+                                {group.cards.length}
+                              </span>
+                            </h3>
+                            <p className="font-sans text-xs text-zinc-500 mt-0.5">{localized.desc}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Section Body (Grid or List depending on active view mode) */}
+                      {dashboardViewMode === 'grid' ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-16 lg:gap-x-10 lg:gap-y-24 pb-12">
+                          {group.cards.map((card) => {
+                            const CategoryIcon = iconMap[card.categoryIcon] || Image;
+                            const CardIcon = iconMap[card.cardIcon] || Image;
+                            const isAiWriter = card.id === 'ai-writer';
+                            const colSpanClass = getGridSpanClass(card.colSpan || 1);
+                            
+                            const localizedCat = getTranslatedCategory(card.category, language);
+                            const { title: localizedTitle, desc: localizedDesc, buttonLabel: localizedBtn } = getCardTranslations(card.id, card.title, card.desc, card.buttonLabel);
+                            const localizedTagline = getTranslatedTagline(card.id, card.tagline, language);
+
+                            // Find total index of card to maintain move actions
+                            const totalIndex = cards.findIndex(c => c.id === card.id);
+
+                            return (
+                              <motion.div
+                                key={card.id}
+                                layout
+                                onDragOver={(e) => handleDragOver(e, card.id)}
+                                className={`space-y-4 rounded-2xl transition-all duration-300 relative ${colSpanClass} ${
+                                  isCustomizing 
+                                    ? 'border-2 border-dashed border-brand/30 bg-brand/[0.015] p-3 shadow-inner' 
+                                    : ''
+                                }`}
+                              >
+                                {/* Visual Card customizer metrics details */}
+                                <div className="flex items-center justify-between pl-1">
+                                  <div className="flex items-center gap-2 select-none min-w-0">
+                                    <CategoryIcon className="w-4.5 h-4.5 text-brand transition-colors duration-500 flex-shrink-0" />
+                                    <h3 className="font-heading text-xs uppercase font-bold text-[#f8fafc] tracking-widest truncate">{localizedCat}</h3>
+                                  </div>
+
+                                  <div className="flex items-center gap-1.5 flex-shrink-0 pointer-events-auto">
+                                    {/* Pinned Indicator / Pin Action Button */}
+                                    <button
+                                      type="button"
+                                      onClick={(e) => { e.stopPropagation(); togglePin(card.id); }}
+                                      className={`p-1.5 rounded-lg transition-all cursor-pointer ${
+                                        card.pinned 
+                                          ? 'text-amber-400 bg-amber-500/15 border border-amber-500/30 shadow-[0_0_8px_rgba(245,158,11,0.25)]' 
+                                          : 'text-zinc-650 hover:text-zinc-300 hover:bg-zinc-900 border border-transparent'
+                                      }`}
+                                      title={
+                                        card.pinned 
+                                          ? (language === 'es' ? 'Desfijar herramienta de la parte superior' : language === 'fr' ? 'Dépingler' : language === 'de' ? 'Anheftung aufheben' : language === 'pt' ? 'Desafixar topo' : 'Unpin Tool')
+                                          : (language === 'es' ? 'Fijar herramienta al principio' : language === 'fr' ? 'Épingler en haut' : language === 'de' ? 'Werkzeug oben anheften' : language === 'pt' ? 'Fixar topo' : 'Pin Tool to Top')
+                                      }
+                                    >
+                                      <Pin className={`w-3.5 h-3.5 transition-all duration-300 ${card.pinned ? 'rotate-0 text-amber-400 fill-amber-400/30 scale-110' : '-rotate-45 group-hover:scale-110'}`} />
+                                    </button>
+
+                                    {isCustomizing && (
+                                      <>
+                                        <div className="text-[9px] font-mono text-brand/90 px-1 bg-brand/10 border border-brand/20 rounded font-semibold">
+                                          {card.colSpan}x{card.heightLevel}
+                                        </div>
+                                        
+                                        <div className="flex items-center gap-0.5 bg-zinc-950 rounded p-0.5 border border-zinc-900 shadow-sm">
+                                          <button
+                                            type="button"
+                                            onClick={(e) => { e.stopPropagation(); moveCard(card.id, -1); }}
+                                            disabled={totalIndex === 0}
+                                            className="p-1 rounded hover:bg-zinc-900 text-zinc-400 hover:text-white disabled:opacity-20 disabled:hover:bg-transparent transition-colors cursor-pointer"
+                                            title="Move card left / up"
+                                          >
+                                            <ChevronLeft className="w-3.5 h-3.5" />
+                                          </button>
+                                          
+                                          <button
+                                            type="button"
+                                            onClick={(e) => { e.stopPropagation(); moveCard(card.id, 1); }}
+                                            disabled={totalIndex === cards.length - 1}
+                                            className="p-1 rounded hover:bg-zinc-900 text-zinc-400 hover:text-white disabled:opacity-20 disabled:hover:bg-transparent transition-colors cursor-pointer"
+                                            title="Move card right / down"
+                                          >
+                                            <ChevronRight className="w-3.5 h-3.5" />
+                                          </button>
+                                        </div>
+                                      </>
+                                    )}
+                                  </div>
+                                </div>
+
+                                {isCustomizing && (
+                                  <div 
+                                    draggable
+                                    onDragStart={(e) => handleDragStart(e, card.id)}
+                                    onDragEnd={handleDragEnd}
+                                    className="flex items-center gap-2 cursor-grab active:cursor-grabbing py-1.5 bg-zinc-950 hover:bg-[#16161f] border border-zinc-900 rounded-lg text-zinc-400 hover:text-zinc-200 justify-center text-[10px] font-mono select-none pointer-events-auto transition-colors"
+                                    title="Drag and drop card to swap grid order"
+                                  >
+                                    <GripVertical className="w-3.5 h-3.5 text-zinc-600 group-hover:text-zinc-400" />
+                                    <span>{dict.grabDragHandle}</span>
+                                  </div>
+                                )}
+                                
+                                <div 
+                                  className="relative"
+                                  onContextMenu={(e) => {
+                                    if (!isCustomizing) {
+                                      e.preventDefault();
+                                      setContextMenu({
+                                        x: e.clientX,
+                                        y: e.clientY,
+                                        toolId: card.id,
+                                        toolTitle: localizedTitle,
+                                      });
+                                    }
+                                  }}
+                                >
+                                  <ThreeDTiltCard 
+                                    href={`/${card.id}`}
+                                    onClick={(e) => {
+                                      if (!isCustomizing) {
+                                        e.preventDefault();
+                                        onTabChange(card.id as ActiveTab);
+                                      }
+                                    }}
+                                    className={`${getHeightClass(card.heightLevel || 2)} transition-all duration-300 relative`}
+                                  >
+                                    <div className="space-y-4 h-full flex flex-col justify-between" style={{ transformStyle: 'preserve-3d' }}>
+                                      <div className="space-y-4" style={{ transformStyle: 'preserve-3d' }}>
+                                        {/* 3D Popping Icon Block */}
+                                        <div 
+                                          className="w-14 h-14 rounded-2xl bg-gradient-to-br from-zinc-900 via-zinc-950 to-black border-2 border-red-950/60 hover:border-brand/60 flex items-center justify-center text-brand shadow-lg shadow-brand/20 transition-all duration-300 relative group-hover:shadow-[0_0_15px_rgba(239,68,68,0.25)]" 
+                                          style={{ transform: 'translateZ(30px)', transformStyle: 'preserve-3d' }}
+                                        >
+                                          <CardIcon className={`w-7 h-7 filter drop-shadow-[0_0_8px_rgba(239,68,68,0.3)] transition-all duration-300 group-hover:scale-110 ${isAiWriter ? 'text-indigo-400 animate-pulse' : card.textClass}`} style={{ transform: 'translateZ(10px)' }} />
+                                          <div className="absolute inset-0 bg-brand/5 rounded-2xl blur-md -z-10 group-hover:bg-brand/10 transition-all duration-300" />
+                                        </div>
+                                        
+                                        {/* 3D Elevated Title & Description */}
+                                        <div style={{ transform: 'translateZ(20px)' }}>
+                                          <h4 className="font-heading text-lg font-extrabold text-white tracking-tight leading-snug group-hover:text-brand transition-colors duration-300">{localizedTitle}</h4>
+                                          <p className="font-sans text-xs sm:text-sm text-zinc-400 mt-2 leading-relaxed line-clamp-3" title={localizedDesc}>
+                                            {localizedDesc}
+                                          </p>
+                                        </div>
+                                        
+                                        {/* 3D Offset Tagline */}
+                                        <div className="border-t border-zinc-900/60 pt-3" style={{ transform: 'translateZ(10px)' }}>
+                                          <p className="font-mono text-[9px] text-[#94a3b8] uppercase tracking-wider mb-1">{dict.targetCapability}</p>
+                                          <p className="font-sans text-[11px] text-zinc-500 italic truncate" title={localizedTagline}>{localizedTagline}</p>
+                                        </div>
+                                      </div>
+
+                                      {/* 3D Popping Action Button */}
+                                      <div 
+                                        className="flex items-center justify-between text-xs text-brand font-bold group-hover:text-brand transition-all duration-500 mt-4 pt-2 border-t border-brand-border/10"
+                                        style={{ transform: 'translateZ(25px)' }}
+                                      >
+                                        <span>{localizedBtn}</span>
+                                        <ArrowRight className="w-4 h-4" />
+                                      </div>
+                                    </div>
+                                  </ThreeDTiltCard>
+
+                                  {isCustomizing && (
+                                    <>
+                                      {/* Interactive size customization controller overlay */}
+                                      <div 
+                                        className="absolute inset-x-2 bottom-12 z-20 flex flex-col gap-2 p-3 rounded-xl bg-zinc-950/95 border border-zinc-900 shadow-2xl backdrop-blur-sm pointer-events-auto transition-all"
+                                        onClick={(e) => e.stopPropagation()}
+                                      >
+                                        <div className="flex items-center justify-between border-b border-zinc-900 pb-1.5">
+                                          <span className="text-[9.5px] font-mono text-zinc-400 font-bold uppercase tracking-wider">{dict.gridWidthSpan}</span>
+                                          <span className="text-[10px] font-mono text-emerald-400 font-extrabold">{(card.colSpan || 1)}x Width</span>
+                                        </div>
+                                        <div className="flex items-center gap-1.5 bg-zinc-900/40 p-1 rounded-lg border border-zinc-950">
+                                          <button
+                                            type="button"
+                                            onClick={() => updateCardSize(card.id, -1, 0)}
+                                            disabled={(card.colSpan || 1) <= 1}
+                                            className="flex-1 py-1 px-2 rounded-md bg-zinc-950 hover:bg-zinc-900 text-zinc-400 hover:text-white disabled:opacity-20 font-bold font-mono text-[11px] transition-all cursor-pointer border border-zinc-900"
+                                          >
+                                            <Minus className="w-3 h-3 mx-auto" />
+                                          </button>
+                                          <button
+                                            type="button"
+                                            onClick={() => updateCardSize(card.id, 1, 0)}
+                                            disabled={(card.colSpan || 1) >= 6}
+                                            className="flex-1 py-1 px-2 rounded-md bg-zinc-950 hover:bg-zinc-900 text-zinc-400 hover:text-white disabled:opacity-20 font-bold font-mono text-[11px] transition-all cursor-pointer border border-zinc-900"
+                                          >
+                                            <Plus className="w-3 h-3 mx-auto" />
+                                          </button>
+                                        </div>
+
+                                        <div className="flex items-center justify-between border-b border-zinc-900 pt-1 pb-1.5 mt-1">
+                                          <span className="text-[9.5px] font-mono text-zinc-400 font-bold uppercase tracking-wider">{dict.widgetHeight}</span>
+                                          <span className="text-[10px] font-mono text-amber-500 font-extrabold">{getHeightClass(card.heightLevel || 2)}</span>
+                                        </div>
+                                        <div className="flex items-center gap-1.5 bg-zinc-900/40 p-1 rounded-lg border border-zinc-950">
+                                          <button
+                                            type="button"
+                                            onClick={() => updateCardSize(card.id, 0, -1)}
+                                            disabled={(card.heightLevel || 2) <= 1}
+                                            className="flex-1 py-1 px-2 rounded-md bg-zinc-950 hover:bg-zinc-900 text-zinc-400 hover:text-white disabled:opacity-20 font-bold font-mono text-[11px] transition-all cursor-pointer border border-zinc-900"
+                                          >
+                                            <Minus className="w-3 h-3 mx-auto" />
+                                          </button>
+                                          <button
+                                            type="button"
+                                            onClick={() => updateCardSize(card.id, 0, 1)}
+                                            disabled={(card.heightLevel || 2) >= 5}
+                                            className="flex-1 py-1 px-2 rounded-md bg-zinc-950 hover:bg-zinc-900 text-zinc-400 hover:text-white disabled:opacity-20 font-bold font-mono text-[11px] transition-all cursor-pointer border border-zinc-900"
+                                          >
+                                            <Plus className="w-3 h-3 mx-auto" />
+                                          </button>
+                                        </div>
+                                      </div>
+
+                                      {/* Direct pointer corner resize handle */}
+                                      <div 
+                                        onPointerDown={(e) => handleResizeStart(e, card.id)}
+                                        className="absolute bottom-1 right-1 w-6 h-6 rounded-br-lg cursor-se-resize flex items-end justify-end p-0.5 z-30 select-none group/resize pointer-events-auto"
+                                        title="Drag corner directly to resize card spans!"
+                                        onClick={(e) => e.stopPropagation()}
+                                      >
+                                        <div className="w-3.5 h-3.5 border-r-2 border-b-2 border-brand/50 group-hover/resize:border-brand transition-colors rounded-br" style={{ borderStyle: 'solid solid' }} />
+                                      </div>
+                                    </>
+                                  )}
+                                </div>
+                              </motion.div>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <div className="flex flex-col gap-5 sm:gap-6 w-full max-w-5xl mx-auto pb-6">
+                          {group.cards.map((card) => {
+                            const CategoryIcon = iconMap[card.categoryIcon] || Image;
+                            const CardIcon = iconMap[card.cardIcon] || Image;
+                            const isAiWriter = card.id === 'ai-writer';
+                            
+                            const localizedCat = getTranslatedCategory(card.category, language);
+                            const { title: localizedTitle, desc: localizedDesc, buttonLabel: localizedBtn } = getCardTranslations(card.id, card.title, card.desc, card.buttonLabel);
+                            const localizedTagline = getTranslatedTagline(card.id, card.tagline, language);
+
+                            // Find total index of card to maintain move actions
+                            const totalIndex = cards.findIndex(c => c.id === card.id);
+
+                            return (
+                              <motion.div
+                                key={card.id}
+                                layout
+                                onDragOver={(e) => handleDragOver(e, card.id)}
+                                onContextMenu={(e) => {
+                                  if (!isCustomizing) {
+                                    e.preventDefault();
+                                    setContextMenu({
+                                      x: e.clientX,
+                                      y: e.clientY,
+                                      toolId: card.id,
+                                      toolTitle: localizedTitle,
+                                    });
+                                  }
+                                }}
+                                className={`rounded-2xl border transition-all duration-300 relative bg-[#07070a]/90 flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 ${
+                                  isCustomizing
+                                    ? 'border-dashed border-brand/40 bg-brand/[0.015] p-4 shadow-inner'
+                                    : 'border-zinc-900 hover:border-brand/45 hover:bg-[#0c0c11]/90 shadow-lg'
+                                }`}
+                              >
+                                {/* Left Side: Drag Handle & Meta info & Title */}
+                                <div className="flex flex-1 items-start sm:items-center gap-4 min-w-0">
+                                  {/* Reordering handle when customizing is active */}
+                                  {isCustomizing && (
+                                    <div 
+                                      draggable
+                                      onDragStart={(e) => handleDragStart(e, card.id)}
+                                      onDragEnd={handleDragEnd}
+                                      className="p-2 cursor-grab active:cursor-grabbing bg-zinc-950 hover:bg-zinc-900 border border-zinc-850 rounded-lg text-zinc-500 hover:text-zinc-300 transition-colors flex-shrink-0"
+                                      title="Drag unit to swap sequence"
+                                    >
+                                      <GripVertical className="w-4 h-4" />
+                                    </div>
+                                  )}
+
+                                  {/* Compact Icon */}
+                                  <div className="w-11 h-11 rounded-xl bg-zinc-950/70 border border-zinc-850 flex items-center justify-center text-brand flex-shrink-0 shadow-[inset_0_1px_2px_rgba(0,0,0,0.6)]">
+                                    <CardIcon className={`w-5.5 h-5.5 ${isAiWriter ? 'text-indigo-400 animate-pulse' : card.textClass}`} />
+                                  </div>
+
+                                  <div className="min-w-0 flex-1 space-y-1">
+                                    <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                                      <span className="font-heading text-[10px] uppercase font-bold text-brand tracking-widest bg-brand/5 px-2 py-0.5 rounded border border-brand/10">
+                                        {localizedCat}
+                                      </span>
+                                      <h4 className="font-heading text-sm font-bold text-white truncate">{localizedTitle}</h4>
+                                    </div>
+                                    
+                                    <p className="font-sans text-xs text-zinc-400 truncate max-w-3xl">
+                                      {localizedDesc}
+                                    </p>
+                                  </div>
+                                </div>
+
+                                {/* Mid-Right: Dynamic tagline details if space allows */}
+                                <div className="hidden lg:block w-48 text-right flex-shrink-0 border-l border-zinc-900/40 pl-4">
+                                  <span className="font-mono text-[9px] text-[#94a3b8] uppercase tracking-wider block">{dict.targetCapability}</span>
+                                  <span className="font-sans text-[11px] text-zinc-500 italic block truncate" title={localizedTagline}>{localizedTagline}</span>
+                                </div>
+
+                                {/* Far Right: Actions and modifiers */}
+                                <div className="flex items-center gap-3 justify-end flex-shrink-0">
+                                  {/* Pin/Unpin Action Button */}
+                                  <button
+                                    type="button"
+                                    onClick={(e) => { e.stopPropagation(); togglePin(card.id); }}
+                                    className={`p-2 rounded-lg transition-all cursor-pointer ${
+                                      card.pinned 
+                                        ? 'text-amber-400 bg-amber-500/15 border border-amber-500/30 shadow-[0_0_8px_rgba(245,158,11,0.25)]' 
+                                        : 'text-zinc-655 hover:text-zinc-300 hover:bg-zinc-900 border border-zinc-900'
+                                    }`}
+                                    title={
+                                      card.pinned 
+                                        ? (language === 'es' ? 'Desfijar herramienta de la parte superior' : language === 'fr' ? 'Dépingler' : language === 'de' ? 'Anheftung aufheben' : language === 'pt' ? 'Desafixar topo' : 'Unpin Tool')
+                                        : (language === 'es' ? 'Fijar herramienta al principio' : language === 'fr' ? 'Épingler en haut' : language === 'de' ? 'Werkzeug oben anheften' : language === 'pt' ? 'Fixar topo' : 'Pin Tool to Top')
+                                    }
+                                  >
+                                    <Pin className={`w-3.5 h-3.5 transition-all duration-300 ${card.pinned ? 'rotate-0 text-amber-400 fill-amber-400/30 scale-110' : '-rotate-45 group-hover:scale-110'}`} />
+                                  </button>
+
+                                  {isCustomizing && (
+                                    <div className="flex items-center gap-1.5 bg-zinc-950 p-1 rounded-xl border border-zinc-900 shadow-sm">
+                                      <button
+                                        type="button"
+                                        onClick={(e) => { e.stopPropagation(); moveCard(card.id, -1); }}
+                                        disabled={totalIndex === 0}
+                                        className="p-1.5 rounded-lg hover:bg-zinc-900 text-zinc-400 hover:text-white disabled:opacity-20 disabled:hover:bg-transparent transition-all cursor-pointer"
+                                        title={dict.shiftUpstream}
+                                      >
+                                        <ChevronLeft className="w-4 h-4" />
+                                      </button>
+                                      
+                                      <button
+                                        type="button"
+                                        onClick={(e) => { e.stopPropagation(); moveCard(card.id, 1); }}
+                                        disabled={totalIndex === cards.length - 1}
+                                        className="p-1.5 rounded-lg hover:bg-zinc-900 text-zinc-400 hover:text-white disabled:opacity-20 disabled:hover:bg-transparent transition-all cursor-pointer"
+                                        title={dict.shiftDownstream}
+                                      >
+                                        <ChevronRight className="w-4 h-4" />
+                                      </button>
+
+                                      <div className="text-[10px] font-mono text-zinc-500 px-2 border-l border-zinc-850">
+                                        Pos: #{totalIndex + 1}
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  <button
+                                    type="button"
+                                    disabled={isCustomizing}
+                                    onClick={() => !isCustomizing && onTabChange(card.id as ActiveTab)}
+                                    className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[11px] font-heading font-extrabold tracking-wider uppercase transition-all ${
+                                      isCustomizing
+                                        ? 'bg-zinc-900/20 text-zinc-600 border border-zinc-950 cursor-not-allowed'
+                                        : 'bg-zinc-900 hover:bg-brand hover:text-zinc-950 text-brand border border-zinc-800 hover:border-brand-border cursor-pointer shadow-md'
+                                    }`}
+                                  >
+                                    <span>{isCustomizing ? dict.editingActive : localizedBtn}</span>
+                                    <ArrowRight className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+                              </motion.div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                });
+              })()}
+            </div>
+          ) : (
+            dashboardViewMode === 'grid' ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-16 lg:gap-x-10 lg:gap-y-24 pb-16">
+                {filteredCards.map((card, index) => {
+                  const CategoryIcon = iconMap[card.categoryIcon] || Image;
+                  const CardIcon = iconMap[card.cardIcon] || Image;
+                  const isAiWriter = card.id === 'ai-writer';
+                  const colSpanClass = getGridSpanClass(card.colSpan || 1);
+                
+                const localizedCat = getTranslatedCategory(card.category, language);
+                const { title: localizedTitle, desc: localizedDesc, buttonLabel: localizedBtn } = getCardTranslations(card.id, card.title, card.desc, card.buttonLabel);
+                const localizedTagline = getTranslatedTagline(card.id, card.tagline, language);
+
+                return (
+                  <motion.div
+                    key={card.id}
+                    layout
+                    onDragOver={(e) => handleDragOver(e, card.id)}
+                    className={`space-y-4 rounded-2xl transition-all duration-300 relative ${colSpanClass} ${
+                      isCustomizing 
+                        ? 'border-2 border-dashed border-brand/30 bg-brand/[0.015] p-3 shadow-inner' 
+                        : ''
+                    }`}
+                  >
+                    {/* Visual Card customizer metrics details */}
+                    <div className="flex items-center justify-between pl-1">
+                      <div className="flex items-center gap-2 select-none min-w-0">
+                        <CategoryIcon className="w-4.5 h-4.5 text-brand transition-colors duration-500 flex-shrink-0" />
+                        <h3 className="font-heading text-xs uppercase font-bold text-[#f8fafc] tracking-widest truncate">{localizedCat}</h3>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 flex-shrink-0 pointer-events-auto">
+                        {/* Pinned Indicator / Pin Action Button */}
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); togglePin(card.id); }}
+                          className={`p-1.5 rounded-lg transition-all cursor-pointer ${
+                            card.pinned 
+                              ? 'text-amber-400 bg-amber-500/15 border border-amber-500/30 shadow-[0_0_8px_rgba(245,158,11,0.25)]' 
+                              : 'text-zinc-650 hover:text-zinc-300 hover:bg-zinc-900 border border-transparent'
+                          }`}
+                          title={
+                            card.pinned 
+                              ? (language === 'es' ? 'Desfijar herramienta de la parte superior' : language === 'fr' ? 'Dépingler' : language === 'de' ? 'Anheftung aufheben' : language === 'pt' ? 'Desafixar topo' : 'Unpin Tool')
+                              : (language === 'es' ? 'Fijar herramienta al principio' : language === 'fr' ? 'Épingler en haut' : language === 'de' ? 'Werkzeug oben anheften' : language === 'pt' ? 'Fixar topo' : 'Pin Tool to Top')
+                          }
+                        >
+                          <Pin className={`w-3.5 h-3.5 transition-all duration-300 ${card.pinned ? 'rotate-0 text-amber-400 fill-amber-400/30 scale-110' : '-rotate-45 group-hover:scale-110'}`} />
+                        </button>
+
+                        {isCustomizing && (
+                          <>
+                            <div className="text-[9px] font-mono text-brand/90 px-1 bg-brand/10 border border-brand/20 rounded font-semibold">
+                              {card.colSpan}x{card.heightLevel}
+                            </div>
+                            
+                            <div className="flex items-center gap-0.5 bg-zinc-950 rounded p-0.5 border border-zinc-900 shadow-sm">
+                              <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); moveCard(card.id, -1); }}
+                                disabled={index === 0}
+                                className="p-1 rounded hover:bg-zinc-900 text-zinc-400 hover:text-white disabled:opacity-20 disabled:hover:bg-transparent transition-colors cursor-pointer"
+                                title="Move card left / up"
+                              >
+                                <ChevronLeft className="w-3.5 h-3.5" />
+                              </button>
+                              
+                              <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); moveCard(card.id, 1); }}
+                                disabled={index === cards.length - 1}
+                                className="p-1 rounded hover:bg-zinc-900 text-zinc-400 hover:text-white disabled:opacity-20 disabled:hover:bg-transparent transition-colors cursor-pointer"
+                                title="Move card right / down"
+                              >
+                                <ChevronRight className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </>
+                        )}
+                      </div>
                     </div>
 
-                    <div className="flex items-center gap-1.5 flex-shrink-0 pointer-events-auto">
-                      {/* Pinned Indicator / Pin Action Button */}
-                      <button
-                        type="button"
-                        onClick={(e) => { e.stopPropagation(); togglePin(card.id); }}
-                        className={`p-1.5 rounded-lg transition-all cursor-pointer ${
-                          card.pinned 
-                            ? 'text-amber-400 bg-amber-500/15 border border-amber-500/30 shadow-[0_0_8px_rgba(245,158,11,0.25)]' 
-                            : 'text-zinc-650 hover:text-zinc-300 hover:bg-zinc-900 border border-transparent'
-                        }`}
-                        title={
-                          card.pinned 
-                            ? (language === 'es' ? 'Desfijar herramienta de la parte superior' : language === 'fr' ? 'Dépingler' : language === 'de' ? 'Anheftung aufheben' : language === 'pt' ? 'Desafixar topo' : 'Unpin Tool')
-                            : (language === 'es' ? 'Fijar herramienta al principio' : language === 'fr' ? 'Épingler en haut' : language === 'de' ? 'Werkzeug oben anheften' : language === 'pt' ? 'Fixar topo' : 'Pin Tool to Top')
-                        }
+                    {isCustomizing && (
+                      <div 
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, card.id)}
+                        onDragEnd={handleDragEnd}
+                        className="flex items-center gap-2 cursor-grab active:cursor-grabbing py-1.5 bg-zinc-950 hover:bg-[#16161f] border border-zinc-900 rounded-lg text-zinc-400 hover:text-zinc-200 justify-center text-[10px] font-mono select-none pointer-events-auto transition-colors"
+                        title="Drag and drop card to swap grid order"
                       >
-                        <Pin className={`w-3.5 h-3.5 transition-all duration-300 ${card.pinned ? 'rotate-0 text-amber-400 fill-amber-400/30 scale-110' : '-rotate-45 group-hover:scale-110'}`} />
-                      </button>
+                        <GripVertical className="w-3.5 h-3.5 text-zinc-600 group-hover:text-zinc-400" />
+                        <span>{dict.grabDragHandle}</span>
+                      </div>
+                    )}
+                    
+                    <div 
+                      className="relative"
+                      onContextMenu={(e) => {
+                        if (!isCustomizing) {
+                          e.preventDefault();
+                          setContextMenu({
+                            x: e.clientX,
+                            y: e.clientY,
+                            toolId: card.id,
+                            toolTitle: localizedTitle,
+                          });
+                        }
+                      }}
+                    >
+                      <ThreeDTiltCard 
+                        href={`/${card.id}`}
+                        onClick={(e) => {
+                          if (!isCustomizing) {
+                            e.preventDefault();
+                            onTabChange(card.id as ActiveTab);
+                          }
+                        }}
+                        className={`${getHeightClass(card.heightLevel || 2)} transition-all duration-300 relative`}
+                      >
+                        <div className="space-y-4 h-full flex flex-col justify-between" style={{ transformStyle: 'preserve-3d' }}>
+                          <div className="space-y-4" style={{ transformStyle: 'preserve-3d' }}>
+                            {/* 3D Popping Icon Block */}
+                            <div 
+                              className="w-14 h-14 rounded-2xl bg-gradient-to-br from-zinc-900 via-zinc-950 to-black border-2 border-red-950/60 hover:border-brand/60 flex items-center justify-center text-brand shadow-lg shadow-brand/20 transition-all duration-300 relative group-hover:shadow-[0_0_15px_rgba(239,68,68,0.25)]" 
+                              style={{ transform: 'translateZ(30px)', transformStyle: 'preserve-3d' }}
+                            >
+                              <CardIcon className={`w-7 h-7 filter drop-shadow-[0_0_8px_rgba(239,68,68,0.3)] transition-all duration-300 group-hover:scale-110 ${isAiWriter ? 'text-indigo-400 animate-pulse' : card.textClass}`} style={{ transform: 'translateZ(10px)' }} />
+                              <div className="absolute inset-0 bg-brand/5 rounded-2xl blur-md -z-10 group-hover:bg-brand/10 transition-all duration-300" />
+                            </div>
+                            
+                            {/* 3D Elevated Title & Description */}
+                            <div style={{ transform: 'translateZ(20px)' }}>
+                              <h4 className="font-heading text-lg font-extrabold text-white tracking-tight leading-snug group-hover:text-brand transition-colors duration-300">{localizedTitle}</h4>
+                              <p className="font-sans text-xs sm:text-sm text-zinc-400 mt-2 leading-relaxed line-clamp-3" title={localizedDesc}>
+                                {localizedDesc}
+                              </p>
+                            </div>
+                            
+                            {/* 3D Offset Tagline */}
+                            <div className="border-t border-zinc-900/60 pt-3" style={{ transform: 'translateZ(10px)' }}>
+                              <p className="font-mono text-[9px] text-[#94a3b8] uppercase tracking-wider mb-1">{dict.targetCapability}</p>
+                              <p className="font-sans text-[11px] text-zinc-500 italic truncate" title={localizedTagline}>{localizedTagline}</p>
+                            </div>
+                          </div>
+
+                          {/* 3D Popping Action Button */}
+                          <div 
+                            className="flex items-center justify-between text-xs text-brand font-bold group-hover:text-brand transition-all duration-500 mt-4 pt-2 border-t border-brand-border/10"
+                            style={{ transform: 'translateZ(25px)' }}
+                          >
+                            <span>{localizedBtn}</span>
+                            <ArrowRight className="w-4 h-4" />
+                          </div>
+                        </div>
+                      </ThreeDTiltCard>
 
                       {isCustomizing && (
                         <>
-                          <div className="text-[9px] font-mono text-brand/90 px-1 bg-brand/10 border border-brand/20 rounded font-semibold">
-                            {card.colSpan}x{card.heightLevel}
+                          {/* Interactive size customization controller overlay */}
+                          <div 
+                            className="absolute inset-x-2 bottom-12 z-20 flex flex-col gap-2 p-3 rounded-xl bg-zinc-950/95 border border-zinc-900 shadow-2xl backdrop-blur-sm pointer-events-auto transition-all"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <div className="flex items-center justify-between border-b border-zinc-900 pb-1.5">
+                              <span className="text-[9.5px] font-mono text-zinc-400 font-bold uppercase tracking-wider">{dict.gridWidthSpan}</span>
+                              <span className="text-[10px] font-mono text-emerald-400 font-extrabold">{(card.colSpan || 1)}x Width</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 bg-zinc-900/40 p-1 rounded-lg border border-zinc-950">
+                              <button
+                                type="button"
+                                onClick={() => updateCardSize(card.id, -1, 0)}
+                                disabled={(card.colSpan || 1) <= 1}
+                                className="flex-1 py-1 px-2 rounded-md bg-zinc-950 hover:bg-zinc-900 text-zinc-400 hover:text-white disabled:opacity-20 font-bold font-mono text-[11px] transition-all cursor-pointer border border-zinc-900"
+                              >
+                                <Minus className="w-3.5 h-3.5 mx-auto" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => updateCardSize(card.id, 1, 0)}
+                                disabled={(card.colSpan || 1) >= 6}
+                                className="flex-1 py-1 px-2 rounded-md bg-zinc-950 hover:bg-zinc-900 text-zinc-400 hover:text-white disabled:opacity-20 font-bold font-mono text-[11px] transition-all cursor-pointer border border-zinc-900"
+                              >
+                                <Plus className="w-3.5 h-3.5 mx-auto" />
+                              </button>
+                            </div>
+
+                            <div className="flex items-center justify-between border-b border-zinc-900 pt-1 pb-1.5 mt-1">
+                              <span className="text-[9.5px] font-mono text-zinc-400 font-bold uppercase tracking-wider">{dict.widgetHeight}</span>
+                              <span className="text-[10px] font-mono text-amber-500 font-extrabold">{getHeightClass(card.heightLevel || 2)}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 bg-zinc-900/40 p-1 rounded-lg border border-zinc-950">
+                              <button
+                                type="button"
+                                onClick={() => updateCardSize(card.id, 0, -1)}
+                                disabled={(card.heightLevel || 2) <= 1}
+                                className="flex-1 py-1 px-2 rounded-md bg-zinc-950 hover:bg-zinc-900 text-zinc-400 hover:text-white disabled:opacity-20 font-bold font-mono text-[11px] transition-all cursor-pointer border border-zinc-900"
+                              >
+                                <Minus className="w-3.5 h-3.5 mx-auto" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => updateCardSize(card.id, 0, 1)}
+                                disabled={(card.heightLevel || 2) >= 5}
+                                className="flex-1 py-1 px-2 rounded-md bg-zinc-950 hover:bg-zinc-900 text-zinc-400 hover:text-white disabled:opacity-20 font-bold font-mono text-[11px] transition-all cursor-pointer border border-zinc-900"
+                              >
+                                <Plus className="w-3.5 h-3.5 mx-auto" />
+                              </button>
+                            </div>
                           </div>
-                          
-                          <div className="flex items-center gap-0.5 bg-zinc-950 rounded p-0.5 border border-zinc-900 shadow-sm">
-                            <button
-                              type="button"
-                              onClick={(e) => { e.stopPropagation(); moveCard(card.id, -1); }}
-                              disabled={index === 0}
-                              className="p-1 rounded hover:bg-zinc-900 text-zinc-400 hover:text-white disabled:opacity-20 disabled:hover:bg-transparent transition-colors cursor-pointer"
-                              title="Move card left / up"
-                            >
-                              <ChevronLeft className="w-3.5 h-3.5" />
-                            </button>
-                            
-                            <button
-                              type="button"
-                              onClick={(e) => { e.stopPropagation(); moveCard(card.id, 1); }}
-                              disabled={index === cards.length - 1}
-                              className="p-1 rounded hover:bg-zinc-900 text-zinc-400 hover:text-white disabled:opacity-20 disabled:hover:bg-transparent transition-colors cursor-pointer"
-                              title="Move card right / down"
-                            >
-                              <ChevronRight className="w-3.5 h-3.5" />
-                            </button>
+
+                          {/* Direct pointer corner resize handle */}
+                          <div 
+                            onPointerDown={(e) => handleResizeStart(e, card.id)}
+                            className="absolute bottom-1 right-1 w-6 h-6 rounded-br-lg cursor-se-resize flex items-end justify-end p-0.5 z-30 select-none group/resize pointer-events-auto"
+                            title="Drag corner directly to resize card spans!"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <div className="w-3.5 h-3.5 border-r-2 border-b-2 border-brand/50 group-hover/resize:border-brand transition-colors rounded-br" style={{ borderStyle: 'solid solid' }} />
                           </div>
                         </>
                       )}
                     </div>
-                  </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          ) : (
+            /* Minimalist List view of elements */
+            <div className="flex flex-col gap-5 sm:gap-6 w-full max-w-5xl mx-auto pb-16">
+              {filteredCards.map((card, index) => {
+                const CategoryIcon = iconMap[card.categoryIcon] || Image;
+                const CardIcon = iconMap[card.cardIcon] || Image;
+                const isAiWriter = card.id === 'ai-writer';
+                
+                const localizedCat = getTranslatedCategory(card.category, language);
+                const { title: localizedTitle, desc: localizedDesc, buttonLabel: localizedBtn } = getCardTranslations(card.id, card.title, card.desc, card.buttonLabel);
+                const localizedTagline = getTranslatedTagline(card.id, card.tagline, language);
 
-                  {isCustomizing && (
-                    <div 
-                      draggable
-                      onDragStart={(e) => handleDragStart(e, card.id)}
-                      onDragEnd={handleDragEnd}
-                      className="flex items-center gap-2 cursor-grab active:cursor-grabbing py-1.5 bg-zinc-950 hover:bg-[#16161f] border border-zinc-900 rounded-lg text-zinc-400 hover:text-zinc-200 justify-center text-[10px] font-mono select-none pointer-events-auto transition-colors"
-                      title="Drag and drop card to swap grid order"
-                    >
-                      <GripVertical className="w-3.5 h-3.5 text-zinc-600 group-hover:text-zinc-400" />
-                      <span>{dict.grabDragHandle}</span>
-                    </div>
-                  )}
-                  
-                  <div 
-                    className="relative"
+                return (
+                  <motion.div
+                    key={card.id}
+                    layout
+                    onDragOver={(e) => handleDragOver(e, card.id)}
                     onContextMenu={(e) => {
                       if (!isCustomizing) {
                         e.preventDefault();
@@ -2932,264 +3768,119 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
                         });
                       }
                     }}
+                    className={`rounded-2xl border transition-all duration-300 relative bg-[#07070a]/90 flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 ${
+                      isCustomizing
+                        ? 'border-dashed border-brand/40 bg-brand/[0.015] p-4 shadow-inner'
+                        : 'border-zinc-900 hover:border-brand/45 hover:bg-[#0c0c11]/90 shadow-lg'
+                    }`}
                   >
-                    <ThreeDTiltCard 
-                      href={`/${card.id}`}
-                      onClick={(e) => {
-                        if (!isCustomizing) {
-                          e.preventDefault();
-                          onTabChange(card.id as ActiveTab);
-                        }
-                      }}
-                      className={`${getHeightClass(card.heightLevel || 2)} transition-all duration-300 relative`}
-                    >
-                      <div className="space-y-4 h-full flex flex-col justify-between" style={{ transformStyle: 'preserve-3d' }}>
-                        <div className="space-y-4" style={{ transformStyle: 'preserve-3d' }}>
-                          {/* 3D Popping Icon Block */}
-                          <div 
-                            className="w-14 h-14 rounded-2xl bg-gradient-to-br from-zinc-900 via-zinc-950 to-black border-2 border-red-950/60 hover:border-brand/60 flex items-center justify-center text-brand shadow-lg shadow-brand/20 transition-all duration-300 relative group-hover:shadow-[0_0_15px_rgba(239,68,68,0.25)]" 
-                            style={{ transform: 'translateZ(30px)', transformStyle: 'preserve-3d' }}
-                          >
-                            <CardIcon className={`w-7 h-7 filter drop-shadow-[0_0_8px_rgba(239,68,68,0.3)] transition-all duration-300 group-hover:scale-110 ${isAiWriter ? 'text-indigo-400 animate-pulse' : card.textClass}`} style={{ transform: 'translateZ(10px)' }} />
-                            <div className="absolute inset-0 bg-brand/5 rounded-2xl blur-md -z-10 group-hover:bg-brand/10 transition-all duration-300" />
-                          </div>
-                          
-                          {/* 3D Elevated Title & Description */}
-                          <div style={{ transform: 'translateZ(20px)' }}>
-                            <h4 className="font-heading text-lg font-extrabold text-white tracking-tight leading-snug group-hover:text-brand transition-colors duration-300">{localizedTitle}</h4>
-                            <p className="font-sans text-xs sm:text-sm text-zinc-400 mt-2 leading-relaxed line-clamp-3" title={localizedDesc}>
-                              {localizedDesc}
-                            </p>
-                          </div>
-                          
-                          {/* 3D Offset Tagline */}
-                          <div className="border-t border-zinc-900/60 pt-3" style={{ transform: 'translateZ(10px)' }}>
-                            <p className="font-mono text-[9px] text-[#94a3b8] uppercase tracking-wider mb-1">{dict.targetCapability}</p>
-                            <p className="font-sans text-[11px] text-zinc-500 italic truncate" title={localizedTagline}>{localizedTagline}</p>
-                          </div>
-                        </div>
-
-                        {/* 3D Popping Action Button */}
+                    {/* Left Side: Drag Handle & Meta info & Title */}
+                    <div className="flex flex-1 items-start sm:items-center gap-4 min-w-0">
+                      {/* Reordering handle when customizing is active */}
+                      {isCustomizing && (
                         <div 
-                          className="flex items-center justify-between text-xs text-brand font-bold group-hover:text-brand transition-all duration-500 mt-4 pt-2 border-t border-brand-border/10"
-                          style={{ transform: 'translateZ(25px)' }}
+                          draggable
+                          onDragStart={(e) => handleDragStart(e, card.id)}
+                          onDragEnd={handleDragEnd}
+                          className="p-2 cursor-grab active:cursor-grabbing bg-zinc-950 hover:bg-zinc-900 border border-zinc-850 rounded-lg text-zinc-500 hover:text-zinc-300 transition-colors flex-shrink-0"
+                          title="Drag unit to swap sequence"
                         >
-                          <span>{localizedBtn}</span>
-                          <ArrowRight className="w-4 h-4" />
+                          <GripVertical className="w-4 h-4" />
                         </div>
+                      )}
+
+                      {/* Compact Icon */}
+                      <div className="w-11 h-11 rounded-xl bg-zinc-950/70 border border-zinc-850 flex items-center justify-center text-brand flex-shrink-0 shadow-[inset_0_1px_2px_rgba(0,0,0,0.6)]">
+                        <CardIcon className={`w-5.5 h-5.5 ${isAiWriter ? 'text-indigo-400 animate-pulse' : card.textClass}`} />
                       </div>
-                    </ThreeDTiltCard>
 
-                    {isCustomizing && (
-                      <>
-                        {/* Interactive size customization controller overlay */}
-                        <div 
-                          className="absolute inset-x-2 bottom-12 z-20 flex flex-col gap-2 p-3 rounded-xl bg-zinc-950/95 border border-zinc-900 shadow-2xl backdrop-blur-sm pointer-events-auto transition-all"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <div className="flex items-center justify-between border-b border-zinc-900 pb-1.5">
-                            <span className="text-[9.5px] font-mono text-zinc-400 font-bold uppercase tracking-wider">{dict.gridWidthSpan}</span>
-                            <span className="text-[10px] font-mono text-emerald-400 font-extrabold">{(card.colSpan || 1)}x Width</span>
-                          </div>
-                          <div className="flex items-center gap-1.5 bg-zinc-900/40 p-1 rounded-lg border border-zinc-950">
-                            <button
-                              type="button"
-                              onClick={() => updateCardSize(card.id, -1, 0)}
-                              disabled={(card.colSpan || 1) <= 1}
-                              className="flex-1 py-1 px-2 rounded-md bg-zinc-950 hover:bg-zinc-900 text-zinc-400 hover:text-white disabled:opacity-20 font-bold font-mono text-[11px] transition-all cursor-pointer border border-zinc-900"
-                            >
-                              <Minus className="w-3 h-3 mx-auto" />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => updateCardSize(card.id, 1, 0)}
-                              disabled={(card.colSpan || 1) >= 6}
-                              className="flex-1 py-1 px-2 rounded-md bg-zinc-950 hover:bg-zinc-900 text-zinc-400 hover:text-white disabled:opacity-20 font-bold font-mono text-[11px] transition-all cursor-pointer border border-zinc-900"
-                            >
-                              <Plus className="w-3 h-3 mx-auto" />
-                            </button>
-                          </div>
-
-                          <div className="flex items-center justify-between border-b border-zinc-900 pt-1 pb-1.5 mt-1">
-                            <span className="text-[9.5px] font-mono text-zinc-400 font-bold uppercase tracking-wider">{dict.widgetHeight}</span>
-                            <span className="text-[10px] font-mono text-amber-500 font-extrabold">{getHeightClass(card.heightLevel || 2)}</span>
-                          </div>
-                          <div className="flex items-center gap-1.5 bg-zinc-900/40 p-1 rounded-lg border border-zinc-950">
-                            <button
-                              type="button"
-                              onClick={() => updateCardSize(card.id, 0, -1)}
-                              disabled={(card.heightLevel || 2) <= 1}
-                              className="flex-1 py-1 px-2 rounded-md bg-zinc-950 hover:bg-zinc-900 text-zinc-400 hover:text-white disabled:opacity-20 font-bold font-mono text-[11px] transition-all cursor-pointer border border-zinc-900"
-                            >
-                              <Minus className="w-3 h-3 mx-auto" />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => updateCardSize(card.id, 0, 1)}
-                              disabled={(card.heightLevel || 2) >= 5}
-                              className="flex-1 py-1 px-2 rounded-md bg-zinc-950 hover:bg-zinc-900 text-zinc-400 hover:text-white disabled:opacity-20 font-bold font-mono text-[11px] transition-all cursor-pointer border border-zinc-900"
-                            >
-                              <Plus className="w-3 h-3 mx-auto" />
-                            </button>
-                          </div>
+                      <div className="min-w-0 flex-1 space-y-1">
+                        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                          <span className="font-heading text-[10px] uppercase font-bold text-brand tracking-widest bg-brand/5 px-2 py-0.5 rounded border border-brand/10">
+                            {localizedCat}
+                          </span>
+                          <h4 className="font-heading text-sm font-bold text-white truncate">{localizedTitle}</h4>
                         </div>
-
-                        {/* Direct pointer corner resize handle */}
-                        <div 
-                          onPointerDown={(e) => handleResizeStart(e, card.id)}
-                          className="absolute bottom-1 right-1 w-6 h-6 rounded-br-lg cursor-se-resize flex items-end justify-end p-0.5 z-30 select-none group/resize pointer-events-auto"
-                          title="Drag corner directly to resize card spans!"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <div className="w-3.5 h-3.5 border-r-2 border-b-2 border-brand/50 group-hover/resize:border-brand transition-colors rounded-br" style={{ borderStyle: 'solid solid' }} />
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-        ) : (
-          /* Minimalist List view of elements */
-          <div className="flex flex-col gap-5 sm:gap-6 w-full max-w-5xl mx-auto pb-16">
-            {filteredCards.map((card, index) => {
-              const CategoryIcon = iconMap[card.categoryIcon] || Image;
-              const CardIcon = iconMap[card.cardIcon] || Image;
-              const isAiWriter = card.id === 'ai-writer';
-              
-              const localizedCat = getTranslatedCategory(card.category, language);
-              const { title: localizedTitle, desc: localizedDesc, buttonLabel: localizedBtn } = getCardTranslations(card.id, card.title, card.desc, card.buttonLabel);
-              const localizedTagline = getTranslatedTagline(card.id, card.tagline, language);
-
-              return (
-                <motion.div
-                  key={card.id}
-                  layout
-                  onDragOver={(e) => handleDragOver(e, card.id)}
-                  onContextMenu={(e) => {
-                    if (!isCustomizing) {
-                      e.preventDefault();
-                      setContextMenu({
-                        x: e.clientX,
-                        y: e.clientY,
-                        toolId: card.id,
-                        toolTitle: localizedTitle,
-                      });
-                    }
-                  }}
-                  className={`rounded-2xl border transition-all duration-300 relative bg-[#07070a]/90 flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 ${
-                    isCustomizing
-                      ? 'border-dashed border-brand/40 bg-brand/[0.015] p-4 shadow-inner'
-                      : 'border-zinc-900 hover:border-brand/45 hover:bg-[#0c0c11]/90 shadow-lg'
-                  }`}
-                >
-                  {/* Left Side: Drag Handle & Meta info & Title */}
-                  <div className="flex flex-1 items-start sm:items-center gap-4 min-w-0">
-                    {/* Reordering handle when customizing is active */}
-                    {isCustomizing && (
-                      <div 
-                        draggable
-                        onDragStart={(e) => handleDragStart(e, card.id)}
-                        onDragEnd={handleDragEnd}
-                        className="p-2 cursor-grab active:cursor-grabbing bg-zinc-950 hover:bg-zinc-900 border border-zinc-850 rounded-lg text-zinc-500 hover:text-zinc-300 transition-colors flex-shrink-0"
-                        title="Drag unit to swap sequence"
-                      >
-                        <GripVertical className="w-4 h-4" />
-                      </div>
-                    )}
-
-                    {/* Compact Icon */}
-                    <div className="w-11 h-11 rounded-xl bg-zinc-950/70 border border-zinc-850 flex items-center justify-center text-brand flex-shrink-0 shadow-[inset_0_1px_2px_rgba(0,0,0,0.6)]">
-                      <CardIcon className={`w-5.5 h-5.5 ${isAiWriter ? 'text-indigo-400 animate-pulse' : card.textClass}`} />
-                    </div>
-
-                    <div className="min-w-0 flex-1 space-y-1">
-                      <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-                        <span className="font-heading text-[10px] uppercase font-bold text-brand tracking-widest bg-brand/5 px-2 py-0.5 rounded border border-brand/10">
-                          {localizedCat}
-                        </span>
-                        <h4 className="font-heading text-sm font-bold text-white truncate">{localizedTitle}</h4>
-                      </div>
-                      
-                      <p className="font-sans text-xs text-zinc-400 truncate max-w-3xl">
-                        {localizedDesc}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Mid-Right: Dynamic tagline details if space allows */}
-                  <div className="hidden lg:block w-48 text-right flex-shrink-0 border-l border-zinc-900/40 pl-4">
-                    <span className="font-mono text-[9px] text-[#94a3b8] uppercase tracking-wider block">{dict.targetCapability}</span>
-                    <span className="font-sans text-[11px] text-zinc-500 italic block truncate" title={localizedTagline}>{localizedTagline}</span>
-                  </div>
-
-                  {/* Far Right: Actions and modifiers */}
-                  <div className="flex items-center gap-3 justify-end flex-shrink-0">
-                    {/* Pin/Unpin Action Button */}
-                    <button
-                      type="button"
-                      onClick={(e) => { e.stopPropagation(); togglePin(card.id); }}
-                      className={`p-2 rounded-lg transition-all cursor-pointer ${
-                        card.pinned 
-                          ? 'text-amber-400 bg-amber-500/15 border border-amber-500/30 shadow-[0_0_8px_rgba(245,158,11,0.25)]' 
-                          : 'text-zinc-655 hover:text-zinc-300 hover:bg-zinc-900 border border-zinc-900'
-                      }`}
-                      title={
-                        card.pinned 
-                          ? (language === 'es' ? 'Desfijar herramienta de la parte superior' : language === 'fr' ? 'Dépingler' : language === 'de' ? 'Anheftung aufheben' : language === 'pt' ? 'Desafixar topo' : 'Unpin Tool')
-                          : (language === 'es' ? 'Fijar herramienta al principio' : language === 'fr' ? 'Épingler en haut' : language === 'de' ? 'Werkzeug oben anheften' : language === 'pt' ? 'Fixar topo' : 'Pin Tool to Top')
-                      }
-                    >
-                      <Pin className={`w-3.5 h-3.5 transition-all duration-300 ${card.pinned ? 'rotate-0 text-amber-400 fill-amber-400/30 scale-110' : '-rotate-45 group-hover:scale-110'}`} />
-                    </button>
-
-                    {isCustomizing && (
-                      <div className="flex items-center gap-1.5 bg-zinc-950 p-1 rounded-xl border border-zinc-900 shadow-sm">
-                        <button
-                          type="button"
-                          onClick={(e) => { e.stopPropagation(); moveCard(card.id, -1); }}
-                          disabled={index === 0}
-                          className="p-1.5 rounded-lg hover:bg-zinc-900 text-zinc-400 hover:text-white disabled:opacity-20 disabled:hover:bg-transparent transition-all cursor-pointer"
-                          title={dict.shiftUpstream}
-                        >
-                          <ChevronLeft className="w-4 h-4" />
-                        </button>
                         
-                        <button
-                          type="button"
-                          onClick={(e) => { e.stopPropagation(); moveCard(card.id, 1); }}
-                          disabled={index === cards.length - 1}
-                          className="p-1.5 rounded-lg hover:bg-zinc-900 text-zinc-400 hover:text-white disabled:opacity-20 disabled:hover:bg-transparent transition-all cursor-pointer"
-                          title={dict.shiftDownstream}
-                        >
-                          <ChevronRight className="w-4 h-4" />
-                        </button>
-
-                        <div className="text-[10px] font-mono text-zinc-500 px-2 border-l border-zinc-850">
-                          Pos: #{index + 1}
-                        </div>
+                        <p className="font-sans text-xs text-zinc-400 truncate max-w-3xl">
+                          {localizedDesc}
+                        </p>
                       </div>
-                    )}
+                    </div>
 
-                    <button
-                      type="button"
-                      disabled={isCustomizing}
-                      onClick={() => !isCustomizing && onTabChange(card.id as ActiveTab)}
-                      className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[11px] font-heading font-extrabold tracking-wider uppercase transition-all ${
-                        isCustomizing
-                          ? 'bg-zinc-900/20 text-zinc-600 border border-zinc-950 cursor-not-allowed'
-                          : 'bg-zinc-900 hover:bg-brand hover:text-zinc-950 text-brand border border-zinc-800 hover:border-brand-border cursor-pointer shadow-md'
-                      }`}
-                    >
-                      <span>{isCustomizing ? dict.editingActive : localizedBtn}</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
+                    {/* Mid-Right: Dynamic tagline details if space allows */}
+                    <div className="hidden lg:block w-48 text-right flex-shrink-0 border-l border-zinc-900/40 pl-4">
+                      <span className="font-mono text-[9px] text-[#94a3b8] uppercase tracking-wider block">{dict.targetCapability}</span>
+                      <span className="font-sans text-[11px] text-zinc-500 italic block truncate" title={localizedTagline}>{localizedTagline}</span>
+                    </div>
+
+                    {/* Far Right: Actions and modifiers */}
+                    <div className="flex items-center gap-3 justify-end flex-shrink-0">
+                      {/* Pin/Unpin Action Button */}
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); togglePin(card.id); }}
+                        className={`p-2 rounded-lg transition-all cursor-pointer ${
+                          card.pinned 
+                            ? 'text-amber-400 bg-amber-500/15 border border-amber-500/30 shadow-[0_0_8px_rgba(245,158,11,0.25)]' 
+                            : 'text-zinc-655 hover:text-zinc-300 hover:bg-zinc-900 border border-zinc-900'
+                        }`}
+                        title={
+                          card.pinned 
+                            ? (language === 'es' ? 'Desfijar herramienta de la parte superior' : language === 'fr' ? 'Dépingler' : language === 'de' ? 'Anheftung aufheben' : language === 'pt' ? 'Desafixar topo' : 'Unpin Tool')
+                            : (language === 'es' ? 'Fijar herramienta al principio' : language === 'fr' ? 'Épingler en haut' : language === 'de' ? 'Werkzeug oben anheften' : language === 'pt' ? 'Fixar topo' : 'Pin Tool to Top')
+                        }
+                      >
+                        <Pin className={`w-3.5 h-3.5 transition-all duration-300 ${card.pinned ? 'rotate-0 text-amber-400 fill-amber-400/30 scale-110' : '-rotate-45 group-hover:scale-110'}`} />
+                      </button>
+
+                      {isCustomizing && (
+                        <div className="flex items-center gap-1.5 bg-zinc-950 p-1 rounded-xl border border-zinc-900 shadow-sm">
+                          <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); moveCard(card.id, -1); }}
+                            disabled={index === 0}
+                            className="p-1.5 rounded-lg hover:bg-zinc-900 text-zinc-400 hover:text-white disabled:opacity-20 disabled:hover:bg-transparent transition-all cursor-pointer"
+                            title={dict.shiftUpstream}
+                          >
+                            <ChevronLeft className="w-4 h-4" />
+                          </button>
+                          
+                          <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); moveCard(card.id, 1); }}
+                            disabled={index === cards.length - 1}
+                            className="p-1.5 rounded-lg hover:bg-zinc-900 text-zinc-400 hover:text-white disabled:opacity-20 disabled:hover:bg-transparent transition-all cursor-pointer"
+                            title={dict.shiftDownstream}
+                          >
+                            <ChevronRight className="w-4 h-4" />
+                          </button>
+
+                          <div className="text-[10px] font-mono text-zinc-500 px-2 border-l border-zinc-850">
+                            Pos: #{index + 1}
+                          </div>
+                        </div>
+                      )}
+
+                      <button
+                        type="button"
+                        disabled={isCustomizing}
+                        onClick={() => !isCustomizing && onTabChange(card.id as ActiveTab)}
+                        className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[11px] font-heading font-extrabold tracking-wider uppercase transition-all ${
+                          isCustomizing
+                            ? 'bg-zinc-900/20 text-zinc-600 border border-zinc-950 cursor-not-allowed'
+                            : 'bg-zinc-900 hover:bg-brand hover:text-zinc-950 text-brand border border-zinc-800 hover:border-brand-border cursor-pointer shadow-md'
+                        }`}
+                      >
+                        <span>{isCustomizing ? dict.editingActive : localizedBtn}</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          )
         )
       )}
       </div>

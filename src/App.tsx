@@ -6537,6 +6537,68 @@ Disallow:
                         <button onClick={() => handleTabChange('date-calculator')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">check dob online</button>
                       </div>
                     </div>
+
+                    {/* Category 8: Sound, Audio, Stereo & Subwoofer Tester */}
+                    <div className="bg-zinc-950/40 p-4 rounded-xl border border-zinc-900/80">
+                      <h4 className="text-zinc-200 font-bold mb-2 text-[11px] uppercase tracking-wider border-b border-red-950 pb-1.5 flex items-center justify-between">
+                        <span>Audio, Soundbar &amp; Woofer Diagnostic</span>
+                        <span className="text-[9px] text-red-400 font-mono">HiFi Balance</span>
+                      </h4>
+                      <p className="text-[11px] text-zinc-500 mb-2 leading-relaxed">
+                        Test subwoofer headphones, calibrate left right speaker balance stages, sweep hifi tweeters, check chromebook dialogue audios and woofer stereo configurations.
+                      </p>
+                      <div className="flex flex-wrap gap-1.5 text-[9px] font-mono">
+                        <button onClick={() => handleTabChange('speaker-tester')} className="hover:text-amber-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">sound check</button>
+                        <button onClick={() => handleTabChange('speaker-tester')} className="hover:text-amber-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">sound test</button>
+                        <button onClick={() => handleTabChange('speaker-tester')} className="hover:text-amber-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">speaker test</button>
+                        <button onClick={() => handleTabChange('speaker-tester')} className="hover:text-amber-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">audio test</button>
+                        <button onClick={() => handleTabChange('speaker-tester')} className="hover:text-amber-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">hifi</button>
+                        <button onClick={() => handleTabChange('speaker-tester')} className="hover:text-amber-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">speaker check</button>
+                        <button onClick={() => handleTabChange('speaker-tester')} className="hover:text-amber-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">subwoofer test</button>
+                        <button onClick={() => handleTabChange('speaker-tester')} className="hover:text-amber-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">subwoofers test</button>
+                        <button onClick={() => handleTabChange('speaker-tester')} className="hover:text-amber-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">subwoofer headphone</button>
+                        <button onClick={() => handleTabChange('speaker-tester')} className="hover:text-amber-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">subwoofer element</button>
+                        <button onClick={() => handleTabChange('speaker-tester')} className="hover:text-amber-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">woofer hifi</button>
+                        <button onClick={() => handleTabChange('speaker-tester')} className="hover:text-amber-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">woofer stereo</button>
+                        <button onClick={() => handleTabChange('speaker-tester')} className="hover:text-amber-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">phone speaker test sound</button>
+                        <button onClick={() => handleTabChange('speaker-tester')} className="hover:text-amber-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">right left speaker test</button>
+                        <button onClick={() => handleTabChange('speaker-tester')} className="hover:text-amber-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">left and right speakers</button>
+                        <button onClick={() => handleTabChange('speaker-tester')} className="hover:text-amber-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">test woofer</button>
+                        <button onClick={() => handleTabChange('speaker-tester')} className="hover:text-amber-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">soundbar</button>
+                        <button onClick={() => handleTabChange('speaker-tester')} className="hover:text-amber-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">hifi service</button>
+                        <button onClick={() => handleTabChange('speaker-tester')} className="hover:text-amber-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">speakers hifi</button>
+                        <button onClick={() => handleTabChange('speaker-tester')} className="hover:text-amber-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">sound test online free</button>
+                      </div>
+                    </div>
+
+                    {/* Category 9: Microphone, Voice, Online Mic Check & Sound Test Suite */}
+                    <div className="bg-zinc-950/40 p-4 rounded-xl border border-zinc-900/80">
+                      <h4 className="text-zinc-200 font-bold mb-2 text-[11px] uppercase tracking-wider border-b border-red-950 pb-1.5 flex items-center justify-between">
+                        <span>Microphone, Voice &amp; Mic Testing</span>
+                        <span className="text-[9px] text-red-400 font-mono">Mic Check</span>
+                      </h4>
+                      <p className="text-[11px] text-zinc-500 mb-2 leading-relaxed">
+                        Run an instant secure microphone test, check vocal pitch, measure dB audio sensitivity, calibrate Zoom/Meet streaming feeds, and play back loopback recording voice tests online free.
+                      </p>
+                      <div className="flex flex-wrap gap-1.5 text-[9px] font-mono">
+                        <button onClick={() => handleTabChange('microphone-tester')} className="hover:text-amber-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">microphone test</button>
+                        <button onClick={() => handleTabChange('microphone-tester')} className="hover:text-amber-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">mic test</button>
+                        <button onClick={() => handleTabChange('microphone-tester')} className="hover:text-amber-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">voice test</button>
+                        <button onClick={() => handleTabChange('microphone-tester')} className="hover:text-amber-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">online microphone</button>
+                        <button onClick={() => handleTabChange('microphone-tester')} className="hover:text-amber-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">audio test online</button>
+                        <button onClick={() => handleTabChange('microphone-tester')} className="hover:text-amber-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">voice check</button>
+                        <button onClick={() => handleTabChange('microphone-tester')} className="hover:text-amber-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">check sound online</button>
+                        <button onClick={() => handleTabChange('microphone-tester')} className="hover:text-amber-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">mic test online</button>
+                        <button onClick={() => handleTabChange('microphone-tester')} className="hover:text-amber-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">online microphone test</button>
+                        <button onClick={() => handleTabChange('microphone-tester')} className="hover:text-amber-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">online microphone check</button>
+                        <button onClick={() => handleTabChange('microphone-tester')} className="hover:text-amber-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">mic check</button>
+                        <button onClick={() => handleTabChange('microphone-tester')} className="hover:text-amber-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">online mic test tool</button>
+                        <button onClick={() => handleTabChange('microphone-tester')} className="hover:text-amber-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">mic check tool</button>
+                        <button onClick={() => handleTabChange('microphone-tester')} className="hover:text-amber-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">online mic and speaker test</button>
+                        <button onClick={() => handleTabChange('microphone-tester')} className="hover:text-amber-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">mic test website</button>
+                        <button onClick={() => handleTabChange('microphone-tester')} className="hover:text-amber-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">microphone test website</button>
+                      </div>
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>
