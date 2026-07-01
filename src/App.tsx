@@ -2513,9 +2513,7 @@ Disallow:
              {activeTab === 'dashboard' && (
               <motion.div
                 key="dashboard"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
                 className="w-full"
               >
                 <Dashboard onTabChange={handleTabChange} />
@@ -2523,7 +2521,7 @@ Disallow:
             )}
 
             {activeTab === 'json-beautifier' && (
-              <motion.div key="json-beautifier" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="json-beautifier" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf1544] uppercase">Serialization Tools</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">JSON Beautifier &amp; Formatter</h2>
@@ -2534,7 +2532,7 @@ Disallow:
             )}
 
             {activeTab === 'image-to-pdf' && (
-              <motion.div key="image-to-pdf" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="image-to-pdf" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-indigo-400 uppercase">Document Conversion</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Image to PDF Compiler</h2>
@@ -2545,7 +2543,7 @@ Disallow:
             )}
 
             {activeTab === 'join-pdf' && (
-              <motion.div key="join-pdf" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="join-pdf" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-teal-400 uppercase">Document Compilation</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">PDF Document Merger &amp; Joining Deck</h2>
@@ -2556,7 +2554,7 @@ Disallow:
             )}
 
             {activeTab === 'ai-writer' && (
-              <motion.div key="ai-writer" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="ai-writer" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-emerald-400 uppercase">AI Creativity</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">AI Copywriter &amp; Text Architect</h2>
@@ -2567,7 +2565,7 @@ Disallow:
             )}
 
             {activeTab === 'password-generator' && (
-              <motion.div key="password-generator" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="password-generator" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-rose-400 uppercase">Security &amp; Sandbox</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Deterministic Password Generator</h2>
@@ -2578,7 +2576,7 @@ Disallow:
             )}
 
             {activeTab === 'qr-generator' && (
-              <motion.div key="qr-generator" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="qr-generator" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-sky-400 uppercase">Publishing Tools</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Structured QR Code Architect</h2>
@@ -2589,7 +2587,7 @@ Disallow:
             )}
 
             {activeTab === 'unit-converter' && (
-              <motion.div key="unit-converter" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="unit-converter" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-orange-400 uppercase">Calculators</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Universal Unit &amp; Ratio Converter</h2>
@@ -2600,7 +2598,7 @@ Disallow:
             )}
 
             {activeTab === 'svg-rasterizer' && (
-              <motion.div key="svg-rasterizer" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="svg-rasterizer" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf1544] uppercase">Design Vectors</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">SVG to Raster Image Compiler</h2>
@@ -2611,7 +2609,7 @@ Disallow:
             )}
 
             {activeTab === 'batch-processor' && (
-              <motion.div key="batch-processor" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="batch-processor" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-violet-400 uppercase">Bulk Production</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Multi-Format Batch Processor</h2>
@@ -2622,7 +2620,7 @@ Disallow:
             )}
 
             {activeTab === 'image-vectorizer' && (
-              <motion.div key="image-vectorizer" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="image-vectorizer" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-emerald-400 uppercase">Asset Deck</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Raster to SVG Vectorizer</h2>
@@ -2633,7 +2631,7 @@ Disallow:
             )}
 
             {activeTab === 'json-diff' && (
-              <motion.div key="json-diff" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="json-diff" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf1544] uppercase">Developer Tools</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">JSON Diff &amp; Comparison Validator</h2>
@@ -2644,7 +2642,7 @@ Disallow:
             )}
 
             {activeTab === 'secure-hash' && (
-              <motion.div key="secure-hash" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="secure-hash" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-amber-500 uppercase">Security &amp; Sandbox</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Cryptographic Secure Hash Generator</h2>
@@ -2655,7 +2653,7 @@ Disallow:
             )}
 
             {activeTab === 'color-palette' && (
-              <motion.div key="color-palette" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="color-palette" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-fuchsia-400 uppercase">Design Vectors</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Color Palette &amp; Contrast Architect</h2>
@@ -2666,7 +2664,7 @@ Disallow:
             )}
 
             {activeTab === 'digital-signature' && (
-              <motion.div key="digital-signature" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="digital-signature" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-indigo-400 uppercase">Security &amp; Sandbox</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Digital Signature &amp; Verification Workspace</h2>
@@ -2677,7 +2675,7 @@ Disallow:
             )}
 
             {activeTab === 'seo-optimizer' && (
-              <motion.div key="seo-optimizer" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="seo-optimizer" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf1544] uppercase">SEO Intelligence</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">SEO Compliance Optimizer &amp; Evaluator</h2>
@@ -2688,7 +2686,7 @@ Disallow:
             )}
 
             {activeTab === 'base64-converter' && (
-              <motion.div key="base64-converter" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="base64-converter" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-blue-400 uppercase">Serialization Tools</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Base64 Text &amp; Binaries Transcoder</h2>
@@ -2699,7 +2697,7 @@ Disallow:
             )}
 
             {activeTab === 'regex-tester' && (
-              <motion.div key="regex-tester" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="regex-tester" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf1544] uppercase">Developer Tools</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Regular Expression Diagnostic Deck</h2>
@@ -2710,7 +2708,7 @@ Disallow:
             )}
 
             {activeTab === 'csv-json-converter' && (
-              <motion.div key="csv-json-converter" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="csv-json-converter" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-emerald-400 uppercase">Serialization Tools</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">CSV to JSON &amp; Table Transpiler</h2>
@@ -2721,7 +2719,7 @@ Disallow:
             )}
 
             {activeTab === 'image-compressor' && (
-              <motion.div key="image-compressor" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="image-compressor" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf1544] uppercase">Media Lab</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">High-Ratio Image Compressor</h2>
@@ -2732,13 +2730,13 @@ Disallow:
             )}
 
             {activeTab === 'quick-image-optimizer' && (
-              <motion.div key="quick-image-optimizer" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="w-full">
+              <motion.div key="quick-image-optimizer" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="w-full">
                 <QuickImageOptimizer />
               </motion.div>
             )}
 
             {activeTab === 'rich-text-stats' && (
-              <motion.div key="rich-text-stats" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="rich-text-stats" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf1544] uppercase">Analysis Deck</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Rich Text Statistics &amp; Complexity Analyzer</h2>
@@ -2749,7 +2747,7 @@ Disallow:
             )}
 
             {activeTab === 'audio-trimmer' && (
-              <motion.div key="audio-trimmer" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="audio-trimmer" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-teal-400 uppercase">Media Lab</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Lossless Audio Trimmer &amp; Waveform Splicer</h2>
@@ -2760,7 +2758,7 @@ Disallow:
             )}
 
             {activeTab === 'ai-transcriber' && (
-              <motion.div key="ai-transcriber" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="ai-transcriber" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf1544] uppercase">AI Creativity</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">AI Audio Transcriber &amp; Speech Interpreter</h2>
@@ -2771,7 +2769,7 @@ Disallow:
             )}
 
             {activeTab === 'pdf-analyst' && (
-              <motion.div key="pdf-analyst" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="pdf-analyst" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-indigo-400 uppercase">Document Optimization</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">PDF Structure Analyst &amp; Extractor</h2>
@@ -2782,7 +2780,7 @@ Disallow:
             )}
 
             {activeTab === 'exif-stripper' && (
-              <motion.div key="exif-stripper" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="exif-stripper" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-rose-500 uppercase">Security &amp; Sandbox</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">EXIF &amp; Camera Metadata Stripper</h2>
@@ -2793,7 +2791,7 @@ Disallow:
             )}
 
             {activeTab === 'code-snapshot' && (
-              <motion.div key="code-snapshot" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="code-snapshot" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf1544] uppercase">Publishing Tools</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Elegant Code Snapshot Mockup Studio</h2>
@@ -2804,7 +2802,7 @@ Disallow:
             )}
 
             {activeTab === 'case-converter' && (
-              <motion.div key="case-converter" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="case-converter" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-emerald-400 uppercase">Text Deck</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Case Converter &amp; Text Formatter</h2>
@@ -2815,7 +2813,7 @@ Disallow:
             )}
 
             {activeTab === 'lorem-generator' && (
-              <motion.div key="lorem-generator" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="lorem-generator" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-emerald-500 uppercase">Text Deck</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Lorem Ipsum Placeholder Generator</h2>
@@ -2826,7 +2824,7 @@ Disallow:
             )}
 
             {activeTab === 'image-cropper' && (
-              <motion.div key="image-cropper" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="image-cropper" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-sky-400 uppercase">Media Lab</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Precision Image Cropper &amp; Aspect Ratio Tool</h2>
@@ -2837,7 +2835,7 @@ Disallow:
             )}
 
             {activeTab === 'ai-humanizer' && (
-              <motion.div key="ai-humanizer" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="ai-humanizer" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-indigo-400 uppercase">AI Copywriting &amp; Strategy</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">AI Text Humanizer &amp; Bypass</h2>
@@ -2850,7 +2848,7 @@ Disallow:
             )}
 
             {activeTab === 'tone-analyzer' && (
-              <motion.div key="tone-analyzer" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="tone-analyzer" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-violet-400 uppercase">AI Copywriting &amp; Strategy</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Email &amp; Message Tone Analyzer</h2>
@@ -2863,7 +2861,7 @@ Disallow:
             )}
 
             {activeTab === 'resume-optimizer' && (
-              <motion.div key="resume-optimizer" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="resume-optimizer" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-emerald-400 uppercase">AI Copywriting &amp; Strategy</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">AI Resume &amp; Cover Letter Optimizer</h2>
@@ -2876,7 +2874,7 @@ Disallow:
             )}
 
             {activeTab === 'text-summarizer' && (
-              <motion.div key="text-summarizer" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="text-summarizer" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-amber-400 uppercase">AI Copywriting &amp; Strategy</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">AI Text &amp; Article Summarizer</h2>
@@ -2889,7 +2887,7 @@ Disallow:
             )}
 
             {activeTab === 'passport-photo' && (
-              <motion.div key="passport-photo" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="passport-photo" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-cyan-400 uppercase">Media &amp; Image</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Passport &amp; ID Photo Maker</h2>
@@ -2902,7 +2900,7 @@ Disallow:
             )}
 
             {activeTab === 'bento-grid' && (
-              <motion.div key="bento-grid" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="bento-grid" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <Suspense fallback={<div className="text-white font-mono text-xs">Loading Bento Grid Composer...</div>}>
                   <BentoGridComposer />
                 </Suspense>
@@ -2910,7 +2908,7 @@ Disallow:
             )}
 
             {activeTab === 'pattern-blob' && (
-              <motion.div key="pattern-blob" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="pattern-blob" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <Suspense fallback={<div className="text-white font-mono text-xs">Loading SVG Pattern &amp; Blob Studio...</div>}>
                   <PatternBlobGenerator />
                 </Suspense>
@@ -2918,7 +2916,7 @@ Disallow:
             )}
 
             {activeTab === 'json-node-map' && (
-              <motion.div key="json-node-map" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="json-node-map" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <Suspense fallback={<div className="text-white font-mono text-xs">Loading JSON Spatial Canvas...</div>}>
                   <JSONNodeMap />
                 </Suspense>
@@ -2926,7 +2924,7 @@ Disallow:
             )}
 
             {activeTab === 'bezier-spline' && (
-              <motion.div key="bezier-spline" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="bezier-spline" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <Suspense fallback={<div className="text-white font-mono text-xs">Loading Bézier Spline Playground...</div>}>
                   <BezierSpline />
                 </Suspense>
@@ -2934,7 +2932,7 @@ Disallow:
             )}
 
             {activeTab === 'glass-brutalist' && (
-              <motion.div key="glass-brutalist" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="glass-brutalist" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <Suspense fallback={<div className="text-white font-mono text-xs">Loading CSS Glass &amp; Brutalism Generator...</div>}>
                   <GlassBrutalistGenerator />
                 </Suspense>
@@ -2942,7 +2940,7 @@ Disallow:
             )}
 
             {activeTab === 'regex-flowchart' && (
-              <motion.div key="regex-flowchart" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="regex-flowchart" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <Suspense fallback={<div className="text-white font-mono text-xs">Loading Regex Flowchart &amp; Sandbox...</div>}>
                   <RegexFlowchart />
                 </Suspense>
@@ -2950,7 +2948,7 @@ Disallow:
             )}
 
             {activeTab === 'meme-generator' && (
-              <motion.div key="meme-generator" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="meme-generator" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-orange-400 uppercase">Media &amp; Image</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Meme Generator &amp; Studio</h2>
@@ -2963,7 +2961,7 @@ Disallow:
             )}
 
             {activeTab === 'headshot-generator' && (
-              <motion.div key="headshot-generator" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="headshot-generator" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-fuchsia-400 uppercase">Media &amp; Image</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">AI Headshot &amp; Avatar Generator</h2>
@@ -2976,7 +2974,7 @@ Disallow:
             )}
 
             {activeTab === 'image-upscaler' && (
-              <motion.div key="image-upscaler" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="image-upscaler" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-indigo-400 uppercase">Media &amp; Image</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">AI Image Upscaler &amp; Enhancer</h2>
@@ -2989,7 +2987,7 @@ Disallow:
             )}
 
             {activeTab === 'mockup-generator' && (
-              <motion.div key="mockup-generator" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="mockup-generator" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-sky-400 uppercase">Media &amp; Image</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Mockup &amp; Device Frame Studio</h2>
@@ -3002,7 +3000,7 @@ Disallow:
             )}
 
             {activeTab === 'pdf-converter' && (
-              <motion.div key="pdf-converter" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="pdf-converter" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-red-400 uppercase">Document &amp; PDF</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">PDF ⇄ Word/Excel Converter</h2>
@@ -3015,7 +3013,7 @@ Disallow:
             )}
 
             {activeTab === 'pdf-form-filler' && (
-              <motion.div key="pdf-form-filler" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="pdf-form-filler" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-teal-400 uppercase">Document &amp; PDF</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">PDF Form Filler &amp; Field Editor</h2>
@@ -3028,7 +3026,7 @@ Disallow:
             )}
 
             {activeTab === 'pdf-signer' && (
-              <motion.div key="pdf-signer" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="pdf-signer" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-emerald-400 uppercase">Document &amp; PDF</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">PDF E-Signature &amp; Secure Sealer</h2>
@@ -3041,7 +3039,7 @@ Disallow:
             )}
 
             {activeTab === 'uuid-generator' && (
-              <motion.div key="uuid-generator" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="uuid-generator" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-indigo-400 uppercase">Developer Utilities</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">UUID &amp; GUID Batch Generator</h2>
@@ -3054,7 +3052,7 @@ Disallow:
             )}
 
             {activeTab === 'cron-builder' && (
-              <motion.div key="cron-builder" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="cron-builder" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-rose-400 uppercase">Developer Utilities</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Cron Expression Scheduler</h2>
@@ -3067,7 +3065,7 @@ Disallow:
             )}
 
             {activeTab === 'jwt-decoder' && (
-              <motion.div key="jwt-decoder" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="jwt-decoder" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-emerald-400 uppercase">Developer Utilities</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">JWT Decoder &amp; Inspector</h2>
@@ -3080,7 +3078,7 @@ Disallow:
             )}
 
             {activeTab === 'favicon-generator' && (
-              <motion.div key="favicon-generator" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="favicon-generator" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-amber-400 uppercase">Design &amp; Layout</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Favicon Generator &amp; Studio</h2>
@@ -3093,7 +3091,7 @@ Disallow:
             )}
 
             {activeTab === 'gradient-generator' && (
-              <motion.div key="gradient-generator" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="gradient-generator" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-fuchsia-400 uppercase">Design &amp; Layout</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Interactive Gradient Generator</h2>
@@ -3106,7 +3104,7 @@ Disallow:
             )}
 
             {activeTab === 'password-sharer' && (
-              <motion.div key="password-sharer" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="password-sharer" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-indigo-400 uppercase">Privacy &amp; Security</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Self-Destructing Password Sharer</h2>
@@ -3119,7 +3117,7 @@ Disallow:
             )}
 
             {activeTab === 'data-breach' && (
-              <motion.div key="data-breach" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="data-breach" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-rose-400 uppercase">Privacy &amp; Security</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Secured Data Breach Checker</h2>
@@ -3132,7 +3130,7 @@ Disallow:
             )}
 
             {activeTab === 'checksum-verifier' && (
-              <motion.div key="checksum-verifier" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="checksum-verifier" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-emerald-400 uppercase">Privacy &amp; Security</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">File Checksum Hash Verifier</h2>
@@ -3145,7 +3143,7 @@ Disallow:
             )}
 
             {activeTab === 'age-calculator' && (
-              <motion.div key="age-calculator" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="age-calculator" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-sky-400 uppercase">Everyday Calculators</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Chronological Age Calculator</h2>
@@ -3158,7 +3156,7 @@ Disallow:
             )}
 
             {activeTab === 'loan-calculator' && (
-              <motion.div key="loan-calculator" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="loan-calculator" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-rose-400 uppercase">Everyday Calculators</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">EMI &amp; Loan Amortization Calculator</h2>
@@ -3171,7 +3169,7 @@ Disallow:
             )}
 
             {activeTab === 'bmi-calculator' && (
-              <motion.div key="bmi-calculator" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="bmi-calculator" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-indigo-400 uppercase">Everyday Calculators</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">BMI &amp; Calorie Burn Calculator</h2>
@@ -3184,7 +3182,7 @@ Disallow:
             )}
 
             {activeTab === 'date-calculator' && (
-              <motion.div key="date-calculator" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="date-calculator" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf1544] uppercase">Calculators</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Dynamic Date Calculator &amp; Interval Engine</h2>
@@ -3195,7 +3193,7 @@ Disallow:
             )}
 
             {activeTab === 'private-sketchpad' && (
-              <motion.div key="private-sketchpad" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="private-sketchpad" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-emerald-400 uppercase">Design Vectors</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Isolated Client-Side Sketchpad</h2>
@@ -3206,7 +3204,7 @@ Disallow:
             )}
 
             {activeTab === 'seo-inspect' && (
-              <motion.div key="seo-inspect" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="seo-inspect" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-teal-400 uppercase">SEO Intelligence</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Google Index &amp; Crawler Simulator Audit</h2>
@@ -3217,7 +3215,7 @@ Disallow:
             )}
 
             {activeTab === 'sitemap-seo' && (
-              <motion.div key="sitemap-seo" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
+              <motion.div key="sitemap-seo" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf1544] uppercase">SEO Intelligence</span>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Sitemap Checker</h2>
@@ -3231,9 +3229,7 @@ Disallow:
             {activeTab === 'sitemap-generator' && (
               <motion.div
                 key="sitemap-generator"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
                 className="space-y-6"
               >
                 <div className="space-y-1">
@@ -3414,9 +3410,7 @@ Disallow:
             {activeTab === 'about-us' && (
               <motion.div
                 key="about-us"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
                 className="space-y-6"
               >
                 <div className="text-center py-6 border-b border-slate-800">
@@ -3490,9 +3484,7 @@ Disallow:
             {activeTab === 'privacy-policy' && (
               <motion.div
                 key="privacy-policy"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
                 className="space-y-6"
               >
                 <div className="text-center py-6 border-b border-slate-800">
@@ -3568,9 +3560,7 @@ Disallow:
             {activeTab === 'terms-of-service' && (
               <motion.div
                 key="terms-of-service"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
                 className="space-y-6"
               >
                 <div className="text-center py-6 border-b border-slate-800">
@@ -3624,9 +3614,7 @@ Disallow:
             {activeTab === 'webp-converter' && (
               <motion.div
                 key="webp-converter"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
                 className="space-y-6"
               >
                 <div className="space-y-1">
@@ -3645,9 +3633,7 @@ Disallow:
             {activeTab === 'compress-pdf' && (
               <motion.div
                 key="compress-pdf"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
                 className="space-y-6"
               >
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-slate-800">
@@ -4410,9 +4396,7 @@ Disallow:
             {activeTab === 'guides' && (
               <motion.div
                 key="guides"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
                 className="space-y-6 text-slate-100"
               >
                 {/* Header Stats bar */}
@@ -5995,9 +5979,7 @@ Disallow:
             {activeTab === 'content-planner' && (
               <motion.div
                 key="content-planner"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
                 className="space-y-6"
               >
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -6023,9 +6005,7 @@ Disallow:
             {activeTab === 'schema-generator' && (
               <motion.div
                 key="schema-generator"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
                 className="space-y-6"
               >
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -6051,9 +6031,7 @@ Disallow:
             {activeTab === 'content-gap' && (
               <motion.div
                 key="content-gap"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
                 className="space-y-6"
               >
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -6079,9 +6057,7 @@ Disallow:
             {activeTab === 'keyword-cluster' && (
               <motion.div
                 key="keyword-cluster"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
                 className="space-y-6"
               >
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -6107,9 +6083,7 @@ Disallow:
             {activeTab === 'video-recorder' && (
               <motion.div
                 key="video-recorder"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
                 className="space-y-6"
               >
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -6128,9 +6102,7 @@ Disallow:
             {activeTab === 'screen-recorder' && (
               <motion.div
                 key="screen-recorder"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
                 className="space-y-6"
               >
                 <SEOPageHeader tabId="screen-recorder" category="Live Media Sandbox" colorClass="text-cyan-400" defaultDesc="Online screen and audio recorder with no watermark – how to screen record on Chrome without extensions or lag." />
@@ -6141,9 +6113,7 @@ Disallow:
             {activeTab === 'webcam-recorder' && (
               <motion.div
                 key="webcam-recorder"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
                 className="space-y-6"
               >
                 <SEOPageHeader tabId="webcam-recorder" category="Live Media Sandbox" colorClass="text-rose-400" defaultDesc="Record raw high-definition video from connected cameras with synchronized microphone streams and zero lag." />
@@ -6154,9 +6124,7 @@ Disallow:
             {activeTab === 'voice-recorder' && (
               <motion.div
                 key="voice-recorder"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
                 className="space-y-6"
               >
                 <VoiceRecorder />
@@ -6179,9 +6147,7 @@ Disallow:
             ] as const).includes(activeTab as any) && (
               <motion.div
                 key={activeTab}
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
                 className="space-y-6"
               >
                 <VideoStudioSuite initialTool={activeTab as any} />
@@ -6195,9 +6161,7 @@ Disallow:
             ] as const).includes(activeTab as any) && (
               <motion.div
                 key={activeTab}
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
                 className="space-y-6"
               >
                 <HardwareTestSuite initialTab={activeTab as any} />
@@ -6207,9 +6171,7 @@ Disallow:
             {activeTab === 'robots-txt' && (
               <motion.div
                 key="robots-txt"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
                 className="space-y-6"
               >
                 <RobotsGenerator />
@@ -6219,9 +6181,7 @@ Disallow:
             {activeTab === 'dns-lookup' && (
               <motion.div
                 key="dns-lookup"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
                 className="space-y-6"
               >
                 <DNSLookup />
@@ -6231,9 +6191,7 @@ Disallow:
             {activeTab === 'user-agent' && (
               <motion.div
                 key="user-agent"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
                 className="space-y-6"
               >
                 <UserAgentAnalyzer />
@@ -6243,9 +6201,7 @@ Disallow:
             {activeTab === 'html-markdown' && (
               <motion.div
                 key="html-markdown"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
                 className="space-y-6"
               >
                 <HTMLMarkdownConverter />
@@ -6255,9 +6211,7 @@ Disallow:
             {activeTab === 'meta-tags' && (
               <motion.div
                 key="meta-tags"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
                 className="space-y-6"
               >
                 <MetaTagsOptimizer />
@@ -6268,9 +6222,7 @@ Disallow:
             {activeTab === 'css-generator' && (
               <motion.div
                 key="css-generator"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
                 className={cssZenMode ? "w-full" : "space-y-6"}
               >
                 <CSSGlassShadowGenerator 
