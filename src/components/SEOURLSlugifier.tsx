@@ -19,7 +19,8 @@ import {
   Sliders,
   ChevronDown,
   ChevronUp,
-  FileText
+  FileText,
+  BookOpen
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -946,6 +947,63 @@ export default function SEOURLSlugifier() {
           </motion.div>
         )}
 
+      </div>
+
+      {/* Tool Page SEO Metadata Content */}
+      <div id="slugifier-seo-spec" className="lg:col-span-12 bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 backdrop-blur-md space-y-4 mt-2">
+        <div className="flex items-center justify-between border-b border-slate-800/60 pb-3">
+          <div className="flex items-center gap-2">
+            <span className="p-1.5 bg-indigo-500/10 text-indigo-400 rounded-lg border border-indigo-500/20">
+              <BookOpen className="w-4 h-4" />
+            </span>
+            <div>
+              <h3 className="text-xs font-bold text-slate-200 uppercase tracking-wider font-mono">Tool Page SEO Specifications</h3>
+              <p className="text-[10px] text-slate-500">Search Engine Indexing Configuration for this Tool Page</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono">
+          <div className="space-y-3 bg-slate-950/40 border border-slate-800/60 rounded-lg p-3.5">
+            <div>
+              <span className="text-slate-500 text-[10px] uppercase font-bold block mb-1">SEO Title Content</span>
+              <p className="text-slate-300 font-sans leading-relaxed text-[11px]">
+                Free SEO URL Slugifier &amp; Link Permalinks Architect
+              </p>
+            </div>
+            <div>
+              <span className="text-slate-500 text-[10px] uppercase font-bold block mb-1">SEO Meta Description</span>
+              <p className="text-slate-400 font-sans leading-relaxed text-[11px]">
+                Convert raw post and page titles into clean, keyword-focused, search-optimized URL slugs. Optimize click-through-rate, strip stop words, append dates or custom hashes, and perform technical audits with AI.
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-3 bg-slate-950/40 border border-slate-800/60 rounded-lg p-3.5">
+            <div>
+              <span className="text-slate-500 text-[10px] uppercase font-bold block mb-1">SEO Keywords Content</span>
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {[
+                  "url slugifier",
+                  "url builder",
+                  "permalink creator",
+                  "seo slug generator",
+                  "custom url slug",
+                  "slug editor",
+                  "free seo tools"
+                ].map((keyword) => (
+                  <span key={keyword} className="bg-indigo-950/50 text-indigo-300 border border-indigo-900/40 px-2 py-0.5 rounded text-[10px]">
+                    {keyword}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="pt-2 border-t border-slate-800/60 flex items-center justify-between text-[10px] text-slate-500 font-sans">
+              <span>Status: <strong className="text-emerald-500 font-semibold">Fully Optimized</strong></span>
+              <span>Robots: <strong className="text-emerald-500 font-semibold">index, follow</strong></span>
+            </div>
+          </div>
+        </div>
       </div>
 
     </div>

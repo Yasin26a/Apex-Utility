@@ -1484,6 +1484,26 @@ const SEO_METADATA: Record<string, SEOHeaderContent> = {
         "priceCurrency": "USD"
       }
     }
+  },
+  'meta-tag-auditor': {
+    title: "Free SEO Meta Tag Auditor & Rich Social Card Previewer",
+    description: "Scan live website URLs or paste raw HTML code blocks to audit missing OpenGraph meta tags, analyze mobile viewport layouts, check canonical link integrity, and simulate real-time visual social sharing previews.",
+    keywords: "meta tag auditor, opengraph checker, viewport validator, canonical link checker, seo metadata audit, social share preview, twitter card checker",
+    ogTitle: "Free SEO Meta Tag Auditor & Rich Social Card Previewer",
+    ogDescription: "Scan live website URLs or paste raw HTML code blocks to audit missing OpenGraph meta tags, analyze mobile viewport layouts, check canonical link integrity, and simulate real-time visual social sharing previews.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "SEO Meta Tag Auditor & Rich Social Card Previewer",
+      "description": "Scan live website URLs or paste raw HTML code blocks to audit missing OpenGraph meta tags, analyze mobile viewport layouts, check canonical link integrity, and simulate real-time visual social sharing previews.",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
   }
 };
 

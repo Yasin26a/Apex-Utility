@@ -109,7 +109,8 @@ export type ActiveTab =
   | 'favicon-generator'
   | 'alt-text-generator'
   | 'keyword-difficulty'
-  | 'url-slugifier';
+  | 'url-slugifier'
+  | 'meta-tag-auditor';
 
 export interface JSONBeautifierState {
   rawInput: string;

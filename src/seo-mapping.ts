@@ -111,11 +111,13 @@ export const SEO_H1_MAPPING: Record<ActiveTab, string> = {
   'alt-text-generator': 'Free AI Image Alt-Text Generator - SEO & Accessibility Optimizer',
   'keyword-difficulty': 'Free SEO Keyword Difficulty Checker & SERP Difficulty Analyzer',
   'url-slugifier': 'Free SEO URL Slugifier & Link Permalinks Architect',
+  'meta-tag-auditor': 'Free SEO Meta Tag Auditor & Rich Social Card Previewer',
 };
 
 export const SEO_DESC_MAPPING: Partial<Record<ActiveTab, string>> = {
   'keyword-difficulty': 'Analyze any search keyword to calculate its organic search difficulty score, search intent classification, and detailed SERP competitive metrics using real-time search engine results simulation.',
   'url-slugifier': 'Convert raw post and page titles into clean, keyword-focused, search-optimized URL slugs. Optimize click-through-rate, strip stop words, append dates or custom hashes, and perform technical audits with AI.',
+  'meta-tag-auditor': 'Scan live website URLs or paste raw HTML code blocks to audit missing OpenGraph meta tags, analyze mobile viewport layouts, check canonical link integrity, and simulate real-time visual social sharing previews.',
   'alt-text-generator': 'Audit and analyze images to instantly generate descriptive, accessible, and SEO-optimized alt text, file name recommendations, and rich visual details powered by Gemini 3.5 Flash.',
   'screen-recorder': 'Online screen and audio recorder with no watermark – how to screen record on Chrome without extensions or lag.',
   'webcam-recorder': 'Record raw high-definition video from connected cameras with synchronized microphone streams and zero lag.',

@@ -164,6 +164,7 @@ const HardwareTestSuite = lazy(() => import('./components/HardwareTestSuite'));
 const AIImageAltTextGenerator = lazy(() => import('./components/AIImageAltTextGenerator'));
 const SEOKeywordDifficulty = lazy(() => import('./components/SEOKeywordDifficulty'));
 const SEOURLSlugifier = lazy(() => import('./components/SEOURLSlugifier'));
+const MetaTagAuditor = lazy(() => import('./components/MetaTagAuditor'));
 
 const getArticleKeywords = (article: Article): string[] => {
   const text = [
@@ -3328,6 +3329,19 @@ Disallow:
               </motion.div>
             )}
 
+            {activeTab === 'meta-tag-auditor' && (
+              <motion.div key="meta-tag-auditor" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-indigo-400 uppercase">SEO &amp; Social Analytics</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Meta Tag Auditor &amp; Visual Card Architect</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Scan raw URL web properties or paste HTML code blocks to audit OpenGraph tags, canonical links, viewport settings, and live share cards.</p>
+                </div>
+                <Suspense fallback={<div className="text-white font-mono text-xs">Loading Meta Tag Auditor...</div>}>
+                  <MetaTagAuditor />
+                </Suspense>
+              </motion.div>
+            )}
+
             {activeTab === 'gradient-generator' && (
               <motion.div key="gradient-generator" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
@@ -6303,6 +6317,19 @@ Disallow:
               >
                 <Suspense fallback={<div className="text-white font-mono text-xs">Loading URL Slugifier...</div>}>
                   <SEOURLSlugifier />
+                </Suspense>
+              </motion.div>
+            )}
+
+            {/* Tab: Meta Tag Auditor */}
+            {activeTab === 'meta-tag-auditor' && (
+              <motion.div
+                key="meta-tag-auditor"
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                className="space-y-6"
+              >
+                <Suspense fallback={<div className="text-white font-mono text-xs">Loading Meta Tag Auditor...</div>}>
+                  <MetaTagAuditor />
                 </Suspense>
               </motion.div>
             )}

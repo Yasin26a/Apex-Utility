@@ -1478,6 +1478,292 @@ All generated slugs must be lowercase, use hyphens instead of spaces, remove dia
     }
   });
 
+  // API: Meta Tag Auditor
+  app.post('/api/meta-tag-auditor', async (req, res) => {
+    try {
+      let { url, html } = req.body;
+
+      if (!url && !html) {
+        res.status(400).json({ error: 'Either a valid URL or raw HTML code must be provided.' });
+        return;
+      }
+
+      let source = 'pasted_html';
+      let fetchedUrl = url || '';
+
+      if (url && !html) {
+        source = 'fetched_url';
+        // Add protocol if missing
+        if (!/^https?:\/\//i.test(url)) {
+          url = 'https://' + url;
+          fetchedUrl = url;
+        }
+
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
+          const fetchResponse = await fetch(url, {
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+              'Accept-Language': 'en-US,en;q=0.5'
+            },
+            signal: controller.signal
+          });
+
+          clearTimeout(timeoutId);
+
+          if (!fetchResponse.ok) {
+            throw new Error(`Server responded with HTTP status ${fetchResponse.status}`);
+          }
+
+          html = await fetchResponse.text();
+        } catch (fetchErr: any) {
+          console.error(`Fetch error for URL ${url}:`, fetchErr);
+          res.status(422).json({ 
+            error: `Could not load the URL. Connection failed, timed out, or blocked by the server: ${fetchErr.message}. You can still copy and paste the page source HTML below to run the audit instantly!` 
+          });
+          return;
+        }
+      }
+
+      // Safeguard: trim HTML if huge
+      if (html.length > 800000) {
+        html = html.substring(0, 800000);
+      }
+
+      // Extract Head Block
+      const headMatch = html.match(/<head[^>]*>([\s\S]*?)<\/head>/i);
+      const headContent = headMatch ? headMatch[1] : html.substring(0, 150000);
+
+      // Simple regex parser to extract structured tags so we can pass them cleaner to Gemini
+      // and display them in a list
+      const titleMatch = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+      const extractedTitle = titleMatch ? titleMatch[1].trim() : '';
+
+      // Extract raw meta tag properties for visual report in the frontend
+      const metaTags: Array<{ name?: string; property?: string; content?: string; httpEquiv?: string; raw: string }> = [];
+      const metaRegex = /<meta\s+([^>]*?)>/gi;
+      let match;
+      while ((match = metaRegex.exec(headContent)) !== null && metaTags.length < 100) {
+        const rawTag = match[0];
+        const attrsStr = match[1];
+        const attrs: Record<string, string> = {};
+        const attrRegex = /([a-zA-Z0-9:-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/gi;
+        let attrMatch;
+        while ((attrMatch = attrRegex.exec(attrsStr)) !== null) {
+          const key = attrMatch[1].toLowerCase();
+          const val = attrMatch[2] || attrMatch[3] || attrMatch[4] || '';
+          attrs[key] = val;
+        }
+        metaTags.push({
+          name: attrs['name'],
+          property: attrs['property'],
+          content: attrs['content'],
+          httpEquiv: attrs['http-equiv'],
+          raw: rawTag
+        });
+      }
+
+      // Find Canonical links
+      const links: Array<{ rel?: string; href?: string; raw: string }> = [];
+      const linkRegex = /<link\s+([^>]*?)>/gi;
+      while ((match = linkRegex.exec(headContent)) !== null && links.length < 50) {
+        const rawTag = match[0];
+        const attrsStr = match[1];
+        const attrs: Record<string, string> = {};
+        const attrRegex = /([a-zA-Z0-9:-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/gi;
+        let attrMatch;
+        while ((attrMatch = attrRegex.exec(attrsStr)) !== null) {
+          const key = attrMatch[1].toLowerCase();
+          const val = attrMatch[2] || attrMatch[3] || attrMatch[4] || '';
+          attrs[key] = val;
+        }
+        if (attrs['rel'] || attrs['href']) {
+          links.push({
+            rel: attrs['rel'],
+            href: attrs['href'],
+            raw: rawTag
+          });
+        }
+      }
+
+      // Build compact summary of tags for Gemini prompt
+      const metaSummary = metaTags.map(t => {
+        const ident = t.name ? `name="${t.name}"` : t.property ? `property="${t.property}"` : t.httpEquiv ? `http-equiv="${t.httpEquiv}"` : '';
+        return ident ? `<meta ${ident} content="${t.content || ''}">` : t.raw;
+      }).join('\n');
+
+      const linkSummary = links.map(l => `<link rel="${l.rel || ''}" href="${l.href || ''}">`).join('\n');
+
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        res.status(500).json({ 
+          error: 'GEMINI_API_KEY is not configured on the server. Please check the Secrets panel in Settings.' 
+        });
+        return;
+      }
+
+      const ai = new GoogleGenAI({
+        apiKey: apiKey,
+        httpOptions: {
+          headers: {
+            'User-Agent': 'aistudio-build'
+          }
+        }
+      });
+
+      const userPrompt = `You are a world-class Technical SEO Auditor and Social Sharing preview expert.
+Analyze the following webpage tags extracted from ${fetchedUrl ? `URL: "${fetchedUrl}"` : 'pasted HTML code'}:
+
+Webpage Title Tag: "${extractedTitle || 'None found'}"
+
+Extracted Meta Tags:
+${metaSummary || 'No meta tags found'}
+
+Extracted Link Tags:
+${linkSummary || 'No link tags found'}
+
+Please audit this head metadata against best-practices:
+1. Canonical Link: Check if rel="canonical" is present. Is it absolute? Does it look structurally valid? If the source is URL "${fetchedUrl}", does the canonical match the source URL?
+2. Viewport: Check if <meta name="viewport"> is present. Does it configure layout correctly (width=device-width, initial-scale=1)? Does it improperly restrict user scalability (which is an accessibility issue)?
+3. OpenGraph & Twitter Tags: Check for presence of: og:title, og:description, og:image, og:url, og:site_name, og:type, twitter:card, twitter:title, twitter:description, twitter:image. Give scores, list present and missing elements.
+4. Traditional SEO: Check title length (ideal 50-60 chars) and meta description length (ideal 120-160 chars).
+5. Calculate overall score (0 to 100), overall grade, and generate actionable recommendations with priority levels ("High", "Medium", "Low") detailing the issue and clear fix guidelines.
+6. Provide a consolidated, optimized "socialPreview" block, which combines the best tags or provides smart fallbacks if the original is empty or missing. For socialPreview.image, if none exists, return an empty string or suggest a default mock placeholder (like a solid colored template).
+
+Analyze deeply and return a strict JSON payload conforming exactly to the responseSchema.`;
+
+      const responseSchema = {
+        type: Type.OBJECT,
+        properties: {
+          title: { type: Type.STRING },
+          description: { type: Type.STRING },
+          canonicalUrl: { type: Type.STRING },
+          viewport: { type: Type.STRING },
+          openGraphStatus: {
+            type: Type.OBJECT,
+            properties: {
+              score: { type: Type.INTEGER },
+              presentTags: { type: Type.ARRAY, items: { type: Type.STRING } },
+              missingTags: { type: Type.ARRAY, items: { type: Type.STRING } },
+              assessment: { type: Type.STRING }
+            },
+            required: ["score", "presentTags", "missingTags", "assessment"]
+          },
+          canonicalStatus: {
+            type: Type.OBJECT,
+            properties: {
+              isPresent: { type: Type.BOOLEAN },
+              isValid: { type: Type.BOOLEAN },
+              urlFound: { type: Type.STRING },
+              assessment: { type: Type.STRING }
+            },
+            required: ["isPresent", "isValid", "urlFound", "assessment"]
+          },
+          viewportStatus: {
+            type: Type.OBJECT,
+            properties: {
+              isPresent: { type: Type.BOOLEAN },
+              isResponsive: { type: Type.BOOLEAN },
+              valueFound: { type: Type.STRING },
+              assessment: { type: Type.STRING }
+            },
+            required: ["isPresent", "isResponsive", "valueFound", "assessment"]
+          },
+          seoStatus: {
+            type: Type.OBJECT,
+            properties: {
+              titleLength: { type: Type.INTEGER },
+              titleAssessment: { type: Type.STRING },
+              descriptionLength: { type: Type.INTEGER },
+              descriptionAssessment: { type: Type.STRING }
+            },
+            required: ["titleLength", "titleAssessment", "descriptionLength", "descriptionAssessment"]
+          },
+          totalScore: { type: Type.INTEGER },
+          overallGrade: { type: Type.STRING },
+          overallSummary: { type: Type.STRING },
+          recommendations: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                category: { type: Type.STRING },
+                priority: { type: Type.STRING },
+                title: { type: Type.STRING },
+                issue: { type: Type.STRING },
+                fix: { type: Type.STRING }
+              },
+              required: ["category", "priority", "title", "issue", "fix"]
+            }
+          },
+          socialPreview: {
+            type: Type.OBJECT,
+            properties: {
+              title: { type: Type.STRING },
+              description: { type: Type.STRING },
+              image: { type: Type.STRING },
+              siteName: { type: Type.STRING },
+              twitterCard: { type: Type.STRING }
+            },
+            required: ["title", "description", "image", "siteName", "twitterCard"]
+          }
+        },
+        required: [
+          "title",
+          "description",
+          "canonicalUrl",
+          "viewport",
+          "openGraphStatus",
+          "canonicalStatus",
+          "viewportStatus",
+          "seoStatus",
+          "totalScore",
+          "overallGrade",
+          "overallSummary",
+          "recommendations",
+          "socialPreview"
+        ]
+      };
+
+      const result = await generateContentWithFallback(ai, {
+        model: 'gemini-3.5-flash',
+        contents: userPrompt,
+        config: {
+          systemInstruction: 'You are an elite, highly critical Technical SEO Auditor and Webmaster. You return a JSON-structured tag-by-tag audit. You do not explain or write markdown text outside the JSON structure. Return only valid JSON conforming strictly to the responseSchema.',
+          responseMimeType: 'application/json',
+          responseSchema: responseSchema,
+          temperature: 0.1
+        }
+      });
+
+      if (!result.text) {
+        throw new Error('Gemini API returned an empty output during Meta Tag Audit.');
+      }
+
+      const parsedAudit = JSON.parse(result.text.trim());
+
+      res.json({
+        source,
+        fetchedUrl,
+        parsedTags: {
+          title: extractedTitle,
+          metaTagsCount: metaTags.length,
+          linkTagsCount: links.length,
+          metaTags: metaTags.map(t => ({ name: t.name, property: t.property, content: t.content, raw: t.raw })),
+          linkTags: links.map(l => ({ rel: l.rel, href: l.href, raw: l.raw }))
+        },
+        audit: parsedAudit
+      });
+
+    } catch (err: any) {
+      console.error('Error in meta-tag-auditor API:', err);
+      res.status(500).json({ error: err.message || 'Internal server error during Meta Tag Audit.' });
+    }
+  });
+
   // API Assistant / Supervisor Endpoint using Gemini 3.5 Flash
   app.post('/api/assistant', async (req, res) => {
     try {
