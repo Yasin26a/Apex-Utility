@@ -20,6 +20,7 @@ import {
   FileCheck,
   Compass,
   ArrowRight,
+  ArrowUp,
   Upload,
   Trash2,
   Sparkles,
@@ -602,6 +603,38 @@ export default function App() {
 
   // Track and persist modal reading scroll position
   useReadingScrollTracker(readerScrollRef, readingArticle?.id);
+
+  // Floating Back to Top state and event listeners
+  const [showModalBackToTop, setShowModalBackToTop] = useState(false);
+  const [showWindowBackToTop, setShowWindowBackToTop] = useState(false);
+
+  const scrollToTopWindow = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const scrollToTopReader = () => {
+    readerScrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    const handleWindowScroll = () => {
+      if (window.scrollY > 500) {
+        setShowWindowBackToTop(true);
+      } else {
+        setShowWindowBackToTop(false);
+      }
+    };
+    window.addEventListener('scroll', handleWindowScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleWindowScroll);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!readingArticle) {
+      setShowModalBackToTop(false);
+    }
+  }, [readingArticle]);
 
   // Dynamic SEO meta attributes and canonical link tag injection
   useSEOTags(activeTab, readingArticle);
@@ -4836,7 +4869,15 @@ Disallow:
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div className="space-y-1">
                     <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf1544] uppercase">Compliance Master Library</span>
-                    <h1 id="compliance-directory-header" className="text-2xl font-extrabold text-white tracking-tight">APEX Global News &amp; Tool Academy</h1>
+                    <motion.h1
+                      id="compliance-directory-header"
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6, ease: "easeOut" }}
+                      className="text-2xl font-extrabold text-white tracking-tight"
+                    >
+                      APEX Global News &amp; Tool Academy
+                    </motion.h1>
                     <p className="text-slate-400 text-xs sm:text-sm">
                       Discover {AT_LEAST_20_ARTICLES.length} authoritative, high-quality, fully detailed guides on SEO indexing, browser privacy buffers, media compression, and global compliance.
                     </p>
@@ -5540,6 +5581,14 @@ Disallow:
                       {/* Modal dynamic detailed contents body scroll area - ALL ITEMS SCROLL SEAMLESSLY */}
                       <div 
                         ref={readerScrollRef}
+                        onScroll={(e) => {
+                          const scrollTop = e.currentTarget.scrollTop;
+                          if (scrollTop > 500) {
+                            setShowModalBackToTop(true);
+                          } else {
+                            setShowModalBackToTop(false);
+                          }
+                        }}
                         className={`p-4 sm:p-10 overflow-y-auto space-y-6 flex-1 transition-colors duration-200 ${
                           readTheme === 'sepia' 
                             ? 'bg-[#140e0c] text-[#ece4db]' 
@@ -6436,6 +6485,28 @@ Disallow:
                           </div>
                         </div>
                       </div>
+
+                      {/* Floating Back to Top Button for Modal */}
+                      <AnimatePresence>
+                        {showModalBackToTop && (
+                          <motion.button
+                            initial={{ opacity: 0, scale: 0.8, y: 10 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.8, y: 10 }}
+                            onClick={scrollToTopReader}
+                            className={`absolute bottom-6 right-6 z-40 p-3 rounded-full shadow-2xl backdrop-blur-sm transition-all duration-200 border flex items-center justify-center cursor-pointer group ${
+                              readTheme === 'sepia'
+                                ? 'bg-[#1a1412]/95 border-[#ece4db]/20 text-[#ece4db] hover:bg-[#1a1412] hover:border-[#ece4db]/40'
+                                : readTheme === 'parchment'
+                                ? 'bg-[#FAF6EE]/95 border-[#1c1917]/20 text-[#1c1917] hover:bg-[#FAF6EE] hover:border-[#1c1917]/40'
+                                : 'bg-slate-950/95 border-slate-800 text-slate-300 hover:text-rose-400 hover:border-rose-500/30 hover:bg-slate-900'
+                            }`}
+                            title="Back to Top"
+                          >
+                            <ArrowUp className="w-4.5 h-4.5 group-hover:-translate-y-0.5 transition-transform" />
+                          </motion.button>
+                        )}
+                      </AnimatePresence>
                     </motion.div>
                   </div>
                 )}
@@ -7370,6 +7441,22 @@ Disallow:
               </div>
             </motion.div>
           </div>
+        )}
+      </AnimatePresence>
+
+      {/* Global Window Back to Top Button */}
+      <AnimatePresence>
+        {showWindowBackToTop && !readingArticle && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 10 }}
+            onClick={scrollToTopWindow}
+            className="fixed bottom-20 right-4 sm:bottom-24 sm:right-6 z-30 p-3 bg-slate-950/90 border border-slate-800 text-slate-400 hover:text-rose-400 hover:border-rose-500/30 hover:bg-slate-900 rounded-full shadow-2xl backdrop-blur-md transition-all duration-200 flex items-center justify-center cursor-pointer group"
+            title="Back to Top"
+          >
+            <ArrowUp className="w-4 h-4 group-hover:-translate-y-0.5 transition-transform" />
+          </motion.button>
         )}
       </AnimatePresence>
 
