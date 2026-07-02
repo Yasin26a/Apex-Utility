@@ -3089,7 +3089,10 @@ export default function Dashboard({ onTabChange }: DashboardProps) {
                 });
 
                 // Populate fallback media_lab group
-                groupDefinitions[4].cards = unpinnedCards.filter(c => !assignedIds.has(c.id));
+                const mediaLabGroup = groupDefinitions.find(g => g.id === 'media_lab');
+                if (mediaLabGroup) {
+                  mediaLabGroup.cards = unpinnedCards.filter(c => !assignedIds.has(c.id));
+                }
 
                 // If we have pinned cards, unshift the Pinned Workstations group
                 const activeGroups = [...groupDefinitions];
