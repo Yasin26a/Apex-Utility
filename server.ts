@@ -291,6 +291,238 @@ Generate recommendations, semantic keyword expansions, long-tail search question
     }
   });
 
+  // API Social Media Hook Generator Endpoint using Gemini 3.5 Flash
+  app.post('/api/hook-generator', async (req, res) => {
+    try {
+      const { topic, platform, tone, audience, format } = req.body;
+      if (!topic || typeof topic !== 'string') {
+        res.status(400).json({ error: 'Topic must be a non-empty string.' });
+        return;
+      }
+      if (!platform || typeof platform !== 'string') {
+        res.status(400).json({ error: 'Platform must be a non-empty string.' });
+        return;
+      }
+
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        res.status(500).json({ 
+          error: 'GEMINI_API_KEY is not configured on the server. Please check the Secrets panel in Settings.' 
+        });
+        return;
+      }
+
+      // Initialize the modern GoogleGenAI client with required header
+      const ai = new GoogleGenAI({
+        apiKey: apiKey,
+        httpOptions: {
+          headers: {
+            'User-Agent': 'aistudio-build'
+          }
+        }
+      });
+
+      const userPrompt = `Generate a set of 5 highly compelling, high-engagement viral social media hooks specifically tailored for the platform "${platform}".
+Topic/Context: "${topic}"
+Target Audience: "${audience || 'General public / professionals'}"
+Emotional Tone: "${tone || 'Curious & Provocative'}"
+Format Style: "${format || 'Any/Optimal'}"
+
+Each hook should follow an established high-performance copywriting formula. Provide:
+1. The hook formula name (e.g., "The Negative Frame Pattern Interrupt", "The Value Loop", "The Contrarian Claim").
+2. The exact hook text (polished, ready to copy, utilizing proper spacing, bolding highlights if appropriate, or relevant emoji accents for maximum CTR).
+3. The psychological trigger explanation.
+4. A smooth continuation transition/suggestion (e.g. what the next sentence or thread item should cover to sustain the reader's attention).
+5. A list of 2 specific engagement tips for publishing this hook.`;
+
+      const responseSchema = {
+        type: Type.OBJECT,
+        properties: {
+          topic: { type: Type.STRING },
+          platform: { type: Type.STRING },
+          tone: { type: Type.STRING },
+          hooks: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                formulaName: { type: Type.STRING, description: "Name of the psychological copywriting hook formula." },
+                hookText: { type: Type.STRING, description: "The high-impact hook text, beautifully spaced." },
+                psychology: { type: Type.STRING, description: "Why this works, referencing cognitive bias or triggers like pattern interrupt or curiosity gaps." },
+                transition: { type: Type.STRING, description: "The immediate follow-up sentence or line to keep attention." },
+                engagementTips: {
+                  type: Type.ARRAY,
+                  items: { type: Type.STRING },
+                  description: "2 custom tactical publishing or formatting tips."
+                }
+              },
+              required: ["formulaName", "hookText", "psychology", "transition", "engagementTips"]
+            }
+          }
+        },
+        required: ["topic", "platform", "tone", "hooks"]
+      };
+
+      const result = await generateContentWithFallback(ai, {
+        model: 'gemini-3.5-flash',
+        contents: userPrompt,
+        config: {
+          systemInstruction: 'You are an elite, world-class copywriter, social media algorithm whisperer, and viral marketing director. Generate high-engagement hook strategies that maximize dwell time, clicks, impressions, and conversions. Return strict, pristine structures in raw JSON with no markdown block wrappers.',
+          responseMimeType: 'application/json',
+          responseSchema: responseSchema,
+          temperature: 0.7
+        }
+      });
+
+      if (!result.text) {
+        throw new Error('Gemini API returned an empty response.');
+      }
+
+      const cleanJson = JSON.parse(result.text.trim());
+      res.json(cleanJson);
+    } catch (err: any) {
+      console.error('Error in hook-generator api:', err);
+      res.status(500).json({ error: err.message || 'Internal server error generating hooks.' });
+    }
+  });
+
+  // API Code Explainer & Translator Endpoint using Gemini 3.5 Flash
+  app.post('/api/code-explainer-translator', async (req, res) => {
+    try {
+      const { mode, code, language, complexity, sourceLanguage, targetLanguage, targetStyle } = req.body;
+      if (!code || typeof code !== 'string') {
+        res.status(400).json({ error: 'Code block must be a non-empty string.' });
+        return;
+      }
+      if (!mode || (mode !== 'explain' && mode !== 'translate')) {
+        res.status(400).json({ error: 'Mode must be either "explain" or "translate".' });
+        return;
+      }
+
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        res.status(500).json({ 
+          error: 'GEMINI_API_KEY is not configured on the server. Please check the Secrets panel in Settings.' 
+        });
+        return;
+      }
+
+      // Initialize the modern GoogleGenAI client with required header
+      const ai = new GoogleGenAI({
+        apiKey: apiKey,
+        httpOptions: {
+          headers: {
+            'User-Agent': 'aistudio-build'
+          }
+        }
+      });
+
+      let userPrompt = '';
+      if (mode === 'explain') {
+        userPrompt = `Please explain this script line-by-line or logical block-by-block.
+Language: "${language || 'Unspecified/Auto-detect'}"
+Explanation Complexity Level: "${complexity || 'detailed'}"
+
+Code Block:
+\`\`\`
+${code}
+\`\`\`
+
+Provide:
+1. summary: A high-level overview of what the script does and its overall responsibility.
+2. explainedLines: Logical chunks of code, mapped with line ranges, containing a snippet and a clear explanation of what is happening under the hood (focusing on tricky operations, memory, legacy syntax, pointer arithmetic, or potential side-effects).
+3. timeComplexity & spaceComplexity: Theoretical complexity analysis.
+4. keyConcepts: 2-3 prominent paradigms or computer science topics seen in the script.
+5. bugsOrOptimizations: Any bugs, style anti-patterns, security bugs, memory leaks, or execution bottlenecks.`;
+      } else {
+        userPrompt = `Please translate this code block into the requested target programming language.
+Source Language: "${sourceLanguage || 'Unspecified/Auto-detect'}"
+Target Language: "${targetLanguage}"
+Coding Style/Format Guideline: "${targetStyle || 'idiomatic'}"
+
+Code Block to Translate:
+\`\`\`
+${code}
+\`\`\`
+
+Provide:
+1. summary: Brief overview of what was translated.
+2. translatedCode: The complete, fully working, correctly indented target language block with syntax conforming to target language guidelines.
+3. translationAnnotations: Detailed mapping comparing source code expressions and structures to their counterparts in the target language (e.g., explaining why a pointer was replaced with a reference, or a primitive map replaced with a HashMap).
+4. paradigmDifferences: Key conceptual differences (e.g. garbage collection vs manual tracking, strong typing vs duck typing, or event loops vs multithreaded models) between "${sourceLanguage}" and "${targetLanguage}" relevant to this block.`;
+      }
+
+      const responseSchema = {
+        type: Type.OBJECT,
+        properties: {
+          summary: { type: Type.STRING, description: "A high-level overview of the script/code block and its core responsibility." },
+          explainedLines: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                lineRange: { type: Type.STRING, description: "Line numbers or range in the original code, e.g., '1-4' or '12'." },
+                codeSnippet: { type: Type.STRING, description: "The corresponding line/lines of code." },
+                explanation: { type: Type.STRING, description: "Detailed explanation of what this block does, any hidden gotchas, or legacy context." }
+              },
+              required: ["lineRange", "codeSnippet", "explanation"]
+            },
+            description: "Line-by-line or block-by-block logical explanation of the code."
+          },
+          timeComplexity: { type: Type.STRING, description: "Big O time complexity analysis, e.g., 'O(N log N)' with a short 1-sentence reason." },
+          spaceComplexity: { type: Type.STRING, description: "Big O space complexity analysis, e.g., 'O(1)' with a short 1-sentence reason." },
+          keyConcepts: {
+            type: Type.ARRAY,
+            items: { type: Type.STRING },
+            description: "A list of 2-3 key computer science concepts or syntax quirks utilized (e.g. 'closures', 'pointer arithmetic', 'generator delegation')."
+          },
+          bugsOrOptimizations: {
+            type: Type.ARRAY,
+            items: { type: Type.STRING },
+            description: "Any bugs, security loopholes, memory leaks, or optimizations found in the original code."
+          },
+          translatedCode: { type: Type.STRING, description: "The fully translated, working, idiomatic target code block. Leave empty if mode is 'explain'." },
+          translationAnnotations: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                sourceSegment: { type: Type.STRING, description: "Source code chunk." },
+                targetSegment: { type: Type.STRING, description: "Corresponding translated code chunk." },
+                explanation: { type: Type.STRING, description: "Why the translation was done this way, syntax shifts, or standard library changes." }
+              },
+              required: ["sourceSegment", "targetSegment", "explanation"]
+            },
+            description: "Mapping of structural patterns from source to target. Leave empty if mode is 'explain'."
+          },
+          paradigmDifferences: { type: Type.STRING, description: "Contrast of standard libraries, type safety, performance, or concurrency models between the two languages." }
+        },
+        required: ["summary"]
+      };
+
+      const result = await generateContentWithFallback(ai, {
+        model: 'gemini-3.5-flash',
+        contents: userPrompt,
+        config: {
+          systemInstruction: 'You are an elite, world-class principal system architect and compiler engineer. You explain complex, obscure, obfuscated, or ancient legacy scripts with crystal-clear pedagogical brilliance, and translate algorithms across high-level, system, and assembly languages with flawless idiom, precision, and structural correctness. Return a strict, pristine structure in raw JSON format with no markdown wrappers.',
+          responseMimeType: 'application/json',
+          responseSchema: responseSchema,
+          temperature: 0.2
+        }
+      });
+
+      if (!result.text) {
+        throw new Error('Gemini API returned an empty response.');
+      }
+
+      const cleanJson = JSON.parse(result.text.trim());
+      res.json(cleanJson);
+    } catch (err: any) {
+      console.error('Error in code-explainer-translator api:', err);
+      res.status(500).json({ error: err.message || 'Internal server error processing code.' });
+    }
+  });
+
   // API Schema Generator Endpoint using Gemini 3.5 Flash
   app.post('/api/schema-generator', async (req, res) => {
     try {
@@ -830,6 +1062,422 @@ ${articleText}
     }
   });
 
+  // API Image Alt-Text Generator Endpoint using Gemini 3.5 Flash
+  app.post('/api/alt-text-generator', async (req, res) => {
+    try {
+      const { image, mimeType, keyword, context, tone } = req.body;
+      if (!image || typeof image !== 'string') {
+        res.status(400).json({ error: 'Image content in base64 format is required.' });
+        return;
+      }
+
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        res.status(500).json({ 
+          error: 'GEMINI_API_KEY is not configured on the server. Please check the Secrets panel in Settings.' 
+        });
+        return;
+      }
+
+      // Safe base64 parsing and mime type extraction
+      let base64Data = image;
+      let resolvedMimeType = mimeType || 'image/jpeg';
+      if (image.includes(';base64,')) {
+        const parts = image.split(';base64,');
+        base64Data = parts[1];
+        const mimePart = parts[0];
+        if (mimePart.startsWith('data:')) {
+          resolvedMimeType = mimePart.substring(5);
+        }
+      }
+
+      const ai = new GoogleGenAI({
+        apiKey: apiKey,
+        httpOptions: {
+          headers: {
+            'User-Agent': 'aistudio-build'
+          }
+        }
+      });
+
+      const userPrompt = `Analyze this image and generate highly professional, search-engine optimized (SEO), and accessible web-ready alternative text (alt-text) attributes.
+${keyword ? `Optimize one of the alt text fields specifically around this target keyword: "${keyword}" (make it natural and relevant).` : ''}
+${context ? `The image is being used in this context on the webpage: "${context}". Ensure the descriptions reflect this.` : ''}
+${tone ? `Apply a "${tone}" tone or style to the generated descriptions where suitable.` : ''}
+
+Provide a structured, detailed visual analysis including:
+1. Screen-reader friendly 'shortAltText' (<125 characters, highly functional, no fluffy 'image of' intros).
+2. Descriptive 'detailedAltText' (125-250 characters, capturing setting, colors, atmosphere).
+3. 'keywordOptimizedAltText' (naturally integrating the target keyword "${keyword || 'relevant terms'}" into a high-quality alt attribute).
+4. An SEO-optimized, lowercase, hyphen-separated 'suggestedFileName' (preserving the correct file extension based on MIME type: "${resolvedMimeType}").
+5. A list of 5 to 8 recommended LSI keywords or semantic search terms.
+6. A Boolean flag 'isDecorative' indicating if the image appears to be purely visual clutter/spacer/background.
+7. A visual elements breakdown (primary subject, secondary objects, detected colors, detected text, setting).
+8. 3 to 4 technical SEO/accessibility recommendations.`;
+
+      const responseSchema = {
+        type: Type.OBJECT,
+        properties: {
+          shortAltText: { type: Type.STRING },
+          detailedAltText: { type: Type.STRING },
+          keywordOptimizedAltText: { type: Type.STRING },
+          suggestedFileName: { type: Type.STRING },
+          recommendedKeywords: {
+            type: Type.ARRAY,
+            items: { type: Type.STRING }
+          },
+          isDecorative: { type: Type.BOOLEAN },
+          visualAnalysis: {
+            type: Type.OBJECT,
+            properties: {
+              primarySubject: { type: Type.STRING },
+              secondaryObjects: {
+                type: Type.ARRAY,
+                items: { type: Type.STRING }
+              },
+              detectedColors: {
+                type: Type.ARRAY,
+                items: { type: Type.STRING }
+              },
+              detectedText: { type: Type.STRING },
+              settingOrContext: { type: Type.STRING }
+            },
+            required: ["primarySubject", "secondaryObjects", "detectedColors", "detectedText", "settingOrContext"]
+          },
+          seoRecommendations: {
+            type: Type.ARRAY,
+            items: { type: Type.STRING }
+          }
+        },
+        required: [
+          "shortAltText",
+          "detailedAltText",
+          "keywordOptimizedAltText",
+          "suggestedFileName",
+          "recommendedKeywords",
+          "isDecorative",
+          "visualAnalysis",
+          "seoRecommendations"
+        ]
+      };
+
+      const imagePart = {
+        inlineData: {
+          mimeType: resolvedMimeType,
+          data: base64Data
+        }
+      };
+
+      const textPart = {
+        text: userPrompt
+      };
+
+      const result = await generateContentWithFallback(ai, {
+        model: 'gemini-3.5-flash',
+        contents: { parts: [imagePart, textPart] },
+        config: {
+          systemInstruction: 'You are an elite SEO auditor, senior On-Page content architect, and accessibility compliance engineer (WCAG 2.2). Your specialty is auditing web images to produce descriptive, contextual, and highly optimized alt tags and filenames. You return strictly formatted JSON following the responseSchema rules.',
+          responseMimeType: 'application/json',
+          responseSchema: responseSchema,
+          temperature: 0.2
+        }
+      });
+
+      if (!result.text) {
+        throw new Error('Gemini API returned an empty description output.');
+      }
+
+      res.json(JSON.parse(result.text.trim()));
+    } catch (err: any) {
+      console.error('Error in alt-text-generator API:', err);
+      res.status(500).json({ error: err.message || 'Internal server error during visual alt-text generation.' });
+    }
+  });
+
+  // API SEO Keyword Difficulty Checker using Gemini 3.5 Flash
+  app.post('/api/keyword-difficulty', async (req, res) => {
+    try {
+      const { keyword, geoCountry, platform } = req.body;
+      if (!keyword || typeof keyword !== 'string') {
+        res.status(400).json({ error: 'Target keyword parameter is required.' });
+        return;
+      }
+
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        res.status(500).json({ 
+          error: 'GEMINI_API_KEY is not configured on the server. Please check the Secrets panel in Settings.' 
+        });
+        return;
+      }
+
+      const ai = new GoogleGenAI({
+        apiKey: apiKey,
+        httpOptions: {
+          headers: {
+            'User-Agent': 'aistudio-build'
+          }
+        }
+      });
+
+      const userPrompt = `Conduct a rigorous, deep SEO audit, search intent mapping, and simulated SERP landscape analysis for the keyword: "${keyword.trim()}".
+Platform/Device target context: "${platform || 'Desktop'}".
+Geographic search territory context: "${geoCountry || 'Global/US'}".
+
+You must evaluate and return:
+1. An overall 'difficultyScore' between 0 and 100 based on simulated domain/page strengths and keyword density of ranking players.
+2. A matching 'difficultyCategory' (e.g., "Easy", "Medium", "Hard", "Very Hard") and 'difficultyColor' (hex colors like "#22c55e" for easy, "#eab308" for medium, "#f97316" for hard, "#ef4444" for very hard).
+3. Estimated monthly 'searchVolume' in search engines (formatted string like "12,500" or "450").
+4. High-fidelity 'searchIntent' classification (e.g., "Informational", "Transactional", "Commercial", "Navigational").
+5. 'searchIntentDescription' highlighting exactly what the user is seeking.
+6. A realistic Cost-Per-Click 'cpc' in USD (e.g. "$1.25", "$0.00").
+7. A competitive 'competitionLevel' index (e.g., "Low", "Medium", "High").
+8. 12-month search 'trendData' array representing seasonal interest indexes from 0 to 100, starting from Jan to Dec.
+9. A highly realistic simulation of the Top 5 search engine results ('serpResults'), including title, ranking page url, Page Authority (0-100), Domain Authority (0-100), estimated page backlinks, an on-page content rating ("Poor", "Moderate", "Excellent"), and a concise snippet highlighting why it ranks.
+10. A list of 5-8 LSI Keywords or semantic search terms.
+11. A list of 5 concrete SEO recommendations / action plan tasks to successfully rank for this keyword.`;
+
+      const responseSchema = {
+        type: Type.OBJECT,
+        properties: {
+          keyword: { type: Type.STRING },
+          difficultyScore: { type: Type.INTEGER },
+          difficultyCategory: { type: Type.STRING },
+          difficultyColor: { type: Type.STRING },
+          searchVolume: { type: Type.STRING },
+          searchIntent: { type: Type.STRING },
+          searchIntentDescription: { type: Type.STRING },
+          cpc: { type: Type.STRING },
+          competitionLevel: { type: Type.STRING },
+          trendData: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                month: { type: Type.STRING },
+                index: { type: Type.INTEGER }
+              },
+              required: ["month", "index"]
+            }
+          },
+          serpResults: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                rank: { type: Type.INTEGER },
+                title: { type: Type.STRING },
+                url: { type: Type.STRING },
+                domainAuthority: { type: Type.INTEGER },
+                pageAuthority: { type: Type.INTEGER },
+                backlinks: { type: Type.INTEGER },
+                onPageOptimization: { type: Type.STRING },
+                contentSnippet: { type: Type.STRING }
+              },
+              required: ["rank", "title", "url", "domainAuthority", "pageAuthority", "backlinks", "onPageOptimization", "contentSnippet"]
+            }
+          },
+          seoRecommendations: {
+            type: Type.ARRAY,
+            items: { type: Type.STRING }
+          },
+          lsiKeywords: {
+            type: Type.ARRAY,
+            items: { type: Type.STRING }
+          }
+        },
+        required: [
+          "keyword",
+          "difficultyScore",
+          "difficultyCategory",
+          "difficultyColor",
+          "searchVolume",
+          "searchIntent",
+          "searchIntentDescription",
+          "cpc",
+          "competitionLevel",
+          "trendData",
+          "serpResults",
+          "seoRecommendations",
+          "lsiKeywords"
+        ]
+      };
+
+      const result = await generateContentWithFallback(ai, {
+        model: 'gemini-3.5-flash',
+        contents: userPrompt,
+        config: {
+          systemInstruction: 'You are an advanced search intelligence backend, senior on-page SEO architect, and search engine analyst. You possess deep knowledge of search engines, PageRank vectors, link authorities (Page Authority/Domain Authority profiles), and latent user search intent patterns. You generate accurate simulated SERP audits in structured JSON adhering precisely to the required responseSchema rules.',
+          responseMimeType: 'application/json',
+          responseSchema: responseSchema,
+          temperature: 0.3
+        }
+      });
+
+      if (!result.text) {
+        throw new Error('Gemini API returned an empty output during keyword assessment.');
+      }
+
+      res.json(JSON.parse(result.text.trim()));
+    } catch (err: any) {
+      console.error('Error in keyword-difficulty API:', err);
+      res.status(500).json({ error: err.message || 'Internal server error during search engine intelligence calculations.' });
+    }
+  });
+
+  // API: URL Slugifier SEO Analyzer
+  app.post('/api/url-slugifier', async (req, res) => {
+    try {
+      const { 
+        title, 
+        lowercase, 
+        replaceSpaces, 
+        removeSpecial, 
+        stripStopWords, 
+        maxLength, 
+        targetKeyword, 
+        addSuffix, 
+        customInstructions 
+      } = req.body;
+
+      if (!title || typeof title !== 'string') {
+        res.status(400).json({ error: 'Title parameter is required.' });
+        return;
+      }
+
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        res.status(500).json({ 
+          error: 'GEMINI_API_KEY is not configured on the server. Please check the Secrets panel in Settings.' 
+        });
+        return;
+      }
+
+      const ai = new GoogleGenAI({
+        apiKey: apiKey,
+        httpOptions: {
+          headers: {
+            'User-Agent': 'aistudio-build'
+          }
+        }
+      });
+
+      // Simple local baseline helper to create a local baseline slug
+      let localSlug = title.trim();
+      if (lowercase !== false) {
+        localSlug = localSlug.toLowerCase();
+      }
+      
+      // Remove diacritics / accents
+      localSlug = localSlug.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+      if (removeSpecial !== false) {
+        // Remove special characters, keep alphanumeric, spaces, and hyphens/underscores
+        localSlug = localSlug.replace(/[^a-zA-Z0-9\s-_]/g, '');
+      }
+
+      if (replaceSpaces !== false) {
+        localSlug = localSlug.replace(/[\s_]+/g, '-');
+      } else {
+        localSlug = localSlug.replace(/\s+/g, '-');
+      }
+
+      // Cleanup multi-hyphens and leading/trailing
+      localSlug = localSlug.replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+
+      if (maxLength && typeof maxLength === 'number' && maxLength > 0) {
+        localSlug = localSlug.substring(0, maxLength).replace(/-+$/g, '');
+      }
+
+      if (addSuffix && typeof addSuffix === 'string' && addSuffix.trim() !== '') {
+        const cleanSuffix = addSuffix.trim().toLowerCase().replace(/[^a-zA-Z0-9_-]/g, '').replace(/\s+/g, '-');
+        if (cleanSuffix) {
+          localSlug = `${localSlug}-${cleanSuffix}`;
+        }
+      }
+
+      const userPrompt = `You are a professional search engine optimization expert specializing in high-performance URL structure design, permalinks, and keyword routing.
+Create a series of SEO-optimized, URL-friendly slugs for the following blog/post/page title:
+
+Title: "${title.trim()}"
+Baseline Standard Slug: "${localSlug}"
+Target Keyword context (optional): "${targetKeyword || 'None specified'}"
+Max Length constraint: ${maxLength || 'No limit'}
+Strip Stopwords rule enabled: ${stripStopWords ? 'Yes' : 'No'}
+Custom Instructions/Constraints: "${customInstructions || 'None specified'}"
+
+Please analyze and generate:
+1. 'seoOptimizedSlug': A highly refined slug targeting search engines. If 'Strip Stopwords' is enabled, strip low-value grammatical particles (like "and", "the", "a", "or", "is", "in", "with", "to", "for", "on", "of", "how-to", "why", "what") to keep it highly concise and punchy. Prioritize target keywords if provided.
+2. 'minimalSlug': An ultra-short, minimalist 2-3 word slug capturing only the high-value nouns/verbs.
+3. 'engagementSlug': A click-optimized version that is punchy, high-interest, and ideal for social media or newsletter tracking.
+4. 'transliteratedSlug': If the title contains non-English characters (e.g. Spanish, German, Hindi, Arabic, Chinese), translate the concepts to clean, fluent, URL-friendly English slugs. If already in English, return a perfectly optimized synonym-based alternative slug.
+5. 'seoAnalysis': A technical report card assessing the baseline standard slug. Provide a score (0 to 100), length evaluation, stopword count, a readability label ("High", "Moderate", "Low"), and 2-3 specific, actionable recommendations for slug optimization.
+6. 'variations': A list of 3-4 other creative, high-quality URL-friendly slug options that target different SEO keyword angles.
+
+All generated slugs must be lowercase, use hyphens instead of spaces, remove diacritics/special characters, and have any trailing/leading hyphens trimmed. Ensure they adhere to any provided max length constraints.`;
+
+      const responseSchema = {
+        type: Type.OBJECT,
+        properties: {
+          originalTitle: { type: Type.STRING },
+          standardSlug: { type: Type.STRING },
+          seoOptimizedSlug: { type: Type.STRING },
+          minimalSlug: { type: Type.STRING },
+          engagementSlug: { type: Type.STRING },
+          transliteratedSlug: { type: Type.STRING },
+          seoAnalysis: {
+            type: Type.OBJECT,
+            properties: {
+              lengthCheck: { type: Type.STRING },
+              score: { type: Type.INTEGER },
+              stopwordCount: { type: Type.INTEGER },
+              readability: { type: Type.STRING },
+              recommendations: {
+                type: Type.ARRAY,
+                items: { type: Type.STRING }
+              }
+            },
+            required: ["lengthCheck", "score", "stopwordCount", "readability", "recommendations"]
+          },
+          variations: {
+            type: Type.ARRAY,
+            items: { type: Type.STRING }
+          }
+        },
+        required: [
+          "originalTitle",
+          "standardSlug",
+          "seoOptimizedSlug",
+          "minimalSlug",
+          "engagementSlug",
+          "transliteratedSlug",
+          "seoAnalysis",
+          "variations"
+        ]
+      };
+
+      const result = await generateContentWithFallback(ai, {
+        model: 'gemini-3.5-flash',
+        contents: userPrompt,
+        config: {
+          systemInstruction: 'You are an advanced SEO Slug Architect. You analyze textual titles and craft beautiful, clean, semantic, and highly indexable URLs. You do not explain or write markdown text outside the JSON structure. Return only valid JSON conforming strictly to the responseSchema.',
+          responseMimeType: 'application/json',
+          responseSchema: responseSchema,
+          temperature: 0.2
+        }
+      });
+
+      if (!result.text) {
+        throw new Error('Gemini API returned an empty output during URL slugification.');
+      }
+
+      res.json(JSON.parse(result.text.trim()));
+    } catch (err: any) {
+      console.error('Error in url-slugifier API:', err);
+      res.status(500).json({ error: err.message || 'Internal server error during URL slugification calculations.' });
+    }
+  });
+
   // API Assistant / Supervisor Endpoint using Gemini 3.5 Flash
   app.post('/api/assistant', async (req, res) => {
     try {
@@ -935,6 +1583,215 @@ Tone Guidelines:
         success: false,
         message: err.message || 'Error occurred while contacting Google submission servers.'
       });
+    }
+  });
+
+  // API Redirect Chain & HTTP Header Auditor Endpoint
+  app.post('/api/audit-redirect', async (req, res) => {
+    try {
+      const { url } = req.body;
+      if (!url || typeof url !== 'string') {
+        res.status(400).json({ error: 'A valid URL is required.' });
+        return;
+      }
+
+      const http = await import('http');
+      const https = await import('https');
+      const { URL } = await import('url');
+
+      const chain: any[] = [];
+      let currentUrl = url.trim();
+      const maxRedirects = 10;
+      let errorOccurred = null;
+
+      for (let i = 0; i < maxRedirects; i++) {
+        // Ensure protocol exists
+        if (!/^https?:\/\//i.test(currentUrl)) {
+          currentUrl = 'http://' + currentUrl;
+        }
+
+        let parsedUrl: URL;
+        try {
+          parsedUrl = new URL(currentUrl);
+        } catch (e: any) {
+          errorOccurred = `Invalid URL: ${currentUrl}`;
+          break;
+        }
+
+        if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
+          errorOccurred = `Unsupported protocol: ${parsedUrl.protocol}`;
+          break;
+        }
+
+        // Avoid infinite loops by checking if we have seen this URL in this chain already
+        const alreadyVisited = chain.some(hop => hop.url === parsedUrl.href);
+        if (alreadyVisited) {
+          errorOccurred = `Circular redirect detected at ${parsedUrl.href}`;
+          break;
+        }
+
+        const startTime = process.hrtime();
+        try {
+          const hop = await new Promise<any>((resolve, reject) => {
+            const client = parsedUrl.protocol === 'https:' ? https : http;
+            
+            const options = {
+              method: 'GET',
+              hostname: parsedUrl.hostname,
+              port: parsedUrl.port || (parsedUrl.protocol === 'https:' ? 443 : 80),
+              path: (parsedUrl.pathname || '/') + parsedUrl.search,
+              headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 ApexRedirectAuditor/1.0',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.5',
+              },
+              timeout: 6000,
+            };
+
+            const requestObj = client.request(options, async (responseStream) => {
+              const diff = process.hrtime(startTime);
+              const responseTimeMs = Math.round(diff[0] * 1000 + diff[1] / 1000000);
+              
+              const headers: Record<string, string> = {};
+              for (const [key, val] of Object.entries(responseStream.headers)) {
+                if (Array.isArray(val)) {
+                  headers[key] = val.join(', ');
+                } else if (val !== undefined) {
+                  headers[key] = val;
+                }
+              }
+
+              const statusCode = responseStream.statusCode || 200;
+              const statusText = responseStream.statusMessage || '';
+
+              let redirectUrl: string | null = null;
+              if ([301, 302, 303, 307, 308].includes(statusCode) && headers['location']) {
+                const loc = headers['location'];
+                try {
+                  redirectUrl = new URL(loc, parsedUrl.href).href;
+                } catch (e) {
+                  redirectUrl = loc;
+                }
+              }
+
+              // Read HTML body if it's 200 OK and is text/html to look for Meta/JS redirects
+              let bodyText = '';
+              const contentType = headers['content-type'] || '';
+              if (statusCode === 200 && contentType.toLowerCase().includes('text/html')) {
+                try {
+                  await new Promise<void>((resolveBody) => {
+                    let size = 0;
+                    responseStream.on('data', (chunk) => {
+                      size += chunk.length;
+                      bodyText += chunk.toString('utf8');
+                      if (size > 80 * 1024) { // limit to 80KB to remain fast
+                        requestObj.destroy();
+                        resolveBody();
+                      }
+                    });
+                    responseStream.on('end', () => {
+                      resolveBody();
+                    });
+                  });
+                } catch (err) {
+                  // Ignore read body issues, we can proceed with what we have
+                }
+              } else {
+                // Otherwise destroy immediately to conserve resources
+                responseStream.resume();
+                requestObj.destroy();
+              }
+
+              // If 200 OK and we have a body, check for Meta/JS redirects
+              let redirectType: string | null = null;
+              if (statusCode === 200 && bodyText) {
+                // Meta Refresh check
+                const metaRefreshRegex = /<meta\s+[^>]*http-equiv=["']refresh["'][^>]*content=["']\d+;\s*url=(.*?)["']/i;
+                const metaMatch = bodyText.match(metaRefreshRegex);
+                if (metaMatch && metaMatch[1]) {
+                  const rawLoc = metaMatch[1].trim();
+                  try {
+                    redirectUrl = new URL(rawLoc, parsedUrl.href).href;
+                    redirectType = 'Meta Refresh Tag';
+                  } catch (e) {
+                    redirectUrl = rawLoc;
+                    redirectType = 'Meta Refresh Tag';
+                  }
+                }
+
+                // JS Redirect check (window.location / location.href / location.replace)
+                if (!redirectUrl) {
+                  const jsRedirectRegex = /(?:window\.|document\.)?location(?:\.href|\.replace)?\s*=\s*["'](.*?)["']/i;
+                  const jsMatch = bodyText.match(jsRedirectRegex);
+                  if (jsMatch && jsMatch[1]) {
+                    const rawLoc = jsMatch[1].trim();
+                    try {
+                      redirectUrl = new URL(rawLoc, parsedUrl.href).href;
+                      redirectType = 'JavaScript (location.href)';
+                    } catch (e) {
+                      redirectUrl = rawLoc;
+                      redirectType = 'JavaScript (location.href)';
+                    }
+                  }
+                }
+              }
+
+              const securityHeaders = {
+                hsts: headers['strict-transport-security'] || null,
+                csp: headers['content-security-policy'] || null,
+                xFrameOptions: headers['x-frame-options'] || null,
+                xContentTypeOptions: headers['x-content-type-options'] || null,
+                referrerPolicy: headers['referrer-policy'] || null,
+                xXssProtection: headers['x-xss-protection'] || null,
+              };
+
+              resolve({
+                url: parsedUrl.href,
+                statusCode,
+                statusText,
+                redirectUrl,
+                redirectType: redirectType || (redirectUrl ? 'HTTP Header' : null),
+                responseTimeMs,
+                headers,
+                securityHeaders,
+              });
+            });
+
+            requestObj.on('error', (err) => {
+              reject(err);
+            });
+
+            requestObj.on('timeout', () => {
+              requestObj.destroy();
+              reject(new Error('Request timeout'));
+            });
+
+            requestObj.end();
+          });
+
+          chain.push(hop);
+          if (hop.redirectUrl) {
+            currentUrl = hop.redirectUrl;
+          } else {
+            break;
+          }
+        } catch (err: any) {
+          errorOccurred = err.message || 'Connection error';
+          break;
+        }
+      }
+
+      res.json({
+        targetUrl: url,
+        redirectChain: chain,
+        finalUrl: chain.length > 0 ? chain[chain.length - 1].url : url,
+        totalRedirects: Math.max(0, chain.filter(hop => hop.redirectUrl).length),
+        error: errorOccurred,
+        success: chain.length > 0
+      });
+    } catch (err: any) {
+      console.error('Error in /api/audit-redirect:', err);
+      res.status(500).json({ error: err.message || 'An error occurred during redirect auditing.' });
     }
   });
 

@@ -97,7 +97,19 @@ export type ActiveTab =
   | 'json-node-map'
   | 'bezier-spline'
   | 'glass-brutalist'
-  | 'regex-flowchart';
+  | 'regex-flowchart'
+  | 'redirect-auditor'
+  | 'google-serp'
+  | 'sql-formatter'
+  | 'subnet-cidr'
+  | 'svg-wave'
+  | 'box-shadow'
+  | 'social-hooks'
+  | 'code-explainer'
+  | 'favicon-generator'
+  | 'alt-text-generator'
+  | 'keyword-difficulty'
+  | 'url-slugifier';
 
 export interface JSONBeautifierState {
   rawInput: string;

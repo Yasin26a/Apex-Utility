@@ -1364,6 +1364,126 @@ const SEO_METADATA: Record<string, SEOHeaderContent> = {
         "priceCurrency": "USD"
       }
     }
+  },
+  'social-hooks': {
+    title: "Free AI Social Media Hook Generator | YouTube, Twitter & LinkedIn",
+    description: "Generate viral, high-engagement social media hooks for Twitter threads, LinkedIn posts, or YouTube scripts based on custom topics, psychological triggers, and emotional tones. Boost impressions instantly.",
+    keywords: "social media hook generator, viral linkedin hooks, twitter thread opener generator, youtube script hooks, psychological trigger hooks, post mockups, ai copywriter, boost social impressions",
+    ogTitle: "Free AI Social Media Hook Generator - Optimize Your Content Virality",
+    ogDescription: "Generate viral, high-engagement hooks for Twitter threads, LinkedIn posts, or YouTube scripts based on custom topics, psychological triggers, and emotional tones.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "AI Social Media Hook Generator",
+      "description": "Generate high-engagement, viral hooks for Twitter/X threads, LinkedIn posts, or YouTube scripts based on custom topic, audience, and emotional tone.",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
+  'code-explainer': {
+    title: "AI Code Explainer, Translator & Big O Complexity Analyzer",
+    description: "Explain confusing legacy scripts line-by-line, run theoretical Big O time/space analyses, or translate code blocks across programming languages with direct structural mapping annotations.",
+    keywords: "ai code explainer, legacy code translator, line by line code explainer, compile code to go rust, programming language translator, big o complexity analyzer, code reverse engineering, assembly to c converter, cobol to typescript converter",
+    ogTitle: "AI Code Explainer & Multi-Language Logic Translator",
+    ogDescription: "Explain confusing legacy scripts line-by-line, run theoretical Big O time/space analyses, or translate code blocks across programming languages with direct structural mapping annotations.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "AI Code Explainer & Translator",
+      "description": "Explain confusing legacy scripts line-by-line or translate code blocks between programming languages with structural annotations and Big O complexity indicators.",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
+  'favicon-generator': {
+    title: "Free Real-time Favicon & Web App Manifest Generator",
+    description: "Generate standard cross-platform favicons (16x16, 32x32, 192x192, 512x512) and configure complete web application manifests with browser, mobile homescreen, and Google search snippet previews.",
+    keywords: "favicon generator, manifest json generator, free favicon builder, apple touch icon, browser tab icon preview, google search favicon, pwa launcher icons, crop image to favicon",
+    ogTitle: "Free Real-time Favicon & Web App Manifest Generator",
+    ogDescription: "Generate standard cross-platform favicons (16x16, 32x32, 192x192, 512x512) and configure complete web application manifests with browser, mobile homescreen, and Google search snippet previews.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Favicon & Web App Manifest Generator",
+      "description": "Generate standard cross-platform favicons and complete web application manifests with real-time browser, mobile homescreen, and Google search snippet previews.",
+      "applicationCategory": "DesignApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
+  'alt-text-generator': {
+    title: "Free AI Image Alt-Text Generator - SEO & Accessibility Optimizer",
+    description: "Audit and deconstruct your visual media to generate highly descriptive, WCAG 2.2 compliant, and search-optimized alternative text (alt text) attributes, custom filenames, and LSI keyword suggestions powered by Gemini 3.5 Flash.",
+    keywords: "ai alt text generator, image description generator, wcag accessibility compliance, image filename seo, image keyword optimizer, alt tag generator, automatic image captioning",
+    ogTitle: "Free AI Image Alt-Text Generator - SEO & Accessibility Optimizer",
+    ogDescription: "Audit and deconstruct your visual media to generate highly descriptive, WCAG 2.2 compliant, and search-optimized alternative text (alt text) attributes, custom filenames, and LSI keyword suggestions.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "AI Image Alt-Text Generator",
+      "description": "Analyze visual media to instantly generate WCAG 2.2 compliant alternative text, optimized filenames, and latent semantic keyword recommendations.",
+      "applicationCategory": "DesignApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
+  'keyword-difficulty': {
+    title: "Free SEO Keyword Difficulty Checker & SERP Difficulty Analyzer",
+    description: "Analyze any search keyword to calculate its organic search difficulty score, search intent classification, and detailed SERP competitive metrics using real-time search engine results simulation.",
+    keywords: "seo keyword difficulty checker, keyword competition tool, serp analyzer, search intent classification, organic search difficulty, search competition metrics, free keyword research",
+    ogTitle: "Free SEO Keyword Difficulty Checker & SERP Difficulty Analyzer",
+    ogDescription: "Analyze any search keyword to calculate its organic search difficulty score, search intent classification, and detailed SERP competitive metrics using real-time search engine results simulation.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "SEO Keyword Difficulty Checker",
+      "description": "Calculate organic search difficulty, intent profile, and analyze competitive metrics across the top search results.",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+  },
+  'url-slugifier': {
+    title: "Free SEO URL Slugifier & Link Permalinks Architect",
+    description: "Convert raw post and page titles into clean, keyword-focused, search-optimized URL slugs. Optimize click-through-rate, strip stop words, append dates or custom hashes, and perform technical audits with AI.",
+    keywords: "url slugifier, url builder, permalink creator, seo slug generator, custom url slug, slug editor, free seo tools",
+    ogTitle: "Free SEO URL Slugifier & Link Permalinks Architect",
+    ogDescription: "Convert raw post and page titles into clean, keyword-focused, search-optimized URL slugs. Optimize click-through-rate, strip stop words, append dates or custom hashes, and perform technical audits with AI.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "SEO URL Slugifier & Link Permalinks Architect",
+      "description": "Convert raw post and page titles into clean, keyword-focused, search-optimized URL slugs. Optimize click-through-rate, strip stop words, append dates or custom hashes, and perform technical audits with AI.",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
   }
 };
 

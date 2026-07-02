@@ -2,6 +2,10 @@ import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   ShieldCheck, 
+  Eye,
+  Database,
+  Network,
+  Layout,
   FileText, 
   Users, 
   Menu, 
@@ -42,7 +46,9 @@ import {
   Share2,
   Loader2,
   CheckCircle,
-  Mail
+  Mail,
+  Layers,
+  Grid
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ActiveTab } from './types';
@@ -65,6 +71,8 @@ const WebPConverter = lazy(() => import('./components/WebPConverter'));
 const PDFJoiner = lazy(() => import('./components/PDFJoiner'));
 const PDFSplitter = lazy(() => import('./components/PDFSplitter'));
 const ContentPlanner = lazy(() => import('./components/ContentPlanner'));
+const SocialMediaHookGenerator = lazy(() => import('./components/SocialMediaHookGenerator'));
+const AICodeExplainerTranslator = lazy(() => import('./components/AICodeExplainerTranslator'));
 const VideoRecorder = lazy(() => import('./components/VideoRecorder'));
 import { Document as PDFDocumentView, Page as PDFPageView, pdfjs } from 'react-pdf';
 
@@ -138,6 +146,12 @@ const BezierSpline = lazy(() => import('./components/BezierSpline'));
 const GlassBrutalistGenerator = lazy(() => import('./components/GlassBrutalistGenerator'));
 const RegexFlowchart = lazy(() => import('./components/RegexFlowchart'));
 const PasswordSharer = lazy(() => import('./components/PasswordSharer'));
+const RedirectAuditor = lazy(() => import('./components/RedirectAuditor'));
+const SERPPreviewer = lazy(() => import('./components/SERPPreviewer'));
+const SQLFormatter = lazy(() => import('./components/SQLFormatter'));
+const SubnetCalculator = lazy(() => import('./components/SubnetCalculator'));
+const SVGWaveGenerator = lazy(() => import('./components/SVGWaveGenerator'));
+const BoxShadowGenerator = lazy(() => import('./components/BoxShadowGenerator'));
 const DataBreachChecker = lazy(() => import('./components/DataBreachChecker'));
 const EXIFStripper = lazy(() => import('./components/EXIFStripper'));
 const ChecksumVerifier = lazy(() => import('./components/ChecksumVerifier'));
@@ -147,6 +161,9 @@ const BMICalculator = lazy(() => import('./components/BMICalculator'));
 const VoiceRecorder = lazy(() => import('./components/VoiceRecorder'));
 const VideoStudioSuite = lazy(() => import('./components/VideoStudioSuite'));
 const HardwareTestSuite = lazy(() => import('./components/HardwareTestSuite'));
+const AIImageAltTextGenerator = lazy(() => import('./components/AIImageAltTextGenerator'));
+const SEOKeywordDifficulty = lazy(() => import('./components/SEOKeywordDifficulty'));
+const SEOURLSlugifier = lazy(() => import('./components/SEOURLSlugifier'));
 
 const getArticleKeywords = (article: Article): string[] => {
   const text = [
@@ -2218,6 +2235,96 @@ Disallow:
                 </button>
 
                 <button
+                  onClick={() => handleTabChange('redirect-auditor')}
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                    activeTab === 'redirect-auditor'
+                      ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold shadow-[0_0_15px_rgba(239,68,68,0.25)]'
+                      : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <ShieldCheck className="w-4 h-4 text-brand animate-pulse" />
+                    <span>Redirect Auditor</span>
+                  </div>
+                  <span className="bg-red-950/60 border border-red-900/40 text-[9px] text-brand px-1.5 py-0.5 rounded font-mono font-bold uppercase shrink-0">SEC</span>
+                </button>
+
+                <button
+                  onClick={() => handleTabChange('google-serp')}
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                    activeTab === 'google-serp'
+                      ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold shadow-[0_0_15px_rgba(239,68,68,0.25)]'
+                      : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Eye className="w-4 h-4 text-brand" />
+                    <span>SERP Previewer</span>
+                  </div>
+                  <span className="bg-emerald-950/60 border border-emerald-900/40 text-[9px] text-emerald-400 px-1.5 py-0.5 rounded font-mono font-bold uppercase shrink-0">SEO</span>
+                </button>
+
+                <button
+                  onClick={() => handleTabChange('sql-formatter')}
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                    activeTab === 'sql-formatter'
+                      ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold shadow-[0_0_15px_rgba(239,68,68,0.25)]'
+                      : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Database className="w-4 h-4 text-brand" />
+                    <span>SQL Formatter</span>
+                  </div>
+                  <span className="bg-emerald-950/60 border border-emerald-900/40 text-[9px] text-emerald-400 px-1.5 py-0.5 rounded font-mono font-bold uppercase shrink-0">DB</span>
+                </button>
+
+                <button
+                  onClick={() => handleTabChange('subnet-cidr')}
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                    activeTab === 'subnet-cidr'
+                      ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold shadow-[0_0_15px_rgba(239,68,68,0.25)]'
+                      : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Network className="w-4 h-4 text-brand" />
+                    <span>Subnet Calculator</span>
+                  </div>
+                  <span className="bg-emerald-950/60 border border-emerald-900/40 text-[9px] text-emerald-400 px-1.5 py-0.5 rounded font-mono font-bold uppercase shrink-0">IP</span>
+                </button>
+
+                <button
+                  onClick={() => handleTabChange('svg-wave')}
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                    activeTab === 'svg-wave'
+                      ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold shadow-[0_0_15px_rgba(239,68,68,0.25)]'
+                      : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Layout className="w-4 h-4 text-brand" />
+                    <span>SVG Wave Generator</span>
+                  </div>
+                  <span className="bg-emerald-950/60 border border-emerald-900/40 text-[9px] text-emerald-400 px-1.5 py-0.5 rounded font-mono font-bold uppercase shrink-0">SVG</span>
+                </button>
+
+                <button
+                  onClick={() => handleTabChange('box-shadow')}
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                    activeTab === 'box-shadow'
+                      ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold shadow-[0_0_15px_rgba(239,68,68,0.25)]'
+                      : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Layers className="w-4 h-4 text-brand" />
+                    <span>Box Shadow Bento</span>
+                  </div>
+                  <span className="bg-emerald-950/60 border border-emerald-900/40 text-[9px] text-emerald-400 px-1.5 py-0.5 rounded font-mono font-bold uppercase shrink-0">CSS</span>
+                </button>
+
+                <button
                   onClick={() => handleTabChange('video-recorder')}
                   className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                     activeTab === 'video-recorder'
@@ -2421,6 +2528,78 @@ Disallow:
                     </button>
 
                     <button
+                      onClick={() => handleTabChange('redirect-auditor')}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                        activeTab === 'redirect-auditor'
+                          ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold'
+                          : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
+                      }`}
+                    >
+                      <ShieldCheck className="w-4 h-4 text-brand" />
+                      <span>Redirect Auditor</span>
+                    </button>
+
+                    <button
+                      onClick={() => handleTabChange('google-serp')}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                        activeTab === 'google-serp'
+                          ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold'
+                          : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
+                      }`}
+                    >
+                      <Eye className="w-4 h-4 text-brand" />
+                      <span>SERP Previewer</span>
+                    </button>
+
+                    <button
+                      onClick={() => handleTabChange('sql-formatter')}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                        activeTab === 'sql-formatter'
+                          ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold'
+                          : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
+                      }`}
+                    >
+                      <Database className="w-4 h-4 text-brand" />
+                      <span>SQL Formatter</span>
+                    </button>
+
+                    <button
+                      onClick={() => handleTabChange('subnet-cidr')}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                        activeTab === 'subnet-cidr'
+                          ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold'
+                          : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
+                      }`}
+                    >
+                      <Network className="w-4 h-4 text-brand" />
+                      <span>Subnet Calculator</span>
+                    </button>
+
+                    <button
+                      onClick={() => handleTabChange('svg-wave')}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                        activeTab === 'svg-wave'
+                          ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold'
+                          : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
+                      }`}
+                    >
+                      <Layout className="w-4 h-4 text-brand" />
+                      <span>SVG Wave Generator</span>
+                    </button>
+
+                    <button
+                      onClick={() => handleTabChange('box-shadow')}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                        activeTab === 'box-shadow'
+                          ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold'
+                          : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
+                      }`}
+                    >
+                      <Layers className="w-4 h-4 text-brand" />
+                      <span>Box Shadow Bento</span>
+                    </button>
+
+                    <button
                       onClick={() => handleTabChange('video-recorder')}
                       className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                         activeTab === 'video-recorder'
@@ -2517,6 +2696,26 @@ Disallow:
                 className="w-full"
               >
                 <Dashboard onTabChange={handleTabChange} />
+              </motion.div>
+            )}
+
+            {activeTab === 'redirect-auditor' && (
+              <motion.div
+                key="redirect-auditor"
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                className="w-full"
+              >
+                <RedirectAuditor />
+              </motion.div>
+            )}
+
+            {activeTab === 'google-serp' && (
+              <motion.div
+                key="google-serp"
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                className="w-full"
+              >
+                <SERPPreviewer />
               </motion.div>
             )}
 
@@ -3086,6 +3285,45 @@ Disallow:
                 </div>
                 <Suspense fallback={<div className="text-white font-mono text-xs">Loading Favicon Generator...</div>}>
                   <FaviconGenerator />
+                </Suspense>
+              </motion.div>
+            )}
+
+            {activeTab === 'alt-text-generator' && (
+              <motion.div key="alt-text-generator" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-indigo-400 uppercase">SEO &amp; Optimization</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">AI Image Alt-Text Generator</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Audit and deconstruct image assets to generate descriptive, keyword-enriched, and screen-reader optimized alt text attributes.</p>
+                </div>
+                <Suspense fallback={<div className="text-white font-mono text-xs">Loading Alt-Text Generator...</div>}>
+                  <AIImageAltTextGenerator />
+                </Suspense>
+              </motion.div>
+            )}
+
+            {activeTab === 'keyword-difficulty' && (
+              <motion.div key="keyword-difficulty" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-indigo-400 uppercase">SEO &amp; Optimization</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">SEO Keyword Difficulty Checker</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Calculate organic search difficulty score, analyze intent classification, map interest trends, and audit SERP competitors.</p>
+                </div>
+                <Suspense fallback={<div className="text-white font-mono text-xs">Loading Keyword Difficulty Checker...</div>}>
+                  <SEOKeywordDifficulty />
+                </Suspense>
+              </motion.div>
+            )}
+
+            {activeTab === 'url-slugifier' && (
+              <motion.div key="url-slugifier" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-indigo-400 uppercase">SEO &amp; Optimization</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">URL Slugifier &amp; SEO Link Architect</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Convert raw post titles into clean, keyword-focused, search-optimized URL slugs in real-time or with neural AI enhancement.</p>
+                </div>
+                <Suspense fallback={<div className="text-white font-mono text-xs">Loading URL Slugifier...</div>}>
+                  <SEOURLSlugifier />
                 </Suspense>
               </motion.div>
             )}
@@ -6001,6 +6239,74 @@ Disallow:
               </motion.div>
             )}
 
+            {/* Tab: Social Media Hook Generator */}
+            {activeTab === 'social-hooks' && (
+              <motion.div
+                key="social-hooks"
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                className="space-y-6"
+              >
+                <SocialMediaHookGenerator />
+              </motion.div>
+            )}
+
+            {/* Tab: AI Code Explainer & Translator */}
+            {activeTab === 'code-explainer' && (
+              <motion.div
+                key="code-explainer"
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                className="space-y-6"
+              >
+                <AICodeExplainerTranslator />
+              </motion.div>
+            )}
+
+            {/* Tab: Favicon Generator */}
+            {activeTab === 'favicon-generator' && (
+              <motion.div
+                key="favicon-generator"
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                className="space-y-6"
+              >
+                <FaviconGenerator />
+              </motion.div>
+            )}
+
+            {/* Tab: AI Image Alt-Text Generator */}
+            {activeTab === 'alt-text-generator' && (
+              <motion.div
+                key="alt-text-generator"
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                className="space-y-6"
+              >
+                <AIImageAltTextGenerator />
+              </motion.div>
+            )}
+
+            {/* Tab: SEO Keyword Difficulty Checker */}
+            {activeTab === 'keyword-difficulty' && (
+              <motion.div
+                key="keyword-difficulty"
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                className="space-y-6"
+              >
+                <SEOKeywordDifficulty />
+              </motion.div>
+            )}
+
+            {/* Tab: URL Slugifier */}
+            {activeTab === 'url-slugifier' && (
+              <motion.div
+                key="url-slugifier"
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                className="space-y-6"
+              >
+                <Suspense fallback={<div className="text-white font-mono text-xs">Loading URL Slugifier...</div>}>
+                  <SEOURLSlugifier />
+                </Suspense>
+              </motion.div>
+            )}
+
             {/* Tab: Schema Generator */}
             {activeTab === 'schema-generator' && (
               <motion.div
@@ -6165,6 +6471,46 @@ Disallow:
                 className="space-y-6"
               >
                 <HardwareTestSuite initialTab={activeTab as any} />
+              </motion.div>
+            )}
+
+            {activeTab === 'sql-formatter' && (
+              <motion.div
+                key="sql-formatter"
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                className="space-y-6"
+              >
+                <SQLFormatter />
+              </motion.div>
+            )}
+
+            {activeTab === 'subnet-cidr' && (
+              <motion.div
+                key="subnet-cidr"
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                className="space-y-6"
+              >
+                <SubnetCalculator />
+              </motion.div>
+            )}
+
+            {activeTab === 'svg-wave' && (
+              <motion.div
+                key="svg-wave"
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                className="space-y-6"
+              >
+                <SVGWaveGenerator />
+              </motion.div>
+            )}
+
+            {activeTab === 'box-shadow' && (
+              <motion.div
+                key="box-shadow"
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                className="space-y-6"
+              >
+                <BoxShadowGenerator />
               </motion.div>
             )}
 
