@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { CSS_GENERATOR_KEYWORDS, KeywordItem } from '../data/cssGeneratorKeywords';
 import { VIDEO_COMPRESS_KEYWORDS } from '../data/videoCompressKeywords';
+import { VIDEO_RESIZE_KEYWORDS } from '../data/videoResizeKeywords';
 
 interface ClusteredKeyword {
   keyword: string;
@@ -58,6 +59,10 @@ interface ClusterResult {
 // Visual preset terms for convenient click to test
 const PRESETS = [
   {
+    name: "Video Resize & Aspect Ratio Set",
+    terms: "resize video, resize video online, crop video, crop video online, crop video iphone, change video size, change video aspect ratio, vertical video, convert vertical video to horizontal, edit video size"
+  },
+  {
     name: "Video Compressor & Optimizer Set",
     terms: "compress video, free video compressor, video compressor online, reduce video size, compress video file, compress mp4, reduce video file size, shrink video file size, video mb reducer, reduce mp4 size, condense video, video reducer"
   },
@@ -77,7 +82,7 @@ const PRESETS = [
 
 export default function AIKeywordClusterTool() {
   const [activePanel, setActivePanel] = useState<'database' | 'cluster'>('database');
-  const [keywordPool, setKeywordPool] = useState<'css' | 'video'>('video');
+  const [keywordPool, setKeywordPool] = useState<'css' | 'video' | 'video-resize'>('video-resize');
   const [rawKeywords, setRawKeywords] = useState('');
   const [groupingSensitivity, setGroupingSensitivity] = useState<'low' | 'medium' | 'high'>('medium');
   const [includeSearchIntent, setIncludeSearchIntent] = useState(true);
@@ -221,7 +226,9 @@ export default function AIKeywordClusterTool() {
   }, [result]);
 
   const currentKeywords = useMemo(() => {
-    return keywordPool === 'css' ? CSS_GENERATOR_KEYWORDS : VIDEO_COMPRESS_KEYWORDS;
+    if (keywordPool === 'css') return CSS_GENERATOR_KEYWORDS;
+    if (keywordPool === 'video-resize') return VIDEO_RESIZE_KEYWORDS;
+    return VIDEO_COMPRESS_KEYWORDS;
   }, [keywordPool]);
 
   // Database Filter & Sort Computations
@@ -351,12 +358,18 @@ export default function AIKeywordClusterTool() {
                   <span className="text-xs font-bold font-mono text-emerald-400 uppercase tracking-widest">Active Keyword Intel Datapool</span>
                 </div>
                 <h2 className="text-lg font-black text-slate-100 tracking-tight">
-                  {keywordPool === 'video' ? 'Video Compression & MP4 Resizer Search Intent' : 'CSS Generator & Webmaster Search Intent'}
+                  {keywordPool === 'video-resize' 
+                    ? 'Video Resizing & Aspect Ratio Search Intent' 
+                    : keywordPool === 'video' 
+                      ? 'Video Compression & MP4 Resizer Search Intent' 
+                      : 'CSS Generator & Webmaster Search Intent'}
                 </h2>
                 <p className="text-xs text-slate-400 max-w-2xl leading-relaxed">
-                  {keywordPool === 'video' 
-                    ? 'Newly imported Google Ads Keyword data specifically mapping video optimizer search queries, competition density, and top-of-page bids.' 
-                    : 'Directly harvested from Google Ads Keyword Planner. Select queries below to feed directly into the semantic clustering engine.'}
+                  {keywordPool === 'video-resize'
+                    ? 'Newly imported Google Ads Keyword data specifically mapping video resizing, aspect ratios, cropping, and editing search queries.'
+                    : keywordPool === 'video' 
+                      ? 'Newly imported Google Ads Keyword data specifically mapping video optimizer search queries, competition density, and top-of-page bids.' 
+                      : 'Directly harvested from Google Ads Keyword Planner. Select queries below to feed directly into the semantic clustering engine.'}
                 </p>
               </div>
 
@@ -376,7 +389,20 @@ export default function AIKeywordClusterTool() {
             </div>
 
             {/* Keyword Pool Switcher Tab Row */}
-            <div className="flex border-t border-slate-900/60 pt-3 gap-2">
+            <div className="flex flex-wrap border-t border-slate-900/60 pt-3 gap-2">
+              <button
+                onClick={() => {
+                  setKeywordPool('video-resize');
+                  setSelectedKeywords([]);
+                }}
+                className={`py-1.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer border ${
+                  keywordPool === 'video-resize' 
+                    ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-400' 
+                    : 'bg-slate-950 border-slate-900 text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                📐 Video Resize & Crop Pool ({VIDEO_RESIZE_KEYWORDS.length})
+              </button>
               <button
                 onClick={() => {
                   setKeywordPool('video');
@@ -388,7 +414,7 @@ export default function AIKeywordClusterTool() {
                     : 'bg-slate-950 border-slate-900 text-slate-400 hover:text-slate-200'
                 }`}
               >
-                🎥 Video Compress & Optimizer Pool ({VIDEO_COMPRESS_KEYWORDS.length})
+                🎥 Video Compress Pool ({VIDEO_COMPRESS_KEYWORDS.length})
               </button>
               <button
                 onClick={() => {
@@ -566,7 +592,13 @@ export default function AIKeywordClusterTool() {
                 type="text"
                 value={dbSearch}
                 onChange={(e) => setDbSearch(e.target.value)}
-                placeholder="Search raw CSS keywords..."
+                placeholder={
+                  keywordPool === 'video-resize'
+                    ? "Search video resizing keywords..."
+                    : keywordPool === 'video'
+                      ? "Search video compression keywords..."
+                      : "Search CSS master keywords..."
+                }
                 className="w-full pl-9 pr-8 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-200 placeholder-slate-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-all font-mono"
               />
               {dbSearch && (

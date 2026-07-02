@@ -4,7 +4,7 @@ export interface KeywordItem {
   avgSearches: number;
   threeMonthChange: string;
   yoyChange: string;
-  competition: 'Low' | 'Medium' | 'High';
+  competition: 'Low' | 'Medium' | 'High' | 'Unknown' | string;
   competitionIndexed: number;
   bidLow?: number;
   bidHigh?: number;
