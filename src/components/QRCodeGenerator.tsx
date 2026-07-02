@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   QrCode, Barcode, Copy, Download, Check, Trash2, Sliders, Type, Link, Wifi, Mail, MessageSquare, 
-  AlertTriangle, ShieldCheck, Palette, FileText, Tag, Sparkles
+  AlertTriangle, ShieldCheck, Palette, FileText, Tag, Sparkles, BookOpen
 } from 'lucide-react';
 import QRCode from 'qrcode';
 import JsBarcode from 'jsbarcode';
@@ -1386,6 +1386,84 @@ export default function QRCodeGenerator() {
           </div>
         </div>
 
+      </div>
+
+      {/* COMPREHENSIVE VECTOR CODE HANDBOOK & SPECIFICATION (SEO & HIGH EDUCATIONAL VALUE) */}
+      <div id="qr-barcode-comprehensive-guide" className="lg:col-span-12 w-full bg-slate-900/40 border border-slate-800/60 rounded-2xl p-6 md:p-8 backdrop-blur-md space-y-6 mt-4 text-left select-text">
+        <div className="flex items-center gap-3 border-b border-slate-800/80 pb-4">
+          <div className="p-2 bg-indigo-500/10 text-indigo-400 rounded-xl border border-indigo-500/25">
+            <BookOpen className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="text-xs font-bold text-slate-100 uppercase tracking-wider font-mono">Vector Studio Manual: QR Codes, Barcodes, &amp; Matrix Symbologies</h3>
+            <p className="text-[11px] text-slate-500 mt-1">A deep-dive technical reference on error correction levels, data capacity thresholds, and standard scanning architectures</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-xs leading-relaxed text-slate-300 font-sans">
+          <div className="space-y-4">
+            <h4 className="font-heading font-black text-xs text-white uppercase tracking-wider flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+              1. Understanding QR Codes &amp; Reed-Solomon Math
+            </h4>
+            <p>
+              Invented in 1994 by Denso Wave, the QR Code (Quick Response Code) is a two-dimensional matrix barcode. Unlike traditional 1D barcodes that only scan in a single axis, QR codes store data both vertically and horizontally, radically increasing data density.
+            </p>
+            <p>
+              At the core of QR code robustness is <strong className="text-white">Reed-Solomon Error Correction</strong>. This cryptographic algorithm appends backup polynomial data bytes to the payload, allowing scanners to recover the complete message even if parts of the QR code are torn, smudged, or covered.
+            </p>
+            <ul className="list-disc pl-5 space-y-1.5 text-slate-400">
+              <li><strong className="text-slate-200">Level L (Low):</strong> Approx 7% of data bytes can be fully recovered. Recommended for clean digital displays.</li>
+              <li><strong className="text-slate-200">Level M (Medium):</strong> Approx 15% recovery rate. The default balance for standard physical printouts.</li>
+              <li><strong className="text-slate-200">Level Q (Quartile):</strong> Approx 25% recovery rate. Ideal for environments where scanning surfaces get scratched.</li>
+              <li><strong className="text-slate-200">Level H (High):</strong> Approx 30% recovery rate. Allows users to embed custom center logos while keeping scan reliability pristine.</li>
+            </ul>
+          </div>
+
+          <div className="space-y-4">
+            <h4 className="font-heading font-black text-xs text-white uppercase tracking-wider flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+              2. Secure Client-Side Generating vs Cloud Redirections
+            </h4>
+            <p>
+              Many popular online QR generators employ "dynamic" links. These tools redirect scans through third-party servers to record geolocation and telemetry, posing severe user privacy risks and vendor lock-in. 
+            </p>
+            <p>
+              APEX Utility Labs utilizes an <strong className="text-white">isolated client-side compiler</strong>. Every pixel, finder pattern, and quiet zone is calculated directly on your machine. WiFi passwords, email bodies, and confidential text strings are compiled inside browser-allocated RAM, ensuring zero data leakage and infinite longevity without reliance on external hosting.
+            </p>
+
+            <h4 className="font-heading font-black text-xs text-white uppercase tracking-wider flex items-center gap-2 pt-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+              3. Linear Barcode Formats Comparison
+            </h4>
+            <p>
+              Linear (1D) barcodes encode characters as parallel lines of varying widths. This console supports standard formats:
+            </p>
+            <ul className="list-disc pl-5 space-y-1.5 text-slate-400">
+              <li><strong className="text-slate-200">Code 128:</strong> High-density, supports full ASCII. Ideal for inventory control and shipping containers.</li>
+              <li><strong className="text-slate-200">EAN-13 / UPC-A:</strong> Worldwide retail standard identifiers. Requires rigid numerical formats with specific checksum mathematical structures.</li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Technical FAQs block */}
+        <div className="border-t border-slate-800/80 pt-6 space-y-4">
+          <h4 className="font-heading font-black text-xs text-white uppercase tracking-wider font-mono">Dynamic Diagnostic Logs &amp; FAQs</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-slate-950/40 border border-slate-800/50 p-4 rounded-xl space-y-1.5">
+              <h5 className="text-xs font-bold text-slate-200 font-sans">What is the optimal Quiet Zone for secure scanning?</h5>
+              <p className="text-[11px] text-slate-400 leading-relaxed font-sans">
+                The Quiet Zone is the empty margin surrounding the code block. For QR codes, a margin of at least 4 modules (withMargin: true) is standard to prevent adjacent graphical elements from interfering with image binarization algorithms.
+              </p>
+            </div>
+            <div className="bg-slate-950/40 border border-slate-800/50 p-4 rounded-xl space-y-1.5">
+              <h5 className="text-xs font-bold text-slate-200 font-sans">How do colors affect scanner reliability?</h5>
+              <p className="text-[11px] text-slate-400 leading-relaxed font-sans">
+                Hardware scanners rely on infrared light contrast. Always maintain a high-contrast ratio (at least 4:1) between the foreground blocks and background. Dark foregrounds on light backgrounds scan most reliably.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
     </div>

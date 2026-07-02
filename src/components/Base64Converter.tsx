@@ -15,7 +15,8 @@ import {
   AlertCircle, 
   Code,
   Sparkles,
-  Info
+  Info,
+  BookOpen
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -711,6 +712,80 @@ export default function Base64Converter() {
         )}
 
       </AnimatePresence>
+
+      {/* COMPREHENSIVE BASE64 MANUAL & SPECIFICATIONS (SEO & HIGH EDUCATIONAL VALUE) */}
+      <div id="base64-comprehensive-guide" className="w-full max-w-[1400px] bg-[#0b0c10]/40 border border-brand-border/20 rounded-2xl p-6 md:p-8 backdrop-blur-md space-y-6 mt-8 text-left select-text">
+        <div className="flex items-center gap-3 border-b border-brand-border/10 pb-4">
+          <div className="p-2 bg-cyan-500/10 text-cyan-400 rounded-xl border border-cyan-500/25">
+            <BookOpen className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="text-xs font-bold text-slate-100 uppercase tracking-wider font-mono">Base64 Studio Manual: Binary-to-Text Encoding System</h3>
+            <p className="text-[11px] text-gray-500 mt-1">A detailed technical guide on RFC 4648 standards, radix-64 translation algorithms, and embedding media in inline markup</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-xs leading-relaxed text-gray-300 font-sans">
+          <div className="space-y-4">
+            <h4 className="font-heading font-black text-xs text-white uppercase tracking-wider flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-500" />
+              1. What is Base64 Encoding?
+            </h4>
+            <p>
+              Base64 is a binary-to-text encoding scheme defined under the <strong className="text-white">RFC 4648 specification</strong>. It is designed to translate arbitrary binary data (including executable programs, zip archives, or image assets) into a safe, human-readable stream of standard ASCII characters. 
+            </p>
+            <p>
+              Since certain communication protocols—such as legacy SMTP email servers or raw HTML parsers—were originally designed to process 7-bit ASCII text, raw binary data can sometimes be misinterpreted as control characters. Base64 encoding resolves this by converting raw bytes into a universally accepted 64-character alphabet containing:
+            </p>
+            <ul className="list-disc pl-5 space-y-1.5 text-gray-400">
+              <li><strong className="text-zinc-200">Uppercase letters:</strong> A - Z (indices 0 to 25)</li>
+              <li><strong className="text-zinc-200">Lowercase letters:</strong> a - z (indices 26 to 51)</li>
+              <li><strong className="text-zinc-200">Numeric digits:</strong> 0 - 9 (indices 52 to 61)</li>
+              <li><strong className="text-zinc-200">Special symbols:</strong> + and / (indices 62 and 63)</li>
+            </ul>
+          </div>
+
+          <div className="space-y-4">
+            <h4 className="font-heading font-black text-xs text-white uppercase tracking-wider flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-500" />
+              2. The Radix-64 Mathematical Process &amp; Padding
+            </h4>
+            <p>
+              The underlying math of Base64 is remarkably simple and elegant. It groups incoming binary bits into sets of three 8-bit bytes (making 24 bits in total). These 24 bits are then regrouped into four 6-bit segments. Because <code>2⁶ = 64</code>, each 6-bit segment represents a value between 0 and 63, which maps directly to one of the 64 characters in the Base64 index.
+            </p>
+            <p>
+              If the final block of binary data does not contain a full 3 bytes, padding is required. Standard encoders append the <code>=</code> symbol as a padding character at the end of the string. A single <code>=</code> indicates that the source data was 1 byte short of a 3-byte group, while <code>==</code> indicates it was 2 bytes short.
+            </p>
+
+            <h4 className="font-heading font-black text-xs text-white uppercase tracking-wider flex items-center gap-2 pt-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-500" />
+              3. Client-Side Sandbox Guarantee
+            </h4>
+            <p>
+              Many online converter platforms process files by sending them over the network to external servers. APEX executes all binary partitioning and character index mappings directly in your local browser sandbox via <code>FileReader</code> and <code>btoa</code> APIs. Your corporate images, developer assets, and source codes never cross the network.
+            </p>
+          </div>
+        </div>
+
+        {/* Technical FAQ block */}
+        <div className="border-t border-brand-border/10 pt-6 space-y-4">
+          <h4 className="font-heading font-black text-xs text-white uppercase tracking-wider font-mono">Technical Encoding FAQ</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-slate-950/40 border border-brand-border/10 p-4 rounded-xl space-y-1.5">
+              <h5 className="text-xs font-bold text-gray-200 font-sans">Why does Base64 make files 33% larger?</h5>
+              <p className="text-[11px] text-gray-400 leading-relaxed font-sans">
+                Because Base64 translates 3 bytes of raw binary data (24 bits) into 4 text characters (32 bits), it introduces a standard mathematical overhead increase of approximately 33.3%. For example, an image file that is 100 KB in binary format will generate a Base64 string that is roughly 133 KB.
+              </p>
+            </div>
+            <div className="bg-slate-950/40 border border-brand-border/10 p-4 rounded-xl space-y-1.5">
+              <h5 className="text-xs font-bold text-gray-200 font-sans">When should I use Data URIs in web development?</h5>
+              <p className="text-[11px] text-gray-400 leading-relaxed font-sans">
+                Data URIs are excellent for tiny graphical assets, like SVGs, loading indicators, or visual icons, because they inline directly into HTML/CSS files and eliminate extra HTTP round-trips. Avoid using them for massive images or video files, as they bloat stylesheet cache sizes and increase page load times.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
 
     </div>
   );

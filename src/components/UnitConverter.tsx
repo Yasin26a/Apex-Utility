@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { RefreshCw, Calculator, Sliders, Settings, ArrowLeftRight } from 'lucide-react';
+import { RefreshCw, Calculator, Sliders, Settings, ArrowLeftRight, BookOpen } from 'lucide-react';
 
 type UnitCategory = 'length' | 'weight' | 'temp' | 'currency';
 
@@ -227,6 +227,83 @@ export default function UnitConverter() {
           </div>
         </div>
       </div>
+
+      {/* COMPREHENSIVE SCIENTIFIC MANUAL & SPECIFICATIONS (SEO & HIGH EDUCATIONAL VALUE) */}
+      <div id="unit-converter-comprehensive-guide" className="w-full max-w-4xl bg-slate-900/40 border border-slate-800/60 rounded-2xl p-6 md:p-8 backdrop-blur-md space-y-6 mt-8 text-left select-text mx-auto">
+        <div className="flex items-center gap-3 border-b border-slate-800/80 pb-4">
+          <div className="p-2 bg-indigo-500/10 text-indigo-400 rounded-xl border border-indigo-500/25">
+            <BookOpen className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="text-xs font-bold text-slate-100 uppercase tracking-wider font-mono">Scientific Unit Converter: Metrology &amp; Dimension Handbook</h3>
+            <p className="text-[11px] text-slate-500 mt-1">A professional guide on standard SI metric definitions, international constants, and conversion scaling mathematics</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-xs leading-relaxed text-slate-300 font-sans">
+          <div className="space-y-4">
+            <h4 className="font-heading font-black text-xs text-white uppercase tracking-wider flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+              1. Metric Standards &amp; Dimensional Analysis
+            </h4>
+            <p>
+              Measurement systems are governed internationally by the <strong className="text-white">International System of Units (SI)</strong>. Standardizing base units like the meter for length and the kilogram for mass allows global science, manufacturing, and trade to maintain total coherence. 
+            </p>
+            <p>
+              Our conversion matrix executes precise floating-point mathematical scaling to guarantee accuracy up to 6 decimal places. When converting Imperial units (such as inches or miles) to Metric units (meters or kilometers), standard internationally defined ratios are applied, e.g., <code>1 inch = 2.54 centimeters</code> exactly.
+            </p>
+
+            <h4 className="font-heading font-black text-xs text-white uppercase tracking-wider flex items-center gap-2 pt-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+              2. Temperature Scale Mathematics
+            </h4>
+            <p>
+              Unlike length or weight, temperature is an interval scale, not a ratio scale. Converting Fahrenheit and Celsius requires adjusting both scale intervals and offset positions:
+            </p>
+            <ul className="list-disc pl-5 space-y-1.5 text-slate-400">
+              <li><strong className="text-slate-200">Celsius to Fahrenheit:</strong> Multiply the value by 1.8 (or 9/5) and add 32.</li>
+              <li><strong className="text-slate-200">Fahrenheit to Celsius:</strong> Subtract 32 from the Fahrenheit value, then multiply by 5/9 (approx 0.5556).</li>
+            </ul>
+          </div>
+
+          <div className="space-y-4">
+            <h4 className="font-heading font-black text-xs text-white uppercase tracking-wider flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+              3. Mid-Market Currency Approximations
+            </h4>
+            <p>
+              Foreign exchange rates fluctuate constantly in response to global market activity. To ensure a stable and reliable utility baseline, currency conversions are scaled against regular benchmark mid-market estimates. Note that actual interbank execution rates may carry transactional spreads or margins depending on specific financial institutions.
+            </p>
+
+            <div className="p-4 bg-indigo-950/20 border border-indigo-900/50 rounded-xl space-y-2 mt-4">
+              <span className="text-[10px] font-mono font-bold text-indigo-400 uppercase tracking-widest block">SI METROLOGY STANDARDS</span>
+              <p className="text-[11px] text-slate-400 leading-normal font-sans">
+                All metrics utilize definitions ratified by the General Conference on Weights and Measures (CGPM). This includes standard gravitational constants and exact metric conversions for scientific calculations.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Technical FAQ block */}
+        <div className="border-t border-slate-800/80 pt-6 space-y-4">
+          <h4 className="font-heading font-black text-xs text-white uppercase tracking-wider font-mono">Dynamic Metrology FAQs</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-slate-950/40 border border-slate-800/50 p-4 rounded-xl space-y-1.5">
+              <h5 className="text-xs font-bold text-slate-200 font-sans">Why do digital calculations sometimes show floating-point rounding?</h5>
+              <p className="text-[11px] text-slate-400 leading-relaxed font-sans">
+                Computers represent numbers using binary floating-point representations (IEEE 754). This can occasionally introduce tiny rounding variances at extremely deep decimal places (e.g., 0.000000000000004). Our calculator actively truncates these artifacts for clean readouts.
+              </p>
+            </div>
+            <div className="bg-slate-950/40 border border-slate-800/50 p-4 rounded-xl space-y-1.5">
+              <h5 className="text-xs font-bold text-slate-200 font-sans">What is the difference between mass and weight?</h5>
+              <p className="text-[11px] text-slate-400 leading-relaxed font-sans">
+                Mass represents the intrinsic amount of matter in an object and remains constant regardless of gravitational pull. Weight represents the force exerted on that mass by gravity, which varies depending on location (e.g., Earth vs Moon).
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   );
 }

@@ -483,19 +483,6 @@ export const DEFAULT_CARDS: DashboardCard[] = [
     heightLevel: 2
   },
   {
-    id: 'favicon-generator',
-    title: 'Favicon & Web Manifest App Generator',
-    desc: 'Generate standard cross-platform favicons (16x16, 32x32, 192x192, 512x512) with browser tab, mobile homescreen and Google SERP previews.',
-    tagline: '"pwa launcher icons, apple touch icon setup, custom manifest"',
-    category: 'AI Copywriting',
-    categoryIcon: 'Sparkles',
-    cardIcon: 'Sparkles',
-    textClass: 'text-pink-400 font-bold',
-    buttonLabel: 'Generate Favicons',
-    colSpan: 1,
-    heightLevel: 2
-  },
-  {
     id: 'alt-text-generator',
     title: 'AI Image Alt-Text Generator & Audit Studio',
     desc: 'Audit and deconstruct visual media to instantly generate descriptive, screen-reader optimized alt text attributes, custom semantic filenames, and accessibility compliance diagnostics.',

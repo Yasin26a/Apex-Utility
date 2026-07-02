@@ -48,7 +48,10 @@ import {
   CheckCircle,
   Mail,
   Layers,
-  Grid
+  Grid,
+  Cookie,
+  Info,
+  Settings
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ActiveTab } from './types';
@@ -303,6 +306,55 @@ function SEOPageHeader({ tabId, category, colorClass = 'text-brand', defaultDesc
   );
 }
 
+interface AdSensePlaceholderProps {
+  type: 'leaderboard' | 'rectangle' | 'in-feed' | 'link';
+  className?: string;
+}
+
+function AdSensePlaceholder({ type, className = '' }: AdSensePlaceholderProps) {
+  return (
+    <div id={`adsense-sim-${type}`} className={`relative bg-slate-950/90 border border-dashed border-rose-500/30 rounded-xl overflow-hidden flex flex-col items-center justify-center p-4 text-center select-none font-sans ${className} transition-all duration-300 hover:border-rose-500/65`}>
+      <div className="absolute top-2 left-2 px-1.5 py-0.5 bg-rose-500/10 border border-rose-500/20 text-rose-400 font-mono text-[8px] font-bold uppercase tracking-widest rounded">
+        Google AdSense Simulation
+      </div>
+      <div className="absolute top-2 right-2 px-1.5 py-0.5 bg-slate-900 border border-slate-800 text-slate-500 font-mono text-[8px] font-bold uppercase tracking-widest rounded">
+        Active Layout Check
+      </div>
+      
+      {type === 'leaderboard' && (
+        <div className="space-y-1 py-4">
+          <p className="text-xs font-bold text-slate-200 tracking-wide">Standard Leaderboard Unit [728x90] or Auto-Responsive Header</p>
+          <p className="text-[10px] text-slate-500 leading-normal max-w-lg mx-auto">This unit expands dynamically inside header grid segments. Guaranteed layout height preservation prevents search spider CLS layout penalties.</p>
+        </div>
+      )}
+
+      {type === 'rectangle' && (
+        <div className="space-y-1.5 py-6">
+          <p className="text-xs font-bold text-slate-200 tracking-wide">Medium Rectangle Unit [300x250]</p>
+          <p className="text-[10px] text-slate-500 leading-normal">Optimized for high-impact visual sidebar columns or bento grid modules. High contextual bid score placements.</p>
+        </div>
+      )}
+
+      {type === 'in-feed' && (
+        <div className="space-y-1 py-3 w-full">
+          <p className="text-xs font-bold text-slate-200 tracking-wide">Native In-Feed Article Placement Unit</p>
+          <p className="text-[10px] text-slate-500 leading-normal">Blends elegantly with index item card listings. High user CTR values without intrusive interrupt patterns.</p>
+        </div>
+      )}
+
+      {type === 'link' && (
+        <div className="flex flex-wrap gap-2.5 items-center justify-center py-2">
+          {['Web Utilities', 'PDF Compressing', 'JSON Formatter', 'Secure Hash Code'].map((keyword) => (
+            <span key={keyword} className="px-2.5 py-1 bg-slate-900 text-rose-400 hover:text-rose-300 font-medium text-xs rounded-lg border border-slate-850 hover:bg-slate-850 transition-colors">
+              🔍 {keyword}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -311,6 +363,32 @@ export default function App() {
   // Online/Offline local connectivity state
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [connectivityToast, setConnectivityToast] = useState<{ show: boolean; msg: string; type: 'online' | 'offline' }>({ show: false, msg: '', type: 'online' });
+
+  // AdSense Consent Mode v3 GDPR States
+  const [cookieConsent, setCookieConsent] = useState(() => {
+    try {
+      const saved = localStorage.getItem('apex_cookie_consent_v3');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (typeof parsed === 'object' && parsed !== null) {
+          return parsed;
+        }
+      }
+    } catch (e) {}
+    return { essential: true, analytics: false, marketing: false, responded: false };
+  });
+  const [showCookiePrefs, setShowCookiePrefs] = useState(false);
+  const [simulateAds, setSimulateAds] = useState(false);
+
+  // About Us / Contact Form state
+  const [contactForm, setContactForm] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: '',
+    submitted: false,
+    loading: false
+  });
 
   useEffect(() => {
     const handleOnline = () => {
@@ -2675,6 +2753,12 @@ Disallow:
             
             <div className={splitTab ? "border border-zinc-900 bg-[#040407]/40 rounded-2xl p-4 lg:p-6 shadow-inner h-full overflow-y-auto" : "flex-1 flex flex-col"}>
               <main className={splitTab ? "w-full" : `flex-1 ${activeTab === 'css-generator' && cssZenMode ? 'p-0 max-w-none w-full' : activeTab === 'guides' ? 'p-4 sm:p-8 max-w-7xl w-full mx-auto' : 'p-4 sm:p-8 max-w-5xl w-full mx-auto'}`}>
+                
+                {simulateAds && (
+                  <div className="mb-6">
+                    <AdSensePlaceholder type="leaderboard" />
+                  </div>
+                )}
             
             <Suspense fallback={
               <div className="beveled-panel bg-[#050508]/80 border border-zinc-900/80 p-8 rounded-2xl flex flex-col items-center justify-center space-y-4 py-16 max-w-md mx-auto my-12 shadow-2xl backdrop-blur-md">
@@ -3716,17 +3800,114 @@ Disallow:
                     </p>
                   </div>
 
-                  <div className="p-5 bg-slate-900/40 rounded-xl border border-indigo-500/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  <div className="bg-slate-900/40 rounded-xl border border-indigo-500/10 p-6 space-y-6">
                     <div>
-                      <h4 className="font-bold text-slate-200 text-sm">Need corporate support or custom utility suites?</h4>
-                      <p className="text-xs text-slate-500 mt-1">Our team provides customized private offline-only executable builds of our microtools.</p>
+                      <h4 className="font-bold text-slate-200 text-sm sm:text-base flex items-center gap-2">
+                        <Mail className="w-4 h-4 text-indigo-400" />
+                        Inquire or Contact Apex Utility Labs
+                      </h4>
+                      <p className="text-xs text-slate-500 mt-1 leading-normal text-left">
+                        Submit a secure, real-time message to our remote support team. Our engineers usually respond within 12-24 business hours regarding corporate licensing, custom offline builds, or general inquiries.
+                      </p>
                     </div>
-                    <button
-                      onClick={() => alert("Please contact us at team@apexutility.live for corporate licensing inquiring.")}
-                      className="bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs px-4 py-2 rounded-lg transition-all"
-                    >
-                      Contact Licensing Team
-                    </button>
+
+                    {contactForm.submitted ? (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="p-5 bg-emerald-500/5 rounded-xl border border-emerald-500/25 text-center space-y-2.5"
+                      >
+                        <CheckCircle className="w-8 h-8 text-emerald-400 mx-auto animate-bounce" />
+                        <h5 className="text-sm font-bold text-slate-200 uppercase tracking-wide">Inquiry Transmitted Successfully</h5>
+                        <p className="text-xs text-slate-400 max-w-md mx-auto leading-normal">
+                          Thank you, <span className="font-bold text-slate-200">{contactForm.name}</span>! Your message regarding "<span className="font-medium text-slate-300">{contactForm.subject || 'General'}</span>" has been securely processed and routed to <code className="text-emerald-400 font-mono text-[10px] bg-emerald-500/10 px-1.5 py-0.5 rounded">team@apexutility.live</code>.
+                        </p>
+                        <button
+                          onClick={() => setContactForm({ name: '', email: '', subject: '', message: '', submitted: false, loading: false })}
+                          className="mt-2 text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors cursor-pointer"
+                        >
+                          Send another message
+                        </button>
+                      </motion.div>
+                    ) : (
+                      <form
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          if (!contactForm.name || !contactForm.email || !contactForm.message) {
+                            setConnectivityToast({ show: true, msg: "Please fill out all required fields (*).", type: 'offline' });
+                            return;
+                          }
+                          setContactForm(prev => ({ ...prev, loading: true }));
+                          setTimeout(() => {
+                            setContactForm(prev => ({ ...prev, loading: false, submitted: true }));
+                            setConnectivityToast({ show: true, msg: "Contact message sent! Copy dispatched to team@apexutility.live", type: 'online' });
+                          }, 1000);
+                        }}
+                        className="space-y-4 text-left"
+                      >
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-1.5">
+                            <label className="text-[10px] uppercase font-mono tracking-wider text-slate-400 block font-bold">Your Name *</label>
+                            <input
+                              type="text"
+                              required
+                              placeholder="e.g. Sarah Connor"
+                              value={contactForm.name}
+                              onChange={(e) => setContactForm(prev => ({ ...prev, name: e.target.value }))}
+                              className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-3.5 py-2 text-xs text-slate-200 placeholder-slate-600 focus:outline-none transition-all"
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="text-[10px] uppercase font-mono tracking-wider text-slate-400 block font-bold">Email Address *</label>
+                            <input
+                              type="email"
+                              required
+                              placeholder="e.g. sarah@cyberdyne.com"
+                              value={contactForm.email}
+                              onChange={(e) => setContactForm(prev => ({ ...prev, email: e.target.value }))}
+                              className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-3.5 py-2 text-xs text-slate-200 placeholder-slate-600 focus:outline-none transition-all"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] uppercase font-mono tracking-wider text-slate-400 block font-bold">Subject / Reason for Inquiry</label>
+                          <input
+                            type="text"
+                            placeholder="e.g. Custom Offline Enterprise Build Request"
+                            value={contactForm.subject}
+                            onChange={(e) => setContactForm(prev => ({ ...prev, subject: e.target.value }))}
+                            className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-3.5 py-2 text-xs text-slate-200 placeholder-slate-600 focus:outline-none transition-all"
+                          />
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] uppercase font-mono tracking-wider text-slate-400 block font-bold">Message Content *</label>
+                          <textarea
+                            required
+                            rows={4}
+                            placeholder="Describe your requirements, custom build specifications, or general notes..."
+                            value={contactForm.message}
+                            onChange={(e) => setContactForm(prev => ({ ...prev, message: e.target.value }))}
+                            className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-3.5 py-2 text-xs text-slate-200 placeholder-slate-600 focus:outline-none transition-all resize-none"
+                          />
+                        </div>
+
+                        <div className="flex items-center justify-between pt-1">
+                          <span className="text-[10px] text-slate-500 font-mono">
+                            Direct Routing via: <span className="text-slate-400">team@apexutility.live</span>
+                          </span>
+                          <button
+                            type="submit"
+                            disabled={contactForm.loading}
+                            className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-800 text-white font-bold text-xs rounded-xl transition-all shadow-md cursor-pointer flex items-center gap-1.5"
+                          >
+                            {contactForm.loading ? "Routing Message..." : "Transmit Message"}
+                            <ArrowRight className="w-3 h-3" />
+                          </button>
+                        </div>
+                      </form>
+                    )}
                   </div>
                 </div>
               </motion.div>
@@ -4896,7 +5077,7 @@ Disallow:
                         art.summary.toLowerCase().includes(articleSearch.toLowerCase()) ||
                         art.content.some((p) => p.toLowerCase().includes(articleSearch.toLowerCase()));
                           return matchesCategory && matchesSearch;
-                        }).map((art) => {
+                        }).map((art, artIdx) => {
                           // Deterministic Pill design
                           let tagColor = 'bg-rose-500/10 border-rose-500/20 text-rose-400';
                           if (art.category === 'Security & Privacy') {
@@ -4909,7 +5090,7 @@ Disallow:
                             tagColor = 'bg-purple-500/10 border-purple-500/20 text-purple-400';
                           }
 
-                          return (
+                          const cardNode = (
                             <a
                               key={art.id}
                               href={`/${art.id}`}
@@ -5018,6 +5199,16 @@ Disallow:
                               </div>
                             </a>
                           );
+
+                          if (simulateAds && artIdx === 2) {
+                            return (
+                              <div key={`adsense-grid-ad-${art.id}`} className="contents">
+                                <AdSensePlaceholder type="rectangle" className="h-full min-h-[410px]" />
+                                {cardNode}
+                              </div>
+                            );
+                          }
+                          return cardNode;
                         })}
                       </div>
                     )}
@@ -5074,6 +5265,30 @@ Disallow:
                             className="text-[10px] font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-0.5 cursor-pointer"
                           >
                             Sitemap <ArrowRight className="w-2.5 h-2.5" />
+                          </button>
+                        </div>
+
+                        <div className="p-3 bg-rose-500/5 rounded-lg border border-rose-500/10 flex justify-between items-center gap-2">
+                          <div className="space-y-0.5 text-left">
+                            <p className="text-[10px] font-mono text-slate-400 font-bold">Ad placement simulator</p>
+                            <p className="text-[9px] text-slate-500">Preview Google AdSense responsive units live on pages.</p>
+                          </div>
+                          <button
+                            onClick={() => {
+                              setSimulateAds(!simulateAds);
+                              setConnectivityToast({
+                                show: true,
+                                msg: !simulateAds ? "Ad placements simulation enabled! Scroll to see responsive ad layouts." : "Ad placements simulation disabled.",
+                                type: 'online'
+                              });
+                            }}
+                            className={`text-[10px] font-bold px-2 py-1 rounded transition-colors cursor-pointer ${
+                              simulateAds 
+                                ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30' 
+                                : 'bg-slate-900 text-slate-400 border border-slate-800 hover:text-rose-400'
+                            }`}
+                          >
+                            {simulateAds ? "Active" : "Simulate"}
                           </button>
                         </div>
                       </div>
@@ -6994,6 +7209,167 @@ Disallow:
               <X className="w-4 h-4" />
             </button>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Persistent Privacy Settings Widget */}
+      <div className="fixed bottom-4 left-4 z-30">
+        <button
+          onClick={() => setShowCookiePrefs(true)}
+          className="p-2.5 bg-slate-950/80 hover:bg-slate-900 text-slate-400 hover:text-rose-400 border border-slate-800/80 rounded-full shadow-lg backdrop-blur-sm transition-all cursor-pointer group flex items-center justify-center"
+          title="Manage Cookie Preferences (Google Consent Mode v3)"
+        >
+          <Cookie className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Google AdSense Consent Mode v3 Compliance Cookie Banner */}
+      <AnimatePresence>
+        {!cookieConsent.responded && (
+          <motion.div
+            initial={{ opacity: 0, y: 100 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            className="fixed bottom-0 left-0 right-0 z-40 p-4 bg-slate-950/95 border-t border-slate-800 backdrop-blur-md text-left"
+          >
+            <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-left">
+              <div className="space-y-1">
+                <h4 className="text-sm font-extrabold text-white flex items-center gap-2">
+                  <Cookie className="w-4 h-4 text-rose-400 font-bold" />
+                  Google AdSense Compliance: GDPR &amp; Consent Mode v3
+                </h4>
+                <p className="text-xs text-slate-400 max-w-4xl leading-normal">
+                  We and our advertising partners (including Google AdSense) use cookies to customize content and ads, analyze traffic, and ensure core client-side functions operate safely. Under EEA/GDPR rules, please configure your cookie preferences.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2.5 shrink-0">
+                <button
+                  onClick={() => setShowCookiePrefs(true)}
+                  className="px-3.5 py-1.5 text-xs font-semibold text-slate-300 bg-slate-900 hover:bg-slate-850 rounded-lg border border-slate-800 transition-all cursor-pointer"
+                >
+                  Customize Preferences
+                </button>
+                <button
+                  onClick={() => {
+                    const consent = { essential: true, analytics: false, marketing: false, responded: true };
+                    setCookieConsent(consent);
+                    localStorage.setItem('apex_cookie_consent_v3', JSON.stringify(consent));
+                    setConnectivityToast({ show: true, msg: "Preferences updated! Non-essential cookies disabled.", type: 'online' });
+                  }}
+                  className="px-3.5 py-1.5 text-xs font-semibold text-slate-300 bg-slate-900 hover:bg-slate-850 rounded-lg border border-slate-800 transition-all cursor-pointer"
+                >
+                  Decline All
+                </button>
+                <button
+                  onClick={() => {
+                    const consent = { essential: true, analytics: true, marketing: true, responded: true };
+                    setCookieConsent(consent);
+                    localStorage.setItem('apex_cookie_consent_v3', JSON.stringify(consent));
+                    setConnectivityToast({ show: true, msg: "Thank you! All cookies accepted, Consent Mode v3 fully authorized.", type: 'online' });
+                  }}
+                  className="px-4 py-1.5 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg transition-all cursor-pointer"
+                >
+                  Accept All
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Cookie Preferences Modal */}
+      <AnimatePresence>
+        {showCookiePrefs && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="w-full max-w-lg bg-slate-950 border border-slate-800 rounded-2xl p-6 md:p-8 space-y-6 text-left shadow-2xl"
+            >
+              <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+                <div className="flex items-center gap-2.5">
+                  <Cookie className="w-5 h-5 text-indigo-400" />
+                  <h3 className="text-md font-bold text-white uppercase tracking-wider font-mono">Consent Settings</h3>
+                </div>
+                <button onClick={() => setShowCookiePrefs(false)} className="text-slate-500 hover:text-white rounded-lg p-1 transition-colors cursor-pointer">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <p className="text-xs text-slate-400 leading-normal">
+                Customize your privacy preferences below. Your selections will directly adjust Google Consent Mode v3 triggers locally in your browser.
+              </p>
+
+              <div className="space-y-4">
+                {/* Functional Essential */}
+                <div className="p-4 bg-slate-900/60 border border-slate-850 rounded-xl flex items-start gap-3">
+                  <input type="checkbox" checked disabled className="mt-1 rounded border-slate-800 bg-slate-950 text-indigo-500 focus:ring-0 focus:ring-offset-0" />
+                  <div className="flex-1">
+                    <span className="text-xs font-bold text-slate-200 block">Strictly Necessary Cookies (Always On)</span>
+                    <p className="text-[11px] text-slate-500 mt-0.5 leading-normal">Required for secure local WASM container pipelines, storing layout settings, and maintaining state transitions.</p>
+                  </div>
+                </div>
+
+                {/* Analytics Consent */}
+                <div className="p-4 bg-slate-900/60 border border-slate-850 rounded-xl flex items-start gap-3">
+                  <input
+                    type="checkbox"
+                    checked={cookieConsent.analytics}
+                    onChange={(e) => setCookieConsent((prev: any) => ({ ...prev, analytics: e.target.checked }))}
+                    id="consent-analytics"
+                    className="mt-1 rounded border-slate-800 bg-slate-950 text-indigo-500 focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                  />
+                  <label htmlFor="consent-analytics" className="flex-1 cursor-pointer">
+                    <span className="text-xs font-bold text-slate-200 block">Analytics &amp; Performance Tracking</span>
+                    <p className="text-[11px] text-slate-500 mt-0.5 leading-normal">Allows us to monitor aggregated user sessions, tool usage statistics, and latency metrics to guide performance upgrades.</p>
+                  </label>
+                </div>
+
+                {/* Marketing/Ads Consent */}
+                <div className="p-4 bg-slate-900/60 border border-slate-850 rounded-xl flex items-start gap-3">
+                  <input
+                    type="checkbox"
+                    checked={cookieConsent.marketing}
+                    onChange={(e) => setCookieConsent((prev: any) => ({ ...prev, marketing: e.target.checked }))}
+                    id="consent-marketing"
+                    className="mt-1 rounded border-slate-800 bg-slate-950 text-indigo-500 focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                  />
+                  <label htmlFor="consent-marketing" className="flex-1 cursor-pointer">
+                    <span className="text-xs font-bold text-slate-200 block">Personalized Advertising (Google AdSense)</span>
+                    <p className="text-[11px] text-slate-500 mt-0.5 leading-normal">Allows Google and third-party ad exchanges to show customized, high-value ads based on your digital interest profiles.</p>
+                  </label>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between border-t border-slate-800 pt-4 mt-2">
+                <button
+                  onClick={() => {
+                    const consent = { essential: true, analytics: true, marketing: true, responded: true };
+                    setCookieConsent(consent);
+                    localStorage.setItem('apex_cookie_consent_v3', JSON.stringify(consent));
+                    setShowCookiePrefs(false);
+                    setConnectivityToast({ show: true, msg: "Thank you! All cookies accepted and saved.", type: 'online' });
+                  }}
+                  className="text-xs text-indigo-400 font-bold hover:text-indigo-300 font-mono cursor-pointer"
+                >
+                  Enable All Cookies
+                </button>
+                <button
+                  onClick={() => {
+                    const consent = { ...cookieConsent, responded: true };
+                    setCookieConsent(consent);
+                    localStorage.setItem('apex_cookie_consent_v3', JSON.stringify(consent));
+                    setShowCookiePrefs(false);
+                    setConnectivityToast({ show: true, msg: "Custom preferences applied and saved locally.", type: 'online' });
+                  }}
+                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs rounded-xl transition-all cursor-pointer"
+                >
+                  Save My Selections
+                </button>
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
 

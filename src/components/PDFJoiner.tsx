@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   Upload, FileText, Sparkles, RefreshCw, Layers, Sliders, 
   Trash2, ArrowUp, ArrowDown, RotateCw, Download, Cpu, 
-  Info, Check, HelpCircle, Plus, Copy, AlertCircle, X, CheckCircle, Move
+  Info, Check, HelpCircle, Plus, Copy, AlertCircle, X, CheckCircle, Move, BookOpen
 } from 'lucide-react';
 import { PDFDocument, degrees, rgb } from 'pdf-lib';
 import { Document, Page, pdfjs } from 'react-pdf';
@@ -1445,6 +1445,86 @@ export default function PDFJoiner() {
           <li><strong>Non-Destructive Customizations:</strong> Easily rotate specific pages in increments of 90 degrees or duplicate pages (e.g., duplicated feedback worksheets) prior to generating final exports.</li>
           <li><strong>Offline Execution:</strong> APEX compilation pipelines parse local typed arrayBuffers directly in standard V8 machines. Your secure corporate PDF contracts will never leave your client environment.</li>
         </ul>
+      </div>
+
+      {/* COMPREHENSIVE TECHNICAL USER GUIDE & ADSense HIGH-VALUE EDITORIAL CONTENT */}
+      <div id="pdf-joiner-comprehensive-guide" className="w-full max-w-4xl bg-slate-900/40 border border-slate-800/60 rounded-2xl p-6 md:p-8 backdrop-blur-md space-y-6 mt-6 text-left">
+        <div className="flex items-center gap-3 border-b border-slate-800/80 pb-4">
+          <div className="p-2 bg-indigo-500/10 text-indigo-400 rounded-xl border border-indigo-500/25">
+            <BookOpen className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="text-xs font-bold text-slate-100 uppercase tracking-wider font-mono">PDF Page Joiner: Technical Manual &amp; Document Binder Specification</h3>
+            <p className="text-[11px] text-slate-500 mt-1">Comprehensive educational documentation on client-side document compilers, secure local memory mapping, and optimizing final byte layouts</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-xs leading-relaxed text-slate-300 font-sans">
+          <div className="space-y-4">
+            <h4 className="font-heading font-black text-xs text-white uppercase tracking-wider flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+              How Local Browser-Based PDF Merging Works
+            </h4>
+            <p>
+              Traditional PDF combining software relies on backend server processing. This tool runs entirely in your local browser sandbox utilizing <code>pdf-lib</code> and javascript-typed arrays. When you upload PDFs, our compiler extracts the binary byte stream into memory as an <code>ArrayBuffer</code>. It then parses the PDF document structure—including the Catalog, Page Tree, and Resources directories—natively in a client-side environment.
+            </p>
+            <p>
+              By referencing individual page nodes and copying their dictionaries (fonts, forms, and graphic resources) into a brand-new PDF container, we can reorganize, rotate, and combine pages instantly. Because no server is ever contacted, your sensitive business plans, contracts, and personal records remain 100% private.
+            </p>
+
+            <h4 className="font-heading font-black text-xs text-white uppercase tracking-wider flex items-center gap-2 pt-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+              Maximum Security for Business Contracts
+            </h4>
+            <p>
+              Uploading corporate files to third-party servers presents high data breach risks and compliance violations (GDPR, HIPAA). Our tool guarantees absolute local execution. Since all WASM and JS compilation runs on your local CPU inside standard browser processes, your files never cross the network. Security teams can verify this via network tab monitoring.
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            <h4 className="font-heading font-black text-xs text-white uppercase tracking-wider flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+              Document Layout Optimization
+            </h4>
+            <ul className="list-disc pl-5 space-y-2.5 text-slate-400">
+              <li>
+                <strong className="text-slate-200">Local Resource Compression:</strong> Merging files can cause duplicate font files to bloat the output document. Our system optimizes references to decrease unnecessary overhead.
+              </li>
+              <li>
+                <strong className="text-slate-200">Adjustable Page Orientation:</strong> Rotations are applied dynamically to the Page Dictionary's <code>/Rotate</code> value rather than rasterizing the entire layout, preserving pristine text-scaling properties.
+              </li>
+              <li>
+                <strong className="text-slate-200">Watermark Embedding:</strong> Our offline canvas overlays can apply customizable copyright tags or drafts directly to document streams, guaranteeing correct layout positioning without compromising source code integrity.
+              </li>
+            </ul>
+
+            <div className="p-4 bg-slate-950/60 border border-slate-800 rounded-xl space-y-2 mt-4">
+              <span className="text-[10px] font-mono font-bold text-indigo-400 uppercase tracking-widest block">SECURE DOCUMENT STANDARDS</span>
+              <p className="text-[11px] text-slate-400 leading-normal font-sans">
+                Our offline system conforms directly to ISO 32000-1 specifications for PDF document structures. Combined PDFs feature clean document cross-reference tables (XREFs) to ensure maximum compatibility with Adobe Acrobat, Google Chrome, and macOS Preview.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* FAQ section */}
+        <div className="border-t border-slate-800/80 pt-6 space-y-4">
+          <h4 className="font-heading font-black text-xs text-white uppercase tracking-wider font-mono">Frequently Asked Questions &amp; Technical Reference</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-slate-950/40 border border-slate-800/50 p-4 rounded-xl space-y-1.5">
+              <h5 className="text-xs font-bold text-slate-200 font-sans">Can I combine encrypted or password-protected PDF files?</h5>
+              <p className="text-[11px] text-slate-400 leading-relaxed font-sans">
+                To preserve security and structural safety, password-protected PDF documents must be decrypted prior to joining. You can decrypt your files using authorized PDF viewers and save them locally before uploading.
+              </p>
+            </div>
+            <div className="bg-slate-950/40 border border-slate-800/50 p-4 rounded-xl space-y-1.5">
+              <h5 className="text-xs font-bold text-slate-200 font-sans">Is there a file count limit or size restriction for merging?</h5>
+              <p className="text-[11px] text-slate-400 leading-relaxed font-sans">
+                Because all processing happens in the browser's local RAM, there are no strict software-imposed limits. You are constrained only by your device's physical memory, allowing you to merge hundreds of pages smoothly.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
     </div>
