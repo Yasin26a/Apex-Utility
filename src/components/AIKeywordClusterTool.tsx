@@ -30,6 +30,7 @@ import {
 import { CSS_GENERATOR_KEYWORDS, KeywordItem } from '../data/cssGeneratorKeywords';
 import { VIDEO_COMPRESS_KEYWORDS } from '../data/videoCompressKeywords';
 import { VIDEO_RESIZE_KEYWORDS } from '../data/videoResizeKeywords';
+import { VIDEO_CUTTER_KEYWORDS } from '../data/videoCutterKeywords';
 
 interface ClusteredKeyword {
   keyword: string;
@@ -82,7 +83,7 @@ const PRESETS = [
 
 export default function AIKeywordClusterTool() {
   const [activePanel, setActivePanel] = useState<'database' | 'cluster'>('database');
-  const [keywordPool, setKeywordPool] = useState<'css' | 'video' | 'video-resize'>('video-resize');
+  const [keywordPool, setKeywordPool] = useState<'css' | 'video' | 'video-resize' | 'video-cutter'>('video-cutter');
   const [rawKeywords, setRawKeywords] = useState('');
   const [groupingSensitivity, setGroupingSensitivity] = useState<'low' | 'medium' | 'high'>('medium');
   const [includeSearchIntent, setIncludeSearchIntent] = useState(true);
@@ -228,6 +229,7 @@ export default function AIKeywordClusterTool() {
   const currentKeywords = useMemo(() => {
     if (keywordPool === 'css') return CSS_GENERATOR_KEYWORDS;
     if (keywordPool === 'video-resize') return VIDEO_RESIZE_KEYWORDS;
+    if (keywordPool === 'video-cutter') return VIDEO_CUTTER_KEYWORDS;
     return VIDEO_COMPRESS_KEYWORDS;
   }, [keywordPool]);
 
@@ -358,18 +360,22 @@ export default function AIKeywordClusterTool() {
                   <span className="text-xs font-bold font-mono text-emerald-400 uppercase tracking-widest">Active Keyword Intel Datapool</span>
                 </div>
                 <h2 className="text-lg font-black text-slate-100 tracking-tight">
-                  {keywordPool === 'video-resize' 
-                    ? 'Video Resizing & Aspect Ratio Search Intent' 
-                    : keywordPool === 'video' 
-                      ? 'Video Compression & MP4 Resizer Search Intent' 
-                      : 'CSS Generator & Webmaster Search Intent'}
+                  {keywordPool === 'video-cutter'
+                    ? 'Video Cutting & Trimming Search Intent'
+                    : keywordPool === 'video-resize' 
+                      ? 'Video Resizing & Aspect Ratio Search Intent' 
+                      : keywordPool === 'video' 
+                        ? 'Video Compression & MP4 Resizer Search Intent' 
+                        : 'CSS Generator & Webmaster Search Intent'}
                 </h2>
                 <p className="text-xs text-slate-400 max-w-2xl leading-relaxed">
-                  {keywordPool === 'video-resize'
-                    ? 'Newly imported Google Ads Keyword data specifically mapping video resizing, aspect ratios, cropping, and editing search queries.'
-                    : keywordPool === 'video' 
-                      ? 'Newly imported Google Ads Keyword data specifically mapping video optimizer search queries, competition density, and top-of-page bids.' 
-                      : 'Directly harvested from Google Ads Keyword Planner. Select queries below to feed directly into the semantic clustering engine.'}
+                  {keywordPool === 'video-cutter'
+                    ? 'Newly imported Google Ads Keyword data specifically mapping video cutting, trimming, clipping, splitting, and splicing search queries.'
+                    : keywordPool === 'video-resize'
+                      ? 'Newly imported Google Ads Keyword data specifically mapping video resizing, aspect ratios, cropping, and editing search queries.'
+                      : keywordPool === 'video' 
+                        ? 'Newly imported Google Ads Keyword data specifically mapping video optimizer search queries, competition density, and top-of-page bids.' 
+                        : 'Directly harvested from Google Ads Keyword Planner. Select queries below to feed directly into the semantic clustering engine.'}
                 </p>
               </div>
 
@@ -390,6 +396,19 @@ export default function AIKeywordClusterTool() {
 
             {/* Keyword Pool Switcher Tab Row */}
             <div className="flex flex-wrap border-t border-slate-900/60 pt-3 gap-2">
+              <button
+                onClick={() => {
+                  setKeywordPool('video-cutter');
+                  setSelectedKeywords([]);
+                }}
+                className={`py-1.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer border ${
+                  keywordPool === 'video-cutter' 
+                    ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-400' 
+                    : 'bg-slate-950 border-slate-900 text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                ✂️ Video Cutter & Trimmer Pool ({VIDEO_CUTTER_KEYWORDS.length})
+              </button>
               <button
                 onClick={() => {
                   setKeywordPool('video-resize');
@@ -593,11 +612,13 @@ export default function AIKeywordClusterTool() {
                 value={dbSearch}
                 onChange={(e) => setDbSearch(e.target.value)}
                 placeholder={
-                  keywordPool === 'video-resize'
-                    ? "Search video resizing keywords..."
-                    : keywordPool === 'video'
-                      ? "Search video compression keywords..."
-                      : "Search CSS master keywords..."
+                  keywordPool === 'video-cutter'
+                    ? "Search video cutting & trimming keywords..."
+                    : keywordPool === 'video-resize'
+                      ? "Search video resizing keywords..."
+                      : keywordPool === 'video'
+                        ? "Search video compression keywords..."
+                        : "Search CSS master keywords..."
                 }
                 className="w-full pl-9 pr-8 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-200 placeholder-slate-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-all font-mono"
               />
