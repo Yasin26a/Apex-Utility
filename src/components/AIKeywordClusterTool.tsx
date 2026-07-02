@@ -28,6 +28,7 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { CSS_GENERATOR_KEYWORDS, KeywordItem } from '../data/cssGeneratorKeywords';
+import { VIDEO_COMPRESS_KEYWORDS } from '../data/videoCompressKeywords';
 
 interface ClusteredKeyword {
   keyword: string;
@@ -57,6 +58,10 @@ interface ClusterResult {
 // Visual preset terms for convenient click to test
 const PRESETS = [
   {
+    name: "Video Compressor & Optimizer Set",
+    terms: "compress video, free video compressor, video compressor online, reduce video size, compress video file, compress mp4, reduce video file size, shrink video file size, video mb reducer, reduce mp4 size, condense video, video reducer"
+  },
+  {
     name: "SaaS SEO Tools Focus",
     terms: "keyword planner, best clustering tools, seo auditing software, google rank tracking free, semantic gap analyze tools, automated backlink audit, LSI keyword finder, long-tail search generator, content schema generator"
   },
@@ -72,6 +77,7 @@ const PRESETS = [
 
 export default function AIKeywordClusterTool() {
   const [activePanel, setActivePanel] = useState<'database' | 'cluster'>('database');
+  const [keywordPool, setKeywordPool] = useState<'css' | 'video'>('video');
   const [rawKeywords, setRawKeywords] = useState('');
   const [groupingSensitivity, setGroupingSensitivity] = useState<'low' | 'medium' | 'high'>('medium');
   const [includeSearchIntent, setIncludeSearchIntent] = useState(true);
@@ -214,9 +220,13 @@ export default function AIKeywordClusterTool() {
     }, 0);
   }, [result]);
 
+  const currentKeywords = useMemo(() => {
+    return keywordPool === 'css' ? CSS_GENERATOR_KEYWORDS : VIDEO_COMPRESS_KEYWORDS;
+  }, [keywordPool]);
+
   // Database Filter & Sort Computations
   const filteredKeywords = useMemo(() => {
-    return CSS_GENERATOR_KEYWORDS.filter(item => {
+    return currentKeywords.filter(item => {
       const matchesSearch = item.keyword.toLowerCase().includes(dbSearch.toLowerCase());
       const matchesComp = dbCompFilter === 'All' || item.competition === dbCompFilter;
       return matchesSearch && matchesComp;
@@ -226,7 +236,7 @@ export default function AIKeywordClusterTool() {
       if (dbSortBy === 'bidHigh') return (b.bidHigh || 0) - (a.bidHigh || 0);
       return a.keyword.localeCompare(b.keyword);
     });
-  }, [dbSearch, dbCompFilter, dbSortBy]);
+  }, [currentKeywords, dbSearch, dbCompFilter, dbSortBy]);
 
   const paginatedKeywords = useMemo(() => {
     const startIndex = (dbPage - 1) * itemsPerPage;
@@ -276,21 +286,21 @@ export default function AIKeywordClusterTool() {
 
   // Pre-calculated Global Database Stats
   const dbStats = useMemo(() => {
-    const total = CSS_GENERATOR_KEYWORDS.length;
-    const totalVolume = CSS_GENERATOR_KEYWORDS.reduce((acc, x) => acc + x.avgSearches, 0);
-    const lowCount = CSS_GENERATOR_KEYWORDS.filter(x => x.competition === 'Low').length;
-    const medCount = CSS_GENERATOR_KEYWORDS.filter(x => x.competition === 'Medium').length;
-    const highCount = CSS_GENERATOR_KEYWORDS.filter(x => x.competition === 'High').length;
-    const avgBid = Math.round(CSS_GENERATOR_KEYWORDS.reduce((acc, x) => acc + (x.bidHigh || 0), 0) / total);
+    const total = currentKeywords.length;
+    const totalVolume = currentKeywords.reduce((acc, x) => acc + x.avgSearches, 0);
+    const lowCount = currentKeywords.filter(x => x.competition === 'Low').length;
+    const medCount = currentKeywords.filter(x => x.competition === 'Medium').length;
+    const highCount = currentKeywords.filter(x => x.competition === 'High').length;
+    const avgBid = Math.round(currentKeywords.reduce((acc, x) => acc + (x.bidHigh || 0), 0) / Math.max(1, total));
     return { total, totalVolume, lowCount, medCount, highCount, avgBid };
-  }, []);
+  }, [currentKeywords]);
 
   // Top 8 keywords by search volume for SVG Bar Chart
   const topSearchedKeywords = useMemo(() => {
-    return [...CSS_GENERATOR_KEYWORDS]
+    return [...currentKeywords]
       .sort((a, b) => b.avgSearches - a.avgSearches)
       .slice(0, 8);
-  }, []);
+  }, [currentKeywords]);
 
   return (
     <div className="bg-slate-950 border border-slate-900 rounded-2xl p-4 sm:p-6 text-slate-100 shadow-2xl space-y-6" id="keyword-cluster-root">
@@ -332,29 +342,66 @@ export default function AIKeywordClusterTool() {
       {activePanel === 'database' && (
         <div className="space-y-6 animate-fadeIn">
           
-          {/* Informational Header */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-900/25 border border-slate-900 p-4 rounded-xl">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-xs font-bold font-mono text-emerald-400 uppercase tracking-widest">Active Keyword Intel Datapool</span>
+          {/* Informational Header with Keyword Pool Toggle */}
+          <div className="flex flex-col gap-4 bg-slate-900/25 border border-slate-900 p-4 rounded-xl">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-xs font-bold font-mono text-emerald-400 uppercase tracking-widest">Active Keyword Intel Datapool</span>
+                </div>
+                <h2 className="text-lg font-black text-slate-100 tracking-tight">
+                  {keywordPool === 'video' ? 'Video Compression & MP4 Resizer Search Intent' : 'CSS Generator & Webmaster Search Intent'}
+                </h2>
+                <p className="text-xs text-slate-400 max-w-2xl leading-relaxed">
+                  {keywordPool === 'video' 
+                    ? 'Newly imported Google Ads Keyword data specifically mapping video optimizer search queries, competition density, and top-of-page bids.' 
+                    : 'Directly harvested from Google Ads Keyword Planner. Select queries below to feed directly into the semantic clustering engine.'}
+                </p>
               </div>
-              <h2 className="text-lg font-black text-slate-100 tracking-tight">CSS Generator & Webmaster Search Intent</h2>
-              <p className="text-xs text-slate-400 max-w-2xl leading-relaxed">
-                Directly harvested from Google Ads Keyword Planner (June 2022 - May 2026). Select queries below to feed directly into the semantic clustering engine.
-              </p>
+
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => {
+                    setDbSearch('');
+                    setDbCompFilter('All');
+                    setDbSortBy('avgSearches');
+                    setSelectedKeywords([]);
+                  }}
+                  className="py-1.5 px-3 bg-slate-900 hover:bg-slate-850 border border-slate-800 hover:border-slate-700 text-slate-300 text-xs rounded-lg transition-colors cursor-pointer font-medium"
+                >
+                  Reset Filters
+                </button>
+              </div>
             </div>
-            <div className="flex gap-2">
+
+            {/* Keyword Pool Switcher Tab Row */}
+            <div className="flex border-t border-slate-900/60 pt-3 gap-2">
               <button
                 onClick={() => {
-                  setDbSearch('');
-                  setDbCompFilter('All');
-                  setDbSortBy('avgSearches');
+                  setKeywordPool('video');
                   setSelectedKeywords([]);
                 }}
-                className="py-1.5 px-3 bg-slate-900 hover:bg-slate-850 border border-slate-800 hover:border-slate-700 text-slate-300 text-xs rounded-lg transition-colors cursor-pointer font-medium"
+                className={`py-1.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer border ${
+                  keywordPool === 'video' 
+                    ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-400' 
+                    : 'bg-slate-950 border-slate-900 text-slate-400 hover:text-slate-200'
+                }`}
               >
-                Reset Database Filters
+                🎥 Video Compress & Optimizer Pool ({VIDEO_COMPRESS_KEYWORDS.length})
+              </button>
+              <button
+                onClick={() => {
+                  setKeywordPool('css');
+                  setSelectedKeywords([]);
+                }}
+                className={`py-1.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer border ${
+                  keywordPool === 'css' 
+                    ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-400' 
+                    : 'bg-slate-950 border-slate-900 text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                🎨 CSS & Webmaster Pool ({CSS_GENERATOR_KEYWORDS.length})
               </button>
             </div>
           </div>

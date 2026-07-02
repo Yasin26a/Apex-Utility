@@ -668,38 +668,76 @@ export default function VideoStudioSuite({ initialTool = 'video-compressor' }: V
             
             {/* Tool specific configurations */}
             {activeTool === 'video-compressor' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <div className="flex justify-between text-xs font-mono text-zinc-400">
-                    <span>Target Quality</span>
-                    <span className="text-brand font-bold">{targetQuality}%</span>
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-xs font-mono text-zinc-400">
+                      <span>Target Quality</span>
+                      <span className="text-brand font-bold">{targetQuality}%</span>
+                    </div>
+                    <input 
+                      type="range" 
+                      min="10" 
+                      max="100" 
+                      value={targetQuality}
+                      onChange={(e) => setTargetQuality(Number(e.target.value))}
+                      className="w-full accent-brand bg-zinc-900 rounded-lg appearance-none h-1.5"
+                    />
                   </div>
-                  <input 
-                    type="range" 
-                    min="10" 
-                    max="100" 
-                    value={targetQuality}
-                    onChange={(e) => setTargetQuality(Number(e.target.value))}
-                    className="w-full accent-brand bg-zinc-900 rounded-lg appearance-none h-1.5"
-                  />
+
+                  <div className="space-y-2">
+                    <span className="text-xs font-mono text-zinc-400 block">Compression Algorithm</span>
+                    <div className="grid grid-cols-3 gap-2">
+                      {(['low', 'medium', 'high'] as const).map((r) => (
+                        <button
+                          key={r}
+                          onClick={() => setCompressionRatio(r)}
+                          className={`py-2 rounded-xl border text-[10px] font-mono font-bold uppercase transition-all cursor-pointer ${
+                            compressionRatio === r
+                              ? 'bg-brand/10 border-brand text-brand'
+                              : 'bg-zinc-950 border-zinc-900 text-zinc-500 hover:text-zinc-300'
+                          }`}
+                        >
+                          {r === 'low' ? 'Low Loss' : r === 'medium' ? 'Balanced' : 'Max Compact'}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
 
-                <div className="space-y-2">
-                  <span className="text-xs font-mono text-zinc-400 block">Compression Algorithm</span>
-                  <div className="grid grid-cols-3 gap-2">
-                    {(['low', 'medium', 'high'] as const).map((r) => (
-                      <button
-                        key={r}
-                        onClick={() => setCompressionRatio(r)}
-                        className={`py-2 rounded-xl border text-[10px] font-mono font-bold uppercase transition-all cursor-pointer ${
-                          compressionRatio === r
-                            ? 'bg-brand/10 border-brand text-brand'
-                            : 'bg-zinc-950 border-zinc-900 text-zinc-500 hover:text-zinc-300'
-                        }`}
-                      >
-                        {r === 'low' ? 'Low Loss' : r === 'medium' ? 'Balanced' : 'Max Compact'}
-                      </button>
+                {/* Video SEO Optimization Widget */}
+                <div className="mt-4 p-4 border border-emerald-500/10 bg-emerald-500/[0.02] rounded-xl space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+                    <span className="text-xs font-bold text-slate-200">Video SEO & Page Placement Advisor</span>
+                  </div>
+                  
+                  <p className="text-[11px] text-zinc-400 leading-relaxed">
+                    Improve organic click-through rates by matching your final video assets and page copy with high-volume search queries:
+                  </p>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-1">
+                    {[
+                      { word: "compress video", vol: "5k/mo", comp: "Low" },
+                      { word: "video compressor online", vol: "5k/mo", comp: "Low" },
+                      { word: "reduce video size", vol: "5k/mo", comp: "Low" },
+                      { word: "decrease video size", vol: "5k/mo", comp: "Low" },
+                      { word: "lower video size", vol: "5k/mo", comp: "Low" },
+                      { word: "condense video", vol: "5k/mo", comp: "Low" }
+                    ].map((item, idx) => (
+                      <div key={idx} className="bg-zinc-950 border border-zinc-900 rounded-lg p-2 flex flex-col justify-between text-left">
+                        <span className="text-[10px] text-zinc-300 font-mono font-medium truncate">{item.word}</span>
+                        <div className="flex justify-between items-center mt-1">
+                          <span className="text-[9px] text-emerald-400 font-bold font-mono">{item.vol}</span>
+                          <span className="text-[8px] text-zinc-500 uppercase tracking-wider font-mono">{item.comp} Comp</span>
+                        </div>
+                      </div>
                     ))}
+                  </div>
+
+                  <div className="text-[10px] text-zinc-500 leading-relaxed bg-zinc-950/45 p-2 rounded-lg border border-zinc-900/60 font-mono">
+                    <span className="text-emerald-400 font-bold uppercase tracking-wider text-[8px] block mb-1">💡 Webmaster Recommendation</span>
+                    Rename your compressed file to include primary terms (e.g. <code className="text-zinc-300 bg-zinc-900 px-1 rounded">reduce-video-size-my-clip.mp4</code>) to maximize ranking potential.
                   </div>
                 </div>
               </div>
