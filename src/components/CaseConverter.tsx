@@ -3,7 +3,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { 
   Type, Copy, Check, Download, AlertCircle, RefreshCw, Trash2, 
   HelpCircle, Sparkles, FileText, Settings, ArrowRightLeft, 
-  AlignLeft, Terminal, LayoutList, BookOpen, CheckCircle 
+  AlignLeft, Terminal, LayoutList, BookOpen, CheckCircle, Upload 
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { logToolUsage } from '../utils/toolAnalytics';
@@ -22,6 +22,37 @@ export default function CaseConverter() {
   const [successMsg, setSuccessMsg] = useState('');
   const [textHistory, setTextHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
+
+  // File drag-and-drop states and handlers
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleFileDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      readFile(file);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      readFile(file);
+    }
+  };
+
+  const readFile = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target?.result as string;
+      if (text !== undefined) {
+        updateText(text, `Imported ${file.name}`);
+      }
+    };
+    reader.readAsText(file);
+  };
 
   // Stats calculation
   const [stats, setStats] = useState({
@@ -321,6 +352,54 @@ export default function CaseConverter() {
     updateText(converted, 'Removed All Commas');
   };
 
+  const removeHyphensToSpaces = () => {
+    const converted = inputText.replace(/-/g, ' ');
+    updateText(converted, 'Replaced Hyphens with Spaces');
+  };
+
+  const stripHyphensCompletely = () => {
+    const converted = inputText.replace(/-/g, '');
+    updateText(converted, 'Stripped All Hyphens');
+  };
+
+  const removeUnderscoresToSpaces = () => {
+    const converted = inputText.replace(/_/g, ' ');
+    updateText(converted, 'Replaced Underscores with Spaces');
+  };
+
+  const convertSpacesToHyphens = () => {
+    const converted = inputText.replace(/\s+/g, '-');
+    updateText(converted, 'Replaced Spaces with Hyphens');
+  };
+
+  const stripNumbers = () => {
+    const converted = inputText.replace(/[0-9]/g, '');
+    updateText(converted, 'Stripped All Numbers');
+  };
+
+  const stripSpecialCharacters = () => {
+    const converted = inputText.replace(/[^a-zA-Z0-9\s]/g, '');
+    updateText(converted, 'Stripped Special Characters');
+  };
+
+  const joinLinesToParagraph = () => {
+    const converted = inputText
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line.length > 0)
+      .join(' ');
+    updateText(converted, 'Merged All Lines Into Paragraph');
+  };
+
+  const joinLinesWithCommas = () => {
+    const converted = inputText
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line.length > 0)
+      .join(', ');
+    updateText(converted, 'Joined Lines with Commas');
+  };
+
   const handleFindReplace = () => {
     if (!searchQuery) return;
     const flags = caseSensitiveSearch ? 'g' : 'gi';
@@ -422,10 +501,33 @@ export default function CaseConverter() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Play workspace text column: 8cols */}
         <div className="lg:col-span-8 space-y-4">
-          <div className="relative rounded-lg border border-brand-border/35 bg-zinc-950/20 overflow-hidden">
+          <div 
+            onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+            onDragLeave={() => setIsDragging(false)}
+            onDrop={handleFileDrop}
+            className={`relative rounded-lg border transition-all duration-200 ${isDragging ? 'border-brand bg-brand/5' : 'border-brand-border/35 bg-zinc-950/20'} overflow-hidden`}
+          >
+            {/* Hidden File Input */}
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              onChange={handleFileChange} 
+              accept=".txt,.md,.csv,.json,.js,.ts,.html,.xml" 
+              className="hidden" 
+            />
+
+            {/* Drag & Drop Overlay */}
+            {isDragging && (
+              <div className="absolute inset-0 bg-zinc-950/90 border-2 border-dashed border-brand/50 flex flex-col items-center justify-center gap-2 z-50 pointer-events-none">
+                <Upload className="w-8 h-8 text-brand animate-bounce" />
+                <p className="text-xs font-sans text-zinc-200 font-bold uppercase tracking-wider">Drop file to load text</p>
+                <p className="text-[10px] font-mono text-zinc-500">Supports .txt, .md, .csv, .json</p>
+              </div>
+            )}
+
             {/* Header toolbar for clipboard / state */}
             <div className="px-4 py-2 bg-[#0a0a0c] border-b border-zinc-900 flex items-center justify-between text-[11px] font-mono text-zinc-500 select-none">
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5 flex-wrap">
                 <Terminal className="w-3.5 h-3.5 text-brand" />
                 <span>WORKSPACE SOURCE ENGINE</span>
                 {successMsg && (
@@ -436,7 +538,17 @@ export default function CaseConverter() {
                 )}
               </div>
               
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="text-zinc-400 hover:text-brand transition-all flex items-center gap-1 border border-zinc-800 bg-zinc-950 px-2 py-0.5 rounded text-[10px] cursor-pointer"
+                  title="Upload a text or document file"
+                >
+                  <Upload className="w-3 h-3" />
+                  <span className="hidden xs:inline">IMPORT FILE</span>
+                </button>
+
                 <div className="flex items-center gap-1 bg-zinc-950 px-1.5 py-0.5 rounded border border-zinc-900">
                   <span>Chars:</span>
                   <span className="text-zinc-300 font-bold">{stats.charsWithSpaces}</span>
@@ -851,6 +963,104 @@ export default function CaseConverter() {
               >
                 <span>Strip all commas (`,`)</span>
                 <span className="text-[10px] text-zinc-650 font-mono">[NO COMMAS]</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Advanced Scrubbers and Replacers (onlinecaseconvert.com features) */}
+          <div className="p-5 rounded-lg border border-zinc-800 bg-[#08080a] space-y-4">
+            <h3 className="font-heading font-bold text-xs text-zinc-200 tracking-wider uppercase border-b border-zinc-900 pb-2 flex items-center gap-2">
+              <RefreshCw className="w-3.5 h-3.5 text-brand" />
+              <span>PUNCTUATION & SYMBOL SCRUBBERS</span>
+            </h3>
+
+            <div className="space-y-2">
+              <button
+                type="button"
+                onClick={removeHyphensToSpaces}
+                disabled={!inputText}
+                className="w-full p-2 text-left text-xs bg-zinc-950 border border-zinc-900 hover:border-zinc-800 text-zinc-300 rounded transition-all cursor-pointer hover:text-white hover:bg-zinc-900/30 flex items-center justify-between"
+                title="Replace all hyphens with spaces (e.g. online-case-convert -> online case convert)"
+              >
+                <span>Remove hyphens (replace with space)</span>
+                <span className="text-[10px] text-brand font-mono font-bold">[REMOVE HYPHENS]</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={stripHyphensCompletely}
+                disabled={!inputText}
+                className="w-full p-2 text-left text-xs bg-zinc-950 border border-zinc-900 hover:border-zinc-800 text-zinc-300 rounded transition-all cursor-pointer hover:text-white hover:bg-zinc-900/30 flex items-center justify-between"
+                title="Strip hyphens completely (e.g. high-performance -> highperformance)"
+              >
+                <span>Strip hyphens completely</span>
+                <span className="text-[10px] text-brand font-mono font-bold">[STRIP HYPHENS]</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={removeUnderscoresToSpaces}
+                disabled={!inputText}
+                className="w-full p-2 text-left text-xs bg-zinc-950 border border-zinc-900 hover:border-zinc-800 text-zinc-300 rounded transition-all cursor-pointer hover:text-white hover:bg-zinc-900/30 flex items-center justify-between"
+                title="Replace underscores with spaces (e.g. user_id_code -> user id code)"
+              >
+                <span>Remove underscores</span>
+                <span className="text-[10px] text-zinc-400 font-mono">[NO UNDERSCORES]</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={convertSpacesToHyphens}
+                disabled={!inputText}
+                className="w-full p-2 text-left text-xs bg-[#0a0a0c] border border-zinc-900 hover:border-zinc-800 text-zinc-300 rounded transition-all cursor-pointer hover:text-white hover:bg-zinc-900/30 flex items-center justify-between"
+                title="Replace spaces with hyphens (e.g. hello world -> hello-world)"
+              >
+                <span>Convert spaces to hyphens</span>
+                <span className="text-[10px] text-zinc-500 font-mono">[DASHIFY]</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={stripNumbers}
+                disabled={!inputText}
+                className="w-full p-2 text-left text-xs bg-zinc-950 border border-zinc-900 hover:border-zinc-800 text-zinc-300 rounded transition-all cursor-pointer hover:text-white hover:bg-zinc-900/30 flex items-center justify-between"
+                title="Remove all numerical digits 0-9"
+              >
+                <span>Strip all digits (0-9)</span>
+                <span className="text-[10px] text-zinc-500 font-mono">[NO DIGITS]</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={stripSpecialCharacters}
+                disabled={!inputText}
+                className="w-full p-2 text-left text-xs bg-zinc-950 border border-zinc-900 hover:border-zinc-800 text-zinc-300 rounded transition-all cursor-pointer hover:text-white hover:bg-zinc-900/30 flex items-center justify-between"
+                title="Keep only letters, numbers and spaces, removing all special symbols and punctuation"
+              >
+                <span>Only alphanumeric (strip symbols)</span>
+                <span className="text-[10px] text-zinc-650 font-mono">[STRIP SYMBOLS]</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={joinLinesToParagraph}
+                disabled={!inputText}
+                className="w-full p-2 text-left text-xs bg-[#0a0a0c] border border-zinc-900 hover:border-zinc-800 text-zinc-300 rounded transition-all cursor-pointer hover:text-white hover:bg-zinc-900/30 flex items-center justify-between"
+                title="Remove line breaks and join separate lines into a single continuous paragraph"
+              >
+                <span>Merge all lines into paragraph</span>
+                <span className="text-[10px] text-zinc-600 font-mono">[MERGE LINES]</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={joinLinesWithCommas}
+                disabled={!inputText}
+                className="w-full p-2 text-left text-xs bg-zinc-950 border border-zinc-900 hover:border-zinc-800 text-zinc-300 rounded transition-all cursor-pointer hover:text-white hover:bg-zinc-900/30 flex items-center justify-between"
+                title="Join separate lines with commas, forming a comma-separated list"
+              >
+                <span>Convert lines to comma list</span>
+                <span className="text-[10px] text-zinc-650 font-mono">[CSV LIST]</span>
               </button>
             </div>
           </div>

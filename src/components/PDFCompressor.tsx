@@ -1191,6 +1191,86 @@ export default function PDFCompressor() {
     setFaqOpen(prev => ({ ...prev, [idx]: !prev[idx] }));
   };
 
+  // Automatically generate custom Frequently Asked Questions based on uploaded file types (PDF vs Images)
+  const dynamicFaqs = React.useMemo(() => {
+    const hasPdf = files.some(f => !f.isImage && f.stage !== 'error');
+    const hasImage = files.some(f => f.isImage && f.stage !== 'error');
+
+    if (hasPdf && !hasImage) {
+      return {
+        title: "Dynamic SEO Guide: PDF Compression & Optimizer",
+        badge: "PDF Active Mode",
+        description: "Read technical insights on how our engine optimizes PDF vectors, font tables, and metadata schemas directly in your sandbox.",
+        questions: [
+          {
+            q: "How can I compress a PDF to exactly under 2MB for job applications for free?",
+            a: "Simply drop your PDF inside our secure client-side Forge card. Our optimizer scales image dimensions and font indexes locally, ensuring the file stays below 2MB while keeping text searchable and crisp for ATS."
+          },
+          {
+            q: "Can I edit metadata and security settings on compressed PDFs?",
+            a: "Yes! You can modify titles, authors, subjects, and creators directly inside the batch file cards, or set a secure password envelope. This wipes out sensitive tracker markers before you submit files online."
+          },
+          {
+            q: "Does compressing a PDF reduce text searchability or ATS readability?",
+            a: "No, our optimizer separates vector fonts from raster images. While image assets are safely downscaled to reduce file size, all typography retains its original mathematical formatting, making it fully searchable and copyable."
+          },
+          {
+            q: "Is there an upload limit on the number of PDFs I can compress?",
+            a: "No. Since all operations run entirely client-side using your browser's local resources, we impose zero artificial file limits, watermarks, or subscription blocks."
+          }
+        ]
+      };
+    } else if (hasImage && !hasPdf) {
+      return {
+        title: "Dynamic SEO Guide: JPG & PNG Image to PDF Converter",
+        badge: "Image Active Mode",
+        description: "Learn how the local PDF compiler handles high-density photo conversions, page fitting, and margin parameters.",
+        questions: [
+          {
+            q: "How does the Image to PDF converter preserve photo clarity?",
+            a: "Our compiler merges multiple PNG, JPG, or JPEG images into a single standardized PDF portfolio. It runs client-side WebAssembly rendering, letting you choose margins, fit-to-page ratios, and high-fidelity compression quality without uploading your private files online."
+          },
+          {
+            q: "What image formats are supported for conversion?",
+            a: "We support PNG, JPG, JPEG, and WebP. You can upload multiple files in different formats, re-arrange pages dynamically using sort buttons, rotate individual orientation, and lock them into a single clean PDF."
+          },
+          {
+            q: "How do I fit images perfectly onto an A4 or Letter page size?",
+            a: "You can select your target canvas size (A4, Letter, or Fit-to-Image) and stretch modes (Fit, Fill, or Original) from the options panel. This ensures your photographs align perfectly into a cohesive, professional document."
+          },
+          {
+            q: "Can I add a custom watermark to my converted images?",
+            a: "Yes, you can customize a text or image watermark directly inside the batch card. Choose its position, opacity, color, and rotation to protect your intellectual property before compiling."
+          }
+        ]
+      };
+    } else {
+      return {
+        title: "How to Compress PDF to 2mb & JPG/PNG to PDF Converter - FAQ Guides",
+        badge: "Unified Standard Mode",
+        description: "Read detailed breakdowns authored by Technical Experts on how to scale documents correctly below portal payload limits and compile image portfolios.",
+        questions: [
+          {
+            q: "How can I guarantee my compressed job application PDF is exactly under 2MB?",
+            a: "When applying online, most job board modules (like Workday, Taleo, or Greenhouse) fail to parse attachments larger than 2.0MB. The APEX UTILITY Forge uses local lossy canvas techniques to automatically compress high-resolution banners or icons embedded in your resume, locking the target delivery at 1.92MB. This guarantees full system ingestion without sacrificing layout elements."
+          },
+          {
+            q: "How does the Image to PDF converter preserve photo clarity?",
+            a: "Our compiler merges multiple PNG, JPG, or JPEG images into a single standardized PDF portfolio. It runs client-side WebAssembly rendering, letting you choose margins, fit-to-page ratios, and high-fidelity compression quality without uploading your private files online."
+          },
+          {
+            q: "Will ATS algorithms be able to parse text inside compressed PDFs?",
+            a: "Yes. Unlike typical online compressors that flatten the entire document into an unreadable low-quality image, our compressor preserves vector definitions and font tables in their raw mathematical format. Text remains copyable and search-engine scrapeable by automated human resource scanners."
+          },
+          {
+            q: "Does this utility require email registration or subscription?",
+            a: "Absolutely not. In alignment with modern open web practices, APEX UTILITY processes all conversions natively inside your browser. We never collect email details, track your data, or place annoying software limits. Safe, lightning-fast, and free."
+          }
+        ]
+      };
+    }
+  }, [files]);
+
   // Structured Data Schema for SEO
   const jsonLdSchema = {
     "@context": "https://schema.org",
@@ -1207,24 +1287,14 @@ export default function PDFCompressor() {
     "faqPage": {
       "@context": "https://schema.org",
       "@type": "FAQPage",
-      "mainEntity": [
-        {
-          "@type": "Question",
-          "name": "How can I compress a PDF to 2MB for job applications online for free?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Simply drop your PDF document inside the safe APEX UTILITY Forge card. Our client-side algorithms analyze fonts and image ratios locally and downscale objects below 2MB instantly while maintaining titanium text rendering."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Do my private documents get sent to external cloud databases?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "No! APEX UTILITY uses advanced client-side browser technology. Your files are processed entirely compiled within your browser, ensuring absolute, leakproof privacy."
-          }
+      "mainEntity": dynamicFaqs.questions.map(item => ({
+        "@type": "Question",
+        "name": item.q,
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": item.a
         }
-      ]
+      }))
     }
   };
 
@@ -2362,32 +2432,29 @@ export default function PDFCompressor() {
 
       {/* Semantic SEO FAQ article block section */}
       <section className="border-t border-rose-950/20 pt-12 space-y-8">
-        <div className="max-w-3xl">
-          <h2 className="font-heading text-2xl font-black text-white tracking-tight">
-            How to Compress PDF to 2mb for Job Application Online Free - FAQ Guides
+        <div className="max-w-3xl space-y-3">
+          <div className="flex flex-wrap items-center gap-2.5">
+            <span className="bg-rose-500/10 text-rose-400 text-[10px] px-2 py-0.5 rounded-full font-mono border border-rose-500/20 uppercase tracking-wider font-extrabold flex items-center gap-1.5">
+              <Sparkles className="w-3 h-3 animate-pulse" /> SEMANTIC SEO DYNAMIC ENGINE
+            </span>
+            <span className="bg-zinc-900 text-zinc-400 text-[10px] px-2 py-0.5 rounded-full font-mono border border-zinc-800">
+              Active: <span className="text-zinc-200 font-semibold">{dynamicFaqs.badge}</span>
+            </span>
+          </div>
+
+          <h2 className="font-heading text-2xl font-black text-white tracking-tight leading-snug">
+            {dynamicFaqs.title}
           </h2>
-          <p className="font-sans text-xs text-zinc-500 mt-2">
-            Read detailed breakdowns authored by Technical Recruiting Experts on how to scale documents correctly below job board payload limits.
+          <p className="font-sans text-xs text-zinc-500">
+            {dynamicFaqs.description}
           </p>
         </div>
 
         <div className="max-w-3xl space-y-4">
-          {[
-            {
-              q: "How can I guarantee my compressed job application PDF is exactly under 2MB?",
-              a: "When applying online, most job board modules (like Workday, Taleo, or Greenhouse) fail to parse attachments larger than 2.0MB. The APEX UTILITY Forge uses local lossy canvas techniques to automatically compress high-resolution banners or icons embedded in your resume, locking the target delivery at 1.92MB. This guarantees full system ingestion without sacrificing layout elements."
-            },
-            {
-              q: "Does this utility require email registration or subscription?",
-              a: "Absolutely not. In alignment with modern open web practices, APEX UTILITY processes all conversions natively inside your browser. We never collect email details, track your data, or place annoying software limits. Safe, lightning-fast, and free."
-            },
-            {
-              q: "Will ATS algorithms be able to parse text inside compressed PDFs?",
-              a: "Yes. Unlike typical online compressors that flatten the entire document into an unreadable low-quality image, our compressor preserves vector definitions and font tables in their raw mathematical format. Text remains copyable and search-engine scrapeable by automated human resource scanners."
-            }
-          ].map((item, idx) => (
+          {dynamicFaqs.questions.map((item, idx) => (
             <div key={idx} className="beveled-panel border-zinc-900 bg-zinc-950/40 overflow-hidden">
               <button
+                type="button"
                 onClick={() => toggleFaq(idx)}
                 className="w-full p-4 flex justify-between items-center text-left focus:outline-none transition-colors hover:bg-zinc-900/40"
               >

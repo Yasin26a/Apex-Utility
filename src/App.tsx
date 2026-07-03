@@ -52,7 +52,8 @@ import {
   Grid,
   Cookie,
   Info,
-  Settings
+  Settings,
+  Code
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ActiveTab } from './types';
@@ -310,16 +311,20 @@ function SEOPageHeader({ tabId, category, colorClass = 'text-brand', defaultDesc
 interface AdSensePlaceholderProps {
   type: 'leaderboard' | 'rectangle' | 'in-feed' | 'link';
   className?: string;
+  format?: 'auto' | 'rectangle' | 'horizontal' | 'vertical';
+  responsive?: 'true' | 'false';
+  isAutoMode?: boolean;
 }
 
-function AdSensePlaceholder({ type, className = '' }: AdSensePlaceholderProps) {
+function AdSensePlaceholder({ type, className = '', format = 'auto', responsive = 'true', isAutoMode = true }: AdSensePlaceholderProps) {
   return (
     <div id={`adsense-sim-${type}`} className={`relative bg-slate-950/90 border border-dashed border-rose-500/30 rounded-xl overflow-hidden flex flex-col items-center justify-center p-4 text-center select-none font-sans ${className} transition-all duration-300 hover:border-rose-500/65`}>
       <div className="absolute top-2 left-2 px-1.5 py-0.5 bg-rose-500/10 border border-rose-500/20 text-rose-400 font-mono text-[8px] font-bold uppercase tracking-widest rounded">
         Google AdSense Simulation
       </div>
-      <div className="absolute top-2 right-2 px-1.5 py-0.5 bg-slate-900 border border-slate-800 text-slate-500 font-mono text-[8px] font-bold uppercase tracking-widest rounded">
-        Active Layout Check
+      <div className="absolute top-2 right-2 px-1.5 py-0.5 bg-slate-900 border border-slate-800 text-slate-500 font-mono text-[8px] font-bold uppercase tracking-widest rounded flex items-center gap-1">
+        <span className={`w-1.5 h-1.5 rounded-full ${isAutoMode ? 'bg-emerald-500' : 'bg-amber-500'} animate-pulse`} />
+        <span>Layout: {isAutoMode ? 'Auto-optimized' : 'Manual'}</span>
       </div>
       
       {type === 'leaderboard' && (
@@ -352,6 +357,18 @@ function AdSensePlaceholder({ type, className = '' }: AdSensePlaceholderProps) {
           ))}
         </div>
       )}
+
+      {/* Dynamic Ad Tag Inspector Block */}
+      <div className="w-full mt-2 pt-2 border-t border-slate-900 flex flex-col xs:flex-row justify-between items-center gap-1.5 text-[9px] font-mono text-zinc-500">
+        <div className="flex items-center gap-1 flex-wrap justify-center">
+          <span className="text-rose-400">data-ad-format=</span>
+          <span className="bg-rose-500/10 text-rose-300 px-1 py-0.2 rounded font-bold">"{format}"</span>
+        </div>
+        <div className="flex items-center gap-1 flex-wrap justify-center">
+          <span className="text-rose-400">data-full-width-responsive=</span>
+          <span className="bg-rose-500/10 text-rose-300 px-1 py-0.2 rounded font-bold">"{responsive}"</span>
+        </div>
+      </div>
     </div>
   );
 }
@@ -438,6 +455,77 @@ export default function App() {
   const [isIncognito, setIsIncognito] = useState(false);
   const [isSplitChild, setIsSplitChild] = useState(false);
   const [splitTab, setSplitTab] = useState<ActiveTab | null>(null);
+
+  // AdSense Auto-Ads Script Manager States
+  const [adFormat, setAdFormat] = useState<'auto' | 'rectangle' | 'horizontal' | 'vertical'>('auto');
+  const [fullWidthResponsive, setFullWidthResponsive] = useState<'true' | 'false'>('true');
+  const [isAdManagerAuto, setIsAdManagerAuto] = useState<boolean>(true);
+  const [isAdManagerPanelOpen, setIsAdManagerPanelOpen] = useState<boolean>(false);
+
+  // Auto-Ads Dynamic Layout Configurator
+  useEffect(() => {
+    if (isAdManagerAuto) {
+      if (splitTab) {
+        // Multi-view split pane requires compact rectangle layout to prevent screen overflow
+        setAdFormat('rectangle');
+        setFullWidthResponsive('false');
+      } else {
+        switch (activeTab) {
+          case 'compress-pdf':
+            // High-intensity workspace
+            setAdFormat('rectangle');
+            setFullWidthResponsive('false');
+            break;
+          case 'case-converter':
+            // Double text panels, wider horizontally
+            setAdFormat('horizontal');
+            setFullWidthResponsive('true');
+            break;
+          case 'guides':
+            // Editorial reading template
+            setAdFormat('horizontal');
+            setFullWidthResponsive('true');
+            break;
+          case 'sitemap-generator':
+          case 'redirect-auditor':
+          case 'google-serp':
+          case 'sql-formatter':
+          case 'subnet-cidr':
+            // Technical form utilities
+            setAdFormat('rectangle');
+            setFullWidthResponsive('false');
+            break;
+          default:
+            // Standard dashboard and simpler layouts
+            setAdFormat('auto');
+            setFullWidthResponsive('true');
+            break;
+        }
+      }
+    }
+  }, [activeTab, splitTab, isAdManagerAuto]);
+
+  // Synchronize Google AdSense elements in the live DOM
+  useEffect(() => {
+    try {
+      // Find all live AdSense element instances in the active page
+      const elements = document.querySelectorAll('ins.adsbygoogle');
+      elements.forEach((el) => {
+        el.setAttribute('data-ad-format', adFormat);
+        el.setAttribute('data-full-width-responsive', fullWidthResponsive);
+      });
+      
+      // If window.adsbygoogle is declared, push a config state if needed
+      if ((window as any).adsbygoogle) {
+        (window as any).adsbygoogle.defaults = {
+          format: adFormat,
+          responsive: fullWidthResponsive === 'true'
+        };
+      }
+    } catch (e) {
+      console.warn('[AdSense Manager] Failed to live-sync DOM attributes:', e);
+    }
+  }, [adFormat, fullWidthResponsive]);
 
   // Sitemap Generator settings state
   const [targetUrl, setTargetUrl] = useState('https://example.com');
@@ -2789,7 +2877,12 @@ Disallow:
                 
                 {simulateAds && (
                   <div className="mb-6">
-                    <AdSensePlaceholder type="leaderboard" />
+                    <AdSensePlaceholder 
+                      type="leaderboard" 
+                      format={adFormat} 
+                      responsive={fullWidthResponsive} 
+                      isAutoMode={isAdManagerAuto} 
+                    />
                   </div>
                 )}
             
@@ -5244,7 +5337,13 @@ Disallow:
                           if (simulateAds && artIdx === 2) {
                             return (
                               <div key={`adsense-grid-ad-${art.id}`} className="contents">
-                                <AdSensePlaceholder type="rectangle" className="h-full min-h-[410px]" />
+                                <AdSensePlaceholder 
+                                  type="rectangle" 
+                                  className="h-full min-h-[410px]" 
+                                  format={adFormat} 
+                                  responsive={fullWidthResponsive} 
+                                  isAutoMode={isAdManagerAuto} 
+                                />
                                 {cardNode}
                               </div>
                             );
@@ -7443,7 +7542,6 @@ Disallow:
           </div>
         )}
       </AnimatePresence>
-
       {/* Global Window Back to Top Button */}
       <AnimatePresence>
         {showWindowBackToTop && !readingArticle && (
