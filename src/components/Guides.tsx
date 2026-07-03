@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { ActiveTab } from '../types';
 import { viralArticles } from '../data/viralArticles';
+import AdUnit from './AdUnit';
 
 export interface Article {
   id: string;
@@ -3279,6 +3280,9 @@ export default function Guides({ onTabChange }: GuidesProps) {
                 <div className={`pt-2 border-t polished-divider-${currentArticle.id} polished-article-body`}>
                   {currentArticle.content}
                 </div>
+
+                {/* Inline Ad Unit for AdSense Monetization */}
+                <AdUnit slot="5821094318" format="horizontal" className="my-6 border-t border-b border-dashed border-zinc-800/40 py-4" />
               </div>
 
               {/* Tag Badges */}

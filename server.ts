@@ -1478,6 +1478,146 @@ All generated slugs must be lowercase, use hyphens instead of spaces, remove dia
     }
   });
 
+  // API: SEO Optimizer and Inspector Assistant
+  app.post('/api/seo/optimize', async (req, res) => {
+    try {
+      const { action, text, targetKeyword, targetDensity, title } = req.body;
+
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        res.status(500).json({ 
+          error: 'GEMINI_API_KEY is not configured on the server. Please check the Secrets panel in Settings.' 
+        });
+        return;
+      }
+
+      const ai = new GoogleGenAI({
+        apiKey: apiKey,
+        httpOptions: {
+          headers: {
+            'User-Agent': 'aistudio-build'
+          }
+        }
+      });
+
+      let systemInstruction = 'You are an elite, senior SEO copywriter and on-page optimization expert.';
+      let userPrompt = '';
+      let responseMimeType = 'text/plain';
+      let responseSchema: any = undefined;
+
+      if (action === 'rewrite_keyword') {
+        userPrompt = `Please rewrite the following copy to naturally and seamlessly integrate the focus keyword "${targetKeyword || ''}" so it achieves an optimal density of approximately ${targetDensity || '2'}% (count of focus keyword / total words). Keep the content informative, professional, and matching the original tone. Do not stuff keywords. Return only the rewritten text.
+        
+Copy:
+"${text || ''}"`;
+      } else if (action === 'improve_readability') {
+        userPrompt = `Please optimize the following copy to dramatically improve its Flesch Reading Ease and Flesch-Kincaid readability marks. Use active voice, shorter sentences (aim for under 20 words per sentence), simpler vocabulary, and clear structural hierarchies while preserving all core factual arguments and professional tone. Return only the improved text.
+
+Copy:
+"${text || ''}"`;
+      } else if (action === 'autofill_meta') {
+        systemInstruction = 'You are an elite search click-through rate (CTR) optimizer. You return strictly formatted JSON following the responseSchema rules.';
+        responseMimeType = 'application/json';
+        responseSchema = {
+          type: Type.OBJECT,
+          properties: {
+            title: { type: Type.STRING, description: 'An optimized page title, 30-60 characters.' },
+            description: { type: Type.STRING, description: 'An engaging meta description, 75-160 characters.' }
+          },
+          required: ['title', 'description']
+        };
+        userPrompt = `Given the following body content and focus keyword, generate a high-performing page SEO Title (30-60 characters) and a click-optimized Meta Description (75-160 characters) that naturally highlights the keyword.
+
+Focus Keyword: "${targetKeyword || ''}"
+Content Body:
+"${text || ''}"`;
+      } else if (action === 'suggest_keywords') {
+        systemInstruction = 'You are a veteran search analyst and keyword research director. You return strictly formatted JSON following the responseSchema rules.';
+        responseMimeType = 'application/json';
+        responseSchema = {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              keyword: { type: Type.STRING },
+              rationale: { type: Type.STRING }
+            },
+            required: ['keyword', 'rationale']
+          }
+        };
+        userPrompt = `Analyze the following webpage copy to extract 5 high-value, high-intent LSI (Latent Semantic Indexing) keyword suggestions or search terms that align perfectly with the context, along with a brief technical rationale for targeting each.
+
+Content:
+"${text || ''}"`;
+      } else if (action === 'generate_variations') {
+        systemInstruction = 'You are an advanced A/B testing copywriter specializing in search snippets. You return strictly formatted JSON following the responseSchema rules.';
+        responseMimeType = 'application/json';
+        responseSchema = {
+          type: Type.OBJECT,
+          properties: {
+            titles: {
+              type: Type.ARRAY,
+              items: { type: Type.STRING }
+            },
+            descriptions: {
+              type: Type.ARRAY,
+              items: { type: Type.STRING }
+            }
+          },
+          required: ['titles', 'descriptions']
+        };
+        userPrompt = `Given the webpage page reference content, generate a series of 3 high-performance variations for the page title and 3 variations for the meta description. Make sure they are click-optimized, benefit-driven, and highly engaging.
+
+Target Keyword: "${targetKeyword || ''}"
+Content:
+"${text || ''}"`;
+      } else if (action === 'suggest_slug') {
+        systemInstruction = 'You are an elite URL architecture specialist. You return strictly formatted JSON following the responseSchema rules.';
+        responseMimeType = 'application/json';
+        responseSchema = {
+          type: Type.OBJECT,
+          properties: {
+            slug: { type: Type.STRING, description: 'A lowercase, hyphen-separated, keyword-optimized URL slug.' }
+          },
+          required: ['slug']
+        };
+        userPrompt = `Given the page title and focus keyword below, generate a single, highly optimized, lowercase, hyphenated URL slug.
+Rules:
+1. It must contain only lowercase letters, numbers, and hyphens (no spaces, special characters, or underscores).
+2. It must be keyword-optimized, prioritizing the focus keyword if relevant.
+3. Strip out low-value grammatical particles (like "and", "the", "a", "or", "is", "in", "with", "to", "for", "on", "of", "how-to", "why", "what") to keep it concise.
+4. Keep it clean and natural.
+
+Page Title: "${title || ''}"
+Focus Keyword: "${targetKeyword || ''}"`;
+      } else {
+        res.status(400).json({ error: `Unsupported action parameter: ${action}` });
+        return;
+      }
+
+      const result = await generateContentWithFallback(ai, {
+        model: 'gemini-3.5-flash',
+        contents: userPrompt,
+        config: {
+          systemInstruction,
+          responseMimeType,
+          responseSchema,
+          temperature: 0.3
+        }
+      });
+
+      if (!result.text) {
+        throw new Error('Gemini API returned an empty output during SEO processing.');
+      }
+
+      const cleanText = result.text.trim();
+      res.json({ text: cleanText });
+    } catch (err: any) {
+      console.error('Error in /api/seo/optimize API:', err);
+      res.status(500).json({ error: err.message || 'Internal server error during SEO optimization.' });
+    }
+  });
+
   // API: Meta Tag Auditor
   app.post('/api/meta-tag-auditor', async (req, res) => {
     try {

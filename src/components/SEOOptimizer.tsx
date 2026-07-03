@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { jsPDF } from 'jspdf';
 import { 
@@ -74,6 +74,69 @@ export default function SEOOptimizer() {
   
   const [previewTab, setPreviewTab] = useState<'google' | 'twitter' | 'facebook'>('google');
   const [aiSuggestions, setAiSuggestions] = useState<{ keyword: string; rationale: string }[]>([]);
+  
+  // URL Slug States
+  const [suggestedSlug, setSuggestedSlug] = useState<string>('ux-design-styling-best-practices');
+  const [isGeneratingSlug, setIsGeneratingSlug] = useState<boolean>(false);
+  const [isSlugManual, setIsSlugManual] = useState<boolean>(false);
+
+  // Auto-generate a clean baseline slug offline whenever the title changes, unless manually modified
+  useEffect(() => {
+    if (!isSlugManual && metaTitle.trim()) {
+      let local = metaTitle.trim().toLowerCase();
+      local = local.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const stops = ['and', 'the', 'a', 'or', 'is', 'in', 'with', 'to', 'for', 'on', 'of', 'how-to', 'why', 'what', 'at', 'by', 'an', 'your', 'my'];
+      const words = local.split(/[^a-z0-9]+/g).filter(w => w.length > 0 && !stops.includes(w));
+      setSuggestedSlug(words.join('-') || 'page-slug');
+    }
+  }, [metaTitle, isSlugManual]);
+
+  const generateSuggestedSlug = async () => {
+    if (!metaTitle.trim()) return;
+    setIsGeneratingSlug(true);
+    try {
+      const response = await fetch('/api/seo/optimize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'suggest_slug',
+          title: metaTitle,
+          targetKeyword: focusKeyword
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Server error occurred inside Gemini.');
+      }
+
+      const data = await response.json();
+      if (data.text) {
+        try {
+          const parsed = JSON.parse(data.text);
+          if (parsed.slug) {
+            setSuggestedSlug(parsed.slug);
+            setIsSlugManual(true);
+          } else {
+            const clean = data.text.replace(/[^a-zA-Z0-9-]/g, '').toLowerCase();
+            setSuggestedSlug(clean);
+            setIsSlugManual(true);
+          }
+        } catch {
+          const fallbackSlug = data.text
+            .trim()
+            .replace(/["'{}]/g, '')
+            .replace(/\s+/g, '-')
+            .toLowerCase();
+          setSuggestedSlug(fallbackSlug);
+          setIsSlugManual(true);
+        }
+      }
+    } catch (err) {
+      console.error('Error generating slug:', err);
+    } finally {
+      setIsGeneratingSlug(false);
+    }
+  };
   
   // UI States
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -1425,6 +1488,74 @@ export default function SEOOptimizer() {
                 <div className="h-1 bg-[#090a0d] rounded-full overflow-hidden mt-2.5 bg-brand-surface">
                   <div className={`h-full ${currentMetaTitleLengthStatus.progressClr}`} style={{ width: `${currentMetaTitleLengthStatus.width}%` }} />
                 </div>
+              </div>
+
+              {/* AI-Powered Suggested URL Slug */}
+              <div>
+                <div className="flex justify-between items-center mb-1.5">
+                  <div className="flex items-center gap-1.5">
+                    <label htmlFor="input-suggested-slug" className="text-xs font-mono text-gray-400 uppercase">Suggested URL Slug</label>
+                    <span className="bg-[#10b981]/10 text-[#34d399] text-[9px] px-1.5 py-0.5 rounded-full font-mono border border-[#10b981]/20 uppercase tracking-wider font-extrabold flex items-center gap-1">
+                      <Sparkles className="w-2.5 h-2.5 animate-pulse" /> AI Powered
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-mono text-zinc-500 uppercase">
+                    {suggestedSlug.length} chars
+                  </span>
+                </div>
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 font-mono text-xs select-none">/</span>
+                    <input 
+                      id="input-suggested-slug"
+                      type="text"
+                      value={suggestedSlug}
+                      onChange={(e) => {
+                        const cleanVal = e.target.value
+                          .toLowerCase()
+                          .replace(/\s+/g, '-')
+                          .replace(/[^a-z0-9-_]/g, '');
+                        setSuggestedSlug(cleanVal);
+                        setIsSlugManual(true);
+                      }}
+                      placeholder="generating-optimized-slug..."
+                      className="w-full bg-[#0a0b0e] border border-brand-border/50 focus:border-emerald-500/50 rounded-xl pl-6 pr-3.5 py-3 md:py-2.5 text-base md:text-sm text-emerald-400 font-mono focus:outline-none focus:ring-1 focus:ring-emerald-500/40 min-h-[44px] md:min-h-[38px] transition-all"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={generateSuggestedSlug}
+                    disabled={isGeneratingSlug || !metaTitle.trim()}
+                    className="bg-[#111217] hover:bg-[#181920] border border-brand-border/50 hover:border-emerald-500/30 text-zinc-300 hover:text-emerald-400 px-3.5 rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer text-xs font-mono font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    title="Optimize slug with Gemini AI"
+                  >
+                    {isGeneratingSlug ? (
+                      <span className="w-4 h-4 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <Sparkles className="w-4 h-4 text-emerald-400" />
+                    )}
+                    <span className="hidden sm:inline">AI Optimize</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(suggestedSlug);
+                      setCopiedField('slug');
+                      setTimeout(() => setCopiedField(null), 2000);
+                    }}
+                    className="bg-[#111217] hover:bg-[#181920] border border-brand-border/50 text-zinc-300 hover:text-emerald-400 p-2.5 sm:px-3.5 rounded-xl flex items-center justify-center transition-all cursor-pointer"
+                    title="Copy Slug"
+                  >
+                    {copiedField === 'slug' ? (
+                      <Check className="w-4 h-4 text-emerald-400" />
+                    ) : (
+                      <Copy className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
+                <p className="text-[10px] text-zinc-500 font-mono mt-1.5 leading-relaxed">
+                  Hyphenated, keyword-optimized path. Perfect for search indexing crawlers.
+                </p>
               </div>
 
               <div>
