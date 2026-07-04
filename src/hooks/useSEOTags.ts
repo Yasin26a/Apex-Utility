@@ -1647,7 +1647,7 @@ export default function useSEOTags(activeTab: ActiveTab, readingArticle?: Articl
     let canonicalUrl = 'https://apexutility.live';
     if (readingArticle) {
       // Standardize to match sitemap.xml exactly to prevent duplicate page penalties
-      canonicalUrl = `https://apexutility.live/guides?id=${readingArticle.id}`;
+      canonicalUrl = `https://apexutility.live/${readingArticle.id}`;
     } else if (activeTab && activeTab !== 'dashboard') {
       canonicalUrl = `https://apexutility.live/${activeTab}`;
     }

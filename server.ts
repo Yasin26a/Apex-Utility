@@ -44,10 +44,15 @@ async function createServer() {
   // Disable X-Powered-By header to prevent fingerprinting/tech-profiling
   app.disable('x-powered-by');
 
-  // 301 Redirect www.apexutility.live to apexutility.live to prevent duplicate indexing and solve multi-sitemap issues
+  // 301 Redirect alternative hosts and subdomains of apexutility.live to the canonical apexutility.live
   app.use((req, res, next) => {
-    const host = req.headers.host || '';
-    if (host.startsWith('www.apexutility.live')) {
+    const host = (req.headers.host || '').toLowerCase();
+    
+    // Check if the host ends with apexutility.live but is not exactly the canonical 'apexutility.live'
+    const isSubdomainOrAlt = (host.endsWith('apexutility.live') && host !== 'apexutility.live') || 
+                             host.includes('apexutility.com.apexutility.live');
+    
+    if (isSubdomainOrAlt) {
       return res.redirect(301, `https://apexutility.live${req.originalUrl}`);
     }
     next();
@@ -2577,7 +2582,7 @@ Tone Guidelines:
         // Construct canonical tag link URL
         let canonicalUrl = 'https://apexutility.live';
         if (matchedArt) {
-          canonicalUrl = `https://apexutility.live/guides?id=${matchedArt.id}`;
+          canonicalUrl = `https://apexutility.live/${matchedArt.id}`;
         } else if (cleanPath && cleanPath !== 'dashboard') {
           canonicalUrl = `https://apexutility.live/${cleanPath}`;
         }
