@@ -1644,18 +1644,8 @@ export default function useSEOTags(activeTab: ActiveTab, readingArticle?: Articl
     document.head.appendChild(script);
 
     // 6. Dynamic Canonical Link Tag Injection
-    let canonicalUrl = 'https://apexutility.live';
-    if (readingArticle) {
-      // Standardize to match sitemap.xml exactly to prevent duplicate page penalties
-      canonicalUrl = `https://apexutility.live/${readingArticle.id}`;
-    } else if (activeTab && activeTab !== 'dashboard') {
-      canonicalUrl = `https://apexutility.live/${activeTab}`;
-    }
-
-    // Strip trailing slashes to prevent duplicate indexing
-    if (canonicalUrl.endsWith('/') && canonicalUrl !== 'https://apexutility.live') {
-      canonicalUrl = canonicalUrl.slice(0, -1);
-    }
+    // Resolves canonical issues and improves SEO indexing across all subdomains by dynamically setting the href to window.location.href
+    let canonicalUrl = window.location.href;
     injectCanonicalLink(canonicalUrl);
 
     return () => {

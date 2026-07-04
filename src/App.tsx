@@ -727,6 +727,18 @@ export default function App() {
   // Dynamic SEO meta attributes and canonical link tag injection
   useSEOTags(activeTab, readingArticle);
 
+  // Dynamic canonical link tag injection logic inside App component targeting window.location.href to improve cross-subdomain SEO indexing
+  useEffect(() => {
+    let link: HTMLLinkElement | null = document.querySelector('link[rel="canonical"]');
+    if (!link) {
+      link = document.createElement('link');
+      link.setAttribute('rel', 'canonical');
+      document.head.appendChild(link);
+    }
+    // Set canonical link exactly to window.location.href to handle all query and subdomain variants cleanly
+    link.setAttribute('href', window.location.href);
+  }, [activeTab, readingArticle, location]);
+
   // Highlights stored by article ID as an array of highlighted paragraph indices
   const [highlights, setHighlights] = useState<Record<string, number[]>>(() => {
     try {

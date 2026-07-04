@@ -47,10 +47,11 @@ async function createServer() {
   // 301 Redirect alternative hosts and subdomains of apexutility.live to the canonical apexutility.live
   app.use((req, res, next) => {
     const host = (req.headers.host || '').toLowerCase();
+    const hostname = host.split(':')[0]; // Exclude the port number to handle various environment headers cleanly
     
-    // Check if the host ends with apexutility.live but is not exactly the canonical 'apexutility.live'
-    const isSubdomainOrAlt = (host.endsWith('apexutility.live') && host !== 'apexutility.live') || 
-                             host.includes('apexutility.com.apexutility.live');
+    // Check if the hostname ends with apexutility.live but is not exactly the canonical 'apexutility.live'
+    const isSubdomainOrAlt = (hostname.endsWith('apexutility.live') && hostname !== 'apexutility.live') || 
+                             hostname.includes('apexutility.com.apexutility.live');
     
     if (isSubdomainOrAlt) {
       return res.redirect(301, `https://apexutility.live${req.originalUrl}`);
