@@ -61,6 +61,11 @@ async function createServer() {
 
   // Hardened Security Headers Middleware
   app.use((req, res, next) => {
+    // Set 'Link: <url>; rel="canonical"' HTTP response header for robust cross-subdomain canonicalization
+    const cleanPath = req.path.endsWith('/') && req.path.length > 1 ? req.path.slice(0, -1) : req.path;
+    const canonicalHeaderUrl = `https://apexutility.live${cleanPath}`;
+    res.setHeader('Link', `<${canonicalHeaderUrl}>; rel="canonical"`);
+
     // Prevent browser MIME-sniffing
     res.setHeader('X-Content-Type-Options', 'nosniff');
     

@@ -1562,10 +1562,16 @@ export default function useSEOTags(activeTab: ActiveTab, readingArticle?: Articl
     let ogDescription = meta.ogDescription;
     let schemaMarkup = meta.schema;
 
-    // Custom overrides if reading a specific deep article in Guides tab
-    if (activeTab === 'guides' && readingArticle) {
+    // Custom overrides if reading a specific deep article
+    // We specifically prioritize the 'summary' field of articles when available to provide unique content for search snippets across all subdomains.
+    if (readingArticle) {
       title = `${readingArticle.title} | Technical SEO Guides`;
-      description = `${readingArticle.summary || (readingArticle.content && readingArticle.content[0]) || ''} Learn deep workspace insights and dynamic file conversions on Apex Processing Labs.`.substring(0, 160);
+      
+      if (readingArticle.summary && readingArticle.summary.trim() !== '') {
+        description = readingArticle.summary.substring(0, 160);
+      } else {
+        description = `${(readingArticle.content && readingArticle.content[0]) || ''} Learn deep workspace insights and dynamic file conversions on Apex Processing Labs.`.substring(0, 160);
+      }
       
       // Generate some custom article keywords
       const categoryKws = readingArticle.category 
