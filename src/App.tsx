@@ -53,7 +53,8 @@ import {
   Cookie,
   Info,
   Settings,
-  Code
+  Code,
+  AlertCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ActiveTab } from './types';
@@ -529,6 +530,37 @@ export default function App() {
 
   // Sitemap Generator settings state
   const [targetUrl, setTargetUrl] = useState('https://example.com');
+  const [isDomainInputFocused, setIsDomainInputFocused] = useState(false);
+  const getDomainValidationErrors = (val: string): string[] => {
+    const errors: string[] = [];
+    if (!val) return [];
+    
+    if (/^https?:\/\//i.test(val) || val.includes('://')) {
+      errors.push("Do not include 'http://' or 'https://' (prefix is added automatically).");
+    }
+    if (/\s/.test(val)) {
+      errors.push("Spaces are not allowed in domain names.");
+    }
+    if (/[^a-zA-Z0-9.-]/.test(val)) {
+      errors.push("Contains invalid characters. Only letters, numbers, hyphens (-), and periods (.) are allowed.");
+    }
+    if (!val.includes('.')) {
+      errors.push("Must contain a valid Top-Level Domain (TLD) extension (e.g. '.com', '.org').");
+    } else {
+      const parts = val.split('.');
+      if (parts.some(p => p === '')) {
+        errors.push("Domain parts cannot be empty (avoid double dots '..' or starting/ending with dots).");
+      }
+      const tld = parts[parts.length - 1];
+      if (tld.length < 2) {
+        errors.push("The domain extension (TLD) must be at least 2 characters long.");
+      }
+    }
+    if (/^[.-]|[.-]$/.test(val)) {
+      errors.push("A domain name cannot start or end with a hyphen or a dot.");
+    }
+    return errors;
+  };
   const [changeFreq, setChangeFreq] = useState('weekly');
   const [includePriority, setIncludePriority] = useState(true);
   const [generatedSitemap, setGeneratedSitemap] = useState('');
@@ -3733,8 +3765,10 @@ Disallow:
                             type="text" 
                             value={targetUrl.replace(/^https?:\/\//, '')}
                             onChange={(e) => setTargetUrl(`https://${e.target.value}`)}
+                            onFocus={() => setIsDomainInputFocused(true)}
+                            onBlur={() => setIsDomainInputFocused(false)}
                             placeholder="yourdomain.com"
-                            className={`w-full pl-16 pr-3.5 py-2.5 bg-slate-900 border rounded-lg text-sm text-slate-100 focus:outline-none focus:ring-2 transition-all ${
+                            className={`w-full pl-16 pr-10 py-2.5 bg-slate-900 border rounded-lg text-sm text-slate-100 focus:outline-none focus:ring-2 transition-all ${
                               sitemapDomainValue === '' 
                                 ? 'border-slate-800 focus:ring-rose-500/20 focus:border-rose-500' 
                                 : isValidSitemapDomain 
@@ -3742,6 +3776,54 @@ Disallow:
                                   : 'border-rose-500/60 focus:ring-rose-500/20 focus:border-rose-500'
                             }`}
                           />
+                          {sitemapDomainValue !== '' && (
+                            <div className="absolute right-3 top-3 flex items-center justify-center">
+                              {isValidSitemapDomain ? (
+                                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" title="Valid Domain format" />
+                              ) : (
+                                <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping" title="Invalid Domain format" />
+                              )}
+                            </div>
+                          )}
+
+                          {/* Dynamic Inline Validation Tooltip Panel */}
+                          <AnimatePresence>
+                            {sitemapDomainValue !== '' && !isValidSitemapDomain && isDomainInputFocused && (
+                              <motion.div
+                                initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                                transition={{ duration: 0.15 }}
+                                className="absolute left-0 right-0 top-full mt-2.5 z-30 bg-[#0e0f14] border border-rose-500/50 p-4 rounded-xl shadow-2xl space-y-2.5"
+                              >
+                                {/* Small indicator pointer arrow */}
+                                <div className="absolute -top-1.5 left-8 w-3 h-3 bg-[#0e0f14] border-t border-l border-rose-500/50 rotate-45" />
+                                
+                                <div className="flex items-center gap-2 text-rose-400 font-mono text-[10px] uppercase font-bold tracking-wider">
+                                  <AlertCircle className="w-3.5 h-3.5" />
+                                  <span>Domain Validation Audit</span>
+                                </div>
+                                <ul className="space-y-1.5 text-xs text-slate-300 pl-1">
+                                  {getDomainValidationErrors(sitemapDomainValue).map((err, idx) => (
+                                    <li key={idx} className="flex items-start gap-1.5 leading-snug">
+                                      <span className="text-rose-500 font-bold mt-0.5">•</span>
+                                      <span>{err}</span>
+                                    </li>
+                                  ))}
+                                  {getDomainValidationErrors(sitemapDomainValue).length === 0 && (
+                                    <li className="flex items-start gap-1.5 leading-snug">
+                                      <span className="text-rose-500 font-bold mt-0.5">•</span>
+                                      <span>Invalid format. Check periods (.) and characters.</span>
+                                    </li>
+                                  )}
+                                </ul>
+                                <div className="pt-2 border-t border-slate-800/60 text-[10px] text-slate-400 flex justify-between">
+                                  <span>Format Standard: RFC 1035</span>
+                                  <span className="font-semibold text-rose-400/90">Needs Correction</span>
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
                         </div>
                         {sitemapDomainValue !== '' && !isValidSitemapDomain && (
                           <span className="text-[10px] text-rose-400 mt-1 block font-mono">

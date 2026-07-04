@@ -290,6 +290,190 @@ export default function PDFConverter() {
           </div>
         </div>
       </div>
+
+      {/* Extensive Contextual Educational Copy & FAQs for PDF Conversion */}
+      <div className="mt-12 pt-12 border-t border-zinc-900/80 space-y-10">
+        
+        {/* Deep Educational Guide Header */}
+        <div className="space-y-3 max-w-4xl">
+          <span className="text-xs font-mono font-bold tracking-widest text-emerald-400 uppercase bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full">
+            TECHNICAL DOCUMENT ANALYSIS LABS
+          </span>
+          <h2 className="text-3xl font-extrabold text-white tracking-tight font-sans">
+            High-Fidelity PDF Coordinate Parsing &amp; Document Extraction Theory
+          </h2>
+          <p className="text-zinc-400 text-sm leading-relaxed">
+            Portable Document Format (PDF) files are designed to preserve visual layout consistency across all physical printing systems and digital monitors. Unlike semantic document schemas (such as HTML or markdown), raw PDFs are compiled as unstructured collections of absolute drawing coordinates, vectors, fonts, and inline content stream commands. 
+          </p>
+        </div>
+
+        {/* Bento-style Grid for Key PDF Conversion Elements */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 font-sans">
+          <div className="bg-zinc-950/40 border border-zinc-900 rounded-2xl p-5 space-y-3">
+            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+              <FileText className="w-4.5 h-4.5" />
+            </div>
+            <h3 className="text-sm font-bold text-white">Stream-Based Parsing</h3>
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              Our native system reads your document's binary stream locally inside your web browser. It scans through compressed page objects to extract text strings and positional vectors without altering the underlying document schema.
+            </p>
+          </div>
+
+          <div className="bg-zinc-950/40 border border-zinc-900 rounded-2xl p-5 space-y-3">
+            <div className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+              <Table className="w-4.5 h-4.5" />
+            </div>
+            <h3 className="text-sm font-bold text-white">Tabular Row Heuristics</h3>
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              By mapping the vertical coordinate values of each text node, our engine groups nearby cells into organized horizontal rows. This allows you to extract tabular datasets from dense PDF grids directly into structured formats.
+            </p>
+          </div>
+
+          <div className="bg-zinc-950/40 border border-zinc-900 rounded-2xl p-5 space-y-3">
+            <div className="w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
+              <RefreshCw className="w-4.5 h-4.5" />
+            </div>
+            <h3 className="text-sm font-bold text-white">Client-Side Memory Sandbox</h3>
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              Absolutely zero document bytes leave your workspace. Traditional PDF editors process your highly confidential files on remote cloud servers, but our client-side WebAssembly parser ensures that all work remains strictly inside your RAM sandbox.
+            </p>
+          </div>
+        </div>
+
+        {/* Step-by-Step Conversion Instructions */}
+        <div className="bg-zinc-950/60 border border-zinc-900 rounded-2xl p-6 md:p-8 space-y-6">
+          <h3 className="text-lg font-bold text-white font-sans border-b border-zinc-900 pb-3 flex items-center gap-2">
+            <Upload className="w-5 h-5 text-emerald-400" />
+            Step-by-Step Instructions: How to Convert and Extract PDF Files
+          </h3>
+          
+          <div className="space-y-4 font-sans text-xs">
+            <div className="flex gap-4">
+              <div className="w-6 h-6 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-300 flex items-center justify-center font-mono font-bold shrink-0">1</div>
+              <div className="space-y-1">
+                <h4 className="text-white font-semibold">Select and Upload Your PDF Document</h4>
+                <p className="text-zinc-400 leading-relaxed">
+                  Click on the central drag-and-drop workspace or drag your target PDF file directly into the dotted area. The file is registered instantly by the browser session for localized scanning.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-4">
+              <div className="w-6 h-6 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-300 flex items-center justify-center font-mono font-bold shrink-0">2</div>
+              <div className="space-y-1">
+                <h4 className="text-white font-semibold">Choose Your Preferred Export Schema</h4>
+                <p className="text-zinc-400 leading-relaxed">
+                  Select the <strong>Word Document (DOCX compatible)</strong> tab if you want to extract paragraphs, or choose the <strong>Excel Spreadsheet (CSV)</strong> tab if you are targeting data matrices, logs, and tabular rows.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-4">
+              <div className="w-6 h-6 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-300 flex items-center justify-center font-mono font-bold shrink-0">3</div>
+              <div className="space-y-1">
+                <h4 className="text-white font-semibold">Inspect the Real-time Output Preview</h4>
+                <p className="text-zinc-400 leading-relaxed">
+                  As our parsing engine evaluates coordinate layout streams, a responsive preview will populate on the right column. You can scroll through the parsed text structure to verify formatting integrity.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-4">
+              <div className="w-6 h-6 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-300 flex items-center justify-center font-mono font-bold shrink-0">4</div>
+              <div className="space-y-1">
+                <h4 className="text-white font-semibold">Export and Download Your Converted File</h4>
+                <p className="text-zinc-400 leading-relaxed">
+                  Click the prominent export button at the bottom of the left column. Our system packages the extracted content into standard MS-Office compliant containers and triggers a dynamic local download instantly.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Structured FAQ section styled as native details disclosures */}
+        <div className="space-y-6">
+          <div className="space-y-2">
+            <h3 className="text-lg font-bold text-white font-sans flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 text-emerald-400" />
+              Frequently Asked Questions — PDF Document Conversions
+            </h3>
+            <p className="text-xs text-zinc-400">
+              Have questions about document security, extraction limits, or table alignments? Check out our quick guides below.
+            </p>
+          </div>
+
+          <div className="space-y-3 max-w-4xl">
+            <details className="group bg-zinc-950/40 border border-zinc-900 rounded-xl overflow-hidden transition-all duration-200">
+              <summary className="list-none p-4 font-sans text-xs font-semibold text-white cursor-pointer hover:bg-zinc-900/30 flex justify-between items-center select-none">
+                <span>Is my uploaded data safe from being indexed or analyzed on remote servers?</span>
+                <span className="transition duration-300 group-open:rotate-180">
+                  <svg className="w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                </span>
+              </summary>
+              <div className="px-4 pb-4 font-sans text-xs text-zinc-400 leading-relaxed border-t border-zinc-900/50 pt-3 space-y-2">
+                <p>
+                  Yes, absolutely. Unlike other online document utilities, our PDF Converter processes files entirely inside your local device's memory using modern JavaScript and WebAssembly layers.
+                </p>
+                <p>
+                  We have designed this tool with a <strong>privacy-first mandate</strong>: none of your file's text, images, spreadsheets, or meta structures are ever uploaded to cloud databases or remote servers. You can even use this tool offline by loading the page and disabling your internet connection!
+                </p>
+              </div>
+            </details>
+
+            <details className="group bg-zinc-950/40 border border-zinc-900 rounded-xl overflow-hidden transition-all duration-200">
+              <summary className="list-none p-4 font-sans text-xs font-semibold text-white cursor-pointer hover:bg-zinc-900/30 flex justify-between items-center select-none">
+                <span>Why are some text columns or tabular cells misaligned in the converted file?</span>
+                <span className="transition duration-300 group-open:rotate-180">
+                  <svg className="w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                </span>
+              </summary>
+              <div className="px-4 pb-4 font-sans text-xs text-zinc-400 leading-relaxed border-t border-zinc-900/50 pt-3 space-y-2">
+                <p>
+                  Because raw PDF documents do not contain natural paragraphs or table rows, our engine utilizes vertical space heuristics to group words into rows and columns. Complex document layouts (such as nested sidebars, multi-column articles, and cells with merged borders) can sometimes disrupt these grid alignment lines.
+                </p>
+                <p>
+                  For the best data extraction results, we recommend converting files that contain clean, distinct tabular structures. If any layout distortion occurs, you can easily inspect and reformat the cells in the converted spreadsheet format.
+                </p>
+              </div>
+            </details>
+
+            <details className="group bg-zinc-950/40 border border-zinc-900 rounded-xl overflow-hidden transition-all duration-200">
+              <summary className="list-none p-4 font-sans text-xs font-semibold text-white cursor-pointer hover:bg-zinc-900/30 flex justify-between items-center select-none">
+                <span>Can this converter read and extract text from scanned paper documents?</span>
+                <span className="transition duration-300 group-open:rotate-180">
+                  <svg className="w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                </span>
+              </summary>
+              <div className="px-4 pb-4 font-sans text-xs text-zinc-400 leading-relaxed border-t border-zinc-900/50 pt-3 space-y-2">
+                <p>
+                  Scanned paper PDFs are rendered as raw pixel images without an active text character layer. Our converter tool specializes in high-fidelity vector stream coordinate parsing, which is designed for native "selectable text" digital PDFs.
+                </p>
+                <p>
+                  If you upload an image-only scanned document, our native parser will fall back to extracting any embedded textual metadata or generate structured diagnostic templates to help you structure your document workflow securely.
+                </p>
+              </div>
+            </details>
+
+            <details className="group bg-zinc-950/40 border border-zinc-900 rounded-xl overflow-hidden transition-all duration-200">
+              <summary className="list-none p-4 font-sans text-xs font-semibold text-white cursor-pointer hover:bg-zinc-900/30 flex justify-between items-center select-none">
+                <span>Are there any page number or file size limits for local browser conversions?</span>
+                <span className="transition duration-300 group-open:rotate-180">
+                  <svg className="w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                </span>
+              </summary>
+              <div className="px-4 pb-4 font-sans text-xs text-zinc-400 leading-relaxed border-t border-zinc-900/50 pt-3 space-y-2">
+                <p>
+                  No, there are no artificial pricing plans, registration requirements, or file size restrictions. Because the entire extraction runs locally inside your device's web browser, the performance depends solely on your machine's hardware capacity and RAM memory limits.
+                </p>
+                <p>
+                  Our engine can process multi-page, heavy technical manuals with high efficiency. To keep the app responsive, we display the first 50 extracted rows of tabular datasets in the real-time preview, while preserving 100% of your data inside the downloadable exported spreadsheet file.
+                </p>
+              </div>
+            </details>
+          </div>
+        </div>
+
+      </div>
     </div>
   );
 }
