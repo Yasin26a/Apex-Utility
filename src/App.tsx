@@ -54,7 +54,9 @@ import {
   Info,
   Settings,
   Code,
-  AlertCircle
+  AlertCircle,
+  Lock,
+  Unlock
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ActiveTab } from './types';
@@ -530,6 +532,7 @@ export default function App() {
 
   // Sitemap Generator settings state
   const [targetUrl, setTargetUrl] = useState('https://example.com');
+  const [rawSitemapInput, setRawSitemapInput] = useState('example.com');
   const [isDomainInputFocused, setIsDomainInputFocused] = useState(false);
   const getDomainValidationErrors = (val: string): string[] => {
     const errors: string[] = [];
@@ -561,6 +564,29 @@ export default function App() {
     }
     return errors;
   };
+
+  const handleSitemapInputChange = (val: string) => {
+    setRawSitemapInput(val);
+    const trimmed = val.trim();
+    if (trimmed === '') {
+      setTargetUrl('');
+      return;
+    }
+    if (/^https?:\/\//i.test(trimmed)) {
+      setTargetUrl(trimmed);
+    } else {
+      setTargetUrl(`https://${trimmed}`);
+    }
+  };
+
+  const handleSitemapInputBlur = () => {
+    setIsDomainInputFocused(false);
+    const trimmed = rawSitemapInput.trim();
+    if (trimmed !== '' && !/^https?:\/\//i.test(trimmed)) {
+      setRawSitemapInput(`https://${trimmed}`);
+    }
+  };
+
   const [changeFreq, setChangeFreq] = useState('weekly');
   const [includePriority, setIncludePriority] = useState(true);
   const [generatedSitemap, setGeneratedSitemap] = useState('');
@@ -2285,6 +2311,10 @@ Disallow:
   const sitemapDomainRegex = /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$/i;
   const isValidSitemapDomain = sitemapDomainValue !== '' && sitemapDomainRegex.test(sitemapDomainValue);
 
+  const isProtocolAutoPrepended = !/^https?:\/\//i.test(rawSitemapInput.trim()) && rawSitemapInput.trim() !== '';
+  const hasHttpsProtocolExplicit = /^https:\/\//i.test(rawSitemapInput.trim());
+  const hasHttpProtocolExplicit = /^http:\/\//i.test(rawSitemapInput.trim());
+
   return (
     <div className="h-screen overflow-hidden bg-black text-zinc-100 flex flex-col font-sans selection:bg-brand selection:text-white relative">
       {/* Global Share Toast Notification */}
@@ -3760,15 +3790,38 @@ Disallow:
                           Target Live URL Domain
                         </label>
                         <div className="relative">
-                          <span className="absolute left-3.5 top-2.5 text-xs text-slate-500 font-mono">http://</span>
+                          {/* Interactive Protocol Indicators */}
+                          {isProtocolAutoPrepended && (
+                            <div className="absolute left-2.5 top-2.5 flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-[10px] text-emerald-400 font-mono font-semibold uppercase select-none">
+                              <Lock className="w-3 h-3 text-emerald-400 shrink-0" />
+                              <span>https://</span>
+                            </div>
+                          )}
+                          {hasHttpsProtocolExplicit && (
+                            <div className="absolute left-3 top-3 text-emerald-400 select-none" title="Secure Connection Verified">
+                              <Lock className="w-3.5 h-3.5" />
+                            </div>
+                          )}
+                          {hasHttpProtocolExplicit && (
+                            <div className="absolute left-3 top-3 text-amber-500 select-none" title="Unsecure HTTP Protocol Entered">
+                              <Unlock className="w-3.5 h-3.5" />
+                            </div>
+                          )}
+
                           <input 
                             type="text" 
-                            value={targetUrl.replace(/^https?:\/\//, '')}
-                            onChange={(e) => setTargetUrl(`https://${e.target.value}`)}
+                            value={rawSitemapInput}
+                            onChange={(e) => handleSitemapInputChange(e.target.value)}
                             onFocus={() => setIsDomainInputFocused(true)}
-                            onBlur={() => setIsDomainInputFocused(false)}
+                            onBlur={handleSitemapInputBlur}
                             placeholder="yourdomain.com"
-                            className={`w-full pl-16 pr-10 py-2.5 bg-slate-900 border rounded-lg text-sm text-slate-100 focus:outline-none focus:ring-2 transition-all ${
+                            className={`w-full pr-10 py-2.5 bg-slate-900 border rounded-lg text-sm text-slate-100 focus:outline-none focus:ring-2 transition-all ${
+                              isProtocolAutoPrepended 
+                                ? 'pl-[74px]' 
+                                : (hasHttpsProtocolExplicit || hasHttpProtocolExplicit) 
+                                  ? 'pl-9' 
+                                  : 'pl-3.5'
+                            } ${
                               sitemapDomainValue === '' 
                                 ? 'border-slate-800 focus:ring-rose-500/20 focus:border-rose-500' 
                                 : isValidSitemapDomain 
@@ -3831,11 +3884,31 @@ Disallow:
                           </span>
                         )}
                         {sitemapDomainValue !== '' && isValidSitemapDomain && (
-                          <span className="text-[10px] text-emerald-400 mt-1 block font-mono">
-                            ✓ Domain format verified. Ready to calculate.
-                          </span>
+                          <div className="mt-1.5 flex flex-wrap gap-1.5 items-center">
+                            <span className="text-[10px] text-emerald-400 font-mono">
+                              ✓ Domain format verified. Ready to calculate.
+                            </span>
+                            {isProtocolAutoPrepended && (
+                              <span className="text-[9px] bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded text-emerald-400 font-mono inline-flex items-center gap-0.5 select-none animate-pulse">
+                                <Lock className="w-2.5 h-2.5 shrink-0" />
+                                https:// Auto-Prepended
+                              </span>
+                            )}
+                            {hasHttpsProtocolExplicit && (
+                              <span className="text-[9px] bg-indigo-500/10 border border-indigo-500/20 px-1.5 py-0.5 rounded text-indigo-400 font-mono inline-flex items-center gap-0.5 select-none">
+                                <Lock className="w-2.5 h-2.5 shrink-0" />
+                                Secure HTTPS Active
+                              </span>
+                            )}
+                            {hasHttpProtocolExplicit && (
+                              <span className="text-[9px] bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded text-amber-400 font-mono inline-flex items-center gap-0.5 select-none">
+                                <Unlock className="w-2.5 h-2.5 shrink-0" />
+                                HTTP Protocol Active
+                              </span>
+                            )}
+                          </div>
                         )}
-                        <span className="text-[10px] text-slate-500 mt-1 block">Your new domain (e.g. bought on June 12, 2026).</span>
+                        <span className="text-[10px] text-slate-500 mt-1 block">Your target live URL domain (secure protocol auto-applies if omitted).</span>
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
