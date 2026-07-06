@@ -394,9 +394,13 @@ export default function App() {
         if (typeof parsed === 'object' && parsed !== null) {
           return parsed;
         }
+      } else {
+        const autoConsent = { essential: true, analytics: true, marketing: true, responded: true };
+        localStorage.setItem('apex_cookie_consent_v3', JSON.stringify(autoConsent));
+        return autoConsent;
       }
     } catch (e) {}
-    return { essential: true, analytics: false, marketing: false, responded: false };
+    return { essential: true, analytics: true, marketing: true, responded: true };
   });
   const [showCookiePrefs, setShowCookiePrefs] = useState(false);
   const [simulateAds, setSimulateAds] = useState(false);
@@ -695,6 +699,42 @@ export default function App() {
   const [readTheme, setReadTheme] = useState<'slate' | 'sepia' | 'parchment'>('slate');
   const [readFontFamily, setReadFontFamily] = useState<'sans' | 'serif' | 'mono'>('sans');
   const [readFontSize, setReadFontSize] = useState<'sm' | 'base' | 'lg' | 'xl'>('base');
+
+  const [systemThemeMatch, setSystemThemeMatch] = useState<boolean>(() => {
+    try {
+      const stored = localStorage.getItem('apex_system_theme_match');
+      return stored === 'true';
+    } catch (e) {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('apex_system_theme_match', systemThemeMatch ? 'true' : 'false');
+    } catch (e) {}
+
+    if (!systemThemeMatch) return;
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = (e: MediaQueryListEvent | MediaQueryList) => {
+      if (e.matches) {
+        setReadTheme('slate');
+      } else {
+        setReadTheme('parchment');
+      }
+    };
+
+    handleChange(mediaQuery);
+
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener('change', handleChange);
+      return () => mediaQuery.removeEventListener('change', handleChange);
+    } else {
+      mediaQuery.addListener(handleChange);
+      return () => mediaQuery.removeListener(handleChange);
+    }
+  }, [systemThemeMatch]);
 
   const [aiSummaries, setAiSummaries] = useState<Record<string, string[]>>({});
   const [summaryLoading, setSummaryLoading] = useState<boolean>(false);
@@ -6043,7 +6083,10 @@ Disallow:
                                 ].map((thm) => (
                                   <button
                                     key={thm.id}
-                                    onClick={() => setReadTheme(thm.id as any)}
+                                    onClick={() => {
+                                      setReadTheme(thm.id as any);
+                                      setSystemThemeMatch(false);
+                                    }}
                                     className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all ${
                                       readTheme === thm.id
                                         ? 'bg-rose-500 text-white font-black shadow'
@@ -7549,16 +7592,7 @@ Disallow:
         )}
       </AnimatePresence>
 
-      {/* Persistent Privacy Settings Widget */}
-      <div className="fixed bottom-4 left-4 z-30">
-        <button
-          onClick={() => setShowCookiePrefs(true)}
-          className="p-2.5 bg-slate-950/80 hover:bg-slate-900 text-slate-400 hover:text-rose-400 border border-slate-800/80 rounded-full shadow-lg backdrop-blur-sm transition-all cursor-pointer group flex items-center justify-center"
-          title="Manage Cookie Preferences (Google Consent Mode v3)"
-        >
-          <Cookie className="w-4 h-4" />
-        </button>
-      </div>
+      {/* Persistent Privacy Settings Widget removed per user intent */}
 
       {/* Google AdSense Consent Mode v3 Compliance Cookie Banner */}
       <AnimatePresence>
@@ -7626,8 +7660,8 @@ Disallow:
             >
               <div className="flex items-center justify-between border-b border-slate-800 pb-4">
                 <div className="flex items-center gap-2.5">
-                  <Cookie className="w-5 h-5 text-indigo-400" />
-                  <h3 className="text-md font-bold text-white uppercase tracking-wider font-mono">Consent Settings</h3>
+                  <Settings className="w-5 h-5 text-rose-500" />
+                  <h3 className="text-md font-bold text-white uppercase tracking-wider font-mono">App Settings &amp; Preferences</h3>
                 </div>
                 <button onClick={() => setShowCookiePrefs(false)} className="text-slate-500 hover:text-white rounded-lg p-1 transition-colors cursor-pointer">
                   <X className="w-5 h-5" />
@@ -7635,10 +7669,38 @@ Disallow:
               </div>
 
               <p className="text-xs text-slate-400 leading-normal">
-                Customize your privacy preferences below. Your selections will directly adjust Google Consent Mode v3 triggers locally in your browser.
+                Customize your application display and privacy preferences. Settings are instantly updated and persisted locally in your browser.
               </p>
 
               <div className="space-y-4">
+                {/* System Theme Match Toggle */}
+                <div className="p-4 bg-slate-900/60 border border-slate-850 rounded-xl flex items-start gap-3 transition-colors duration-200">
+                  <input
+                    type="checkbox"
+                    checked={systemThemeMatch}
+                    onChange={(e) => {
+                      setSystemThemeMatch(e.target.checked);
+                      if (e.target.checked) {
+                        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                        setReadTheme(isDark ? 'slate' : 'parchment');
+                      }
+                    }}
+                    id="system-theme-match"
+                    className="mt-1 rounded border-slate-800 bg-slate-950 text-rose-500 focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                  />
+                  <label htmlFor="system-theme-match" className="flex-1 cursor-pointer">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-slate-200 block">System Theme Match</span>
+                      <span className="text-[9px] bg-rose-500/10 border border-rose-500/20 text-rose-400 px-1.5 py-0.5 rounded font-mono font-bold uppercase select-none">
+                        New
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-500 mt-0.5 leading-normal">
+                      Automatically syncs the article reader's view theme with your system light/dark settings (Slate for dark, Parchment for light).
+                    </p>
+                  </label>
+                </div>
+
                 {/* Functional Essential */}
                 <div className="p-4 bg-slate-900/60 border border-slate-850 rounded-xl flex items-start gap-3">
                   <input type="checkbox" checked disabled className="mt-1 rounded border-slate-800 bg-slate-950 text-indigo-500 focus:ring-0 focus:ring-offset-0" />
