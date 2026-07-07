@@ -19,6 +19,34 @@ const PALETTES = [
   { name: 'Monochrome inverted', fore: '#ffffff', back: '#0c0a09' }
 ];
 
+// Predefined Visual Themes for QR codes
+const QR_THEMES = [
+  {
+    id: 'modern-minimal',
+    name: 'Modern Minimal',
+    description: 'Clean slate-900 foreground with fresh slate-50 backdrop.',
+    fore: '#0f172a',
+    back: '#f8fafc',
+    iconClass: 'bg-slate-200 border-slate-300 text-slate-855'
+  },
+  {
+    id: 'bold-contrast',
+    name: 'Bold Contrast',
+    description: 'Stark white elements structured on a deep onyx black foundation.',
+    fore: '#ffffff',
+    back: '#09090b',
+    iconClass: 'bg-zinc-800 border-zinc-700 text-white'
+  },
+  {
+    id: 'vibrant-gradient',
+    name: 'Vibrant Gradient',
+    description: 'Luminous rose highlight atop a dark mystical indigo sky.',
+    fore: '#f43f5e',
+    back: '#1e1b4b',
+    iconClass: 'bg-indigo-950 border-indigo-800 text-rose-400'
+  }
+];
+
 export default function QRCodeGenerator() {
   const { activeSettings, updateActiveSettings } = usePresets();
 
@@ -971,6 +999,63 @@ export default function QRCodeGenerator() {
             <div className="flex items-center gap-1.5 text-zinc-500">
               <Palette className="w-3.5 h-3.5 text-brand" />
               <span className="text-[10px] font-mono">Hex Controls</span>
+            </div>
+          </div>
+
+          {/* Predefined Visual Themes */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider block">Predefined Visual Themes</span>
+              <span className="text-[9px] bg-rose-500/10 text-rose-400 border border-rose-500/20 px-1.5 py-0.5 rounded font-mono">Theme Engine</span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {QR_THEMES.map((theme) => {
+                const isActive = foreColor.toLowerCase() === theme.fore.toLowerCase() && bgColor.toLowerCase() === theme.back.toLowerCase();
+                return (
+                  <button
+                    key={theme.id}
+                    type="button"
+                    onClick={() => {
+                      setForeColor(theme.fore);
+                      setBgColor(theme.back);
+                      triggerNotification(`Theme applied: ${theme.name}`, 'success');
+                    }}
+                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer relative overflow-hidden group ${
+                      isActive 
+                        ? 'bg-rose-500/10 border-rose-500/50 shadow-lg shadow-rose-500/5' 
+                        : 'bg-zinc-950/60 border-zinc-850 hover:border-zinc-700 hover:bg-zinc-900/40'
+                    }`}
+                  >
+                    {/* Visual Preview circles */}
+                    <div className="absolute right-2 top-2.5 flex items-center -space-x-1">
+                      <div 
+                        className="w-3 h-3 rounded-full border border-zinc-800 shadow" 
+                        style={{ backgroundColor: theme.fore }}
+                      />
+                      <div 
+                        className="w-3 h-3 rounded-full border border-zinc-800 shadow" 
+                        style={{ backgroundColor: theme.back }}
+                      />
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <div className={`p-1 rounded-lg border ${theme.iconClass}`}>
+                        <Sparkles className="w-3 h-3" />
+                      </div>
+                      <span className="text-xs font-semibold text-zinc-200 group-hover:text-white transition-colors">
+                        {theme.name}
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-zinc-500 mt-2 leading-normal">
+                      {theme.description}
+                    </p>
+                    
+                    {isActive && (
+                      <div className="absolute bottom-0 right-0 w-2 h-2 bg-rose-500 rounded-tl-md" />
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
 

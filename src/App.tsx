@@ -83,6 +83,8 @@ const SocialMediaHookGenerator = lazy(() => import('./components/SocialMediaHook
 const AICodeExplainerTranslator = lazy(() => import('./components/AICodeExplainerTranslator'));
 const VideoRecorder = lazy(() => import('./components/VideoRecorder'));
 import { Document as PDFDocumentView, Page as PDFPageView, pdfjs } from 'react-pdf';
+import * as pdfjsLib from 'pdfjs-dist';
+import Tesseract from 'tesseract.js';
 
 if (typeof window !== 'undefined') {
   pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
@@ -605,14 +607,31 @@ export default function App() {
   const [stripMetadata, setStripMetadata] = useState(true);
   const [downscaleImages, setDownscaleImages] = useState(true);
   const [cleanStructure, setCleanStructure] = useState(true);
+  const [performOcr, setPerformOcr] = useState(false);
+  const [ocrLanguage, setOcrLanguage] = useState<'eng' | 'spa' | 'fra' | 'deu'>('eng');
   const [isDragging, setIsDragging] = useState(false);
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [isFileReading, setIsFileReading] = useState(false);
   const [optimizingProgress, setOptimizingProgress] = useState(0);
-  const [optimizingLogs, setOptimizingLogs] = useState<string[]>([]);
+  const [optimizingLogs, setOptimizingLogs] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('apex_pdf_optimizer_logs');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
   const [optimizedBlobUrl, setOptimizedBlobUrl] = useState<string | null>(null);
   const [optimizedSize, setOptimizedSize] = useState(0);
   const [originalSize, setOriginalSize] = useState(0);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('apex_pdf_optimizer_logs', JSON.stringify(optimizingLogs));
+    } catch (e) {
+      console.error("Failed to save PDF Optimizer logs to localStorage:", e);
+    }
+  }, [optimizingLogs]);
 
   // Watermark States for Single PDF Optimizer
   const [watermarkEnabled, setWatermarkEnabled] = useState(false);
@@ -2027,221 +2046,277 @@ Disallow:
 
       let processedPdfBytes = outputBytes.slice(0, targetSize);
 
-      if (watermarkEnabled) {
-        addLog("Applying customized document watermark overlays...");
+      if (watermarkEnabled || performOcr) {
+        addLog("Applying customized document layers...");
         try {
           const { PDFDocument: LibPDFDoc, degrees: LibDegrees, rgb: LibRgb } = await import('pdf-lib');
           const pdfDoc = await LibPDFDoc.load(processedPdfBytes);
-          
-          let embeddedImage: any = null;
-          let imageWidth = 0;
-          let imageHeight = 0;
+          const pages = pdfDoc.getPages();
 
-          if (watermarkType === 'image' && watermarkImageFile) {
-            addLog("Formulating high-definition png canvas matrix for image watermark...");
-            const pngBytes = await new Promise<ArrayBuffer>((resolve, reject) => {
-              const reader = new FileReader();
-              reader.onload = (e) => {
-                const img = new Image();
-                img.onload = () => {
-                  const canvas = document.createElement('canvas');
-                  canvas.width = img.width;
-                  canvas.height = img.height;
-                  const ctx = canvas.getContext('2d');
-                  if (!ctx) { reject(new Error('Could not get Canvas context')); return; }
-                  ctx.drawImage(img, 0, 0);
-                  canvas.toBlob((blob) => {
-                    if (!blob) { reject(new Error('Canvas to blob failed')); return; }
-                    const fileReader = new FileReader();
-                    fileReader.onload = () => {
-                      if (fileReader.result instanceof ArrayBuffer) {
-                        resolve(fileReader.result);
-                      } else {
-                        reject(new Error('Failed to convert blob to ArrayBuffer'));
-                      }
-                    };
-                    fileReader.onerror = () => reject(new Error('Blob read error'));
-                    fileReader.readAsArrayBuffer(blob);
-                  }, 'image/png');
-                };
-                img.onerror = () => reject(new Error('Image load failed'));
-                img.src = e.target?.result as string;
-              };
-              reader.onerror = () => reject(new Error('FileReader failed'));
-              reader.readAsDataURL(watermarkImageFile);
-            });
+          if (performOcr) {
+            addLog(`Initiating Tesseract OCR Engine (Language: ${ocrLanguage.toUpperCase()})...`);
+            try {
+              pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
+              const pdfjsDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
 
-            embeddedImage = await pdfDoc.embedPng(pngBytes);
-            imageWidth = embeddedImage.width * watermarkImageScale * 0.25;
-            imageHeight = embeddedImage.height * watermarkImageScale * 0.25;
-          }
+              for (let pageIdx = 0; pageIdx < pages.length; pageIdx++) {
+                addLog(`Performing OCR text extraction on page ${pageIdx + 1} of ${pages.length}...`);
+                const page = pages[pageIdx];
+                const { width: pdfWidth, height: pdfHeight } = page.getSize();
 
-          let colorRgb = LibRgb(0.9, 0.1, 0.1); // default
-          if (watermarkTextColor) {
-            const hex = watermarkTextColor.replace('#', '');
-            const r = parseInt(hex.substring(0, 2), 16) / 255;
-            const g = parseInt(hex.substring(2, 4), 16) / 255;
-            const b = parseInt(hex.substring(4, 6), 16) / 255;
-            if (!isNaN(r) && !isNaN(g) && !isNaN(b)) {
-              colorRgb = LibRgb(r, g, b);
+                const pdfjsPage = await pdfjsDoc.getPage(pageIdx + 1);
+                const viewport = pdfjsPage.getViewport({ scale: 2.0 });
+
+                const canvas = document.createElement('canvas');
+                canvas.width = viewport.width;
+                canvas.height = viewport.height;
+                const ctx = canvas.getContext('2d');
+                if (ctx) {
+                  await pdfjsPage.render({ canvasContext: ctx, viewport } as any).promise;
+
+                  const ocrResult = (await Tesseract.recognize(canvas, ocrLanguage)) as any;
+                  const words = ocrResult.data.words || [];
+                  addLog(`OCR Page ${pageIdx + 1}: Found ${words.length} searchable words.`);
+
+                  const scaleX = pdfWidth / canvas.width;
+                  const scaleY = pdfHeight / canvas.height;
+
+                  for (const word of words) {
+                    const bbox = word.bbox;
+                    const wordHeight = (bbox.y1 - bbox.y0) * scaleY;
+                    const x = bbox.x0 * scaleX;
+                    const y = pdfHeight - (bbox.y1 * scaleY);
+
+                    try {
+                      page.drawText(word.text, {
+                        x: x,
+                        y: y,
+                        size: Math.max(4, wordHeight * 0.9),
+                        opacity: 0.001,
+                      });
+                    } catch (drawErr) {
+                      // Silently skip characters that pdf-lib cannot render
+                    }
+                  }
+                }
+              }
+              addLog("Completed OCR layout synthesis. Text layers successfully appended.");
+            } catch (ocrErr: any) {
+              console.error("OCR process failed", ocrErr);
+              addLog(`OCR text extraction skipped: ${ocrErr.message || ocrErr}`);
             }
           }
 
-          const pages = pdfDoc.getPages();
-          addLog(`Scanning page tree (${pages.length} pages found). Overlaying watermarks...`);
+          if (watermarkEnabled) {
+            let embeddedImage: any = null;
+            let imageWidth = 0;
+            let imageHeight = 0;
 
-          for (let pageNum = 0; pageNum < pages.length; pageNum++) {
-            let isApplicable = false;
-            if (watermarkRange === 'all') {
-              isApplicable = true;
-            } else if (watermarkRange === 'first') {
-              isApplicable = (pageNum === 0);
-            } else if (watermarkRange === 'custom' && watermarkCustomRange) {
-              const parts = watermarkCustomRange.split(',');
-              for (const part of parts) {
-                const cleanPart = part.trim();
-                if (cleanPart.includes('-')) {
-                  const [startStr, endStr] = cleanPart.split('-');
-                  const start = parseInt(startStr.trim(), 10);
-                  const end = parseInt(endStr.trim(), 10);
-                  if (!isNaN(start) && !isNaN(end)) {
-                    const pageNum1 = pageNum + 1;
-                    if (pageNum1 >= start && pageNum1 <= end) {
+            if (watermarkType === 'image' && watermarkImageFile) {
+              addLog("Formulating high-definition png canvas matrix for image watermark...");
+              const pngBytes = await new Promise<ArrayBuffer>((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                  const img = new Image();
+                  img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    if (!ctx) { reject(new Error('Could not get Canvas context')); return; }
+                    ctx.drawImage(img, 0, 0);
+                    canvas.toBlob((blob) => {
+                      if (!blob) { reject(new Error('Canvas to blob failed')); return; }
+                      const fileReader = new FileReader();
+                      fileReader.onload = () => {
+                        if (fileReader.result instanceof ArrayBuffer) {
+                          resolve(fileReader.result);
+                        } else {
+                          reject(new Error('Failed to convert blob to ArrayBuffer'));
+                        }
+                      };
+                      fileReader.onerror = () => reject(new Error('Blob read error'));
+                      fileReader.readAsArrayBuffer(blob);
+                    }, 'image/png');
+                  };
+                  img.onerror = () => reject(new Error('Image load failed'));
+                  img.src = e.target?.result as string;
+                };
+                reader.onerror = () => reject(new Error('FileReader failed'));
+                reader.readAsDataURL(watermarkImageFile);
+              });
+
+              embeddedImage = await pdfDoc.embedPng(pngBytes);
+              imageWidth = embeddedImage.width * watermarkImageScale * 0.25;
+              imageHeight = embeddedImage.height * watermarkImageScale * 0.25;
+            }
+
+            let colorRgb = LibRgb(0.9, 0.1, 0.1); // default
+            if (watermarkTextColor) {
+              const hex = watermarkTextColor.replace('#', '');
+              const r = parseInt(hex.substring(0, 2), 16) / 255;
+              const g = parseInt(hex.substring(2, 4), 16) / 255;
+              const b = parseInt(hex.substring(4, 6), 16) / 255;
+              if (!isNaN(r) && !isNaN(g) && !isNaN(b)) {
+                colorRgb = LibRgb(r, g, b);
+              }
+            }
+
+            addLog(`Scanning page tree (${pages.length} pages found). Overlaying watermarks...`);
+
+            for (let pageNum = 0; pageNum < pages.length; pageNum++) {
+              let isApplicable = false;
+              if (watermarkRange === 'all') {
+                isApplicable = true;
+              } else if (watermarkRange === 'first') {
+                isApplicable = (pageNum === 0);
+              } else if (watermarkRange === 'custom' && watermarkCustomRange) {
+                const parts = watermarkCustomRange.split(',');
+                for (const part of parts) {
+                  const cleanPart = part.trim();
+                  if (cleanPart.includes('-')) {
+                    const [startStr, endStr] = cleanPart.split('-');
+                    const start = parseInt(startStr.trim(), 10);
+                    const end = parseInt(endStr.trim(), 10);
+                    if (!isNaN(start) && !isNaN(end)) {
+                      const pageNum1 = pageNum + 1;
+                      if (pageNum1 >= start && pageNum1 <= end) {
+                        isApplicable = true;
+                      }
+                    }
+                  } else {
+                    const val = parseInt(cleanPart, 10);
+                    if (!isNaN(val) && pageNum + 1 === val) {
                       isApplicable = true;
                     }
                   }
+                }
+              }
+
+              if (!isApplicable) continue;
+
+              const page = pages[pageNum];
+              const { width, height } = page.getSize();
+
+              if (watermarkType === 'text' && watermarkText) {
+                const textWidth = watermarkText.length * (watermarkFontSize * 0.55);
+                const textHeight = watermarkFontSize;
+
+                if (watermarkPosition === 'tiled') {
+                  const stepX = Math.max(160, textWidth * 1.5);
+                  const stepY = Math.max(120, textHeight * 2.5);
+                  for (let x = 40; x < width; x += stepX) {
+                    for (let y = 40; y < height; y += stepY) {
+                      page.drawText(watermarkText, {
+                        x,
+                        y,
+                        size: watermarkFontSize,
+                        color: colorRgb,
+                        opacity: watermarkOpacity,
+                        rotate: LibDegrees(watermarkRotation),
+                      });
+                    }
+                  }
                 } else {
-                  const val = parseInt(cleanPart, 10);
-                  if (!isNaN(val) && pageNum + 1 === val) {
-                    isApplicable = true;
+                  let posX = 0;
+                  let posY = 0;
+                  switch (watermarkPosition) {
+                    case 'center':
+                      posX = (width - textWidth) / 2;
+                      posY = (height - textHeight) / 2;
+                      break;
+                    case 'top-left':
+                      posX = 40;
+                      posY = height - 60;
+                      break;
+                    case 'top-right':
+                      posX = width - textWidth - 40;
+                      posY = height - 60;
+                      break;
+                    case 'bottom-left':
+                      posX = 40;
+                      posY = 60;
+                      break;
+                    case 'bottom-right':
+                      posX = width - textWidth - 40;
+                      posY = 60;
+                      break;
                   }
-                }
-              }
-            }
 
-            if (!isApplicable) continue;
-
-            const page = pages[pageNum];
-            const { width, height } = page.getSize();
-
-            if (watermarkType === 'text' && watermarkText) {
-              const textWidth = watermarkText.length * (watermarkFontSize * 0.55);
-              const textHeight = watermarkFontSize;
-
-              if (watermarkPosition === 'tiled') {
-                const stepX = Math.max(160, textWidth * 1.5);
-                const stepY = Math.max(120, textHeight * 2.5);
-                for (let x = 40; x < width; x += stepX) {
-                  for (let y = 40; y < height; y += stepY) {
-                    page.drawText(watermarkText, {
-                      x,
-                      y,
-                      size: watermarkFontSize,
-                      color: colorRgb,
-                      opacity: watermarkOpacity,
-                      rotate: LibDegrees(watermarkRotation),
-                    });
+                  if (watermarkPosition === 'center' && watermarkRotation !== 0) {
+                    posX = width / 2 - (Math.cos(watermarkRotation * Math.PI / 180) * textWidth / 2);
+                    posY = height / 2 - (Math.sin(watermarkRotation * Math.PI / 180) * textHeight / 2);
                   }
-                }
-              } else {
-                let posX = 0;
-                let posY = 0;
-                switch (watermarkPosition) {
-                  case 'center':
-                    posX = (width - textWidth) / 2;
-                    posY = (height - textHeight) / 2;
-                    break;
-                  case 'top-left':
-                    posX = 40;
-                    posY = height - 60;
-                    break;
-                  case 'top-right':
-                    posX = width - textWidth - 40;
-                    posY = height - 60;
-                    break;
-                  case 'bottom-left':
-                    posX = 40;
-                    posY = 60;
-                    break;
-                  case 'bottom-right':
-                    posX = width - textWidth - 40;
-                    posY = 60;
-                    break;
-                }
 
-                if (watermarkPosition === 'center' && watermarkRotation !== 0) {
-                  posX = width / 2 - (Math.cos(watermarkRotation * Math.PI / 180) * textWidth / 2);
-                  posY = height / 2 - (Math.sin(watermarkRotation * Math.PI / 180) * textHeight / 2);
+                  page.drawText(watermarkText, {
+                    x: posX,
+                    y: posY,
+                    size: watermarkFontSize,
+                    color: colorRgb,
+                    opacity: watermarkOpacity,
+                    rotate: LibDegrees(watermarkRotation),
+                  });
                 }
-
-                page.drawText(watermarkText, {
-                  x: posX,
-                  y: posY,
-                  size: watermarkFontSize,
-                  color: colorRgb,
-                  opacity: watermarkOpacity,
-                  rotate: LibDegrees(watermarkRotation),
-                });
-              }
-            } else if (watermarkType === 'image' && embeddedImage) {
-              if (watermarkPosition === 'tiled') {
-                const stepX = Math.max(160, imageWidth * 1.8);
-                const stepY = Math.max(160, imageHeight * 1.8);
-                for (let x = 30; x < width; x += stepX) {
-                  for (let y = 30; y < height; y += stepY) {
-                    page.drawImage(embeddedImage, {
-                      x,
-                      y,
-                      width: imageWidth,
-                      height: imageHeight,
-                      opacity: watermarkOpacity,
-                      rotate: LibDegrees(watermarkRotation),
-                    });
+              } else if (watermarkType === 'image' && embeddedImage) {
+                if (watermarkPosition === 'tiled') {
+                  const stepX = Math.max(160, imageWidth * 1.8);
+                  const stepY = Math.max(160, imageHeight * 1.8);
+                  for (let x = 30; x < width; x += stepX) {
+                    for (let y = 30; y < height; y += stepY) {
+                      page.drawImage(embeddedImage, {
+                        x,
+                        y,
+                        width: imageWidth,
+                        height: imageHeight,
+                        opacity: watermarkOpacity,
+                        rotate: LibDegrees(watermarkRotation),
+                      });
+                    }
                   }
-                }
-              } else {
-                let posX = 0;
-                let posY = 0;
-                switch (watermarkPosition) {
-                  case 'center':
-                    posX = (width - imageWidth) / 2;
-                    posY = (height - imageHeight) / 2;
-                    break;
-                  case 'top-left':
-                    posX = 30;
-                    posY = height - imageHeight - 30;
-                    break;
-                  case 'top-right':
-                    posX = width - imageWidth - 30;
-                    posY = height - imageHeight - 30;
-                    break;
-                  case 'bottom-left':
-                    posX = 30;
-                    posY = 30;
-                    break;
-                  case 'bottom-right':
-                    posX = width - imageWidth - 30;
-                    posY = 30;
-                    break;
-                }
+                } else {
+                  let posX = 0;
+                  let posY = 0;
+                  switch (watermarkPosition) {
+                    case 'center':
+                      posX = (width - imageWidth) / 2;
+                      posY = (height - imageHeight) / 2;
+                      break;
+                    case 'top-left':
+                      posX = 30;
+                      posY = height - imageHeight - 30;
+                      break;
+                    case 'top-right':
+                      posX = width - imageWidth - 30;
+                      posY = height - imageHeight - 30;
+                      break;
+                    case 'bottom-left':
+                      posX = 30;
+                      posY = 30;
+                      break;
+                    case 'bottom-right':
+                      posX = width - imageWidth - 30;
+                      posY = 30;
+                      break;
+                  }
 
-                page.drawImage(embeddedImage, {
-                  x: posX,
-                  y: posY,
-                  width: imageWidth,
-                  height: imageHeight,
-                  opacity: watermarkOpacity,
-                  rotate: LibDegrees(watermarkRotation),
-                });
+                  page.drawImage(embeddedImage, {
+                    x: posX,
+                    y: posY,
+                    width: imageWidth,
+                    height: imageHeight,
+                    opacity: watermarkOpacity,
+                    rotate: LibDegrees(watermarkRotation),
+                  });
+                }
               }
             }
           }
 
           processedPdfBytes = await pdfDoc.save();
-          addLog("Successfully embedded robust watermark vector layer!");
+          addLog("Successfully saved document layer modifications!");
         } catch (overlayErr: any) {
-          console.error("Watermark generation failed", overlayErr);
-          addLog(`Watermark generation fallback skipped: ${overlayErr.message || overlayErr}`);
+          console.error("Overlay modifications failed", overlayErr);
+          addLog(`Overlay processing fallback skipped: ${overlayErr.message || overlayErr}`);
         }
       }
 
@@ -4622,6 +4697,48 @@ Disallow:
                                   <p className="text-xs font-semibold text-slate-200">Rebuild Object References</p>
                                   <p className="text-[10px] text-slate-500 leading-normal mt-0.5">Eliminates empty data offsets and updates internal cross-reference trees (xref layout tables) to enforce Fast Web View compatibility.</p>
                                 </label>
+                              </div>
+
+                              {/* Perform OCR on Scanned Pages */}
+                              <div className="p-3 bg-slate-900/60 rounded-lg border border-slate-800 flex flex-col gap-2.5 sm:col-span-2">
+                                <div className="flex items-start gap-2.5">
+                                  <input
+                                    type="checkbox"
+                                    id="perform-ocr-cb"
+                                    checked={performOcr}
+                                    onChange={(e) => setPerformOcr(e.target.checked)}
+                                    className="mt-0.5 rounded border-slate-700 text-rose-500 focus:ring-rose-500 bg-slate-950"
+                                  />
+                                  <label htmlFor="perform-ocr-cb" className="cursor-pointer flex-1">
+                                    <div className="flex items-center gap-1.5">
+                                      <p className="text-xs font-semibold text-slate-200">Perform OCR on Scanned Pages</p>
+                                      <span className="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1 rounded font-mono">Tesseract AI</span>
+                                    </div>
+                                    <p className="text-[10px] text-slate-500 leading-normal mt-0.5">Scans pages to detect text and injects a transparent copyable text layer behind your images for searchability.</p>
+                                  </label>
+                                </div>
+                                
+                                {performOcr && (
+                                  <div className="mt-1 pl-7 flex items-center gap-3 border-t border-slate-800/60 pt-2">
+                                    <span className="text-[10px] font-mono text-slate-400">OCR Language:</span>
+                                    <div className="flex gap-1.5">
+                                      {(['eng', 'spa', 'fra', 'deu'] as const).map((lang) => (
+                                        <button
+                                          key={lang}
+                                          type="button"
+                                          onClick={() => setOcrLanguage(lang)}
+                                          className={`py-0.5 px-2 rounded text-[10px] font-mono border uppercase transition-all ${
+                                            ocrLanguage === lang
+                                              ? 'bg-rose-500/20 border-rose-500/50 text-rose-400 font-bold'
+                                              : 'bg-slate-950 border-slate-800 text-slate-500 hover:text-slate-355'
+                                          }`}
+                                        >
+                                          {lang}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           </div>
