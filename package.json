@@ -7,7 +7,9 @@
     "dev": "tsx server.ts",
     "build": "vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
     "start": "node dist/server.cjs",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "deploy": "npm run build && wrangler deploy",
+    "preview": "npm run build && wrangler dev"
   },
   "dependencies": {
     "@cantoo/pdf-lib": "^2.7.1",
@@ -36,6 +38,7 @@
     "tesseract.js": "^7.0.0"
   },
   "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.43.1",
     "@tailwindcss/vite": "^4.3.1",
     "@types/crypto-js": "^4.2.2",
     "@types/d3": "^7.4.3",
@@ -49,6 +52,7 @@
     "tailwindcss": "^4.3.1",
     "tsx": "^4.11.0",
     "typescript": "^5.4.5",
-    "vite": "^6.4.3"
+    "vite": "^6.4.3",
+    "wrangler": "^4.107.1"
   }
 }
