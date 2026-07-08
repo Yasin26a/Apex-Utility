@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   Palette, Copy, Check, Upload, Trash2, Sliders, Eye, RefreshCw, 
   Settings, Key, AlertCircle, FileText, CheckCircle2, Layout, Sparkles, 
-  HelpCircle, ChevronDown, CheckSquare, Download, Code, Layers, FileCode
+  HelpCircle, ChevronDown, CheckSquare, Download, Code, Layers, FileCode,
+  BookOpen, Info
 } from 'lucide-react';
 import { addRecentOperation } from '../utils/recentOperations';
 
@@ -92,6 +93,50 @@ function getContrastRatio(rgb1: {r: number, g: number, b: number}, rgb2: {r: num
   return (brightest + 0.05) / (darkest + 0.05);
 }
 
+function findCompliantColor(
+  fgHex: string, 
+  bgHex: string, 
+  adjustTarget: 'fg' | 'bg', 
+  targetRatio: number
+): string | null {
+  const fgRgb = hexToRgb(fgHex);
+  const bgRgb = hexToRgb(bgHex);
+  if (!fgRgb || !bgRgb) return null;
+
+  const currentRatio = getContrastRatio(fgRgb, bgRgb);
+  if (currentRatio >= targetRatio) return adjustTarget === 'fg' ? fgHex : bgHex;
+
+  const targetColor = adjustTarget === 'fg' ? fgRgb : bgRgb;
+  const pivotColor = adjustTarget === 'fg' ? bgRgb : fgRgb;
+  const hsl = rgbToHsl(targetColor.r, targetColor.g, targetColor.b);
+
+  let bestL = -1;
+  let minDiff = 999;
+
+  for (let l = 0; l <= 100; l++) {
+    const candidateRgb = hslToRgb(hsl.h, hsl.s, l);
+    const candidateRatio = getContrastRatio(
+      adjustTarget === 'fg' ? candidateRgb : pivotColor,
+      adjustTarget === 'bg' ? candidateRgb : pivotColor
+    );
+
+    if (candidateRatio >= targetRatio) {
+      const diff = Math.abs(l - hsl.l);
+      if (diff < minDiff) {
+        minDiff = diff;
+        bestL = l;
+      }
+    }
+  }
+
+  if (bestL !== -1) {
+    const finalRgb = hslToRgb(hsl.h, hsl.s, bestL);
+    return rgbToHex(finalRgb.r, finalRgb.g, finalRgb.b);
+  }
+
+  return null;
+}
+
 interface PaletteColor {
   hex: string;
   name: string;
@@ -103,8 +148,12 @@ interface PaletteColor {
 }
 
 export default function ColorPaletteGenerator() {
-  const [activeSubTab, setActiveSubTab] = useState<'generate' | 'extract'>('generate');
+  const [activeSubTab, setActiveSubTab] = useState<'generate' | 'extract' | 'contrast'>('generate');
   
+  // WCAG Accessibility & Color Contrast Calculator states
+  const [wcagFg, setWcagFg] = useState('#FFFFFF');
+  const [wcagBg, setWcagBg] = useState('#4F46E5');
+  const [sampleTextType, setSampleTextType] = useState<'normal' | 'large' | 'ui'>('normal');
   // Base Code State
   const [baseHex, setBaseHex] = useState('#6366F1');
   const [harmonyRule, setHarmonyRule] = useState<'complementary' | 'analogous' | 'triadic' | 'monochromatic' | 'split' | 'tetradic'>('analogous');
@@ -583,7 +632,7 @@ export default function ColorPaletteGenerator() {
           <div className="beveled-panel p-5 sm:p-6 bg-[#07070a]/90 border border-zinc-900 rounded-2xl space-y-5 shadow-2xl">
             
             {/* Interface Sub Tab selection (Generate vs. Extract) */}
-            <div className="flex items-center p-1 bg-zinc-950/80 border border-zinc-900 rounded-xl shadow-inner">
+            <div className="flex flex-col sm:flex-row items-stretch gap-1 p-1 bg-zinc-950/80 border border-zinc-900 rounded-xl shadow-inner">
               <button
                 type="button"
                 onClick={() => {
@@ -612,6 +661,20 @@ export default function ColorPaletteGenerator() {
               >
                 <Upload className="w-3.5 h-3.5" />
                 <span>Image Extractor</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveSubTab('contrast');
+                }}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-heading font-extrabold tracking-wider uppercase cursor-pointer transition-all select-none ${
+                  activeSubTab === 'contrast'
+                    ? 'bg-brand text-zinc-950 shadow-[0_2px_10px_rgba(245,158,11,0.2)] font-black'
+                    : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
+                }`}
+              >
+                <Eye className="w-3.5 h-3.5" />
+                <span>Contrast Calculator</span>
               </button>
             </div>
 
@@ -703,7 +766,7 @@ export default function ColorPaletteGenerator() {
                 </div>
 
               </div>
-            ) : (
+            ) : activeSubTab === 'extract' ? (
               /* SubTab 2: Image color extraction */
               <div className="space-y-4">
                 
@@ -801,6 +864,349 @@ export default function ColorPaletteGenerator() {
                   </div>
                 )}
               </div>
+            ) : (
+              /* SubTab 3: WCAG Contrast Auditor Parameters */
+              <div className="space-y-4">
+                
+                {/* Foreground (Text) Selection */}
+                <div className="space-y-3 bg-[#050507]/60 border border-zinc-900 rounded-xl p-4">
+                  <div className="flex items-center justify-between">
+                    <span className="block text-xs font-heading font-black text-zinc-300 uppercase tracking-wider flex items-center gap-1.5">
+                      <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: wcagFg }} />
+                      Text Color (Foreground)
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setWcagFg('#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0').toUpperCase())}
+                      className="text-[10px] font-mono text-brand hover:underline flex items-center gap-1 cursor-pointer"
+                    >
+                      <RefreshCw className="w-3 h-3" /> Randomize
+                    </button>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <div className="relative w-10 h-9 rounded-lg overflow-hidden border border-zinc-850 bg-zinc-900 shadow-md flex-shrink-0">
+                      <input
+                        type="color"
+                        value={wcagFg}
+                        onChange={(e) => setWcagFg(e.target.value.toUpperCase())}
+                        className="absolute inset-0 w-[200%] h-[200%] -translate-x-1/4 -translate-y-1/4 cursor-pointer"
+                      />
+                    </div>
+                    <input
+                      type="text"
+                      maxLength={7}
+                      value={wcagFg}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val.startsWith('#') || val.length <= 6) {
+                          setWcagFg((val.startsWith('#') ? val : `#${val}`).toUpperCase());
+                        }
+                      }}
+                      className="w-full bg-[#050507] border border-zinc-850 hover:border-zinc-800 rounded-lg py-1 px-3 text-xs font-mono text-white focus:outline-none focus:border-brand/40 shadow-inner"
+                    />
+                  </div>
+
+                  {/* Sliders for HSL Foreground */}
+                  {(() => {
+                    const rgb = hexToRgb(wcagFg) || { r: 255, g: 255, b: 255 };
+                    const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+                    const updateFgHsl = (h: number, s: number, l: number) => {
+                      const newRgb = hslToRgb(h, s, l);
+                      setWcagFg(rgbToHex(newRgb.r, newRgb.g, newRgb.b));
+                    };
+                    return (
+                      <div className="space-y-2 pt-1.5">
+                        <div className="space-y-0.5">
+                          <div className="flex justify-between text-[10px] font-mono text-zinc-400">
+                            <span>Hue</span>
+                            <span>{hsl.h}°</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="0"
+                            max="360"
+                            value={hsl.h}
+                            onChange={(e) => updateFgHsl(Number(e.target.value), hsl.s, hsl.l)}
+                            className="w-full h-1 bg-zinc-950 rounded-lg appearance-none cursor-pointer accent-brand"
+                          />
+                        </div>
+                        <div className="space-y-0.5">
+                          <div className="flex justify-between text-[10px] font-mono text-zinc-400">
+                            <span>Saturation</span>
+                            <span>{hsl.s}%</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={hsl.s}
+                            onChange={(e) => updateFgHsl(hsl.h, Number(e.target.value), hsl.l)}
+                            className="w-full h-1 bg-zinc-950 rounded-lg appearance-none cursor-pointer accent-brand"
+                          />
+                        </div>
+                        <div className="space-y-0.5">
+                          <div className="flex justify-between text-[10px] font-mono text-zinc-400">
+                            <span>Lightness</span>
+                            <span>{hsl.l}%</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={hsl.l}
+                            onChange={(e) => updateFgHsl(hsl.h, hsl.s, Number(e.target.value))}
+                            className="w-full h-1 bg-zinc-950 rounded-lg appearance-none cursor-pointer accent-brand"
+                          />
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+
+                {/* Background Selection */}
+                <div className="space-y-3 bg-[#050507]/60 border border-zinc-900 rounded-xl p-4">
+                  <div className="flex items-center justify-between">
+                    <span className="block text-xs font-heading font-black text-zinc-300 uppercase tracking-wider flex items-center gap-1.5">
+                      <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: wcagBg }} />
+                      Background Color
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setWcagBg('#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0').toUpperCase())}
+                      className="text-[10px] font-mono text-brand hover:underline flex items-center gap-1 cursor-pointer"
+                    >
+                      <RefreshCw className="w-3 h-3" /> Randomize
+                    </button>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <div className="relative w-10 h-9 rounded-lg overflow-hidden border border-zinc-850 bg-zinc-900 shadow-md flex-shrink-0">
+                      <input
+                        type="color"
+                        value={wcagBg}
+                        onChange={(e) => setWcagBg(e.target.value.toUpperCase())}
+                        className="absolute inset-0 w-[200%] h-[200%] -translate-x-1/4 -translate-y-1/4 cursor-pointer"
+                      />
+                    </div>
+                    <input
+                      type="text"
+                      maxLength={7}
+                      value={wcagBg}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val.startsWith('#') || val.length <= 6) {
+                          setWcagBg((val.startsWith('#') ? val : `#${val}`).toUpperCase());
+                        }
+                      }}
+                      className="w-full bg-[#050507] border border-zinc-850 hover:border-zinc-800 rounded-lg py-1 px-3 text-xs font-mono text-white focus:outline-none focus:border-brand/40 shadow-inner"
+                    />
+                  </div>
+
+                  {/* Sliders for HSL Background */}
+                  {(() => {
+                    const rgb = hexToRgb(wcagBg) || { r: 16, g: 185, b: 129 };
+                    const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+                    const updateBgHsl = (h: number, s: number, l: number) => {
+                      const newRgb = hslToRgb(h, s, l);
+                      setWcagBg(rgbToHex(newRgb.r, newRgb.g, newRgb.b));
+                    };
+                    return (
+                      <div className="space-y-2 pt-1.5">
+                        <div className="space-y-0.5">
+                          <div className="flex justify-between text-[10px] font-mono text-zinc-400">
+                            <span>Hue</span>
+                            <span>{hsl.h}°</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="0"
+                            max="360"
+                            value={hsl.h}
+                            onChange={(e) => updateBgHsl(Number(e.target.value), hsl.s, hsl.l)}
+                            className="w-full h-1 bg-zinc-950 rounded-lg appearance-none cursor-pointer accent-brand"
+                          />
+                        </div>
+                        <div className="space-y-0.5">
+                          <div className="flex justify-between text-[10px] font-mono text-zinc-400">
+                            <span>Saturation</span>
+                            <span>{hsl.s}%</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={hsl.s}
+                            onChange={(e) => updateBgHsl(hsl.h, Number(e.target.value), hsl.l)}
+                            className="w-full h-1 bg-zinc-950 rounded-lg appearance-none cursor-pointer accent-brand"
+                          />
+                        </div>
+                        <div className="space-y-0.5">
+                          <div className="flex justify-between text-[10px] font-mono text-zinc-400">
+                            <span>Lightness</span>
+                            <span>{hsl.l}%</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={hsl.l}
+                            onChange={(e) => updateBgHsl(hsl.h, hsl.s, Number(e.target.value))}
+                            className="w-full h-1 bg-zinc-950 rounded-lg appearance-none cursor-pointer accent-brand"
+                          />
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+
+                {/* Swap Colors Action */}
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const temp = wcagFg;
+                      setWcagFg(wcagBg);
+                      setWcagBg(temp);
+                      showToast('Swapped Foreground and Background colors!', 'info');
+                    }}
+                    className="w-full py-2 px-3 bg-zinc-900 border border-zinc-850 hover:border-zinc-750 hover:bg-zinc-900/60 rounded-xl text-[10.5px] font-mono font-bold text-zinc-300 hover:text-white transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5 text-brand animate-spin-slow" />
+                    <span>Swap Colors</span>
+                  </button>
+                </div>
+
+                {/* Preset Fast Pairs */}
+                <div className="space-y-2">
+                  <span className="block text-[9px] font-mono font-bold text-zinc-500 uppercase tracking-widest">
+                    Quick Benchmark Pairs
+                  </span>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {[
+                      { name: 'Dark Mode Contrast', fg: '#FFFFFF', bg: '#0F172A' },
+                      { name: 'Light Mode Contrast', fg: '#0F172A', bg: '#F8FAFC' },
+                      { name: 'Apex Amber Accent', fg: '#F59E0B', bg: '#0A0A0C' },
+                      { name: 'Emerald Soft Ambient', fg: '#D1FAE5', bg: '#065F46' },
+                    ].map((preset, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => {
+                          setWcagFg(preset.fg);
+                          setWcagBg(preset.bg);
+                        }}
+                        className="p-1.5 rounded-lg border border-zinc-900 bg-zinc-950/40 hover:bg-zinc-900/40 text-[9px] font-mono text-zinc-400 hover:text-white text-center cursor-pointer transition-colors"
+                      >
+                        {preset.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Suggester Adjustments Box */}
+                <div className="space-y-2 pt-2 border-t border-zinc-900">
+                  <span className="block text-[10.5px] font-heading font-black text-zinc-350 uppercase tracking-wider flex items-center gap-1">
+                    <Sparkles className="w-3.5 h-3.5 text-brand" /> Smart Compliant Adjustments
+                  </span>
+                  <p className="text-[10px] text-zinc-500 leading-normal">
+                    HSL-tuned alternatives calculated to achieve compliance with minimal structural styling shift.
+                  </p>
+
+                  <div className="space-y-1.5">
+                    {/* AA Foreground adjustment */}
+                    {(() => {
+                      const ratio = getContrastRatio(hexToRgb(wcagFg) || {r:0,g:0,b:0}, hexToRgb(wcagBg) || {r:0,g:0,b:0});
+                      const suggestFgAA = findCompliantColor(wcagFg, wcagBg, 'fg', 4.5);
+                      const isFgAACompliant = ratio >= 4.5;
+                      
+                      return (
+                        <div className="flex items-center justify-between p-2 rounded-lg bg-[#050507]/40 border border-zinc-900 text-[10.5px]">
+                          <div className="space-y-0.5">
+                            <span className="block text-[8px] font-mono font-bold text-zinc-500 uppercase">AA FG TEXT ADJ (4.5:1)</span>
+                            <span className="font-mono text-zinc-300">
+                              {isFgAACompliant ? 'Already Compliant ✅' : suggestFgAA || 'No solution found'}
+                            </span>
+                          </div>
+                          {!isFgAACompliant && suggestFgAA && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setWcagFg(suggestFgAA);
+                                showToast('Applied AA compliant foreground color adjustment!', 'success');
+                              }}
+                              className="px-2 py-1 bg-brand text-zinc-950 rounded font-mono font-extrabold text-[9px] uppercase tracking-wide hover:bg-amber-400 active:scale-95 cursor-pointer"
+                            >
+                              Apply
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })()}
+
+                    {/* AAA Foreground adjustment */}
+                    {(() => {
+                      const ratio = getContrastRatio(hexToRgb(wcagFg) || {r:0,g:0,b:0}, hexToRgb(wcagBg) || {r:0,g:0,b:0});
+                      const suggestFgAAA = findCompliantColor(wcagFg, wcagBg, 'fg', 7.0);
+                      const isFgAAACompliant = ratio >= 7.0;
+                      
+                      return (
+                        <div className="flex items-center justify-between p-2 rounded-lg bg-[#050507]/40 border border-zinc-900 text-[10.5px]">
+                          <div className="space-y-0.5">
+                            <span className="block text-[8px] font-mono font-bold text-zinc-500 uppercase">AAA FG TEXT ADJ (7.0:1)</span>
+                            <span className="font-mono text-zinc-300">
+                              {isFgAAACompliant ? 'Already Compliant ✅' : suggestFgAAA || 'No solution found'}
+                            </span>
+                          </div>
+                          {!isFgAAACompliant && suggestFgAAA && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setWcagFg(suggestFgAAA);
+                                showToast('Applied AAA compliant foreground color adjustment!', 'success');
+                              }}
+                              className="px-2 py-1 bg-brand text-zinc-950 rounded font-mono font-extrabold text-[9px] uppercase tracking-wide hover:bg-amber-400 active:scale-95 cursor-pointer"
+                            >
+                              Apply
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })()}
+
+                    {/* AA Background adjustment */}
+                    {(() => {
+                      const ratio = getContrastRatio(hexToRgb(wcagFg) || {r:0,g:0,b:0}, hexToRgb(wcagBg) || {r:0,g:0,b:0});
+                      const suggestBgAA = findCompliantColor(wcagFg, wcagBg, 'bg', 4.5);
+                      const isBgAACompliant = ratio >= 4.5;
+                      
+                      return (
+                        <div className="flex items-center justify-between p-2 rounded-lg bg-[#050507]/40 border border-zinc-900 text-[10.5px]">
+                          <div className="space-y-0.5">
+                            <span className="block text-[8px] font-mono font-bold text-zinc-500 uppercase">AA BG BACK ADJ (4.5:1)</span>
+                            <span className="font-mono text-zinc-300">
+                              {isBgAACompliant ? 'Already Compliant ✅' : suggestBgAA || 'No solution found'}
+                            </span>
+                          </div>
+                          {!isBgAACompliant && suggestBgAA && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setWcagBg(suggestBgAA);
+                                showToast('Applied AA compliant background color adjustment!', 'success');
+                              }}
+                              className="px-2 py-1 bg-zinc-800 text-brand border border-brand/20 rounded font-mono font-extrabold text-[9px] uppercase tracking-wide hover:bg-zinc-700 active:scale-95 cursor-pointer"
+                            >
+                              Apply
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })()}
+                  </div>
+                </div>
+
+              </div>
             )}
 
             {/* Prefix configuration & export layout selectors */}
@@ -887,9 +1293,218 @@ export default function ColorPaletteGenerator() {
 
         {/* Right pane: Interactive color cards & Sandbox Preview mockups */}
         <div className="lg:col-span-7 space-y-6">
+          {activeSubTab === 'contrast' ? (
+            <div className="space-y-6 animate-fadeIn">
+              {/* Score Gauge card */}
+              <div className="beveled-panel p-5 bg-[#07070a]/90 border border-zinc-900 rounded-2xl space-y-4">
+                <h3 className="font-heading font-black text-xs uppercase text-zinc-400 tracking-widest flex items-center gap-1.5">
+                  <Sliders className="w-4 h-4 text-brand" />
+                  Real-time Contrast Metrics
+                </h3>
 
-          {/* Extracted Swatches block grid */}
-          <div className="space-y-4">
+                {(() => {
+                  const ratio = getContrastRatio(hexToRgb(wcagFg) || {r:0,g:0,b:0}, hexToRgb(wcagBg) || {r:0,g:0,b:0});
+                  const ratioFormatted = ratio.toFixed(2);
+                  
+                  let statusLabel = "Extremely Poor Contrast ❌";
+                  let statusDesc = "Fails baseline legibility for all text elements.";
+                  let statusBg = "bg-rose-500/10 border-rose-500/20 text-rose-400";
+                  let progressPercent = Math.min(100, (ratio / 21) * 100);
+
+                  if (ratio >= 7.0) {
+                    statusLabel = "Enhanced Contrast (AAA Pass) 🎉";
+                    statusDesc = "Optimal readability for standard text, display text, and decorative components.";
+                    statusBg = "bg-emerald-500/10 border-emerald-500/20 text-emerald-400";
+                  } else if (ratio >= 4.5) {
+                    statusLabel = "Acceptable Contrast (AA Pass) ✅";
+                    statusDesc = "Passes standard legibility. AAA compliance requires a darker/lighter adjustment.";
+                    statusBg = "bg-emerald-500/10 border-emerald-500/20 text-emerald-400";
+                  } else if (ratio >= 3.0) {
+                    statusLabel = "Large Text Legibility Only ⚠️";
+                    statusDesc = "Acceptable for large display elements or UI components only. Fails standard AA body text.";
+                    statusBg = "bg-amber-500/10 border-amber-500/20 text-amber-400";
+                  }
+
+                  return (
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                      <div className="md:col-span-5 flex flex-col items-center justify-center py-4 bg-zinc-950/40 rounded-xl border border-zinc-900">
+                        <div className="relative w-28 h-28 flex items-center justify-center">
+                          <svg className="absolute inset-0 w-full h-full transform -rotate-90">
+                            <circle
+                              cx="56"
+                              cy="56"
+                              r="46"
+                              className="stroke-zinc-900 fill-none"
+                              strokeWidth="8"
+                            />
+                            <circle
+                              cx="56"
+                              cy="56"
+                              r="46"
+                              className="stroke-brand fill-none transition-all duration-500"
+                              strokeWidth="8"
+                              strokeDasharray={`${2 * Math.PI * 46}`}
+                              strokeDashoffset={`${2 * Math.PI * 46 * (1 - progressPercent / 100)}`}
+                              strokeLinecap="round"
+                            />
+                          </svg>
+                          <div className="text-center z-10">
+                            <span className="block font-mono text-2xl font-black text-white">{ratioFormatted}:1</span>
+                            <span className="block text-[8px] font-sans text-zinc-500 uppercase tracking-widest mt-0.5">Ratio</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="md:col-span-7 space-y-3">
+                        <div className={`p-3 rounded-lg border text-xs font-mono font-bold ${statusBg}`}>
+                          {statusLabel}
+                        </div>
+                        <p className="text-[11.5px] text-zinc-400 leading-relaxed font-sans">
+                          {statusDesc} Under the WCAG 2.1 specifications, text contrast represents the luminance contrast ratio between foreground character strokes and the direct background pixel colors.
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+
+              {/* WCAG Compliance Audit checklist */}
+              <div className="beveled-panel p-5 bg-[#07070a]/90 border border-zinc-900 rounded-2xl space-y-4">
+                <h3 className="font-heading font-black text-xs uppercase text-zinc-400 tracking-widest flex items-center gap-1.5">
+                  <CheckSquare className="w-4 h-4 text-brand" />
+                  WCAG 2.1 Audit Checklist
+                </h3>
+
+                {(() => {
+                  const ratio = getContrastRatio(hexToRgb(wcagFg) || {r:0,g:0,b:0}, hexToRgb(wcagBg) || {r:0,g:0,b:0});
+                  
+                  const tests = [
+                    {
+                      category: "Standard Body Text (< 18pt / 24px)",
+                      rule: "Requires at least 4.5:1 for Level AA, and 7:1 for Level AAA.",
+                      aa: ratio >= 4.5,
+                      aaa: ratio >= 7.0,
+                    },
+                    {
+                      category: "Large Display Text (>= 18pt or bold >= 14pt)",
+                      rule: "Requires at least 3.0:1 for Level AA, and 4.5:1 for Level AAA.",
+                      aa: ratio >= 3.0,
+                      aaa: ratio >= 4.5,
+                    },
+                    {
+                      category: "UI Components & Decorative Graphics",
+                      rule: "Requires at least 3.0:1 contrast ratio against neighboring colors.",
+                      aa: ratio >= 3.0,
+                      aaa: ratio >= 3.0,
+                    }
+                  ];
+
+                  return (
+                    <div className="space-y-3">
+                      {tests.map((test, index) => (
+                        <div key={index} className="p-3 rounded-xl border border-zinc-900 bg-zinc-950/20 space-y-2">
+                          <div className="flex justify-between items-center">
+                            <span className="font-heading font-bold text-xs text-zinc-200">{test.category}</span>
+                            <span className="text-[9px] font-mono text-zinc-550 italic">{test.rule}</span>
+                          </div>
+                          <div className="flex gap-4 pt-1 border-t border-zinc-950">
+                            <div className="flex items-center gap-1.5 text-[10.5px]">
+                              <span className="text-zinc-500 font-mono">Level AA:</span>
+                              {test.aa ? (
+                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-mono font-bold text-[9px] uppercase">
+                                  <Check className="w-2.5 h-2.5" /> PASS
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-rose-500/10 border border-rose-500/20 text-rose-400 font-mono font-bold text-[9px] uppercase">
+                                  <AlertCircle className="w-2.5 h-2.5" /> FAIL
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="flex items-center gap-1.5 text-[10.5px]">
+                              <span className="text-zinc-500 font-mono">Level AAA:</span>
+                              {test.aaa ? (
+                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-mono font-bold text-[9px] uppercase">
+                                  <Check className="w-2.5 h-2.5" /> PASS
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-rose-500/10 border border-rose-500/20 text-rose-400 font-mono font-bold text-[9px] uppercase">
+                                  <AlertCircle className="w-2.5 h-2.5" /> FAIL
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
+              </div>
+
+              {/* Real-time Component Sandbox & Live Preview */}
+              <div className="beveled-panel p-5 bg-[#07070a]/90 border border-zinc-900 rounded-2xl space-y-4">
+                <div className="flex items-center justify-between pb-2 border-b border-zinc-900">
+                  <div className="space-y-0.5">
+                    <h3 className="font-heading font-black text-xs uppercase text-zinc-300 tracking-wider flex items-center gap-1.5">
+                      <Layout className="w-4 h-4 text-brand" />
+                      Live Component Playground
+                    </h3>
+                    <p className="text-[10px] text-zinc-500">Preview custom text styling overlaying simulated interfaces</p>
+                  </div>
+                </div>
+
+                <div className="rounded-xl border border-zinc-900/60 p-5 space-y-4 relative overflow-hidden transition-all duration-300" style={{ backgroundColor: wcagBg }}>
+                  <div className="p-3 rounded-lg border shadow-sm space-y-1" style={{ backgroundColor: wcagBg, borderColor: wcagFg, color: wcagFg }}>
+                    <div className="flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4" />
+                      <span className="font-heading font-extrabold text-[11px] uppercase tracking-wide">SYSTEM ACCESSIBILITY CHECK</span>
+                    </div>
+                    <p className="font-sans text-[11px] leading-relaxed">
+                      Testing contrast thresholds across diverse device screen sizes, atmospheric lights, and brightness levels.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-3 items-center justify-between p-3.5 rounded-lg bg-black/40 backdrop-blur-sm border border-white/5">
+                    <div className="space-y-0.5">
+                      <span className="block font-heading font-black text-[11px] uppercase text-white tracking-wider">Button Contrast Action</span>
+                      <span className="block text-[10px] text-zinc-400">Standard button element preview</span>
+                    </div>
+                    <button
+                      type="button"
+                      className="px-4 py-2 rounded-lg text-xs font-heading font-extrabold uppercase transition-all shadow-md"
+                      style={{ backgroundColor: wcagFg, color: wcagBg }}
+                    >
+                      Interactive Button
+                    </button>
+                  </div>
+
+                  <div className="space-y-2">
+                    <h4 className="font-heading text-base font-black tracking-tight" style={{ color: wcagFg }}>
+                      Contrast Review Header (Large 18px Bold)
+                    </h4>
+                    <p className="font-sans text-xs leading-relaxed" style={{ color: wcagFg }}>
+                      This is a real-time body text rendering block (Standard 12px / 0.75rem). It uses the foreground hexadecimal value overlaying the background hexadecimal coordinate to evaluate readability against diverse low-vision parameters.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Educational reference info card */}
+              <div className="beveled-panel p-5 bg-[#07070a]/80 border border-zinc-900 rounded-2xl space-y-2.5">
+                <span className="block text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-widest">
+                  Quick Accessibility Guide
+                </span>
+                <p className="text-[11px] text-zinc-400 leading-relaxed font-sans">
+                  The **Web Content Accessibility Guidelines (WCAG)** define legal compliance metrics for digital assets. 
+                  - **Level AA** requires a contrast of **4.5:1** for standard text and **3.0:1** for large text. This level is standard for global digital regulations.
+                  - **Level AAA** requires an enhanced contrast of **7.0:1** for standard text and **4.5:1** for large text. Perfect for high-frequency long-form screens.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* Extracted Swatches block grid */}
+              <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="font-heading font-black text-xs uppercase text-zinc-400 tracking-widest flex items-center gap-1.5">
                 <Palette className="w-4 h-4 text-brand" />
@@ -1172,6 +1787,7 @@ export default function ColorPaletteGenerator() {
               </button>
             </div>
           </div>
+          </>)}
 
         </div>
 
@@ -1195,6 +1811,145 @@ export default function ColorPaletteGenerator() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Google AdSense Compliant Informational Article & FAQs Footer */}
+      <div className="border-t border-zinc-900 pt-12 mt-12 space-y-10 text-left max-w-5xl mx-auto px-4">
+        
+        {/* Editorial Heading */}
+        <div className="space-y-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold">
+            <BookOpen className="w-3.5 h-3.5" />
+            <span>Design Standards Guide: WCAG Contrast & Color Harmony</span>
+          </div>
+          <h3 className="text-xl font-bold text-white tracking-tight sm:text-2xl">
+            A Complete Guide to WCAG Color Contrast & Accessibility Standards
+          </h3>
+          <p className="text-zinc-400 text-sm leading-relaxed">
+            Ensure your digital designs are fully accessible and visually striking. Learn how calculating foreground-to-background relative luminance contrast ratios keeps your websites compliant with the Web Content Accessibility Guidelines (WCAG).
+          </p>
+        </div>
+
+        {/* 2-Column Article Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          
+          {/* Article Column 1 */}
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <h4 className="text-base font-bold text-zinc-100 flex items-center gap-2">
+                <span className="text-indigo-500 font-mono">01.</span>
+                What is WCAG 2.1 Accessibility?
+              </h4>
+              <p className="text-zinc-400 text-xs leading-relaxed">
+                The **Web Content Accessibility Guidelines (WCAG)** are international standards established to make web content more accessible to people with visual, auditory, physical, cognitive, and neurological disabilities. One of the key aspects of visual design compliance involves ensuring sufficient color contrast between text elements and their corresponding background fills.
+              </p>
+              <p className="text-zinc-400 text-xs leading-relaxed">
+                Insufficient contrast makes reading content difficult or impossible for individuals with low-vision or color vision deficiencies, as well as anyone viewing screens in direct sunlight.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <h4 className="text-base font-bold text-zinc-100 flex items-center gap-2">
+                <span className="text-indigo-500 font-mono">02.</span>
+                Understanding AA and AAA Rating Standards
+              </h4>
+              <p className="text-zinc-400 text-xs leading-relaxed">
+                WCAG compliance is segmented into three levels of success criteria: A, AA, and AAA:
+              </p>
+              <ul className="space-y-2 text-zinc-400 text-xs pl-4 list-disc">
+                <li><strong className="text-zinc-200">Level AA:</strong> Requires a minimum contrast ratio of <strong className="text-indigo-400">4.5:1</strong> for normal text (under 18pt or bold 14pt) and <strong className="text-indigo-400">3:1</strong> for large text (18pt+ or bold 14pt+). This is the standard legal compliance bar for most commercial websites.</li>
+                <li><strong className="text-zinc-200">Level AAA:</strong> The highest standard, requiring a contrast ratio of <strong className="text-indigo-400">7:1</strong> for normal text and <strong className="text-indigo-400">4.5:1</strong> for large text. This level is highly recommended for academic and public service systems.</li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Article Column 2 */}
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <h4 className="text-base font-bold text-zinc-100 flex items-center gap-2">
+                <span className="text-indigo-500 font-mono">03.</span>
+                Luminance and Contrast Ratio Mathematics
+              </h4>
+              <p className="text-zinc-400 text-xs leading-relaxed">
+                The contrast ratio is calculated using a standard formula based on **relative luminance**, which describes the perceived brightness of any color relative to pure white. Relative luminance is calculated by normalizing the red, green, and blue (sRGB) components of a color and adjusting them for non-linear gamma curves.
+              </p>
+              <p className="text-zinc-400 text-xs leading-relaxed">
+                The formula for contrast is: <code>(L1 + 0.05) / (L2 + 0.05)</code>, where <code>L1</code> is the relative luminance of the lighter color, and <code>L2</code> is the relative luminance of the darker color. The result always ranges from 1:1 (no contrast) up to 21:1 (perfect black on white).
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <h4 className="text-base font-bold text-zinc-100 flex items-center gap-2">
+                <span className="text-indigo-500 font-mono">04.</span>
+                How to Build Compliant Harmonious Palettes
+              </h4>
+              <ol className="space-y-1.5 text-zinc-400 text-xs pl-4 list-decimal">
+                <li>Input your preferred background color and foreground text color HEX values.</li>
+                <li>Observe the live audited contrast score and the automated Level AA &amp; AAA pass/fail badges.</li>
+                <li>If your current choice fails, use our "Auto Compliant Color Finder" to calculate the closest mathematically compliant color adjustment instantly.</li>
+                <li>Extract palettes directly from uploaded image assets to build brand assets that are both gorgeous and universally accessible.</li>
+              </ol>
+            </div>
+          </div>
+
+        </div>
+
+        {/* Separator */}
+        <div className="border-t border-zinc-900/60" />
+
+        {/* FAQ Section */}
+        <div className="space-y-6">
+          <div className="space-y-1">
+            <h4 className="text-lg font-bold text-white tracking-tight">Frequently Asked Questions (FAQ)</h4>
+            <p className="text-zinc-500 text-xs">Got questions about WCAG compliance rules and palette generation? Read on.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <div className="bg-zinc-950/40 border border-zinc-900 rounded-xl p-4 space-y-1.5">
+              <h5 className="text-xs font-bold text-zinc-100 flex items-center gap-1.5">
+                <Info className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+                What is considered "Large Text" under WCAG standards?
+              </h5>
+              <p className="text-zinc-400 text-[11px] leading-relaxed">
+                Under WCAG criteria, large text is defined as text that is at least 18pt (approximately 24px) or bold 14pt (approximately 18.6px) in size. Because it is visually thicker, it is easier to read, meaning a lower contrast ratio of 3:1 (for AA) or 4.5:1 (for AAA) is permitted.
+              </p>
+            </div>
+
+            <div className="bg-zinc-950/40 border border-zinc-900 rounded-xl p-4 space-y-1.5">
+              <h5 className="text-xs font-bold text-zinc-100 flex items-center gap-1.5">
+                <Info className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+                Does contrast compliance apply to UI icons or input fields?
+              </h5>
+              <p className="text-zinc-400 text-[11px] leading-relaxed">
+                Yes! WCAG 2.1 Criterion 1.4.11 requires a minimum contrast of 3:1 against adjacent colors for user interface components (such as form field borders) and active visual icons.
+              </p>
+            </div>
+
+            <div className="bg-zinc-950/40 border border-zinc-900 rounded-xl p-4 space-y-1.5">
+              <h5 className="text-xs font-bold text-zinc-100 flex items-center gap-1.5">
+                <Info className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+                How do I choose between complementary or monochromatic harmonies?
+              </h5>
+              <p className="text-zinc-400 text-[11px] leading-relaxed">
+                Complementary color schemes offer high contrast and dramatic energy, while monochromatic harmonies focus on variations in light and saturation of a single hue to deliver a clean, modern, unified UI vibe.
+              </p>
+            </div>
+
+            <div className="bg-zinc-950/40 border border-zinc-900 rounded-xl p-4 space-y-1.5">
+              <h5 className="text-xs font-bold text-zinc-100 flex items-center gap-1.5">
+                <Info className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+                Can I export my accessibility palettes into CSS variables?
+              </h5>
+              <p className="text-zinc-400 text-[11px] leading-relaxed">
+                Yes, our exporter supports multiple formats including standard CSS variables, SCSS tokens, raw JSON config files, or copyable Tailwind CSS theme configuration extensions.
+              </p>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
     </div>
   );
 }

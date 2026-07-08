@@ -95,6 +95,8 @@ export const SEO_H1_MAPPING: Record<ActiveTab, string> = {
   'webcam-check': 'Free Webcam Check Online',
   'speaker-tester': 'Free Speaker Test Online - Sound Check, Stereo Panner, Subwoofer Tester & Audio Test',
   'bento-grid': 'Free Modern Bento Grid Composer & Layout Builder',
+  'tailwind-grid': 'Free Interactive Tailwind Grid & Layout Visualizer Sandbox',
+  'clip-path': 'Free Interactive CSS Clip-Path Polygon Architect',
   'pattern-blob': 'Free Interactive SVG Pattern & Blob Generator',
   'json-node-map': 'Free Spatial JSON Node Map & Interactive Visual Canvas',
   'bezier-spline': 'Free Bézier Spline Playground & SVG Path Illustrator',
@@ -112,9 +114,17 @@ export const SEO_H1_MAPPING: Record<ActiveTab, string> = {
   'keyword-difficulty': 'Free SEO Keyword Difficulty Checker & SERP Difficulty Analyzer',
   'url-slugifier': 'Free SEO URL Slugifier & Link Permalinks Architect',
   'meta-tag-auditor': 'Free SEO Meta Tag Auditor & Rich Social Card Previewer',
+  'rest-playpen': 'Free REST API Playpen & Client-Side API Testing Client',
+  'markdown-compiler': 'Free Markdown & LaTeX Live WYSIWYG Editor & Real-Time Compiler',
+  'visual-pdf-organizer': 'Free Visual PDF Page Organizer - Reorder, Rotate & Delete Pages',
+  'pdf-unlocker': 'Unlock Locked PDFs Instantly - 100% Free PDF Password Remover & Decryptor',
+  'ai-content-brief': 'Free AI SEO Content Brief & Heading Outline Generator',
 };
 
 export const SEO_DESC_MAPPING: Partial<Record<ActiveTab, string>> = {
+  'visual-pdf-organizer': 'Organize PDF pages visually with an interactive thumbnail grid. Drag and drop to reorder pages, click to rotate, and prune unwanted pages completely offline.',
+  'pdf-unlocker': 'Stuck with a locked PDF that won’t let you print, edit, or copy text? Unlock your PDF instantly and 100% free with our offline browser tool. Zero upload required for total security!',
+  'ai-content-brief': 'Generate highly structured, search-optimized editorial brief outlines, target search intents precisely, configure required headers, and draft first-pass article sections powered by Gemini.',
   'keyword-difficulty': 'Analyze any search keyword to calculate its organic search difficulty score, search intent classification, and detailed SERP competitive metrics using real-time search engine results simulation.',
   'url-slugifier': 'Convert raw post and page titles into clean, keyword-focused, search-optimized URL slugs. Optimize click-through-rate, strip stop words, append dates or custom hashes, and perform technical audits with AI.',
   'meta-tag-auditor': 'Scan live website URLs or paste raw HTML code blocks to audit missing OpenGraph meta tags, analyze mobile viewport layouts, check canonical link integrity, and simulate real-time visual social sharing previews.',
@@ -138,6 +148,8 @@ export const SEO_DESC_MAPPING: Partial<Record<ActiveTab, string>> = {
   'webcam-check': 'Check webcam resolution, aspect ratios, and camera lighting online with zero watermark.',
   'speaker-tester': 'Free online speaker test, sound check and audio tester. Check left and right speakers balance, test woofer and subwoofer elements, run custom frequency sweeps (20Hz - 20kHz), and optimize hifi sound systems, soundbars, Chromebook audio, or phone speaker test sound.',
   'bento-grid': 'Build and preview ultra-modern Bento Grid portfolio layout options, customize column and row spans, backgrounds, borders, and copy responsive code.',
+  'tailwind-grid': 'An interactive CSS Grid visualizer where developers can configure rows, columns, gaps, item positions, and responsive breakpoints, generating clean copyable React and HTML Tailwind utility classes.',
+  'clip-path': 'A visual canvas allowing designers to drag vertices and build custom CSS clip-path shapes (such as triangles, trapezoids, or complex polygons) with live CSS/Tailwind exports.',
   'pattern-blob': 'Generate stunning geometric tile patterns, organic liquid vectors, or noise-textured meshes. Customize waves, complexity, colors, and download clean SVG code or high-res PNGs.',
   'json-node-map': 'Visualize complex JSON objects as interactive 2D node networks. Drill down, expand, collapse nested keys or arrays, search nodes, and export clean graphics or formatted code.',
   'bezier-spline': 'Interactive vector sandbox where you click to place control anchors, manipulating cubic and quadratic Bézier splines directly on a live canvas with instant SVG path code export.',
@@ -152,4 +164,6 @@ export const SEO_DESC_MAPPING: Partial<Record<ActiveTab, string>> = {
   'social-hooks': 'Generate viral, high-engagement social media hooks for Twitter, LinkedIn, and YouTube based on custom topics, emotional tones, and target audiences.',
   'code-explainer': 'Explain confusing legacy scripts line-by-line with deep Big O analysis or translate code blocks across programming languages with direct structural mapping annotations.',
   'favicon-generator': 'Generate standard cross-platform favicons (16x16, 32x32, 192x192, 512x512) and configure complete web application manifests with browser, mobile homescreen, and Google search snippet previews.',
+  'rest-playpen': 'Test API endpoints, configure headers, edit payloads, bypass CORS restrictions using public proxy servers, and inspect structured response data and latency records.',
+  'markdown-compiler': 'Interactive split-pane WYSIWYG editor that compiles standard Markdown, GitHub-Flavored Markdown (GFM), and LaTeX math equations into styled HTML in real-time with auto-save and export.',
 };

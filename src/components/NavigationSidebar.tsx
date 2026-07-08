@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutGrid, FileText, Image as ImageIcon, FileImage, Braces, Globe, Terminal, ShieldCheck, Settings, Search, Layers, Monitor, Trash2, Plus, Check, X, Sparkles, Download, Upload, QrCode, Scale, FileCode, Sliders, GitPullRequest, Hash, Palette, Gauge, Binary, Regex, ArrowLeftRight, Shrink, Database, Volume2, Mic, Eye, Video, PenTool, VolumeX, Music, Type, AlignLeft, Crop, Calendar, Scissors, Maximize, Camera, RotateCw, Film, Network } from 'lucide-react';
+import { LayoutGrid, FileText, Image as ImageIcon, FileImage, Braces, Globe, Terminal, ShieldCheck, Settings, Search, Layers, Monitor, Trash2, Plus, Check, X, Sparkles, Download, Upload, QrCode, Scale, FileCode, Sliders, GitPullRequest, Hash, Palette, Gauge, Binary, Regex, ArrowLeftRight, Shrink, Database, Volume2, Mic, Eye, Video, PenTool, VolumeX, Music, Type, AlignLeft, Crop, Calendar, Scissors, Maximize, Camera, RotateCw, Film, Network, Unlock } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ActiveTab } from '../types';
 import { useLanguage } from '../context/LanguageContext';
@@ -250,9 +250,13 @@ export default function NavigationSidebar({ activeTab, onTabChange, isMobileOpen
     { id: 'dashboard' as ActiveTab, label: t.navigation.dashboard, icon: LayoutGrid, description: t.navigation.dashboardDesc },
     { id: 'compress-pdf' as ActiveTab, label: t.navigation.compressPdf, icon: FileText, description: t.navigation.compressPdfDesc },
     { id: 'join-pdf' as ActiveTab, label: t.navigation.joinPdf, icon: Layers, description: t.navigation.joinPdfDesc },
+    { id: 'visual-pdf-organizer' as ActiveTab, label: 'Visual PDF Organizer', icon: Layers, description: 'Reorder, rotate, and prune pages from any PDF visually' },
+    { id: 'pdf-unlocker' as ActiveTab, label: 'PDF Unlocker', icon: Unlock, description: 'Decrypt and remove owner-password-restricted PDF limits' },
     { id: 'image-to-pdf' as ActiveTab, label: t.navigation.imageToPdf, icon: FileImage, description: t.navigation.imageToPdfDesc },
     { id: 'webp-converter' as ActiveTab, label: t.navigation.webpConverter, icon: ImageIcon, description: t.navigation.webpConverterDesc },
     { id: 'json-beautifier' as ActiveTab, label: t.navigation.jsonBeautifier, icon: Braces, description: t.navigation.jsonBeautifierDesc },
+    { id: 'rest-playpen' as ActiveTab, label: 'REST API Playpen', icon: Terminal, description: 'Client-side HTTP/API client & payload debugger' },
+    { id: 'markdown-compiler' as ActiveTab, label: 'Markdown Editor', icon: FileText, description: 'WYSIWYG Markdown & LaTeX compiler & previewer' },
     { id: 'sitemap-seo' as ActiveTab, label: t.navigation.sitemapSeo, icon: Globe, description: t.navigation.sitemapSeoDesc },
     { id: 'sitemap-generator' as ActiveTab, label: t.navigation.sitemapGenerator, icon: FileCode, description: t.navigation.sitemapGeneratorDesc },
     { id: 'ai-writer' as ActiveTab, label: t.navigation.aiWriter, icon: Sparkles, description: t.navigation.aiWriterDesc },
@@ -285,6 +289,7 @@ export default function NavigationSidebar({ activeTab, onTabChange, isMobileOpen
     { id: 'image-cropper' as ActiveTab, label: t.navigation.imageCropper, icon: Crop, description: t.navigation.imageCropperDesc },
     { id: 'date-calculator' as ActiveTab, label: t.navigation.dateCalculator, icon: Calendar, description: t.navigation.dateCalculatorDesc },
     { id: 'content-planner' as ActiveTab, label: t.navigation.contentPlanner || 'AI Content Planner', icon: Sparkles, description: t.navigation.contentPlannerDesc || 'Analyze search intent, LSI keywords and generate outlines' },
+    { id: 'ai-content-brief' as ActiveTab, label: 'AI Content Brief & Outline', icon: Sparkles, description: 'Design search-optimized heading outlines and draft sections powered by AI' },
     { id: 'schema-generator' as ActiveTab, label: t.navigation.schemaGenerator || 'JSON-LD Schema Generator', icon: Braces, description: t.navigation.schemaGeneratorDesc || 'Generate search-optimized JSON-LD schema markup templates or let AI extract microdata automatically' },
     { id: 'content-gap' as ActiveTab, label: t.navigation.contentGap || 'Competitor Content-Gap Analyzer', icon: ArrowLeftRight, description: t.navigation.contentGapDesc || 'Unveil missing keyword opportunities and head-to-head structural topical gaps vs competitors' },
     { id: 'robots-txt' as ActiveTab, label: 'Robots.txt Generator', icon: FileCode, description: 'Create and validate SEO-friendly web spider crawler instructions' },
@@ -319,6 +324,8 @@ export default function NavigationSidebar({ activeTab, onTabChange, isMobileOpen
     { id: 'pdf-form-filler' as ActiveTab, label: t.navigation.pdfFormFiller || 'PDF Form Filler', icon: Sliders, description: t.navigation.pdfFormFillerDesc || 'Type text directly into standard interactive form fields and checkboxes' },
     { id: 'pdf-signer' as ActiveTab, label: t.navigation.pdfSigner || 'PDF E-Signature & Sealer', icon: PenTool, description: t.navigation.pdfSignerDesc || 'Draw, type, or upload custom signatures securely onto PDF documents' },
     { id: 'bento-grid' as ActiveTab, label: 'Bento Grid Composer', icon: LayoutGrid, description: 'Design custom visual bento portfolio layouts with instant CSS/Tailwind exports' },
+    { id: 'tailwind-grid' as ActiveTab, label: 'Tailwind Grid Visualizer', icon: LayoutGrid, description: 'Interactive CSS Grid sandbox to build responsive layouts and generate clean utility classes' },
+    { id: 'clip-path' as ActiveTab, label: 'Clip-Path Polygon Architect', icon: Crop, description: 'Visual canvas to design custom CSS clip-path shapes and drag polygon vertices' },
     { id: 'pattern-blob' as ActiveTab, label: 'SVG Pattern & Blob Studio', icon: Layers, description: 'Create organic liquid blobs, custom abstract noise meshes, and geometric tiles' },
     { id: 'json-node-map' as ActiveTab, label: t.navigation.jsonNodeMap || 'JSON Spatial Canvas', icon: Network, description: t.navigation.jsonNodeMapDesc || 'Interactive 2D mind map node visualization for structured JSON data' },
     { id: 'bezier-spline' as ActiveTab, label: t.navigation.bezierSpline || 'Bézier Spline Playground', icon: PenTool, description: t.navigation.bezierSplineDesc || 'Interactive vector sandbox to draw cubic and quadratic Bézier splines with SVG path code export' },

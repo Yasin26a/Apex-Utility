@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Upload, FileDown, AlertCircle, CheckCircle, Loader2, HelpCircle, ChevronDown, Sparkles, FileText, RefreshCw, Cpu, Trash2, Plus, Layers, Download, Sliders, Check, Stamp, Type, Eye } from 'lucide-react';
+import { Upload, FileDown, AlertCircle, CheckCircle, Loader2, HelpCircle, ChevronDown, Sparkles, FileText, RefreshCw, Cpu, Trash2, Plus, Layers, Download, Sliders, Check, Stamp, Type, Eye, Copy, Code, Info } from 'lucide-react';
 import { addRecentOperation } from '../utils/recentOperations';
 import { jsPDF } from 'jspdf';
 import { PDFDocument, rgb, degrees } from '@cantoo/pdf-lib';
@@ -173,6 +173,10 @@ export interface BatchPDFState {
   error?: string;
   pageCount?: number;
   metadata?: BatchPDFMetadata;
+  xmp?: {
+    rawXml: string;
+    parsed: Record<string, string>;
+  };
   showMetadataEdit?: boolean;
   metadataDirty?: boolean;
   metadataSaved?: boolean;
@@ -190,6 +194,94 @@ export interface BatchPDFState {
   imageSrc?: string;
 }
 
+const extractXmpMetadata = (arrayBuffer: ArrayBuffer): { rawXml: string; parsed: Record<string, string> } => {
+  try {
+    const bytes = new Uint8Array(arrayBuffer);
+    
+    // Use TextDecoder with ignoreBOM: true to translate stream safely.
+    // If files are very large, we can decode a slice of up to 1MB or scan first 2MB which typically houses XMP blocks.
+    const maxScanBytes = Math.min(bytes.length, 3 * 1024 * 1024); // Limit scan window to 3MB for high performance
+    const sliceToDecode = bytes.length <= maxScanBytes ? bytes : bytes.slice(0, maxScanBytes);
+    
+    const decoder = new TextDecoder('utf-8', { fatal: false, ignoreBOM: true });
+    const text = decoder.decode(sliceToDecode);
+    
+    let xmpStartIndex = text.indexOf('<x:xmpmeta');
+    let xmpEndIndex = -1;
+    
+    if (xmpStartIndex !== -1) {
+      xmpEndIndex = text.indexOf('</x:xmpmeta>', xmpStartIndex);
+      if (xmpEndIndex !== -1) {
+        xmpEndIndex += '</x:xmpmeta>'.length;
+      }
+    } else {
+      xmpStartIndex = text.indexOf('<?xpacket begin');
+      if (xmpStartIndex !== -1) {
+        xmpEndIndex = text.indexOf('<?xpacket end', xmpStartIndex);
+        if (xmpEndIndex !== -1) {
+          xmpEndIndex = text.indexOf('?>', xmpEndIndex);
+          if (xmpEndIndex !== -1) {
+            xmpEndIndex += 2;
+          }
+        }
+      }
+    }
+
+    if (xmpStartIndex === -1 || xmpEndIndex === -1) {
+      return { rawXml: '', parsed: {} };
+    }
+
+    const rawXml = text.substring(xmpStartIndex, xmpEndIndex).trim();
+    const parsed: Record<string, string> = {};
+    
+    const extractTag = (tag: string, targetKey: string) => {
+      const simpleRegex = new RegExp(`<${tag}[^>]*>([^<]+)</${tag}>`, 'i');
+      const matchSimple = rawXml.match(simpleRegex);
+      if (matchSimple && matchSimple[1]) {
+        parsed[targetKey] = matchSimple[1].trim();
+        return;
+      }
+      
+      const attrRegex = new RegExp(`${tag}\\s*=\\s*["']([^"']+)["']`, 'i');
+      const matchAttr = rawXml.match(attrRegex);
+      if (matchAttr && matchAttr[1]) {
+        parsed[targetKey] = matchAttr[1].trim();
+      }
+    };
+
+    // Extract common XMP tags
+    extractTag('xmp:CreatorTool', 'creatorTool');
+    extractTag('xmp:CreateDate', 'createDate');
+    extractTag('xmp:ModifyDate', 'modifyDate');
+    extractTag('xmp:MetadataDate', 'metadataDate');
+    extractTag('pdf:Producer', 'producer');
+    extractTag('pdf:Keywords', 'keywords');
+    extractTag('pdf:PDFVersion', 'pdfVersion');
+    extractTag('dc:title', 'title');
+    extractTag('dc:creator', 'author');
+    extractTag('dc:description', 'description');
+    extractTag('dc:subject', 'subject');
+
+    // Clean RDF structures in lists
+    Object.keys(parsed).forEach(key => {
+      let val = parsed[key];
+      if (val.includes('<')) {
+        const liMatch = val.match(/<rdf:li[^>]*>([^<]+)<\/rdf:li>/i);
+        if (liMatch && liMatch[1]) {
+          parsed[key] = liMatch[1].trim();
+        } else {
+          parsed[key] = val.replace(/<[^>]+>/g, '').trim();
+        }
+      }
+    });
+
+    return { rawXml, parsed };
+  } catch (error) {
+    console.error("XMP Metadata scanner error:", error);
+    return { rawXml: '', parsed: {} };
+  }
+};
+
 export default function PDFCompressor() {
   const [files, setFiles] = useState<BatchPDFState[]>([]);
   const [faqOpen, setFaqOpen] = useState<Record<number, boolean>>({
@@ -201,6 +293,8 @@ export default function PDFCompressor() {
   const [savingMetadataIds, setSavingMetadataIds] = useState<Record<string, boolean>>({});
   const [selectedPreviewFile, setSelectedPreviewFile] = useState<BatchPDFState | null>(null);
   const [previewInitialTab, setPreviewInitialTab] = useState<'metadata' | 'annotations' | 'ocr'>('annotations');
+  const [activeMetadataTabMap, setActiveMetadataTabMap] = useState<Record<string, 'properties' | 'xmp' | 'xml'>>({});
+  const [copiedFileId, setCopiedFileId] = useState<string | null>(null);
 
   const [isSecureActive, setIsSecureActive] = useState(false);
   const [batchPassword, setBatchPassword] = useState('');
@@ -854,9 +948,17 @@ export default function PDFCompressor() {
       let pdfAuthor = 'N/A';
       let pdfSubject = isImage ? 'Converted Image Document' : 'Job Application Attachment';
 
+      let xmpData: { rawXml: string; parsed: Record<string, string> } | undefined = undefined;
+
       if (isPDF) {
         try {
           const arrayBuffer = await file.arrayBuffer();
+          try {
+            xmpData = extractXmpMetadata(arrayBuffer);
+          } catch (xmpErr) {
+            console.error("XMP extraction failure:", xmpErr);
+          }
+          
           const loadedDoc = await PDFDocument.load(arrayBuffer);
           pageCount = loadedDoc.getPageCount();
           pdfCreator = loadedDoc.getCreator() || 'N/A';
@@ -904,6 +1006,7 @@ export default function PDFCompressor() {
           creationDate: pdfCreationDate,
           modificationDate: pdfModificationDate
         },
+        xmp: xmpData,
         showMetadataEdit: false,
         watermarkType: 'none',
         watermarkText: 'CONFIDENTIAL',
@@ -2125,45 +2228,175 @@ export default function PDFCompressor() {
                             animate={{ opacity: 1, y: 0 }}
                             className="bg-[#0b0b0f] border border-brand/20 p-4 rounded-xl space-y-4 shadow-[0_0_15px_rgba(239,68,68,0.05)] relative overflow-hidden"
                           >
-                            <div className="flex items-center justify-between border-b border-zinc-900/60 pb-2.5">
+                            <div className="flex flex-wrap items-center justify-between border-b border-zinc-900/60 pb-2.5 gap-2">
                               <span className="text-[10px] font-mono font-bold text-zinc-300 uppercase tracking-widest flex items-center gap-1.5">
-                                <Sparkles className="w-3.5 h-3.5 text-brand animate-pulse" /> Document Uploaded Metadata Summary
+                                <Sparkles className="w-3.5 h-3.5 text-brand animate-pulse" /> Interactive PDF Metadata & XMP Analyzer
                               </span>
-                              <span className="text-[9px] font-mono text-emerald-400 bg-emerald-950/20 border border-emerald-900/20 px-2 py-0.5 rounded flex items-center gap-1 font-bold">
-                                Ready to Optimize
-                              </span>
+                              <div className="flex items-center gap-2">
+                                <span className="text-[9px] font-mono text-emerald-400 bg-emerald-950/20 border border-emerald-900/20 px-2 py-0.5 rounded flex items-center gap-1 font-bold">
+                                  Check Passed
+                                </span>
+                                <span className="text-[9px] font-mono text-brand bg-brand/10 border border-brand/20 px-2 py-0.5 rounded font-bold">
+                                  Ready to Optimize
+                                </span>
+                              </div>
                             </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2.5 bg-zinc-950/60 p-3 rounded-lg border border-zinc-900/80">
-                              <div className="space-y-0.5">
-                                <span className="text-[9px] font-mono uppercase text-zinc-500 block">File Name</span>
-                                <span className="text-zinc-355 text-xs font-sans truncate block">{file.name}</span>
-                              </div>
-                              <div className="space-y-0.5">
-                                <span className="text-[9px] font-mono uppercase text-zinc-500 block">Page Count</span>
-                                <span className="text-zinc-355 text-xs font-sans font-bold">
-                                  {file.pageCount !== undefined ? `${file.pageCount} ${file.pageCount === 1 ? 'Page' : 'Pages'}` : 'N/A'}
-                                </span>
-                              </div>
-                              <div className="space-y-0.5">
-                                <span className="text-[9px] font-mono uppercase text-zinc-500 block">File Creator / Author</span>
-                                <span className="text-zinc-355 text-xs font-sans truncate block">
-                                  {file.metadata?.creator || 'Unknown'} / {file.metadata?.author || 'N/A'}
-                                </span>
-                              </div>
-                              <div className="space-y-0.5">
-                                <span className="text-[9px] font-mono uppercase text-zinc-500 block">Production Tool</span>
-                                <span className="text-zinc-355 text-xs font-sans truncate block">{file.metadata?.producer || 'Unknown'}</span>
-                              </div>
-                              <div className="space-y-0.5">
-                                <span className="text-[9px] font-mono uppercase text-zinc-500 block">Created On</span>
-                                <span className="text-zinc-355 text-xs font-sans truncate block">{file.metadata?.creationDate || 'Unknown'}</span>
-                              </div>
-                              <div className="space-y-0.5">
-                                <span className="text-[9px] font-mono uppercase text-zinc-500 block">Last Modified</span>
-                                <span className="text-zinc-355 text-xs font-sans truncate block">{file.metadata?.modificationDate || 'Unknown'}</span>
-                              </div>
+                            {/* Sub-tab navigation bar for PDF metadata reader */}
+                            <div className="flex items-center gap-1.5 border-b border-zinc-900/30 pb-2 overflow-x-auto">
+                              <button
+                                type="button"
+                                onClick={() => setActiveMetadataTabMap(prev => ({ ...prev, [file.id]: 'properties' }))}
+                                className={`px-3 py-1 rounded text-[10px] font-mono uppercase tracking-wider transition-all flex items-center gap-1.5 border cursor-pointer ${
+                                  (activeMetadataTabMap[file.id] || 'properties') === 'properties'
+                                    ? 'bg-brand/10 border-brand/30 text-brand font-bold'
+                                    : 'bg-zinc-900/40 border-transparent text-zinc-400 hover:text-white hover:bg-zinc-900'
+                                }`}
+                              >
+                                <Info className="w-3 h-3" />
+                                <span>Doc Properties</span>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setActiveMetadataTabMap(prev => ({ ...prev, [file.id]: 'xmp' }))}
+                                className={`px-3 py-1 rounded text-[10px] font-mono uppercase tracking-wider transition-all flex items-center gap-1.5 border cursor-pointer ${
+                                  activeMetadataTabMap[file.id] === 'xmp'
+                                    ? 'bg-brand/10 border-brand/30 text-brand font-bold'
+                                    : 'bg-zinc-900/40 border-transparent text-zinc-400 hover:text-white hover:bg-zinc-900'
+                                }`}
+                              >
+                                <Sparkles className="w-3 h-3" />
+                                <span>XMP Properties</span>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setActiveMetadataTabMap(prev => ({ ...prev, [file.id]: 'xml' }))}
+                                className={`px-3 py-1 rounded text-[10px] font-mono uppercase tracking-wider transition-all flex items-center gap-1.5 border cursor-pointer ${
+                                  activeMetadataTabMap[file.id] === 'xml'
+                                    ? 'bg-brand/10 border-brand/30 text-brand font-bold'
+                                    : 'bg-zinc-900/40 border-transparent text-zinc-400 hover:text-white hover:bg-zinc-900'
+                                }`}
+                              >
+                                <Code className="w-3 h-3" />
+                                <span>Raw XMP XML</span>
+                              </button>
                             </div>
+
+                            {/* Tab Content 1: Standard Doc Properties */}
+                            {(activeMetadataTabMap[file.id] || 'properties') === 'properties' && (
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2.5 bg-zinc-950/60 p-3.5 rounded-lg border border-zinc-900/80">
+                                <div className="space-y-0.5">
+                                  <span className="text-[9px] font-mono uppercase text-zinc-500 block">File Name</span>
+                                  <span className="text-zinc-300 text-xs font-sans truncate block">{file.name}</span>
+                                </div>
+                                <div className="space-y-0.5">
+                                  <span className="text-[9px] font-mono uppercase text-zinc-500 block">Total Page Count</span>
+                                  <span className="text-zinc-300 text-xs font-sans font-bold">
+                                    {file.pageCount !== undefined ? `${file.pageCount} ${file.pageCount === 1 ? 'Page' : 'Pages'}` : 'N/A'}
+                                  </span>
+                                </div>
+                                <div className="space-y-0.5">
+                                  <span className="text-[9px] font-mono uppercase text-zinc-500 block">Document Title</span>
+                                  <span className="text-zinc-300 text-xs font-sans truncate block">{file.metadata?.title || 'Untitled'}</span>
+                                </div>
+                                <div className="space-y-0.5">
+                                  <span className="text-[9px] font-mono uppercase text-zinc-500 block">Author Name</span>
+                                  <span className="text-zinc-300 text-xs font-sans truncate block">{file.metadata?.author || 'N/A'}</span>
+                                </div>
+                                <div className="space-y-0.5">
+                                  <span className="text-[9px] font-mono uppercase text-zinc-500 block">Creator Software / Tool</span>
+                                  <span className="text-zinc-300 text-xs font-sans truncate block">{file.metadata?.creator || 'Unknown Software'}</span>
+                                </div>
+                                <div className="space-y-0.5">
+                                  <span className="text-[9px] font-mono uppercase text-zinc-500 block">Production Tool / Engine</span>
+                                  <span className="text-zinc-300 text-xs font-sans truncate block">{file.metadata?.producer || 'Unknown Engine'}</span>
+                                </div>
+                                <div className="space-y-0.5">
+                                  <span className="text-[9px] font-mono uppercase text-zinc-500 block">Created On Date</span>
+                                  <span className="text-zinc-300 text-xs font-sans truncate block">{file.metadata?.creationDate || 'Unknown'}</span>
+                                </div>
+                                <div className="space-y-0.5">
+                                  <span className="text-[9px] font-mono uppercase text-zinc-500 block">Last Modified Date</span>
+                                  <span className="text-zinc-300 text-xs font-sans truncate block">{file.metadata?.modificationDate || 'Unknown'}</span>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Tab Content 2: Parsed XMP Properties */}
+                            {activeMetadataTabMap[file.id] === 'xmp' && (
+                              <div className="bg-zinc-950/60 p-3.5 rounded-lg border border-zinc-900/80 space-y-3">
+                                {file.xmp && Object.keys(file.xmp.parsed).length > 0 ? (
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2.5">
+                                    {[
+                                      { label: 'Creator Tool (Software)', value: file.xmp.parsed.creatorTool || file.metadata?.creator },
+                                      { label: 'PDF Specification Version', value: file.xmp.parsed.pdfVersion || '1.4 (XMP Standard)' },
+                                      { label: 'XMP Creation Timestamp', value: file.xmp.parsed.createDate || file.metadata?.creationDate },
+                                      { label: 'XMP Modification Timestamp', value: file.xmp.parsed.modifyDate || file.metadata?.modificationDate },
+                                      { label: 'XMP Metadata Last Sync', value: file.xmp.parsed.metadataDate || 'N/A' },
+                                      { label: 'Dublin Core Title (dc:title)', value: file.xmp.parsed.title || file.metadata?.title },
+                                      { label: 'Dublin Core Creator (dc:creator)', value: file.xmp.parsed.author || file.metadata?.author },
+                                      { label: 'Dublin Core Description', value: file.xmp.parsed.description || 'N/A' },
+                                      { label: 'Dublin Core Subject Category', value: file.xmp.parsed.subject || file.metadata?.subject },
+                                      { label: 'Search Keyword Tags', value: file.xmp.parsed.keywords || 'None' },
+                                    ].map((item, idx) => (
+                                      <div key={idx} className="space-y-0.5">
+                                        <span className="text-[9px] font-mono uppercase text-zinc-500 block">{item.label}</span>
+                                        <span className="text-zinc-300 text-xs font-sans truncate block" title={item.value || 'N/A'}>
+                                          {item.value || 'N/A'}
+                                        </span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  <div className="text-center py-4 space-y-1">
+                                    <p className="text-xs font-sans text-zinc-400">No embedded XMP properties stream found in document headers.</p>
+                                    <p className="text-[10px] font-mono text-zinc-600">Standard metadata properties are available in the first tab.</p>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                            {/* Tab Content 3: Raw XMP XML View */}
+                            {activeMetadataTabMap[file.id] === 'xml' && (
+                              <div className="bg-zinc-950/60 p-3.5 rounded-lg border border-zinc-900/80 space-y-2.5 relative">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-[9px] font-mono text-zinc-500">Embedded XMP XML Payload Stream</span>
+                                  {file.xmp && file.xmp.rawXml ? (
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        navigator.clipboard.writeText(file.xmp?.rawXml || '');
+                                        setCopiedFileId(file.id);
+                                        setTimeout(() => setCopiedFileId(null), 2000);
+                                      }}
+                                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-900 hover:border-zinc-700 text-[10px] font-mono text-zinc-400 hover:text-white transition-all cursor-pointer"
+                                    >
+                                      {copiedFileId === file.id ? (
+                                        <>
+                                          <Check className="w-2.5 h-2.5 text-emerald-400" />
+                                          <span className="text-emerald-400 font-bold">Copied!</span>
+                                        </>
+                                      ) : (
+                                        <>
+                                          <Copy className="w-2.5 h-2.5" />
+                                          <span>Copy XML</span>
+                                        </>
+                                      )}
+                                    </button>
+                                  ) : null}
+                                </div>
+
+                                {file.xmp && file.xmp.rawXml ? (
+                                  <pre className="text-[10px] font-mono text-zinc-400 bg-zinc-950 p-2.5 rounded border border-zinc-900/50 max-h-[160px] overflow-auto select-text scrollbar-thin whitespace-pre-wrap break-all text-left">
+                                    {file.xmp.rawXml}
+                                  </pre>
+                                ) : (
+                                  <div className="text-center py-6 text-zinc-500 font-sans text-xs">
+                                    No raw XMP stream packet found.
+                                  </div>
+                                )}
+                              </div>
+                            )}
 
                             {/* Actions to start optimizing this file */}
                             <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-1 border-t border-zinc-900/40">

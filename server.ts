@@ -832,6 +832,116 @@ Instructions:
     }
   });
 
+  // API SERP Snippet CTR Optimizer Endpoint using Gemini 3.5 Flash
+  app.post('/api/serp-optimizer', async (req, res) => {
+    try {
+      const { title, description, keywords, url, tone } = req.body;
+
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        res.status(500).json({ 
+          error: 'GEMINI_API_KEY is not configured on the server. Please check the Secrets panel in Settings.' 
+        });
+        return;
+      }
+
+      const ai = new GoogleGenAI({
+        apiKey: apiKey,
+        httpOptions: {
+          headers: {
+            'User-Agent': 'aistudio-build'
+          }
+        }
+      });
+
+      const userPrompt = `You are a world-class SEO specialist and copywriting grandmaster. Analyze the following Google SERP snippet data and provide search-optimized CTR improvements.
+
+Inputs:
+- Current Title: "${title || ''}"
+- Current Description: "${description || ''}"
+- Focus Keywords: "${keywords || ''}"
+- Page URL: "${url || ''}"
+- Desired Style/Tone for Suggestions: "${tone || 'balanced'}"
+
+Tasks:
+1. Provide an overall SEO Audit Score (0 to 100) for the current title, description, and keywords.
+2. Formulate 3-4 distinct actionable feedback points (auditFeedback) on length, keyword density, and appeal.
+3. Suggest 4 highly optimized alternative Page Titles (under 60 characters / 600px width equivalent) utilizing copywriting tricks (like numbers, emotional hooks, curiosity gaps, or bracketed content). Match the requested tone: "${tone || 'balanced'}".
+4. Suggest 3 highly optimized alternative Meta Descriptions (under 155 characters / 960px width equivalent) with compelling calls-to-action.
+5. Provide a quick keyword analysis mapping focus terms to where they are present and actionable tips.
+
+Ensure suggested titles are under 60 characters and descriptions are under 155 characters. Keep explanations punchy and focused on boosting the CTR (Click-Through Rate).`;
+
+      const responseSchema = {
+        type: Type.OBJECT,
+        properties: {
+          seoAuditScore: { type: Type.INTEGER, description: "A comprehensive SEO and CTR audit score out of 100." },
+          auditFeedback: {
+            type: Type.ARRAY,
+            items: { type: Type.STRING },
+            description: "Detailed bullet points of feedback regarding character limits, title appeal, keywords, and call to action."
+          },
+          titleSuggestions: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                text: { type: Type.STRING, description: "The optimized title, under 60 characters." },
+                ctrBoostReason: { type: Type.STRING, description: "A short, professional explanation of the psychological or SEO copywriting hook used." }
+              },
+              required: ["text", "ctrBoostReason"]
+            }
+          },
+          descriptionSuggestions: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                text: { type: Type.STRING, description: "The optimized description, under 155 characters." },
+                ctrBoostReason: { type: Type.STRING, description: "A short professional explanation of why this description drives action." }
+              },
+              required: ["text", "ctrBoostReason"]
+            }
+          },
+          keywordAnalysis: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                keyword: { type: Type.STRING },
+                foundInTitle: { type: Type.BOOLEAN },
+                foundInDescription: { type: Type.BOOLEAN },
+                recommendation: { type: Type.STRING }
+              },
+              required: ["keyword", "foundInTitle", "foundInDescription", "recommendation"]
+            }
+          }
+        },
+        required: ["seoAuditScore", "auditFeedback", "titleSuggestions", "descriptionSuggestions", "keywordAnalysis"]
+      };
+
+      const result = await generateContentWithFallback(ai, {
+        model: 'gemini-3.5-flash',
+        contents: userPrompt,
+        config: {
+          systemInstruction: 'You are an elite, world-class SERP snippet optimizer, organic search click-through rate specialist, and search-marketing copywriter. You generate highly clickable, compliant titles and meta descriptions that align focus keywords with human interest. Return strictly valid JSON adhering to the specified response schema with no markdown block wrappers.',
+          responseMimeType: 'application/json',
+          responseSchema: responseSchema,
+          temperature: 0.7
+        }
+      });
+
+      if (!result.text) {
+        throw new Error('Gemini API returned an empty output.');
+      }
+
+      res.json(JSON.parse(result.text.trim()));
+    } catch (err: any) {
+      console.error('Error in serp-optimizer api:', err);
+      res.status(500).json({ error: err.message || 'Internal server error during SERP optimization analysis.' });
+    }
+  });
+
   // API endpoints
   app.get('/api/health', (_req, res) => {
     res.json({ status: 'ok', uptime: process.uptime() });
@@ -2043,6 +2153,303 @@ Tone Guidelines:
         success: false,
         message: err.message || 'Error occurred while contacting Google submission servers.'
       });
+    }
+  });
+
+  // API: Single Link Health Check
+  app.post('/api/check-link-health', async (req, res) => {
+    try {
+      const { url } = req.body;
+      if (!url || typeof url !== 'string') {
+        res.status(400).json({ error: 'A valid URL is required.' });
+        return;
+      }
+
+      const http = await import('http');
+      const https = await import('https');
+      const { URL } = await import('url');
+
+      let currentUrl = url.trim();
+      if (!/^https?:\/\//i.test(currentUrl)) {
+        currentUrl = 'http://' + currentUrl;
+      }
+
+      let parsedUrl: URL;
+      try {
+        parsedUrl = new URL(currentUrl);
+      } catch (e) {
+        res.json({
+          url,
+          statusCode: 0,
+          statusText: 'Invalid URL',
+          responseTimeMs: 0,
+          redirectUrl: null,
+          contentType: null,
+          error: 'Malformed URL structure'
+        });
+        return;
+      }
+
+      const startTime = process.hrtime();
+      const client = parsedUrl.protocol === 'https:' ? https : http;
+
+      const options = {
+        method: 'GET',
+        hostname: parsedUrl.hostname,
+        port: parsedUrl.port || (parsedUrl.protocol === 'https:' ? 443 : 80),
+        path: (parsedUrl.pathname || '/') + parsedUrl.search,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 ApexLinkAuditor/1.0',
+          'Accept': '*/*',
+          'Accept-Language': 'en-US,en;q=0.5',
+        },
+        timeout: 4000,
+      };
+
+      const requestObj = client.request(options, (responseStream) => {
+        const diff = process.hrtime(startTime);
+        const responseTimeMs = Math.round(diff[0] * 1000 + diff[1] / 1000000);
+        
+        const statusCode = responseStream.statusCode || 200;
+        const statusText = responseStream.statusMessage || '';
+        const contentType = responseStream.headers['content-type'] || null;
+
+        let redirectUrl: string | null = null;
+        if ([301, 302, 303, 307, 308].includes(statusCode) && responseStream.headers['location']) {
+          const loc = responseStream.headers['location'];
+          try {
+            redirectUrl = new URL(loc, parsedUrl.href).href;
+          } catch (e) {
+            redirectUrl = loc;
+          }
+        }
+
+        // Consume response stream immediately to close connection cleanly without downloading full body
+        responseStream.resume();
+        requestObj.destroy();
+
+        res.json({
+          url: parsedUrl.href,
+          statusCode,
+          statusText,
+          responseTimeMs,
+          redirectUrl,
+          contentType,
+          error: null
+        });
+      });
+
+      requestObj.on('error', (err: any) => {
+        const diff = process.hrtime(startTime);
+        const responseTimeMs = Math.round(diff[0] * 1000 + diff[1] / 1000000);
+        res.json({
+          url: currentUrl,
+          statusCode: 0,
+          statusText: 'Failed',
+          responseTimeMs,
+          redirectUrl: null,
+          contentType: null,
+          error: err.message || 'Connection failed'
+        });
+      });
+
+      requestObj.on('timeout', () => {
+        requestObj.destroy();
+        const diff = process.hrtime(startTime);
+        const responseTimeMs = Math.round(diff[0] * 1000 + diff[1] / 1000000);
+        res.json({
+          url: currentUrl,
+          statusCode: 0,
+          statusText: 'Timeout',
+          responseTimeMs,
+          redirectUrl: null,
+          contentType: null,
+          error: 'Connection timeout (4s limit)'
+        });
+      });
+
+      requestObj.end();
+    } catch (err: any) {
+      console.error('Error checking single link:', err);
+      res.status(500).json({ error: err.message || 'Error occurred during health check.' });
+    }
+  });
+
+  // API: AI SEO Content Brief & Outline Generator
+  app.post('/api/seo/generate-content-brief', async (req, res) => {
+    try {
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        res.status(500).json({ 
+          error: 'GEMINI_API_KEY is not configured on the server. Please check the Secrets panel in Settings.' 
+        });
+        return;
+      }
+
+      const { keyword, intent, headers, secondaryKeywords, targetAudience, tone, wordCount } = req.body;
+      if (!keyword || typeof keyword !== 'string') {
+        res.status(400).json({ error: 'A valid target seed keyword is required.' });
+        return;
+      }
+
+      const ai = new GoogleGenAI({
+        apiKey: apiKey,
+        httpOptions: {
+          headers: {
+            'User-Agent': 'aistudio-build'
+          }
+        }
+      });
+
+      const systemInstruction = `You are a world-class SEO content strategist and search intent specialist. Your task is to generate a comprehensive, search-optimized content brief and heading outline that is meticulously engineered to rank #1 on Google.
+Analyze the target seed keyword, search intent, and target audience, then build a structure that satisfies search intent completely, incorporates LSI and secondary keywords, and sets up a high-converting meta structure.
+
+Format the output strictly as a JSON object matching the requested schema. Ensure the outline sections have a logical flow, use proper heading levels (H1, H2, H3), and incorporate any focus headers specified by the user.`;
+
+      const prompt = `Please generate an SEO content brief and structural outline for the following parameters:
+- Target Seed Keyword: "${keyword}"
+- Specified Search Intent: "${intent || 'Auto-detect'}"
+- Focus Headers / Required Sections to Include: ${headers && headers.length > 0 ? JSON.stringify(headers) : 'None'}
+- Secondary Keywords: ${secondaryKeywords && secondaryKeywords.length > 0 ? JSON.stringify(secondaryKeywords) : 'None'}
+- Target Audience: "${targetAudience || 'General online reader looking for deep, authoritative insights'}"
+- Tone of Voice: "${tone || 'Professional, informative, and engaging'}"
+- Word Count Preference: "${wordCount || 'Auto-recommend'}"
+
+Ensure:
+1. The outline contains H1 (typically one for title), H2s, and H3s if appropriate.
+2. If custom "Focus Headers" are specified, seamlessly integrate them into the outline at appropriate heading levels.
+3. Every section has clear, actionable instructions for the writer on exactly what semantic points to hit, facts to address, and tone to maintain.
+4. FAQs section includes 3-5 high-priority questions that real searchers ask (People Also Ask).`;
+
+      const result = await generateContentWithFallback(ai, {
+        model: 'gemini-3.5-flash',
+        contents: prompt,
+        config: {
+          systemInstruction: systemInstruction,
+          temperature: 0.7,
+          responseMimeType: 'application/json',
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              keyword: { type: Type.STRING },
+              intent: { type: Type.STRING },
+              summary: { type: Type.STRING },
+              targetAudience: { type: Type.STRING },
+              recommendedWordCount: { type: Type.STRING },
+              secondaryKeywords: {
+                type: Type.ARRAY,
+                items: { type: Type.STRING }
+              },
+              suggestedMetaTitle: { type: Type.STRING },
+              suggestedMetaDescription: { type: Type.STRING },
+              faqs: {
+                type: Type.ARRAY,
+                items: {
+                  type: Type.OBJECT,
+                  properties: {
+                    question: { type: Type.STRING },
+                    intent: { type: Type.STRING }
+                  },
+                  required: ["question", "intent"]
+                }
+              },
+              outline: {
+                type: Type.ARRAY,
+                items: {
+                  type: Type.OBJECT,
+                  properties: {
+                    id: { type: Type.STRING },
+                    title: { type: Type.STRING },
+                    level: { type: Type.STRING },
+                    description: { type: Type.STRING },
+                    keywords: {
+                      type: Type.ARRAY,
+                      items: { type: Type.STRING }
+                    }
+                  },
+                  required: ["id", "title", "level", "description"]
+                }
+              }
+            },
+            required: [
+              "keyword", "intent", "summary", "targetAudience", 
+              "recommendedWordCount", "secondaryKeywords", 
+              "suggestedMetaTitle", "suggestedMetaDescription", "faqs", "outline"
+            ]
+          }
+        }
+      });
+
+      if (!result.text) {
+        throw new Error('Empty response from AI Brief Generator.');
+      }
+
+      res.json(JSON.parse(result.text.trim()));
+    } catch (err: any) {
+      console.error('Error generating content brief:', err);
+      res.status(500).json({ error: err.message || 'Error occurred during brief generation.' });
+    }
+  });
+
+  // API: AI Outline Section Snippet/Paragraph Writer
+  app.post('/api/seo/generate-section-draft', async (req, res) => {
+    try {
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        res.status(500).json({ 
+          error: 'GEMINI_API_KEY is not configured on the server. Please check the Secrets panel in Settings.' 
+        });
+        return;
+      }
+
+      const { keyword, sectionTitle, sectionDescription, level, tone, wordCount, sectionKeywords } = req.body;
+      if (!sectionTitle) {
+        res.status(400).json({ error: 'Section title is required.' });
+        return;
+      }
+
+      const ai = new GoogleGenAI({
+        apiKey: apiKey,
+        httpOptions: {
+          headers: {
+            'User-Agent': 'aistudio-build'
+          }
+        }
+      });
+
+      const systemInstruction = `You are an elite, highly engaging copywriter and search optimizer. Your task is to write a high-converting, deeply engaging draft for a single heading section of a larger outline.
+Incorporate any specified target keywords naturally. Structure with clear paragraphs, list items if helpful, and use bold styling to improve readability and retention. Output must be in beautiful Markdown format only.`;
+
+      const prompt = `Please write a comprehensive, high-quality content draft for the following section:
+- Overall Target Keyword: "${keyword || 'Not specified'}"
+- Heading/Section Title: "${sectionTitle}" (Heading Level: ${level || 'H2'})
+- Section Content Guidelines & Focal Points: "${sectionDescription || 'Write an informative, thorough guide covering this heading topic.'}"
+- Tone of Voice: "${tone || 'Professional, informative, and engaging'}"
+- Targeted Word Count: "${wordCount || '150-250 words'}"
+- Suggested Keywords to incorporate: ${sectionKeywords && sectionKeywords.length > 0 ? JSON.stringify(sectionKeywords) : 'None'}
+
+Draft guidelines:
+- Satisfy user search intent completely.
+- Be clear, authoritative, and engaging.
+- Use clean Markdown styling (paragraphs, lists if logical, strong/bold text). Do not output heading titles (e.g. # or ##) in the text unless specifically helpful, just write the body draft content for this section.`;
+
+      const result = await generateContentWithFallback(ai, {
+        model: 'gemini-3.5-flash',
+        contents: prompt,
+        config: {
+          systemInstruction: systemInstruction,
+          temperature: 0.7
+        }
+      });
+
+      if (!result.text) {
+        throw new Error('Empty draft generated.');
+      }
+
+      res.json({ draft: result.text.trim() });
+    } catch (err: any) {
+      console.error('Error generating section draft:', err);
+      res.status(500).json({ error: err.message || 'Error occurred during section draft generation.' });
     }
   });
 

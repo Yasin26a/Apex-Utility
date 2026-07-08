@@ -93,6 +93,8 @@ export type ActiveTab =
   | 'webcam-check'
   | 'speaker-tester'
   | 'bento-grid'
+  | 'tailwind-grid'
+  | 'clip-path'
   | 'pattern-blob'
   | 'json-node-map'
   | 'bezier-spline'
@@ -110,7 +112,12 @@ export type ActiveTab =
   | 'alt-text-generator'
   | 'keyword-difficulty'
   | 'url-slugifier'
-  | 'meta-tag-auditor';
+  | 'meta-tag-auditor'
+  | 'rest-playpen'
+  | 'markdown-compiler'
+  | 'visual-pdf-organizer'
+  | 'pdf-unlocker'
+  | 'ai-content-brief';
 
 export interface JSONBeautifierState {
   rawInput: string;

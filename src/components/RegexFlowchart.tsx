@@ -1127,6 +1127,145 @@ export default function RegexFlowchart() {
 
       </div>
 
+      {/* Google AdSense Compliant Informational Article & FAQs Footer */}
+      <div className="border-t border-zinc-900 pt-12 mt-12 space-y-10 text-left">
+        
+        {/* Editorial Heading */}
+        <div className="space-y-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
+            <BookOpen className="w-3.5 h-3.5" />
+            <span>Developer Guide: Regular Expressions & Visualization</span>
+          </div>
+          <h3 className="text-xl font-bold text-white tracking-tight sm:text-2xl">
+            A Comprehensive Deep Dive into Regular Expressions & Railroad Flowcharts
+          </h3>
+          <p className="text-zinc-400 text-sm leading-relaxed max-w-3xl">
+            Struggling to decode complicated regular expression strings like email validators or lookahead strength checkers? Learn how our interactive 2D railroad flowchart breaks down token paths step-by-step to reveal the underlying matching logic.
+          </p>
+        </div>
+
+        {/* 2-Column Article Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          
+          {/* Article Column 1 */}
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <h4 className="text-base font-bold text-zinc-100 flex items-center gap-2">
+                <span className="text-emerald-500 font-mono">01.</span>
+                What are Regular Expressions (Regex)?
+              </h4>
+              <p className="text-zinc-400 text-xs leading-relaxed">
+                Regular Expressions, commonly referred to as **Regex**, are highly dense sequences of characters that define specific search patterns. They are widely used in modern software applications for validation (e.g. checking if an input matches an email structure), searching, and replacing sub-strings inside complex files.
+              </p>
+              <p className="text-zinc-400 text-xs leading-relaxed">
+                Because regex utilizes specialized symbolic characters (such as brackets, anchors, and quantifiers), long patterns quickly become unreadable. Visualizing these streams as physical tracks makes editing and debugging simple.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <h4 className="text-base font-bold text-zinc-100 flex items-center gap-2">
+                <span className="text-emerald-500 font-mono">02.</span>
+                The Power of Railroad Flowchart Visualization
+              </h4>
+              <p className="text-zinc-400 text-xs leading-relaxed">
+                A **railroad diagram** is a graphical representation of a context-free grammar. In this representation, the regex compiler maps character classes, literals, and anchors onto a 2D track going from left (IN) to right (OUT).
+              </p>
+              <p className="text-zinc-400 text-xs leading-relaxed">
+                Branching paths indicate alternations (using the pipe <code>|</code> operator), and loops denote quantifiers (such as <code>*</code>, <code>+</code>, or custom range loops). This structure helps you trace the exact path the regex engine travels to find matches.
+              </p>
+            </div>
+          </div>
+
+          {/* Article Column 2 */}
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <h4 className="text-base font-bold text-zinc-100 flex items-center gap-2">
+                <span className="text-emerald-500 font-mono">03.</span>
+                Demystifying Assertions & Lookarounds
+              </h4>
+              <p className="text-zinc-400 text-xs leading-relaxed">
+                One of the most complex chapters in regex development is lookaround assertions:
+              </p>
+              <ul className="space-y-2 text-zinc-400 text-xs pl-4 list-disc">
+                <li><strong className="text-zinc-200">Lookahead (Positive/Negative):</strong> Instructs the regex engine to peek forward to verify if a pattern succeeds or fails, without consuming any characters in the text stream.</li>
+                <li><strong className="text-zinc-200">Lookbehind:</strong> Inspects preceding characters behind the current position pointer.</li>
+                <li><strong className="text-zinc-200">Word Boundaries (\b):</strong> Asserts a position where a letter-character meets a non-letter, helping you isolate full words.</li>
+              </ul>
+            </div>
+
+            <div className="space-y-2">
+              <h4 className="text-base font-bold text-zinc-100 flex items-center gap-2">
+                <span className="text-emerald-500 font-mono">04.</span>
+                How to Debug Patterns Step-by-Step
+              </h4>
+              <ol className="space-y-1.5 text-zinc-400 text-xs pl-4 list-decimal">
+                <li>Select one of our preset templates (Email, US Phone, Password strength) to see a sample track.</li>
+                <li>Observe how character ranges, literal sequences, and loops are grouped into custom-styled cards.</li>
+                <li>Hover over any diagram block to view its grammatical rules, raw code, and technical definitions in the sidebar.</li>
+                <li>Type test paragraphs inside the "Sandbox Tester" to verify match groups, boundaries, and timings in real-time.</li>
+              </ol>
+            </div>
+          </div>
+
+        </div>
+
+        {/* Separator */}
+        <div className="border-t border-zinc-900/60" />
+
+        {/* FAQ Section */}
+        <div className="space-y-6">
+          <div className="space-y-1">
+            <h4 className="text-lg font-bold text-white tracking-tight">Frequently Asked Questions (FAQ)</h4>
+            <p className="text-zinc-500 text-xs">Got questions about regex mechanics and compiling rules? Read on.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <div className="bg-zinc-950/40 border border-zinc-900 rounded-xl p-4 space-y-1.5">
+              <h5 className="text-xs font-bold text-zinc-100 flex items-center gap-1.5">
+                <Info className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                What is the difference between greedy and lazy quantifiers?
+              </h5>
+              <p className="text-zinc-400 text-[11px] leading-relaxed">
+                By default, quantifiers like <code>+</code> or <code>*</code> are "greedy"—they match as much text as possible. Adding a trailing question mark (e.g. <code>+?</code> or <code>*?</code>) makes them "lazy," causing them to match as little text as possible before succeeding.
+              </p>
+            </div>
+
+            <div className="bg-zinc-950/40 border border-zinc-900 rounded-xl p-4 space-y-1.5">
+              <h5 className="text-xs font-bold text-zinc-100 flex items-center gap-1.5">
+                <Info className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                Why does this flowchart run client-side inside my browser?
+              </h5>
+              <p className="text-zinc-400 text-[11px] leading-relaxed">
+                By compiling your regular expressions and testing matches inside the browser's sandbox runtime, we protect your input logs from remote database storage or tracking, assuring total safety for corporate or clinical logs.
+              </p>
+            </div>
+
+            <div className="bg-zinc-950/40 border border-zinc-900 rounded-xl p-4 space-y-1.5">
+              <h5 className="text-xs font-bold text-zinc-100 flex items-center gap-1.5">
+                <Info className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                What do the colors of the flowchart boxes represent?
+              </h5>
+              <p className="text-zinc-400 text-[11px] leading-relaxed">
+                To simplify visual navigation, green cards represent character classes (e.g. <code>\d</code> or ranges), purple/cyan indicate groups and lookarounds, yellow blocks show whitespace tokens, and blue outlines represent literals.
+              </p>
+            </div>
+
+            <div className="bg-zinc-950/40 border border-zinc-900 rounded-xl p-4 space-y-1.5">
+              <h5 className="text-xs font-bold text-zinc-100 flex items-center gap-1.5">
+                <Info className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                Can I export or share these regular expressions easily?
+              </h5>
+              <p className="text-zinc-400 text-[11px] leading-relaxed">
+                Yes! Click the "Copy /regex/" button to save the entire escaped pattern with flags, ready to paste directly into your JavaScript, Python, or Go source code files.
+              </p>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
     </div>
   );
 }

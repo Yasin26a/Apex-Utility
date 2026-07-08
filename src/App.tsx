@@ -77,8 +77,11 @@ import { BrandingLogo } from './components/BrandingLogo';
 import { DEFAULT_CARDS } from './components/Dashboard';
 const WebPConverter = lazy(() => import('./components/WebPConverter'));
 const PDFJoiner = lazy(() => import('./components/PDFJoiner'));
+const VisualPDFOrganizer = lazy(() => import('./components/VisualPDFOrganizer'));
+const PDFUnlocker = lazy(() => import('./components/PDFUnlocker'));
 const PDFSplitter = lazy(() => import('./components/PDFSplitter'));
 const ContentPlanner = lazy(() => import('./components/ContentPlanner'));
+const AIContentBriefGenerator = lazy(() => import('./components/AIContentBriefGenerator'));
 const SocialMediaHookGenerator = lazy(() => import('./components/SocialMediaHookGenerator'));
 const AICodeExplainerTranslator = lazy(() => import('./components/AICodeExplainerTranslator'));
 const VideoRecorder = lazy(() => import('./components/VideoRecorder'));
@@ -95,6 +98,8 @@ const AIKeywordClusterTool = lazy(() => import('./components/AIKeywordClusterToo
 const AIAssistantSupervisor = lazy(() => import('./components/AIAssistantSupervisor'));
 const Dashboard = lazy(() => import('./components/Dashboard'));
 const JSONBeautifier = lazy(() => import('./components/JSONBeautifier'));
+const RESTPlaypen = lazy(() => import('./components/RESTPlaypen'));
+const MarkdownEditor = lazy(() => import('./components/MarkdownEditor'));
 const ImageToPDF = lazy(() => import('./components/ImageToPDF'));
 const PasswordGenerator = lazy(() => import('./components/PasswordGenerator'));
 const QRCodeGenerator = lazy(() => import('./components/QRCodeGenerator'));
@@ -150,6 +155,8 @@ const JWTDecoder = lazy(() => import('./components/JWTDecoder'));
 const FaviconGenerator = lazy(() => import('./components/FaviconGenerator'));
 const GradientGenerator = lazy(() => import('./components/GradientGenerator'));
 const BentoGridComposer = lazy(() => import('./components/BentoGridComposer'));
+const TailwindGridVisualizer = lazy(() => import('./components/TailwindGridVisualizer'));
+const ClipPathArchitect = lazy(() => import('./components/ClipPathArchitect'));
 const PatternBlobGenerator = lazy(() => import('./components/PatternBlobGenerator'));
 const JSONNodeMap = lazy(() => import('./components/JSONNodeMap'));
 const BezierSpline = lazy(() => import('./components/BezierSpline'));
@@ -3130,6 +3137,28 @@ Disallow:
               </motion.div>
             )}
 
+            {activeTab === 'rest-playpen' && (
+              <motion.div key="rest-playpen" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-violet-400 uppercase">Developer Operations</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">REST API Playpen</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Client-side HTTP tester. Send requests, configure custom headers, edit payloads, bypass CORS with proxy toggles, and analyze server responses in real time.</p>
+                </div>
+                <RESTPlaypen />
+              </motion.div>
+            )}
+
+            {activeTab === 'markdown-compiler' && (
+              <motion.div key="markdown-compiler" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-violet-400 uppercase">Document &amp; Editing Utilities</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Markdown &amp; LaTeX Compiler</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">An interactive split-pane editor that compiles standard Markdown, GitHub-Flavored Markdown (GFM), and LaTeX math syntax into styled HTML in real-time.</p>
+                </div>
+                <MarkdownEditor />
+              </motion.div>
+            )}
+
             {activeTab === 'image-to-pdf' && (
               <motion.div key="image-to-pdf" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
@@ -3149,6 +3178,28 @@ Disallow:
                   <p className="text-slate-400 text-xs sm:text-sm">Combine multiple standalone files, re-order stream packages, and construct an unified document.</p>
                 </div>
                 <PDFJoiner />
+              </motion.div>
+            )}
+
+            {activeTab === 'visual-pdf-organizer' && (
+              <motion.div key="visual-pdf-organizer" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-emerald-400 uppercase font-sans">Visual Organizer</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Visual PDF Page Organizer</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Manage, reorder, rotate, and prune individual pages of any PDF document in an interactive layout.</p>
+                </div>
+                <VisualPDFOrganizer />
+              </motion.div>
+            )}
+
+            {activeTab === 'pdf-unlocker' && (
+              <motion.div key="pdf-unlocker" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-rose-400 uppercase font-sans">Security &amp; Decryption</span>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">PDF Password Unlocker</h2>
+                  <p className="text-slate-400 text-xs sm:text-sm">Safely decrypt owner-password-restricted PDFs directly in your browser. Fully offline privacy.</p>
+                </div>
+                <PDFUnlocker />
               </motion.div>
             )}
 
@@ -3502,6 +3553,22 @@ Disallow:
               <motion.div key="bento-grid" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <Suspense fallback={<div className="text-white font-mono text-xs">Loading Bento Grid Composer...</div>}>
                   <BentoGridComposer />
+                </Suspense>
+              </motion.div>
+            )}
+
+            {activeTab === 'tailwind-grid' && (
+              <motion.div key="tailwind-grid" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
+                <Suspense fallback={<div className="text-white font-mono text-xs">Loading Tailwind Grid Visualizer...</div>}>
+                  <TailwindGridVisualizer />
+                </Suspense>
+              </motion.div>
+            )}
+
+            {activeTab === 'clip-path' && (
+              <motion.div key="clip-path" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
+                <Suspense fallback={<div className="text-white font-mono text-xs">Loading CSS Clip-Path Polygon Architect...</div>}>
+                  <ClipPathArchitect />
                 </Suspense>
               </motion.div>
             )}
@@ -6962,6 +7029,17 @@ Disallow:
                 </div>
 
                 <ContentPlanner />
+              </motion.div>
+            )}
+
+            {/* Tab: AI Content Brief & Outline Generator */}
+            {activeTab === 'ai-content-brief' && (
+              <motion.div
+                key="ai-content-brief"
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                className="space-y-6"
+              >
+                <AIContentBriefGenerator />
               </motion.div>
             )}
 

@@ -4,7 +4,7 @@ import {
   Search, Eye, Settings, Smartphone, Monitor, Info, Sparkles, 
   Copy, Check, RefreshCw, AlertTriangle, CheckCircle2, Star, 
   HelpCircle, ChevronDown, ChevronUp, Link, Globe, Trash2,
-  Target, Filter, TrendingUp, DollarSign, Plus, ArrowUpRight
+  Target, Filter, TrendingUp, DollarSign, Plus, ArrowUpRight, BookOpen
 } from 'lucide-react';
 
 interface RichSnippetOptions {
@@ -1839,6 +1839,51 @@ export default function SERPPreviewer() {
   const [device, setDevice] = useState<'desktop' | 'mobile'>('desktop');
   const [copiedText, setCopiedText] = useState<string | null>(null);
 
+  // AI CTR Optimizer States
+  const [tone, setTone] = useState<string>('balanced');
+  const [isOptimizing, setIsOptimizing] = useState<boolean>(false);
+  const [aiResult, setAiResult] = useState<{
+    seoAuditScore: number;
+    auditFeedback: string[];
+    titleSuggestions: Array<{ text: string; ctrBoostReason: string }>;
+    descriptionSuggestions: Array<{ text: string; ctrBoostReason: string }>;
+    keywordAnalysis: Array<{ keyword: string; foundInTitle: boolean; foundInDescription: boolean; recommendation: string }>;
+  } | null>(null);
+  const [aiError, setAiError] = useState<string | null>(null);
+
+  const handleAIOptimize = async () => {
+    setIsOptimizing(true);
+    setAiError(null);
+    try {
+      const response = await fetch('/api/serp-optimizer', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title,
+          description,
+          keywords,
+          url,
+          tone,
+        }),
+      });
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || `Server responded with status ${response.status}`);
+      }
+
+      const data = await response.json();
+      setAiResult(data);
+    } catch (err: any) {
+      console.error('Error optimizing SERP with AI:', err);
+      setAiError(err.message || 'An unexpected error occurred during optimization.');
+    } finally {
+      setIsOptimizing(false);
+    }
+  };
+
   // Keyword Targeting Checklist & Database States
   const [kwSearch, setKwSearch] = useState('');
   const [kwPage, setKwPage] = useState(0);
@@ -2570,6 +2615,283 @@ export default function SERPPreviewer() {
             </div>
           </div>
 
+          {/* AI Snippet Optimizer & CTR Booster Panel */}
+          <div className="bg-zinc-950/80 border border-zinc-900 rounded-2xl p-5 sm:p-6 shadow-xl backdrop-blur-sm space-y-5">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-zinc-900 pb-3">
+              <span className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-emerald-400" />
+                AI Snippet Optimizer & CTR Booster
+              </span>
+              <span className="text-[10px] font-mono text-zinc-500 bg-zinc-900 px-2 py-0.5 rounded-full">
+                Powered by Gemini 3.5 Flash
+              </span>
+            </div>
+
+            <p className="text-zinc-400 text-xs leading-relaxed">
+              Analyze your metadata and instantly craft several search-optimized titles and descriptions designed to maximize Click-Through Rate (CTR) and keyword coverage.
+            </p>
+
+            {/* Select Optimization tone */}
+            <div className="space-y-2">
+              <span className="text-[10px] font-mono text-zinc-500 uppercase block">1. Select Copywriting Framework / Tone Goal</span>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
+                {[
+                  { id: 'balanced', label: 'Balanced', desc: 'Standard professional SEO alignment' },
+                  { id: 'clickbait', label: 'High CTR', desc: 'Emotional power words & click magnets' },
+                  { id: 'curiosity', label: 'Curiosity Gap', desc: 'Intriguing questions & open loops' },
+                  { id: 'benefit', label: 'Benefit-First', desc: 'Immediate value & value proposition' },
+                  { id: 'urgency', label: 'Urgency / Action', desc: 'Compelling action verbs' }
+                ].map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => setTone(item.id)}
+                    className={`p-2.5 rounded-xl text-left border text-xs transition-all flex flex-col justify-between h-20 group relative cursor-pointer ${
+                      tone === item.id
+                        ? 'bg-emerald-500/10 border-emerald-500 text-white'
+                        : 'bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:border-zinc-700 hover:bg-zinc-800/80'
+                    }`}
+                  >
+                    <span className="font-bold block transition-colors group-hover:text-white">
+                      {item.label}
+                    </span>
+                    <span className="text-[9px] text-zinc-500 leading-tight block">
+                      {item.desc}
+                    </span>
+                    {tone === item.id && (
+                      <span className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Run Button */}
+            <div className="flex justify-end pt-1">
+              <button
+                onClick={handleAIOptimize}
+                disabled={isOptimizing}
+                className="w-full sm:w-auto px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl transition-all shadow-lg shadow-emerald-950/20 flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+              >
+                {isOptimizing ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    Optimizing Snippet Assets...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4" />
+                    Run AI Snippet Audit & Optimize
+                  </>
+                )}
+              </button>
+            </div>
+
+            {aiError && (
+              <div className="p-3 bg-red-950/20 border border-red-500/20 rounded-xl text-red-400 text-xs flex items-start gap-2.5">
+                <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+                <p>{aiError}</p>
+              </div>
+            )}
+
+            {/* Results Display */}
+            {aiResult && (
+              <div className="space-y-6 pt-3 border-t border-zinc-900 animate-fadeIn text-left">
+                
+                {/* Score & Feedback Row */}
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-stretch">
+                  {/* Score */}
+                  <div className="md:col-span-4 bg-zinc-900/40 border border-zinc-800/80 rounded-xl p-4 flex flex-col items-center justify-center text-center space-y-2">
+                    <span className="text-[10px] font-mono text-zinc-500 uppercase">AI SEO Score</span>
+                    
+                    <div className="relative w-20 h-20 flex items-center justify-center">
+                      <svg className="absolute w-full h-full -rotate-90" viewBox="0 0 36 36">
+                        <path
+                          className="text-zinc-800"
+                          strokeWidth="2.5"
+                          stroke="currentColor"
+                          fill="none"
+                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                        />
+                        <path
+                          className={
+                            aiResult.seoAuditScore >= 80 ? "text-emerald-500" :
+                            aiResult.seoAuditScore >= 50 ? "text-amber-500" : "text-red-500"
+                          }
+                          strokeWidth="2.5"
+                          strokeDasharray={`${aiResult.seoAuditScore}, 100`}
+                          strokeLinecap="round"
+                          stroke="currentColor"
+                          fill="none"
+                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                        />
+                      </svg>
+                      <span className="text-xl font-extrabold text-white font-mono">
+                        {aiResult.seoAuditScore}
+                      </span>
+                    </div>
+
+                    <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${
+                      aiResult.seoAuditScore >= 80 ? "bg-emerald-950/40 text-emerald-400" :
+                      aiResult.seoAuditScore >= 50 ? "bg-amber-950/40 text-amber-400" : "bg-red-950/40 text-red-400"
+                    }`}>
+                      {aiResult.seoAuditScore >= 80 ? "Excellent" :
+                       aiResult.seoAuditScore >= 50 ? "Needs Work" : "Critical"}
+                    </span>
+                  </div>
+
+                  {/* Audit Feedback */}
+                  <div className="md:col-span-8 bg-zinc-900/40 border border-zinc-800/80 rounded-xl p-4 space-y-2">
+                    <span className="text-[10px] font-mono text-zinc-500 uppercase block">Actionable AI Findings</span>
+                    <ul className="space-y-1.5 text-xs text-zinc-300 pl-1">
+                      {aiResult.auditFeedback.map((feedback, idx) => (
+                        <li key={idx} className="flex items-start gap-2">
+                          <span className="text-emerald-400 mt-0.5">•</span>
+                          <span>{feedback}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+                {/* Optimized Titles */}
+                <div className="space-y-2.5">
+                  <span className="text-[10px] font-mono text-zinc-500 uppercase block">2. High-Performance Page Title Rewrites</span>
+                  <div className="space-y-2">
+                    {aiResult.titleSuggestions.map((suggestion, idx) => {
+                      const suggPixels = estimatePixelWidth(suggestion.text, true);
+                      const isSuggOver = suggPixels > 600 || suggestion.text.length > 60;
+                      return (
+                        <div key={idx} className="bg-zinc-900/30 border border-zinc-900 rounded-xl p-3 space-y-2 hover:border-zinc-800 transition-all">
+                          <div className="flex justify-between items-start gap-3">
+                            <div className="space-y-1 flex-1 min-w-0 text-left">
+                              <p className="text-xs font-bold text-white break-words">
+                                {suggestion.text}
+                              </p>
+                              <p className="text-[10px] text-zinc-400 flex items-center gap-1">
+                                <Sparkles className="w-3 h-3 text-emerald-400" />
+                                {suggestion.ctrBoostReason}
+                              </p>
+                            </div>
+                            
+                            <div className="flex gap-1.5 shrink-0">
+                              <button
+                                onClick={() => {
+                                  setTitle(suggestion.text);
+                                  handleCopy(suggestion.text, `sugg-title-${idx}`);
+                                }}
+                                className="px-2.5 py-1 bg-emerald-950/40 hover:bg-emerald-900/60 border border-emerald-500/20 hover:border-emerald-500/40 text-emerald-400 hover:text-emerald-300 rounded-lg text-[10px] font-bold transition-all flex items-center gap-1 cursor-pointer"
+                              >
+                                {copiedText === `sugg-title-${idx}` ? <Check className="w-3 h-3 text-emerald-400" /> : <Plus className="w-3 h-3" />}
+                                {copiedText === `sugg-title-${idx}` ? 'Applied' : 'Apply'}
+                              </button>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-between text-[9px] font-mono text-zinc-500">
+                            <span>{suggestion.text.length} chars</span>
+                            <span className={isSuggOver ? 'text-red-400' : 'text-emerald-400'}>
+                              {suggPixels}px / 600px
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Optimized Descriptions */}
+                <div className="space-y-2.5">
+                  <span className="text-[10px] font-mono text-zinc-500 uppercase block">3. High-CTR Meta Description Rewrites</span>
+                  <div className="space-y-2">
+                    {aiResult.descriptionSuggestions.map((suggestion, idx) => {
+                      const suggPixels = estimatePixelWidth(suggestion.text, false);
+                      const isSuggOver = suggPixels > 960 || suggestion.text.length > 155;
+                      return (
+                        <div key={idx} className="bg-zinc-900/30 border border-zinc-900 rounded-xl p-3 space-y-2 hover:border-zinc-800 transition-all">
+                          <div className="flex justify-between items-start gap-3">
+                            <div className="space-y-1 flex-1 min-w-0 text-left">
+                              <p className="text-xs text-zinc-300 leading-relaxed break-words">
+                                {suggestion.text}
+                              </p>
+                              <p className="text-[10px] text-zinc-400 flex items-center gap-1">
+                                <Sparkles className="w-3 h-3 text-emerald-400" />
+                                {suggestion.ctrBoostReason}
+                              </p>
+                            </div>
+                            
+                            <div className="flex gap-1.5 shrink-0">
+                              <button
+                                onClick={() => {
+                                  setDescription(suggestion.text);
+                                  handleCopy(suggestion.text, `sugg-desc-${idx}`);
+                                }}
+                                className="px-2.5 py-1 bg-emerald-950/40 hover:bg-emerald-900/60 border border-emerald-500/20 hover:border-emerald-500/40 text-emerald-400 hover:text-emerald-300 rounded-lg text-[10px] font-bold transition-all flex items-center gap-1 cursor-pointer"
+                              >
+                                {copiedText === `sugg-desc-${idx}` ? <Check className="w-3 h-3 text-emerald-400" /> : <Plus className="w-3 h-3" />}
+                                {copiedText === `sugg-desc-${idx}` ? 'Applied' : 'Apply'}
+                              </button>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-between text-[9px] font-mono text-zinc-500">
+                            <span>{suggestion.text.length} chars</span>
+                            <span className={isSuggOver ? 'text-red-400' : 'text-emerald-400'}>
+                              {suggPixels}px / 960px
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* AI Keyword Analysis */}
+                <div className="space-y-2.5">
+                  <span className="text-[10px] font-mono text-zinc-500 uppercase block">4. AI Keyword Target Analysis</span>
+                  <div className="overflow-x-auto rounded-xl border border-zinc-900 bg-zinc-950/40 text-left">
+                    <table className="w-full text-[11px] border-collapse">
+                      <thead>
+                        <tr className="bg-zinc-900/60 text-zinc-500 uppercase font-mono text-[9px] border-b border-zinc-900">
+                          <th className="p-2.5">Keyword</th>
+                          <th className="p-2.5 text-center">Title</th>
+                          <th className="p-2.5 text-center">Description</th>
+                          <th className="p-2.5">AI Pro Advice</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-zinc-900 text-zinc-300">
+                        {aiResult.keywordAnalysis.map((analysis, idx) => (
+                          <tr key={idx} className="hover:bg-zinc-900/20">
+                            <td className="p-2.5 font-bold text-white whitespace-nowrap">
+                              {analysis.keyword}
+                            </td>
+                            <td className="p-2.5 text-center">
+                              <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold font-mono ${
+                                analysis.foundInTitle ? 'bg-emerald-950/40 text-emerald-400 border border-emerald-500/10' : 'bg-zinc-900 text-zinc-500'
+                              }`}>
+                                {analysis.foundInTitle ? 'YES' : 'NO'}
+                              </span>
+                            </td>
+                            <td className="p-2.5 text-center">
+                              <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold font-mono ${
+                                analysis.foundInDescription ? 'bg-emerald-950/40 text-emerald-400 border border-emerald-500/10' : 'bg-zinc-900 text-zinc-500'
+                              }`}>
+                                {analysis.foundInDescription ? 'YES' : 'NO'}
+                              </span>
+                            </td>
+                            <td className="p-2.5 text-zinc-400 leading-snug">
+                              {analysis.recommendation}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+              </div>
+            )}
+          </div>
+
           {/* Expert SEO Recommendations Panel */}
           <div className="bg-zinc-950/80 border border-zinc-900 rounded-2xl p-5 sm:p-6 shadow-lg space-y-4">
             <span className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
@@ -2858,6 +3180,147 @@ export default function SERPPreviewer() {
           </div>
         )}
       </div>
+
+      {/* Google AdSense Compliant Informational Article & FAQs Footer */}
+      <div className="border-t border-zinc-900 pt-12 mt-12 space-y-10 text-left max-w-5xl mx-auto px-4">
+        
+        {/* Editorial Heading */}
+        <div className="space-y-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-semibold">
+            <BookOpen className="w-3.5 h-3.5" />
+            <span>SEO Best Practices: Click-Through Rate (CTR) & Search Layouts</span>
+          </div>
+          <h3 className="text-xl font-bold text-white tracking-tight sm:text-2xl">
+            Maximizing Organic Click-Through Rates (CTR) & Optimizing Search Snippets (SERP)
+          </h3>
+          <p className="text-zinc-400 text-sm leading-relaxed">
+            Writing meta titles and descriptions isn't just about packing keywords. It's about psychology, pixel counts, and rich schema indicators. Learn how configuring compliant meta snippets helps you achieve Google AdSense approval and rank in top spots.
+          </p>
+        </div>
+
+        {/* 2-Column Article Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          
+          {/* Article Column 1 */}
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <h4 className="text-base font-bold text-zinc-100 flex items-center gap-2">
+                <span className="text-red-500 font-mono">01.</span>
+                What is a SERP Snippet Previewer?
+              </h4>
+              <p className="text-zinc-400 text-xs leading-relaxed">
+                A **SERP (Search Engine Results Page) Snippet Previewer** is an essential visual sandbox that mimics Google's exact layout engine, allowing you to preview how your page's title, URL, and meta description will appear on desktop and mobile viewports.
+              </p>
+              <p className="text-zinc-400 text-xs leading-relaxed">
+                Google doesn't measure snippets by character count alone; it uses precise pixel widths (typically 600px for titles and 960px for descriptions). Going over these thresholds results in truncated text (`...`), lowering your CTR.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <h4 className="text-base font-bold text-zinc-100 flex items-center gap-2">
+                <span className="text-red-500 font-mono">02.</span>
+                Importance of Rich Snippets and Schema Markup
+              </h4>
+              <p className="text-zinc-400 text-xs leading-relaxed">
+                Standard text snippets can look bland. Integrating rich schema structures (like review stars, FAQ dropdowns, breadcrumb links, and publication dates) expands your visual footprint on Google:
+              </p>
+              <ul className="space-y-2 text-zinc-400 text-xs pl-4 list-disc">
+                <li><strong className="text-zinc-200">Star Ratings:</strong> Establishes trust immediately, showing review scores and user consensus directly.</li>
+                <li><strong className="text-zinc-200">Sitelinks:</strong> Provides shortcuts to secondary pages, increasing total site real estate.</li>
+                <li><strong className="text-zinc-200">FAQ Dropdowns:</strong> Captures prominent real estate by answering common user questions right inside search results.</li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Article Column 2 */}
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <h4 className="text-base font-bold text-zinc-100 flex items-center gap-2">
+                <span className="text-red-500 font-mono">03.</span>
+                How Search Engine Snippets Affect AdSense Approvals
+              </h4>
+              <p className="text-zinc-400 text-xs leading-relaxed">
+                When Google reviews websites for the AdSense program, they evaluate if your page represents a credible and professionally configured domain. Having unoptimized, automated, or overlapping meta-tags suggests a lack of attention to site structure.
+              </p>
+              <p className="text-zinc-400 text-xs leading-relaxed">
+                By carefully structuring your meta-tags and previewing them across mobile and desktop devices, you pass automated validation tests with ease, verifying compliance with Google's strict publisher guidelines.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <h4 className="text-base font-bold text-zinc-100 flex items-center gap-2">
+                <span className="text-red-500 font-mono">04.</span>
+                Advanced Strategies for CTR Optimization
+              </h4>
+              <ol className="space-y-1.5 text-zinc-400 text-xs pl-4 list-decimal">
+                <li>Keep titles between 50 and 60 characters to avoid truncation.</li>
+                <li>Write compelling meta descriptions (120 to 155 characters) that end with a strong Call-To-Action (CTA).</li>
+                <li>Always place your primary keyword at the very beginning of the title tag.</li>
+                <li>Test mobile-responsiveness: Google prioritizes mobile indexing, so your snippet must look perfect on smartphone preview toggles.</li>
+                <li>Analyze related LSI keywords using our interactive target database to seed matching synonyms into your snippet copy.</li>
+              </ol>
+            </div>
+          </div>
+
+        </div>
+
+        {/* Separator */}
+        <div className="border-t border-zinc-900/60" />
+
+        {/* FAQ Section */}
+        <div className="space-y-6">
+          <div className="space-y-1">
+            <h4 className="text-lg font-bold text-white tracking-tight">Frequently Asked Questions (FAQ)</h4>
+            <p className="text-zinc-500 text-xs">Got questions about Google pixel widths, meta-tag updates, and snippet styling? Read on.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <div className="bg-zinc-950/40 border border-zinc-900 rounded-xl p-4 space-y-1.5">
+              <h5 className="text-xs font-bold text-zinc-100 flex items-center gap-1.5">
+                <Info className="w-3.5 h-3.5 text-red-400 shrink-0" />
+                What is the maximum pixel width for Google title tags?
+              </h5>
+              <p className="text-zinc-400 text-[11px] leading-relaxed">
+                On desktop viewports, Google displays title tags up to 600 pixels wide before truncating them. This translates to roughly 60 characters, although wider characters like "W" or "M" consume more pixel space than "i" or "l."
+              </p>
+            </div>
+
+            <div className="bg-zinc-950/40 border border-zinc-900 rounded-xl p-4 space-y-1.5">
+              <h5 className="text-xs font-bold text-zinc-100 flex items-center gap-1.5">
+                <Info className="w-3.5 h-3.5 text-red-400 shrink-0" />
+                Does Google always use the meta description I write?
+              </h5>
+              <p className="text-zinc-400 text-[11px] leading-relaxed">
+                No, Google dynamically rewrites meta descriptions in up to 70% of searches if they determine that a different excerpt from your page's body text matches the user's specific query more accurately.
+              </p>
+            </div>
+
+            <div className="bg-zinc-950/40 border border-zinc-900 rounded-xl p-4 space-y-1.5">
+              <h5 className="text-xs font-bold text-zinc-100 flex items-center gap-1.5">
+                <Info className="w-3.5 h-3.5 text-red-400 shrink-0" />
+                How often does Google update search snippets in indexation?
+              </h5>
+              <p className="text-zinc-400 text-[11px] leading-relaxed">
+                Once you change your meta tags, Google will update the search snippet as soon as Googlebot recrawls and reindexes the page. This typically takes anywhere from a few hours to several days depending on crawl frequency.
+              </p>
+            </div>
+
+            <div className="bg-zinc-950/40 border border-zinc-900 rounded-xl p-4 space-y-1.5">
+              <h5 className="text-xs font-bold text-zinc-100 flex items-center gap-1.5">
+                <Info className="w-3.5 h-3.5 text-red-400 shrink-0" />
+                Are meta keywords still relevant for search rankings?
+              </h5>
+              <p className="text-zinc-400 text-[11px] leading-relaxed">
+                No. Google officially announced in 2009 that they completely ignore the `meta keywords` HTML tag. Focusing on rich headings, organic search intents, and compelling title tags is a far superior ranking methodology.
+              </p>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
     </div>
   );
 }
