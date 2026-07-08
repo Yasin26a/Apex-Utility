@@ -2699,7 +2699,21 @@ Draft guidelines:
     const tools = [
       'css-generator', 'compress-pdf', 'webp-converter', 'json-beautifier', 
       'sitemap-seo', 'sitemap-generator', 'image-to-pdf', 'join-pdf', 'ai-writer', 
-      'password-generator', 'qr-generator', 'unit-converter', 'svg-rasterizer', 'batch-processor', 'json-diff', 'secure-hash', 'color-palette', 'digital-signature', 'seo-optimizer', 'base64-converter', 'regex-tester', 'csv-json-converter', 'image-compressor', 'rich-text-stats', 'audio-trimmer', 'ai-transcriber', 'pdf-analyst', 'exif-stripper', 'video-recorder', 'image-vectorizer', 'code-snapshot', 'private-sketchpad', 'case-converter', 'lorem-generator', 'image-cropper', 'date-calculator', 'privacy-policy', 'terms-of-service', 'about-us', 'guides', 'content-planner', 'schema-generator', 'content-gap', 'keyword-cluster'
+      'password-generator', 'qr-generator', 'unit-converter', 'svg-rasterizer', 'batch-processor',
+      'json-diff', 'secure-hash', 'color-palette', 'digital-signature', 'seo-optimizer',
+      'base64-converter', 'regex-tester', 'csv-json-converter', 'image-compressor', 'rich-text-stats',
+      'audio-trimmer', 'ai-transcriber', 'pdf-analyst', 'exif-stripper', 'video-recorder',
+      'image-vectorizer', 'code-snapshot', 'private-sketchpad', 'case-converter', 'lorem-generator',
+      'image-cropper', 'date-calculator', 'privacy-policy', 'terms-of-service', 'about-us',
+      'guides', 'content-planner', 'social-hooks', 'code-explainer', 'favicon-generator',
+      'alt-text-generator', 'keyword-difficulty', 'url-slugifier', 'schema-generator', 'content-gap',
+      'keyword-cluster', 'redirect-auditor', 'google-serp', 'sql-formatter', 'subnet-cidr',
+      'svg-wave', 'box-shadow', 'robots-txt', 'dns-lookup', 'user-agent',
+      'html-markdown', 'meta-tags', 'ai-humanizer', 'tone-analyzer', 'resume-optimizer',
+      'text-summarizer', 'passport-photo', 'meme-generator', 'headshot-generator', 'image-upscaler',
+      'mockup-generator', 'pdf-converter', 'pdf-form-filler', 'pdf-signer', 'uuid-generator',
+      'cron-builder', 'jwt-decoder', 'gradient-generator', 'password-sharer', 'data-breach',
+      'checksum-verifier', 'age-calculator', 'loan-calculator', 'bmi-calculator'
     ];
 
     const today = new Date().toISOString().split('T')[0];

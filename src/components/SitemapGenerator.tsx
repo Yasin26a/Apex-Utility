@@ -194,8 +194,8 @@ export default function SitemapGenerator() {
       }
     });
 
-    // Add top 35 technical articles directly to the indexable sitemap!
-    AT_LEAST_20_ARTICLES.slice(0, 35).forEach((art, index) => {
+    // Add all technical articles directly to the indexable sitemap!
+    AT_LEAST_20_ARTICLES.forEach((art, index) => {
       defaultList.push({
         id: `initial_art_${index}`,
         path: `/guides?id=${encodeURIComponent(art.id)}`,
