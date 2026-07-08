@@ -1,6 +1,6 @@
 {
   "name": "APEX UTILITY",
-  "description": "Ultra-premium client-side and AI cloud utility suite featuring a premium Code Snapshot Canvas, secure AI Audio Transcriber, high-fidelity PDF document optimizer, and local formatting terminals.",
+  "description": "Ultra-premium client-side search utility suite featuring a Google SERP Snippet Previewer & SEO Meta Tag Simulator, search index visibility optimizer, local formatting terminals, and secure offline tools.",
   "requestFramePermissions": ["camera", "microphone"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

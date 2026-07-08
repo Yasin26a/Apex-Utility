@@ -1601,6 +1601,29 @@ Rules:
 
 Page Title: "${title || ''}"
 Focus Keyword: "${targetKeyword || ''}"`;
+      } else if (action === 'slug_keywords') {
+        systemInstruction = 'You are an expert SEO copywriter and URL keyword architect. You analyze a webpage title and return strictly formatted JSON matching the responseSchema.';
+        responseMimeType = 'application/json';
+        responseSchema = {
+          type: Type.OBJECT,
+          properties: {
+            suggestions: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  keyword: { type: Type.STRING, description: 'A suggested keyword or short phrase to include in the URL slug.' },
+                  rationale: { type: Type.STRING, description: 'Short technical rationale of why this keyword is high-ranking or beneficial for search CTR.' }
+                },
+                required: ['keyword', 'rationale']
+              }
+            }
+          },
+          required: ['suggestions']
+        };
+        userPrompt = `Given the webpage/article title below, suggest 4 high-ranking keywords or short keyword variations that are highly optimized for a search-friendly URL slug. For each suggestion, provide a concise technical SEO rationale.
+        
+Page Title: "${title || ''}"`;
       } else {
         res.status(400).json({ error: `Unsupported action parameter: ${action}` });
         return;

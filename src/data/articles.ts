@@ -1,6 +1,7 @@
 import { CSS_GLASS_SHADOW_ARTICLES } from './cssArticles';
 import { WEB_NEWS_TECH_ARTICLES } from './webNewsArticles';
 import { generate100SEOArticles } from './seoOptimized100Articles';
+import { generateNew100Articles } from './new100Articles';
 import { REDDIT_50_TOPICS } from './reddit50Articles';
 
 export interface Article {
@@ -2366,7 +2367,8 @@ export const AT_LEAST_20_ARTICLES: Article[] = [
   ...TRENDING_AI_TECH_ARTICLES,
   ...CSS_GLASS_SHADOW_ARTICLES,
   ...WEB_NEWS_TECH_ARTICLES,
-  ...generate100SEOArticles()
+  ...generate100SEOArticles(),
+  ...generateNew100Articles()
 ].map(expandArticleTo10k);
 
 

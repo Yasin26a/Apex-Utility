@@ -20,7 +20,11 @@ import {
   Cpu, 
   CheckCircle2,
   Bookmark,
-  FileDown
+  FileDown,
+  Link,
+  Layers,
+  Trash2,
+  Upload
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -55,6 +59,70 @@ function countSyllablesInWord(word: string): number {
   
   // Ensure we return at least 1 syllable for non-empty words
   return syllableCount > 0 ? syllableCount : 1;
+}
+
+export function generateSlugFromText(
+  inputText: string,
+  separator: string,
+  lowercase: boolean,
+  removeStops: boolean,
+  stripAccents: boolean,
+  maxLength: number
+): string {
+  if (!inputText) return '';
+  let slug = inputText.trim();
+
+  // 1. Strip Accents / Diacritics
+  if (stripAccents) {
+    slug = slug.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  }
+
+  // 2. Case folding
+  if (lowercase) {
+    slug = slug.toLowerCase();
+  }
+
+  // 3. Stop words removal
+  if (removeStops) {
+    const stops = ['and', 'the', 'a', 'an', 'or', 'is', 'in', 'with', 'to', 'for', 'on', 'of', 'at', 'by', 'your', 'my', 'but', 'from', 'about', 'how', 'why', 'what'];
+    const words = slug.split(/[^a-zA-Z0-9]+/g);
+    const filteredWords = words.filter(w => {
+      const lower = w.toLowerCase();
+      return lower.length > 0 && !stops.includes(lower);
+    });
+    slug = filteredWords.join(' ');
+  }
+
+  // 4. Clean non-alphanumeric (keep spaces, dashes, underscores)
+  slug = slug.replace(/[^a-zA-Z0-9\s-_]/g, '');
+
+  // 5. Replace spaces and existing dashes/underscores with custom separator
+  const sep = separator;
+  const escapeSep = sep.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const spaceRegex = new RegExp(`[\\s-_${escapeSep || ' '}]+`, 'g');
+  slug = slug.replace(spaceRegex, sep || ' ');
+
+  // Trim leading/trailing separators
+  if (sep) {
+    const trimRegex = new RegExp(`(^${escapeSep}+|${escapeSep}+$)`, 'g');
+    slug = slug.replace(trimRegex, '');
+  } else {
+    slug = slug.trim();
+  }
+
+  // 6. Max length truncate
+  if (slug.length > maxLength) {
+    let truncated = slug.substring(0, maxLength);
+    if (sep) {
+      const lastSep = truncated.lastIndexOf(sep);
+      if (lastSep > 0) {
+        truncated = truncated.substring(0, lastSep);
+      }
+    }
+    slug = truncated;
+  }
+
+  return slug;
 }
 
 export default function SEOOptimizer() {
@@ -144,6 +212,275 @@ export default function SEOOptimizer() {
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [aiApiKeyMissing, setAiApiKeyMissing] = useState<boolean>(false);
   const [showDensityExplanation, setShowDensityExplanation] = useState<boolean>(false);
+
+  // URL Slugifier sub-tool states
+  const [slugInput, setSlugInput] = useState<string>('');
+  const [slugSeparator, setSlugSeparator] = useState<string>('-');
+  const [slugLowercase, setSlugLowercase] = useState<boolean>(true);
+  const [slugRemoveStops, setSlugRemoveStops] = useState<boolean>(true);
+  const [slugStripAccents, setSlugStripAccents] = useState<boolean>(true);
+  const [slugMaxLength, setSlugMaxLength] = useState<number>(80);
+  const [slugCustomDomain, setSlugCustomDomain] = useState<string>('mysite.com');
+  const [slugPreviewType, setSlugPreviewType] = useState<'wordpress' | 'shopify' | 'standard'>('wordpress');
+  const [slugCopied, setSlugCopied] = useState<boolean>(false);
+  const [slugKeywordsLoading, setSlugKeywordsLoading] = useState<boolean>(false);
+  const [slugKeywordsSuggestions, setSlugKeywordsSuggestions] = useState<Array<{ keyword: string; rationale: string }>>([]);
+  const [slugKeywordsError, setSlugKeywordsError] = useState<string | null>(null);
+
+  // Bulk processing states
+  const [slugifierMode, setSlugifierMode] = useState<'single' | 'bulk'>('single');
+  const [bulkInput, setBulkInput] = useState<string>('');
+  const [bulkCopiedIndex, setBulkCopiedIndex] = useState<number | null>(null);
+  const [bulkAllCopied, setBulkAllCopied] = useState<boolean>(false);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+
+  const generatedSlug = useMemo(() => {
+    return generateSlugFromText(slugInput, slugSeparator, slugLowercase, slugRemoveStops, slugStripAccents, slugMaxLength);
+  }, [slugInput, slugSeparator, slugLowercase, slugRemoveStops, slugStripAccents, slugMaxLength]);
+
+  const slugValidationResults = useMemo(() => {
+    if (!generatedSlug) return null;
+    const s = generatedSlug;
+    
+    const rules = [
+      {
+        id: 'slash',
+        label: 'No Slashes',
+        passed: !s.startsWith('/') && !s.endsWith('/') && !s.includes('//') && !s.includes('/'),
+        failMessage: "Contains slashes ('/'). URL slugs must represent a single routing path segment.",
+        passMessage: "Path is slash-free.",
+        severity: 'error' as const
+      },
+      {
+        id: 'chars',
+        label: 'Illegal Characters',
+        passed: !/[^a-zA-Z0-9-_]/.test(s),
+        failMessage: "Contains spaces or special symbols like ?, &, #, %, etc.",
+        passMessage: "Uses only safe alphanumeric characters, dashes, and underscores.",
+        severity: 'error' as const
+      },
+      {
+        id: 'separators',
+        label: 'Consecutive Separators',
+        passed: !s.includes('--') && !s.includes('__') && !s.includes('-_') && !s.includes('_-'),
+        failMessage: "Contains consecutive separators (e.g. '--' or '__').",
+        passMessage: "Clean single-separator structure.",
+        severity: 'warning' as const
+      },
+      {
+        id: 'edges',
+        label: 'Edge Separators',
+        passed: !s.startsWith('-') && !s.endsWith('-') && !s.startsWith('_') && !s.endsWith('_'),
+        failMessage: "Starts or ends with a separator character.",
+        passMessage: "No leading or trailing separator characters.",
+        severity: 'warning' as const
+      },
+      {
+        id: 'reserved',
+        label: 'Reserved Keywords',
+        passed: (() => {
+          const reservedList = [
+            'admin', 'api', 'login', 'logout', 'register', 'index', 'home', 'dashboard', 'app', 
+            'config', 'settings', 'static', 'public', 'assets', 'users', 'posts', 'images', 
+            'robots.txt', 'sitemap.xml', 'favicon.ico', 'undefined', 'null', 'search', 'category', 
+            'tag', 'archive', 'feed', 'wp-admin', 'wp-content'
+          ];
+          const pattern = new RegExp(`(?:^|[-_/])(${reservedList.join('|')})(?:$|[-_/])`, 'i');
+          return !pattern.test(s);
+        })(),
+        failMessage: (() => {
+          const reservedList = [
+            'admin', 'api', 'login', 'logout', 'register', 'index', 'home', 'dashboard', 'app', 
+            'config', 'settings', 'static', 'public', 'assets', 'users', 'posts', 'images', 
+            'robots.txt', 'sitemap.xml', 'favicon.ico', 'undefined', 'null', 'search', 'category', 
+            'tag', 'archive', 'feed', 'wp-admin', 'wp-content'
+          ];
+          const pattern = new RegExp(`(?:^|[-_/])(${reservedList.join('|')})(?:$|[-_/])`, 'i');
+          const match = s.match(pattern);
+          const matchedWord = match ? match[1] : '';
+          return matchedWord 
+            ? `Routing conflict: Slug contains the reserved keyword segment '${matchedWord}', which can hijack router operations.`
+            : "Matches a reserved system keyword segment which may hijack router operations.";
+        })(),
+        passMessage: "No system routing conflicts or reserved keywords detected.",
+        severity: 'error' as const
+      },
+      {
+        id: 'casing',
+        label: 'Casing Standard',
+        passed: s === s.toLowerCase(),
+        failMessage: "Contains uppercase letters (PascalCase, CamelCase, or mixed-case) which can trigger duplicate-index content penalties.",
+        passMessage: "Slug is strictly lowercase.",
+        severity: 'warning' as const
+      },
+      {
+        id: 'length',
+        label: 'Optimal Length',
+        passed: s.length >= 3 && s.length <= 60,
+        failMessage: s.length < 3 ? "Slug is extremely short (under 3 characters)." : "Slug is long (exceeds 60 characters), risking search truncation.",
+        passMessage: "Character length fits within optimal SEO parameters (3-60 chars).",
+        severity: 'warning' as const
+      }
+    ];
+
+    const errors = rules.filter(r => !r.passed && r.severity === 'error');
+    const warnings = rules.filter(r => !r.passed && r.severity === 'warning');
+    const totalFailed = rules.filter(r => !r.passed).length;
+
+    let status: 'safe' | 'warning' | 'danger' = 'safe';
+    if (errors.length > 0) status = 'danger';
+    else if (warnings.length > 0) status = 'warning';
+
+    return {
+      rules,
+      status,
+      totalFailed,
+      errorsCount: errors.length,
+      warningsCount: warnings.length
+    };
+  }, [generatedSlug]);
+
+  const handleAutoFixSlug = () => {
+    if (!generatedSlug) return;
+    
+    let fixed = generatedSlug;
+    
+    // 1. Strip leading/trailing slashes, hyphens, underscores
+    fixed = fixed.replace(/^[\/\\-_]+|[\/\\-_]+$/g, '');
+    
+    // 2. Remove any remaining restricted characters
+    fixed = fixed.replace(/[^a-zA-Z0-9-_]/g, '');
+    
+    // 3. Resolve consecutive separators
+    fixed = fixed.replace(/-+/g, '-').replace(/_+/g, '_');
+    
+    // 4. Convert mixed casing to lowercase if slugLowercase is on
+    if (slugLowercase) {
+      fixed = fixed.toLowerCase();
+    }
+    
+    // 5. Resolve reserved keyword conflicts using a comprehensive regex tester
+    const reservedList = [
+      'admin', 'api', 'login', 'logout', 'register', 'index', 'home', 'dashboard', 'app', 
+      'config', 'settings', 'static', 'public', 'assets', 'users', 'posts', 'images', 
+      'robots.txt', 'sitemap.xml', 'favicon.ico', 'undefined', 'null', 'search', 'category', 
+      'tag', 'archive', 'feed', 'wp-admin', 'wp-content'
+    ];
+    const pattern = new RegExp(`(?:^|[-_/])(${reservedList.join('|')})(?:$|[-_/])`, 'i');
+    let match = fixed.match(pattern);
+    while (match) {
+      const keyword = match[1];
+      const regexKeyword = new RegExp(`(^|[-_/])${keyword}([-_/]|$)`, 'i');
+      fixed = fixed.replace(regexKeyword, `$1${keyword}page$2`);
+      match = fixed.match(pattern);
+    }
+
+    setSlugInput(fixed);
+  };
+
+  const bulkItems = useMemo(() => {
+    if (!bulkInput) return [];
+    const lines = bulkInput.split(/\r?\n/).map(line => line.trim()).filter(line => line.length > 0);
+    return lines.map((line, index) => {
+      const slug = generateSlugFromText(
+        line,
+        slugSeparator,
+        slugLowercase,
+        slugRemoveStops,
+        slugStripAccents,
+        slugMaxLength
+      );
+      return {
+        id: index,
+        title: line,
+        slug: slug,
+        length: slug.length,
+        isOverLimit: slug.length > 60
+      };
+    });
+  }, [bulkInput, slugSeparator, slugLowercase, slugRemoveStops, slugStripAccents, slugMaxLength]);
+
+  const downloadBulkAsCSV = () => {
+    if (bulkItems.length === 0) return;
+    const headers = 'Original Title,Generated URL Slug,Length\n';
+    const csvContent = bulkItems.map(item => {
+      const escapedTitle = `"${item.title.replace(/"/g, '""')}"`;
+      const escapedSlug = `"${item.slug.replace(/"/g, '""')}"`;
+      return `${escapedTitle},${escapedSlug},${item.length}`;
+    }).join('\n');
+    
+    const blob = new Blob([headers + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'seo_url_slugs_bulk.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const downloadBulkAsTXT = () => {
+    if (bulkItems.length === 0) return;
+    const txtContent = bulkItems.map(item => item.slug).join('\n');
+    const blob = new Blob([txtContent], { type: 'text/plain;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'seo_url_slugs_list.txt');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const readFileContent = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const content = event.target?.result as string;
+      if (content) {
+        if (file.name.endsWith('.csv')) {
+          const lines = content.split(/\r?\n/).map(line => {
+            const trimmed = line.trim();
+            if (trimmed.startsWith('"') && trimmed.endsWith('"')) {
+              return trimmed.slice(1, -1).replace(/""/g, '"');
+            }
+            const firstComma = trimmed.indexOf(',');
+            if (firstComma > 0) {
+              return trimmed.substring(0, firstComma).trim();
+            }
+            return trimmed;
+          }).filter(line => line.length > 0);
+          setBulkInput(lines.join('\n'));
+        } else {
+          setBulkInput(content);
+        }
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    readFileContent(file);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      readFileContent(file);
+    }
+  };
 
   // Core offline metrics analyzer
   const metrics = useMemo(() => {
@@ -579,6 +916,53 @@ export default function SEOOptimizer() {
     }
   };
 
+  const getSlugKeywordSuggestions = async () => {
+    if (!slugInput.trim()) return;
+    setSlugKeywordsLoading(true);
+    setSlugKeywordsError(null);
+    setSlugKeywordsSuggestions([]);
+    try {
+      const response = await fetch('/api/seo/optimize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'slug_keywords',
+          title: slugInput
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Server error occurred inside Gemini.');
+      }
+
+      const data = await response.json();
+      const returnedText = data.text;
+
+      if (!returnedText) {
+        throw new Error('Empty response returned from model.');
+      }
+
+      let cleanDataString = returnedText.trim();
+      if (cleanDataString.startsWith('```json')) {
+        cleanDataString = cleanDataString.substring(7, cleanDataString.length - 3).trim();
+      } else if (cleanDataString.startsWith('```')) {
+        cleanDataString = cleanDataString.substring(3, cleanDataString.length - 3).trim();
+      }
+      const parsed = JSON.parse(cleanDataString);
+      if (parsed && Array.isArray(parsed.suggestions)) {
+        setSlugKeywordsSuggestions(parsed.suggestions);
+      } else {
+        throw new Error('Invalid suggestions data format.');
+      }
+    } catch (err: any) {
+      console.error('Failed to get slug keyword suggestions:', err);
+      setSlugKeywordsError(err.message || 'Failed to query suggestions. Check your server connection.');
+    } finally {
+      setSlugKeywordsLoading(false);
+    }
+  };
+
   const currentMetaTitleLengthStatus = useMemo(() => {
     const len = metaTitle.length;
     if (len === 0) return { label: 'Empty', clr: 'text-rose-400', progressClr: 'bg-rose-500', width: 0 };
@@ -933,7 +1317,7 @@ export default function SEOOptimizer() {
   };
 
   return (
-    <div id="seo-optimizer-dashboard" className="max-w-[1400px] mx-auto p-4 md:p-6 lg:p-8 space-y-6">
+    <div id="seo-optimizer" className="max-w-[1400px] mx-auto p-4 md:p-6 lg:p-8 space-y-6">
       
       {/* Dynamic Header Section */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 pb-6 border-b border-brand-border/30">
@@ -1255,6 +1639,694 @@ export default function SEOOptimizer() {
                 </motion.div>
               )}
             </AnimatePresence>
+          </div>
+
+          {/* URL Slugifier Sub-tool */}
+          <div className="bg-[#0b0c10]/80 border border-brand-border/30 rounded-2xl p-4 sm:p-5 space-y-5 shadow-xl">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-brand-border/20">
+              <div className="flex items-center gap-2.5">
+                <div className="p-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-emerald-400">
+                  <Link className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-xs font-mono uppercase text-gray-200 tracking-wider">
+                    URL Slugifier
+                  </h3>
+                  <span className="text-[10px] text-zinc-500 font-mono uppercase">CMS Permalinks Generator</span>
+                </div>
+              </div>
+              
+              {/* Mode Switcher Tabs */}
+              <div className="flex bg-[#0a0b0e] p-1 rounded-xl border border-brand-border/30 self-start sm:self-auto">
+                <button
+                  type="button"
+                  id="tab-slug-single"
+                  onClick={() => setSlugifierMode('single')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-mono uppercase tracking-wider transition ${
+                    slugifierMode === 'single'
+                      ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20'
+                      : 'text-zinc-500 hover:text-zinc-300'
+                  }`}
+                >
+                  Single Slug
+                </button>
+                <button
+                  type="button"
+                  id="tab-slug-bulk"
+                  onClick={() => setSlugifierMode('bulk')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-mono uppercase tracking-wider transition ${
+                    slugifierMode === 'bulk'
+                      ? 'bg-purple-500/15 text-purple-400 border border-purple-500/20'
+                      : 'text-zinc-500 hover:text-zinc-300'
+                  }`}
+                >
+                  <Layers className="w-3 h-3" />
+                  Bulk Process
+                </button>
+              </div>
+            </div>
+
+            {slugifierMode === 'single' ? (
+              /* Single mode input fields */
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center flex-wrap gap-2">
+                    <label htmlFor="slug-input-text" className="text-xs font-mono text-gray-400 uppercase">
+                      Original Title / Text
+                    </label>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <button 
+                        type="button"
+                        onClick={() => {
+                          if (metaTitle) {
+                            setSlugInput(metaTitle);
+                          }
+                        }}
+                        disabled={!metaTitle}
+                        className="text-[10px] font-mono text-emerald-400 hover:text-emerald-300 disabled:text-zinc-650 disabled:cursor-not-allowed transition"
+                        title="Load the SEO title drafted above"
+                      >
+                        Load SEO Title
+                      </button>
+                      <span className="text-zinc-700">|</span>
+                      <button 
+                        type="button"
+                        onClick={getSlugKeywordSuggestions}
+                        disabled={!slugInput.trim() || slugKeywordsLoading}
+                        className="text-[10px] font-mono text-purple-400 hover:text-purple-300 disabled:text-zinc-600 disabled:cursor-not-allowed transition flex items-center gap-1 font-bold"
+                        title="Get AI keyword suggestions to optimize your URL slug"
+                      >
+                        <Sparkles className="w-3 h-3 text-purple-400 animate-pulse" />
+                        {slugKeywordsLoading ? 'Analyzing...' : 'AI Suggestions'}
+                      </button>
+                      <span className="text-zinc-700">|</span>
+                      <button 
+                        type="button"
+                        onClick={() => {
+                          setSlugInput('');
+                          setSlugKeywordsSuggestions([]);
+                          setSlugKeywordsError(null);
+                        }}
+                        className="text-[10px] font-mono text-rose-400 hover:text-rose-300 transition"
+                      >
+                        Clear
+                      </button>
+                    </div>
+                  </div>
+                  <input 
+                    id="slug-input-text"
+                    type="text"
+                    value={slugInput}
+                    onChange={(e) => setSlugInput(e.target.value)}
+                    placeholder="Type or paste a title (e.g. Under the Hood of Client-Side WebAssembly PDF Compression)"
+                    className="w-full bg-[#0a0b0e] border border-brand-border/50 focus:border-emerald-500/50 rounded-xl px-3.5 py-3 md:py-2.5 text-base md:text-sm text-white focus:outline-none focus:ring-1 focus:ring-emerald-500/40 min-h-[44px] md:min-h-[38px] transition-all font-sans"
+                  />
+                  {slugInput && (
+                    <div className="flex justify-between items-center text-[10px] font-mono mt-1 px-1">
+                      <span className={`${generatedSlug.length > 60 ? 'text-amber-400 font-semibold' : 'text-zinc-500'}`}>
+                        Generated slug length: <span className="underline font-bold">{generatedSlug.length}</span> / 60 max recommended
+                      </span>
+                      {generatedSlug.length > 60 ? (
+                        <span className="text-amber-400 font-semibold flex items-center gap-1 animate-pulse">
+                          ⚠️ Exceeds SEO recommendation
+                        </span>
+                      ) : (
+                        <span className="text-emerald-500 font-semibold">
+                          ✓ Optimal slug length
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  {/* AI Suggested Keywords list */}
+                  <AnimatePresence>
+                    {(slugKeywordsSuggestions.length > 0 || slugKeywordsLoading || slugKeywordsError) && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="overflow-hidden space-y-3 pt-1"
+                      >
+                        <div className="bg-[#100d1e]/80 border border-purple-500/20 rounded-xl p-3.5 space-y-3 shadow-md">
+                          <div className="flex justify-between items-center pb-1.5 border-b border-purple-500/10">
+                            <div className="flex items-center gap-1.5">
+                              <Sparkles className="w-3.5 h-3.5 text-purple-400 animate-pulse" />
+                              <span className="text-[10px] font-mono text-purple-300 uppercase tracking-wider font-bold">
+                                AI Slug Keyword Recommendations
+                              </span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSlugKeywordsSuggestions([]);
+                                setSlugKeywordsError(null);
+                              }}
+                              className="text-[9px] font-mono uppercase text-zinc-500 hover:text-zinc-300 transition"
+                            >
+                              Dismiss
+                            </button>
+                          </div>
+
+                          {slugKeywordsLoading && (
+                            <div className="flex items-center gap-2.5 text-xs text-purple-300 font-mono py-1">
+                              <span className="w-3.5 h-3.5 border-2 border-purple-500/30 border-t-purple-400 rounded-full animate-spin" />
+                              <span>Generating highly performant search variations...</span>
+                            </div>
+                          )}
+
+                          {slugKeywordsError && (
+                            <div className="text-xs text-rose-400 font-mono p-2 bg-rose-500/10 border border-rose-500/25 rounded-lg">
+                              ⚠️ {slugKeywordsError}
+                            </div>
+                          )}
+
+                          {slugKeywordsSuggestions.length > 0 && (
+                            <div className="grid grid-cols-1 gap-2">
+                              <p className="text-[11px] text-zinc-400 leading-normal">
+                                Click any recommendation below to inject or append it to your URL slug text box:
+                              </p>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                {slugKeywordsSuggestions.map((item, idx) => (
+                                  <div
+                                    key={idx}
+                                    onClick={() => {
+                                      if (!slugInput.trim()) {
+                                        setSlugInput(item.keyword);
+                                      } else {
+                                        const trimmedInput = slugInput.trim();
+                                        if (!trimmedInput.toLowerCase().includes(item.keyword.toLowerCase())) {
+                                          setSlugInput(trimmedInput + ' ' + item.keyword);
+                                        }
+                                      }
+                                    }}
+                                    className="p-2.5 bg-[#0e0c18] hover:bg-[#151126] border border-purple-500/15 hover:border-purple-400/40 rounded-lg transition cursor-pointer group flex flex-col justify-between text-left"
+                                  >
+                                    <div className="flex items-center justify-between mb-1">
+                                      <span className="text-xs font-mono text-purple-300 group-hover:text-purple-200 font-bold transition">
+                                        {item.keyword}
+                                      </span>
+                                      <span className="text-[8px] uppercase tracking-wider font-mono px-1.5 py-0.5 bg-purple-500/10 text-purple-400 rounded group-hover:bg-purple-500/20 group-hover:text-purple-300 transition">
+                                        Apply
+                                      </span>
+                                    </div>
+                                    <p className="text-[10px] text-zinc-400 leading-snug group-hover:text-zinc-300 transition">
+                                      {item.rationale}
+                                    </p>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+            ) : (
+              /* Bulk mode fields with textarea & drag and drop */
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <label htmlFor="bulk-slug-input" className="text-xs font-mono text-gray-400 uppercase">
+                      Enter List of Titles (one per line)
+                    </label>
+                    {bulkItems.length > 0 && (
+                      <span className="text-[10px] font-mono bg-purple-500/20 text-purple-300 border border-purple-500/30 px-2 py-0.5 rounded font-extrabold uppercase">
+                        {bulkItems.length} Titles Loaded
+                      </span>
+                    )}
+                  </div>
+                  
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    {/* Textarea */}
+                    <div className="lg:col-span-2">
+                      <textarea
+                        id="bulk-slug-input"
+                        rows={4}
+                        value={bulkInput}
+                        onChange={(e) => setBulkInput(e.target.value)}
+                        placeholder="Paste multiple article titles here (one title per line). E.g.&#10;10 Essential UX Principles for Devs&#10;What is WebAssembly PDF Compression?&#10;Designing Cozy Visual Layouts"
+                        className="w-full bg-[#0a0b0e] border border-brand-border/50 focus:border-purple-500/50 rounded-xl p-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-purple-500/40 font-sans min-h-[120px] transition-all resize-y placeholder-zinc-600"
+                      />
+                    </div>
+
+                    {/* File Upload / Dropzone */}
+                    <div 
+                      onDragOver={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDrop}
+                      onClick={() => document.getElementById('bulk-file-upload')?.click()}
+                      className={`relative border-2 border-dashed rounded-xl p-4 flex flex-col items-center justify-center text-center transition-all cursor-pointer select-none ${
+                        isDragging 
+                          ? 'border-purple-500 bg-purple-500/10' 
+                          : 'border-brand-border/40 hover:border-purple-500/30 bg-[#08090b]/40 hover:bg-[#0c0d12]/60'
+                      }`}
+                    >
+                      <input 
+                        id="bulk-file-upload"
+                        type="file"
+                        accept=".txt,.csv"
+                        onChange={handleFileUpload}
+                        className="hidden"
+                      />
+                      <Upload className={`w-6 h-6 mb-2 transition-all ${isDragging ? 'text-purple-400 animate-bounce' : 'text-zinc-500 group-hover:text-purple-400'}`} />
+                      <span className="text-xs font-medium text-zinc-300">Drag & Drop TXT/CSV</span>
+                      <span className="text-[10px] text-zinc-500 mt-0.5">Supports single-column lists</span>
+                      <span className="text-[10px] text-purple-400 font-mono underline mt-2">Or Browse Files</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Configs parameters */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-[#08090b]/60 border border-brand-border/20 rounded-xl p-4">
+              <div className="space-y-3">
+                {/* Separator type */}
+                <div>
+                  <label htmlFor="slug-separator-select" className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider block mb-1">
+                    Separator Character
+                  </label>
+                  <select 
+                    id="slug-separator-select"
+                    value={slugSeparator}
+                    onChange={(e) => setSlugSeparator(e.target.value)}
+                    className="w-full bg-[#0a0b0e] border border-brand-border/40 focus:border-emerald-500/50 rounded-lg p-2 text-xs text-white focus:outline-none font-mono"
+                  >
+                    <option value="-">Hyphen (-)</option>
+                    <option value="_">Underscore (_)</option>
+                    <option value="/">Slash (/)</option>
+                    <option value=".">Period (.)</option>
+                    <option value="">None (Concatenate)</option>
+                  </select>
+                </div>
+
+                {/* Max Length */}
+                <div>
+                  <div className="flex justify-between items-center mb-1">
+                    <label htmlFor="slug-max-length-input" className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider">
+                      Max Character Limit
+                    </label>
+                    <span className="text-[10px] font-mono text-zinc-500">{slugMaxLength} chars</span>
+                  </div>
+                  <input 
+                    id="slug-max-length-input"
+                    type="range"
+                    min="10"
+                    max="200"
+                    step="5"
+                    value={slugMaxLength}
+                    onChange={(e) => setSlugMaxLength(parseInt(e.target.value) || 80)}
+                    className="w-full accent-emerald-500 bg-[#0a0b0e] border border-brand-border/40 rounded-lg"
+                  />
+                </div>
+              </div>
+
+              {/* Toggles */}
+              <div className="space-y-3 justify-center flex flex-col">
+                <label className="flex items-center gap-2.5 cursor-pointer select-none">
+                  <input 
+                    type="checkbox"
+                    checked={slugLowercase}
+                    onChange={(e) => setSlugLowercase(e.target.checked)}
+                    className="w-3.5 h-3.5 rounded border-brand-border bg-[#0a0b0e] text-emerald-500 focus:ring-emerald-500/50 cursor-pointer"
+                  />
+                  <div className="space-y-0.5">
+                    <span className="text-xs text-gray-300 font-medium">Force Lowercase</span>
+                    <span className="text-[9px] text-zinc-500 block leading-none">Converts all letters to lower register</span>
+                  </div>
+                </label>
+
+                <label className="flex items-center gap-2.5 cursor-pointer select-none">
+                  <input 
+                    type="checkbox"
+                    checked={slugRemoveStops}
+                    onChange={(e) => setSlugRemoveStops(e.target.checked)}
+                    className="w-3.5 h-3.5 rounded border-brand-border bg-[#0a0b0e] text-emerald-500 focus:ring-emerald-500/50 cursor-pointer"
+                  />
+                  <div className="space-y-0.5">
+                    <span className="text-xs text-gray-300 font-medium">Remove Stop Words</span>
+                    <span className="text-[9px] text-zinc-500 block leading-none">Strip short grammar words (and, the, with...)</span>
+                  </div>
+                </label>
+
+                <label className="flex items-center gap-2.5 cursor-pointer select-none">
+                  <input 
+                    type="checkbox"
+                    checked={slugStripAccents}
+                    onChange={(e) => setSlugStripAccents(e.target.checked)}
+                    className="w-3.5 h-3.5 rounded border-brand-border bg-[#0a0b0e] text-emerald-500 focus:ring-emerald-500/50 cursor-pointer"
+                  />
+                  <div className="space-y-0.5">
+                    <span className="text-xs text-gray-300 font-medium">Clean Accent Characters</span>
+                    <span className="text-[9px] text-zinc-500 block leading-none">Convert diacritics natively (e.g. é → e)</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            {/* Generated output section */}
+            {slugifierMode === 'single' ? (
+              generatedSlug ? (
+                <div className="space-y-4 pt-1 animate-fadeIn">
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider">
+                        Generated URL Slug
+                      </span>
+                      <span className="text-[10px] font-mono text-emerald-400">{generatedSlug.length} chars</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <input 
+                        type="text"
+                        readOnly
+                        value={generatedSlug}
+                        className="flex-1 bg-[#0a0b0e] border border-emerald-500/30 text-emerald-400 rounded-xl px-3.5 py-3 md:py-2.5 text-base md:text-sm font-mono focus:outline-none min-h-[44px] md:min-h-[38px] transition-all"
+                      />
+                      <motion.button
+                        type="button"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        animate={slugCopied ? { scale: [1, 1.15, 0.95, 1], borderColor: 'rgba(16, 185, 129, 0.6)' } : {}}
+                        transition={{ duration: 0.3 }}
+                        onClick={() => {
+                          navigator.clipboard.writeText(generatedSlug);
+                          setSlugCopied(true);
+                          setTimeout(() => setSlugCopied(false), 2000);
+                        }}
+                        className={`bg-[#111217] hover:bg-[#181920] border ${slugCopied ? 'border-emerald-500 text-emerald-400' : 'border-brand-border/50 text-zinc-300'} hover:text-emerald-400 p-2.5 sm:px-3.5 rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0`}
+                        title="Copy Slug"
+                      >
+                        <AnimatePresence mode="wait" initial={false}>
+                          <motion.div
+                            key={slugCopied ? 'check' : 'copy'}
+                            initial={{ opacity: 0, scale: 0.6 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.6 }}
+                            transition={{ duration: 0.15 }}
+                            className="flex items-center justify-center"
+                          >
+                            {slugCopied ? (
+                              <Check className="w-4 h-4 text-emerald-400" />
+                            ) : (
+                              <Copy className="w-4 h-4" />
+                            )}
+                          </motion.div>
+                        </AnimatePresence>
+                      </motion.button>
+                    </div>
+                  </div>
+
+                  {/* Slug Conflict Validator */}
+                  {slugValidationResults && (
+                    <div id="seo-slug-validator" className="bg-[#0b0c10]/40 border border-brand-border/30 rounded-xl p-4 space-y-3.5">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider font-semibold">
+                            Slug Conflict Validator
+                          </span>
+                          <span className={`text-[9px] px-1.5 py-0.5 rounded font-mono uppercase tracking-wider font-extrabold border ${
+                            slugValidationResults.status === 'safe'
+                              ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                              : slugValidationResults.status === 'warning'
+                              ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                              : 'bg-rose-500/10 text-rose-400 border-rose-500/20'
+                          }`}>
+                            {slugValidationResults.status === 'safe' && '✓ Safe & Valid'}
+                            {slugValidationResults.status === 'warning' && '⚠ Routing Warnings'}
+                            {slugValidationResults.status === 'danger' && '☠ Critical Conflict'}
+                          </span>
+                        </div>
+
+                        {slugValidationResults.totalFailed > 0 && (
+                          <button
+                            type="button"
+                            onClick={handleAutoFixSlug}
+                            className="text-[10px] font-mono font-bold text-emerald-400 hover:text-emerald-300 transition flex items-center gap-1 bg-emerald-500/10 px-2 py-1 rounded border border-emerald-500/20 hover:border-emerald-500/40 cursor-pointer animate-pulse"
+                          >
+                            <Sparkles className="w-3 h-3" />
+                            Auto-Fix Slug
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Quick-Action 'Force Lowercase' switch */}
+                      <div className="bg-[#111217]/60 rounded-lg p-2.5 border border-brand-border/30 flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                          <span className="text-[11px] font-mono text-zinc-300 font-medium">Quick-Action: Casing Sanity</span>
+                        </div>
+                        <label className="flex items-center gap-2 cursor-pointer select-none">
+                          <input
+                            type="checkbox"
+                            checked={slugLowercase}
+                            onChange={(e) => setSlugLowercase(e.target.checked)}
+                            className="w-3.5 h-3.5 rounded border-brand-border bg-[#0a0b0e] text-emerald-500 focus:ring-emerald-500/50 cursor-pointer"
+                          />
+                          <span className="text-xs font-semibold text-zinc-200">
+                            Force Lowercase
+                          </span>
+                        </label>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                        {slugValidationResults.rules.map((rule) => (
+                          <div
+                            key={rule.id}
+                            className={`p-2.5 rounded-lg border transition duration-150 flex items-start gap-2 ${
+                              rule.passed
+                                ? 'bg-zinc-950/20 border-brand-border/10 text-zinc-500'
+                                : rule.severity === 'error'
+                                ? 'bg-rose-500/[0.03] border-rose-500/25 text-rose-300'
+                                : 'bg-amber-500/[0.03] border-amber-500/25 text-amber-300'
+                            }`}
+                            title={rule.passed ? rule.passMessage : rule.failMessage}
+                          >
+                            <span className="shrink-0 mt-0.5">
+                              {rule.passed ? (
+                                <Check className="w-3.5 h-3.5 text-emerald-400" />
+                              ) : rule.severity === 'error' ? (
+                                <span className="text-rose-400 font-bold">☠</span>
+                              ) : (
+                                <span className="text-amber-400 font-bold">⚠</span>
+                              )}
+                            </span>
+                            <div className="space-y-0.5">
+                              <span className={`font-mono text-[10px] font-bold block ${rule.passed ? 'text-zinc-500' : 'text-zinc-200'}`}>
+                                {rule.label}
+                              </span>
+                              <p className="text-[10px] leading-tight text-zinc-400 font-sans">
+                                {rule.passed ? rule.passMessage : rule.failMessage}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* CMS Live Preview & URL Selector */}
+                  <div className="bg-[#08090b] border border-brand-border/20 rounded-xl p-3.5 space-y-3">
+                    <div className="flex justify-between items-center pb-2 border-b border-brand-border/10">
+                      <span className="text-[9px] font-mono text-zinc-500 uppercase">CMS Routing Live Preview</span>
+                      
+                      {/* Preview CMS selector */}
+                      <div className="flex gap-1 bg-[#0a0b0e] p-0.5 rounded-lg border border-brand-border/20">
+                        {(['wordpress', 'shopify', 'standard'] as const).map((t) => (
+                          <button
+                            key={t}
+                            type="button"
+                            onClick={() => setSlugPreviewType(t)}
+                            className={`px-1.5 py-0.5 rounded text-[9px] font-mono uppercase transition-all ${
+                              slugPreviewType === t 
+                                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' 
+                                : 'text-gray-500 hover:text-gray-300'
+                            }`}
+                          >
+                            {t}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Domain input */}
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-mono text-zinc-500 uppercase">Base Domain:</span>
+                      <input 
+                        type="text"
+                        value={slugCustomDomain}
+                        onChange={(e) => setSlugCustomDomain(e.target.value.replace(/[^a-zA-Z0-9.-]/g, ''))}
+                        placeholder="mysite.com"
+                        className="bg-transparent border-b border-brand-border/50 text-[10px] font-mono text-zinc-300 focus:outline-none focus:border-emerald-500/50 w-24 px-1"
+                      />
+                    </div>
+
+                    {/* Render simulated URL */}
+                    <div className="p-2.5 bg-[#050608] border border-brand-border/10 rounded-lg text-[11px] font-mono text-zinc-400 overflow-x-auto select-all break-all leading-relaxed whitespace-pre-wrap">
+                      {slugPreviewType === 'wordpress' && (
+                        <span className="text-zinc-600">
+                          https://{slugCustomDomain || 'mysite.com'}/
+                          <span className="text-emerald-400">{new Date().getFullYear()}/{String(new Date().getMonth() + 1).padStart(2, '0')}/{generatedSlug}/</span>
+                        </span>
+                      )}
+                      {slugPreviewType === 'shopify' && (
+                        <span className="text-zinc-600">
+                          https://{slugCustomDomain || 'mysite.com'}/products/
+                          <span className="text-emerald-400">{generatedSlug}</span>
+                        </span>
+                      )}
+                      {slugPreviewType === 'standard' && (
+                        <span className="text-zinc-600">
+                          https://{slugCustomDomain || 'mysite.com'}/
+                          <span className="text-emerald-400">{generatedSlug}</span>
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Apply back to SEO settings */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSuggestedSlug(generatedSlug);
+                      setIsSlugManual(true);
+                    }}
+                    className="w-full bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 hover:border-emerald-500/40 text-emerald-400 text-xs font-mono py-2 rounded-xl transition duration-150 flex items-center justify-center gap-1.5"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    APPLY TO SEO SUGGESTED SLUG ABOVE
+                  </button>
+                </div>
+              ) : (
+                <div className="p-4 bg-[#08090b]/40 border border-brand-border/10 border-dashed rounded-xl text-center">
+                  <p className="text-xs text-zinc-500 font-mono">
+                    Input a title above or click <span className="text-emerald-400 font-bold cursor-pointer" onClick={() => { if (metaTitle) setSlugInput(metaTitle); }}>"Load SEO Title"</span> to see live slug generated.
+                  </p>
+                </div>
+              )
+            ) : (
+              /* Bulk mode generated results table & exports */
+              bulkItems.length > 0 ? (
+                <div className="space-y-4 pt-1 animate-fadeIn">
+                  <div className="flex flex-wrap justify-between items-center gap-3 bg-[#08090b]/40 p-2.5 border border-brand-border/20 rounded-xl">
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const allSlugs = bulkItems.map(item => item.slug).join('\n');
+                          navigator.clipboard.writeText(allSlugs);
+                          setBulkAllCopied(true);
+                          setTimeout(() => setBulkAllCopied(false), 2000);
+                        }}
+                        className="px-3 py-1.5 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 hover:border-purple-400/40 text-purple-400 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 transition duration-150"
+                      >
+                        {bulkAllCopied ? (
+                          <>
+                            <Check className="w-3.5 h-3.5 text-emerald-400" />
+                            All Slugs Copied!
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-3.5 h-3.5" />
+                            Copy All Slugs
+                          </>
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={downloadBulkAsCSV}
+                        className="px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 hover:border-emerald-500/40 text-emerald-400 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 transition duration-150"
+                      >
+                        <FileDown className="w-3.5 h-3.5" />
+                        Export CSV
+                      </button>
+                      <button
+                        type="button"
+                        onClick={downloadBulkAsTXT}
+                        className="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 hover:border-zinc-600 text-zinc-300 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 transition duration-150"
+                      >
+                        <FileDown className="w-3.5 h-3.5" />
+                        Export TXT
+                      </button>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setBulkInput('')}
+                      className="px-3 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 hover:border-rose-500/40 text-rose-400 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 transition duration-150 ml-auto"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      Clear List
+                    </button>
+                  </div>
+
+                  {/* Table wrapper with custom scrollbar */}
+                  <div className="bg-[#050608] border border-brand-border/30 rounded-xl overflow-hidden shadow-inner max-h-[350px] overflow-y-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead className="bg-[#0b0c10] border-b border-brand-border/30 sticky top-0 z-10">
+                        <tr>
+                          <th className="px-4 py-2.5 text-[10px] font-mono uppercase text-zinc-400 tracking-wider">Original Title</th>
+                          <th className="px-4 py-2.5 text-[10px] font-mono uppercase text-zinc-400 tracking-wider">Generated URL Slug</th>
+                          <th className="px-4 py-2.5 text-[10px] font-mono uppercase text-zinc-400 tracking-wider w-24 text-center">Length</th>
+                          <th className="px-4 py-2.5 text-[10px] font-mono uppercase text-zinc-400 tracking-wider w-16 text-center">Copy</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-brand-border/10">
+                        {bulkItems.map((item, idx) => (
+                          <tr key={idx} className="hover:bg-[#0c0d12]/60 transition duration-150">
+                            <td className="px-4 py-3 text-xs text-zinc-300 truncate max-w-[200px]" title={item.title}>
+                              {item.title}
+                            </td>
+                            <td className="px-4 py-3 text-xs font-mono text-emerald-400 break-all select-all">
+                              {item.slug}
+                            </td>
+                            <td className="px-4 py-3 text-center">
+                              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-semibold ${
+                                item.isOverLimit 
+                                  ? 'bg-amber-500/15 text-amber-400 border border-amber-500/35' 
+                                  : 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/35'
+                              }`}>
+                                {item.length}
+                                {item.isOverLimit && <span title="Over recommended 60 chars">⚠️</span>}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3 text-center">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(item.slug);
+                                  setBulkCopiedIndex(idx);
+                                  setTimeout(() => setBulkCopiedIndex(null), 1500);
+                                }}
+                                className={`p-1.5 rounded-lg border transition ${
+                                  bulkCopiedIndex === idx 
+                                    ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400' 
+                                    : 'bg-zinc-800/80 border-brand-border/40 text-zinc-400 hover:text-emerald-400 hover:border-emerald-500/40'
+                                }`}
+                                title="Copy single slug"
+                              >
+                                {bulkCopiedIndex === idx ? (
+                                  <Check className="w-3.5 h-3.5" />
+                                ) : (
+                                  <Copy className="w-3.5 h-3.5" />
+                                )}
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-8 bg-[#08090b]/40 border border-brand-border/10 border-dashed rounded-xl text-center space-y-2">
+                  <p className="text-xs text-zinc-500 font-mono">
+                    No titles loaded yet. Type or paste your titles on separate lines, or drop a TXT/CSV file to process slugs in bulk.
+                  </p>
+                </div>
+              )
+            )}
           </div>
         </div>
 
