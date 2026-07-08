@@ -1136,9 +1136,9 @@ export default function RegexFlowchart() {
             <BookOpen className="w-3.5 h-3.5" />
             <span>Developer Guide: Regular Expressions & Visualization</span>
           </div>
-          <h3 className="text-xl font-bold text-white tracking-tight sm:text-2xl">
+          <h1 className="text-xl font-bold text-white tracking-tight sm:text-2xl">
             A Comprehensive Deep Dive into Regular Expressions & Railroad Flowcharts
-          </h3>
+          </h1>
           <p className="text-zinc-400 text-sm leading-relaxed max-w-3xl">
             Struggling to decode complicated regular expression strings like email validators or lookahead strength checkers? Learn how our interactive 2D railroad flowchart breaks down token paths step-by-step to reveal the underlying matching logic.
           </p>

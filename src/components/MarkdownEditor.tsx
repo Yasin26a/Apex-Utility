@@ -811,9 +811,9 @@ export default function MarkdownEditor() {
             <BookOpen className="w-3.5 h-3.5" />
             <span>Academic & Editorial Guide: Markdown & LaTeX</span>
           </div>
-          <h3 className="text-xl font-bold text-white tracking-tight sm:text-2xl">
+          <h1 className="text-xl font-bold text-white tracking-tight sm:text-2xl">
             The Ultimate Guide to Real-Time WYSIWYG Markdown & LaTeX Compilers
-          </h3>
+          </h1>
           <p className="text-zinc-400 text-sm leading-relaxed max-w-3xl">
             Struggling to format scientific papers, documentation files, or blog layouts in perfect markdown styling? Learn how a real-time, browser-based GFM and LaTeX compiler streamlines your publishing workflows while guaranteeing absolute privacy.
           </p>

@@ -75,6 +75,8 @@ import {
 } from './utils/offlineArticlesDB';
 import { BrandingLogo } from './components/BrandingLogo';
 import { DEFAULT_CARDS } from './components/Dashboard';
+import { ContextualSEOSection } from './components/ContextualSEOSection';
+import { SEOHeader } from './components/SEOHeader';
 const WebPConverter = lazy(() => import('./components/WebPConverter'));
 const PDFJoiner = lazy(() => import('./components/PDFJoiner'));
 const VisualPDFOrganizer = lazy(() => import('./components/VisualPDFOrganizer'));
@@ -310,13 +312,12 @@ function SEOPageHeader({ tabId, category, colorClass = 'text-brand', defaultDesc
   const descText = SEO_DESC_MAPPING[tabId] || defaultDesc || '';
 
   return (
-    <div className="space-y-1 mb-6">
-      <span className={`text-[10px] font-mono font-bold tracking-widest ${colorClass} uppercase`}>{category}</span>
-      <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight font-sans">
-        {h1Text}
-      </h1>
-      {descText && <p className="text-slate-400 text-xs sm:text-sm">{descText}</p>}
-    </div>
+    <SEOHeader
+      title={h1Text}
+      description={descText}
+      category={category}
+      colorClass={colorClass}
+    />
   );
 }
 
@@ -1882,12 +1883,19 @@ export default function App() {
         };
       });
 
+      const dynamicArticles = AT_LEAST_20_ARTICLES.map(art => ({
+        tab: art.id,
+        priority: includePriority ? '0.75' : '0.50',
+        freq: 'weekly'
+      }));
+
       const items = [
         { tab: 'about-us', priority: '0.50', freq: 'monthly' },
         { tab: 'privacy-policy', priority: '0.40', freq: 'monthly' },
         { tab: 'terms-of-service', priority: '0.40', freq: 'monthly' },
         { tab: 'guides', priority: includePriority ? '0.80' : '0.50', freq: changeFreq },
-        ...dynamicTools
+        ...dynamicTools,
+        ...dynamicArticles
       ];
 
       let sdoc = `<?xml version="1.0" encoding="UTF-8"?>
@@ -3130,7 +3138,7 @@ Disallow:
               <motion.div key="json-beautifier" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf1544] uppercase">Serialization Tools</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">JSON Beautifier &amp; Formatter</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">JSON Beautifier &amp; Formatter</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Beautify, parse, validate, and minify nested JSON structures cleanly in your browser thread.</p>
                 </div>
                 <JSONBeautifier />
@@ -3141,7 +3149,7 @@ Disallow:
               <motion.div key="rest-playpen" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-violet-400 uppercase">Developer Operations</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">REST API Playpen</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">REST API Playpen</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Client-side HTTP tester. Send requests, configure custom headers, edit payloads, bypass CORS with proxy toggles, and analyze server responses in real time.</p>
                 </div>
                 <RESTPlaypen />
@@ -3152,7 +3160,7 @@ Disallow:
               <motion.div key="markdown-compiler" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-violet-400 uppercase">Document &amp; Editing Utilities</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Markdown &amp; LaTeX Compiler</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">Markdown &amp; LaTeX Compiler</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">An interactive split-pane editor that compiles standard Markdown, GitHub-Flavored Markdown (GFM), and LaTeX math syntax into styled HTML in real-time.</p>
                 </div>
                 <MarkdownEditor />
@@ -3163,7 +3171,7 @@ Disallow:
               <motion.div key="image-to-pdf" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-indigo-400 uppercase">Document Conversion</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Image to PDF Compiler</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">Image to PDF Compiler</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Combine multiple raster formats (JPG, PNG, WebP) into a high-compliance single PDF file offline.</p>
                 </div>
                 <ImageToPDF />
@@ -3174,7 +3182,7 @@ Disallow:
               <motion.div key="join-pdf" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-teal-400 uppercase">Document Compilation</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">PDF Document Merger &amp; Joining Deck</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">PDF Document Merger &amp; Joining Deck</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Combine multiple standalone files, re-order stream packages, and construct an unified document.</p>
                 </div>
                 <PDFJoiner />
@@ -3185,7 +3193,7 @@ Disallow:
               <motion.div key="visual-pdf-organizer" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-emerald-400 uppercase font-sans">Visual Organizer</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Visual PDF Page Organizer</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">Visual PDF Page Organizer</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Manage, reorder, rotate, and prune individual pages of any PDF document in an interactive layout.</p>
                 </div>
                 <VisualPDFOrganizer />
@@ -3196,7 +3204,7 @@ Disallow:
               <motion.div key="pdf-unlocker" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-rose-400 uppercase font-sans">Security &amp; Decryption</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">PDF Password Unlocker</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">PDF Password Unlocker</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Safely decrypt owner-password-restricted PDFs directly in your browser. Fully offline privacy.</p>
                 </div>
                 <PDFUnlocker />
@@ -3207,7 +3215,7 @@ Disallow:
               <motion.div key="ai-writer" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-emerald-400 uppercase">AI Creativity</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">AI Copywriter &amp; Text Architect</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">AI Copywriter &amp; Text Architect</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Write rich, high-engagement marketing, developer, or indexing copy using generative pathways.</p>
                 </div>
                 <AIWriter />
@@ -3218,7 +3226,7 @@ Disallow:
               <motion.div key="password-generator" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-rose-400 uppercase">Security &amp; Sandbox</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Deterministic Password Generator</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">Deterministic Password Generator</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Generate cryptographically secure random characters and passwords with customizable complexity limits.</p>
                 </div>
                 <PasswordGenerator />
@@ -3229,7 +3237,7 @@ Disallow:
               <motion.div key="qr-generator" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-sky-400 uppercase">Publishing Tools</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Structured QR Code Architect</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">Structured QR Code Architect</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Render customizable high-density raster or clean vector QR codes for URLs, WiFi, or text nodes.</p>
                 </div>
                 <QRCodeGenerator />
@@ -3240,7 +3248,7 @@ Disallow:
               <motion.div key="unit-converter" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-orange-400 uppercase">Calculators</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Universal Unit &amp; Ratio Converter</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">Universal Unit &amp; Ratio Converter</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Convert lengths, masses, temperatures, pixel lengths, and standard digital sizes precisely.</p>
                 </div>
                 <UnitConverter />
@@ -3251,7 +3259,7 @@ Disallow:
               <motion.div key="svg-rasterizer" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf1544] uppercase">Design Vectors</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">SVG to Raster Image Compiler</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">SVG to Raster Image Compiler</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Compile scalable vector markup into exact pixel-perfect PNG or JPG images with custom scaling factors.</p>
                 </div>
                 <SVGRasterizer />
@@ -3262,7 +3270,7 @@ Disallow:
               <motion.div key="batch-processor" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-violet-400 uppercase">Bulk Production</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Multi-Format Batch Processor</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">Multi-Format Batch Processor</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Apply compression, renaming pipelines, and sequential conversions to large asset sets concurrently.</p>
                 </div>
                 <BatchProcessor />
@@ -3273,7 +3281,7 @@ Disallow:
               <motion.div key="image-vectorizer" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-emerald-400 uppercase">Asset Deck</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Raster to SVG Vectorizer</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">Raster to SVG Vectorizer</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Deconstruct pixel borders and synthesize clean paths to export JPG or PNG images as responsive SVGs.</p>
                 </div>
                 <ImageVectorizer />
@@ -3284,7 +3292,7 @@ Disallow:
               <motion.div key="json-diff" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf1544] uppercase">Developer Tools</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">JSON Diff &amp; Comparison Validator</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">JSON Diff &amp; Comparison Validator</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Analyze, align, and highlight precise additions, deletions, or mutations between two structural datasets.</p>
                 </div>
                 <JSONDiffChecker />
@@ -3295,7 +3303,7 @@ Disallow:
               <motion.div key="secure-hash" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-amber-500 uppercase">Security &amp; Sandbox</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Cryptographic Secure Hash Generator</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">Cryptographic Secure Hash Generator</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Obtain high-fidelity SHA-256, SHA-512, MD5, or SHA-1 fingerprinted strings entirely client-side.</p>
                 </div>
                 <SecureHashGenerator />
@@ -3306,7 +3314,7 @@ Disallow:
               <motion.div key="color-palette" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-fuchsia-400 uppercase">Design Vectors</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Color Palette &amp; Contrast Architect</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">Color Palette &amp; Contrast Architect</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Generate accessible schemes, compute legal color-blind combinations, and extract HEX codes.</p>
                 </div>
                 <ColorPaletteGenerator />
@@ -3317,7 +3325,7 @@ Disallow:
               <motion.div key="digital-signature" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-indigo-400 uppercase">Security &amp; Sandbox</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Digital Signature &amp; Verification Workspace</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">Digital Signature &amp; Verification Workspace</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Draw, format, and serialize high-resolution signature graphics to certify digital receipts.</p>
                 </div>
                 <DigitalSignatureGenerator />
@@ -3328,7 +3336,7 @@ Disallow:
               <motion.div key="seo-optimizer" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf1544] uppercase">SEO Intelligence</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">SEO Compliance Optimizer &amp; Evaluator</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">SEO Compliance Optimizer &amp; Evaluator</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Analyze titles, headers, descriptions, and semantic density ratios to optimize search rank indexability.</p>
                 </div>
                 <SEOOptimizer />
@@ -3339,7 +3347,7 @@ Disallow:
               <motion.div key="base64-converter" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-blue-400 uppercase">Serialization Tools</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Base64 Text &amp; Binaries Transcoder</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">Base64 Text &amp; Binaries Transcoder</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Directly draft and extract binary files or text strings into compliant base64 web indices.</p>
                 </div>
                 <Base64Converter />
@@ -3350,7 +3358,7 @@ Disallow:
               <motion.div key="regex-tester" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf1544] uppercase">Developer Tools</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Regular Expression Diagnostic Deck</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">Regular Expression Diagnostic Deck</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Compile, optimize, and evaluate pattern layouts with sub-string visual highlighting.</p>
                 </div>
                 <RegexTester />
@@ -3361,7 +3369,7 @@ Disallow:
               <motion.div key="csv-json-converter" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-emerald-400 uppercase">Serialization Tools</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">CSV to JSON &amp; Table Transpiler</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">CSV to JSON &amp; Table Transpiler</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Convert row files or raw clipboard strings seamlessly between database structures and spreadsheets.</p>
                 </div>
                 <CSVJSONConverter />
@@ -3372,7 +3380,7 @@ Disallow:
               <motion.div key="image-compressor" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf1544] uppercase">Media Lab</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">High-Ratio Image Compressor</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">High-Ratio Image Compressor</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Squeeze pixel footprints of PNG, JPEG, or GIF formats using progressive canvas quantization.</p>
                 </div>
                 <ImageCompressor />
@@ -3389,7 +3397,7 @@ Disallow:
               <motion.div key="rich-text-stats" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf1544] uppercase">Analysis Deck</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Rich Text Statistics &amp; Complexity Analyzer</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">Rich Text Statistics &amp; Complexity Analyzer</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Trace letter, word, page and line sizes alongside reading age formulas and lexical density indexes.</p>
                 </div>
                 <RichTextStatistics />
@@ -3400,7 +3408,7 @@ Disallow:
               <motion.div key="audio-trimmer" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-teal-400 uppercase">Media Lab</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Lossless Audio Trimmer &amp; Waveform Splicer</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">Lossless Audio Trimmer &amp; Waveform Splicer</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Splice audio track frames directly inside your browser with clean, immediate waveform previews.</p>
                 </div>
                 <AudioTrimmer />
@@ -3411,7 +3419,7 @@ Disallow:
               <motion.div key="ai-transcriber" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf1544] uppercase">AI Creativity</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">AI Audio Transcriber &amp; Speech Interpreter</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">AI Audio Transcriber &amp; Speech Interpreter</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Transcribe voice loops, audio uploads, or active browser recording pipelines into editable transcripts.</p>
                 </div>
                 <AIAudioTranscriber />
@@ -3422,7 +3430,7 @@ Disallow:
               <motion.div key="pdf-analyst" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-indigo-400 uppercase">Document Optimization</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">PDF Structure Analyst &amp; Extractor</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">PDF Structure Analyst &amp; Extractor</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Inspect interior object maps, layout trees, forms, and embedded graphics details.</p>
                 </div>
                 <PDFAnalyst />
@@ -3433,7 +3441,7 @@ Disallow:
               <motion.div key="exif-stripper" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-rose-500 uppercase">Security &amp; Sandbox</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">EXIF &amp; Camera Metadata Stripper</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">EXIF &amp; Camera Metadata Stripper</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Wipe GPS coordinates, focal settings, and hardware identifiers from image properties securely.</p>
                 </div>
                 <ExifMetadataStripper />
@@ -3444,7 +3452,7 @@ Disallow:
               <motion.div key="code-snapshot" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf1544] uppercase">Publishing Tools</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Elegant Code Snapshot Mockup Studio</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">Elegant Code Snapshot Mockup Studio</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Convert snippet characters into beautiful syntax-highlighted frames for online documentation.</p>
                 </div>
                 <CodeSnapshot />
@@ -3455,7 +3463,7 @@ Disallow:
               <motion.div key="case-converter" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-emerald-400 uppercase">Text Deck</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Case Converter &amp; Text Formatter</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">Case Converter &amp; Text Formatter</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Convert letters between CamelCase, UPPERCASE, sentence styles, and clean empty margins instantly.</p>
                 </div>
                 <CaseConverter />
@@ -3466,7 +3474,7 @@ Disallow:
               <motion.div key="lorem-generator" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-emerald-500 uppercase">Text Deck</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Lorem Ipsum Placeholder Generator</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">Lorem Ipsum Placeholder Generator</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Synthesize customized lengths of placeholder descriptions for mockups and templates.</p>
                 </div>
                 <LoremGenerator />
@@ -3477,7 +3485,7 @@ Disallow:
               <motion.div key="image-cropper" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-sky-400 uppercase">Media Lab</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Precision Image Cropper &amp; Aspect Ratio Tool</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">Precision Image Cropper &amp; Aspect Ratio Tool</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Crop local imagery to custom standards, target widths, or round shapes completely offline.</p>
                 </div>
                 <ImageCropper />
@@ -3488,7 +3496,7 @@ Disallow:
               <motion.div key="ai-humanizer" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-indigo-400 uppercase">AI Copywriting &amp; Strategy</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">AI Text Humanizer &amp; Bypass</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">AI Text Humanizer &amp; Bypass</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Bypass AI detectors with advanced content optimization. Refine robotic text into natural, readable, engaging human prose.</p>
                 </div>
                 <Suspense fallback={<div className="text-white font-mono text-xs">Loading AI Humanizer...</div>}>
@@ -3501,7 +3509,7 @@ Disallow:
               <motion.div key="tone-analyzer" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-violet-400 uppercase">AI Copywriting &amp; Strategy</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Email &amp; Message Tone Analyzer</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">Email &amp; Message Tone Analyzer</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Scan emails, messages, or sales pitches for communication impact. Adjust and tune confidence, politeness, and professional sentiment.</p>
                 </div>
                 <Suspense fallback={<div className="text-white font-mono text-xs">Loading Tone Analyzer...</div>}>
@@ -3514,7 +3522,7 @@ Disallow:
               <motion.div key="resume-optimizer" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-emerald-400 uppercase">AI Copywriting &amp; Strategy</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">AI Resume &amp; Cover Letter Optimizer</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">AI Resume &amp; Cover Letter Optimizer</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Align your resume and cover letters with target job definitions using AI. Enhance layout metrics and score high on applicant tracking systems.</p>
                 </div>
                 <Suspense fallback={<div className="text-white font-mono text-xs">Loading Resume Optimizer...</div>}>
@@ -3527,7 +3535,7 @@ Disallow:
               <motion.div key="text-summarizer" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-amber-400 uppercase">AI Copywriting &amp; Strategy</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">AI Text &amp; Article Summarizer</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">AI Text &amp; Article Summarizer</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Condense articles, papers, or legal templates into scannable lists, core highlights, and brief executive summaries with key insights.</p>
                 </div>
                 <Suspense fallback={<div className="text-white font-mono text-xs">Loading Text Summarizer...</div>}>
@@ -3540,7 +3548,7 @@ Disallow:
               <motion.div key="passport-photo" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-cyan-400 uppercase">Media &amp; Image</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Passport &amp; ID Photo Maker</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">Passport &amp; ID Photo Maker</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Structure and upscale standard photographs to match official passport, biometric ID, and visa size constraints natively in your browser.</p>
                 </div>
                 <Suspense fallback={<div className="text-white font-mono text-xs">Loading Passport Photo Maker...</div>}>
@@ -3617,7 +3625,7 @@ Disallow:
               <motion.div key="meme-generator" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-orange-400 uppercase">Media &amp; Image</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Meme Generator &amp; Studio</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">Meme Generator &amp; Studio</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Add custom texts, headers, overlays, and custom margins to classic and trending meme canvases fully offline with live preview rendering.</p>
                 </div>
                 <Suspense fallback={<div className="text-white font-mono text-xs">Loading Meme Generator...</div>}>
@@ -3630,7 +3638,7 @@ Disallow:
               <motion.div key="headshot-generator" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-fuchsia-400 uppercase">Media &amp; Image</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">AI Headshot &amp; Avatar Generator</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">AI Headshot &amp; Avatar Generator</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Create highly professional corporate headshots or unique visual avatars instantly using specialized custom prompt pipelines.</p>
                 </div>
                 <Suspense fallback={<div className="text-white font-mono text-xs">Loading AI Headshot Generator...</div>}>
@@ -3643,7 +3651,7 @@ Disallow:
               <motion.div key="image-upscaler" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-indigo-400 uppercase">Media &amp; Image</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">AI Image Upscaler &amp; Enhancer</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">AI Image Upscaler &amp; Enhancer</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Breathe life into low-resolution illustrations, photos, or textures. Enhance resolution up to 400% without introducing pixel noise.</p>
                 </div>
                 <Suspense fallback={<div className="text-white font-mono text-xs">Loading Image Upscaler...</div>}>
@@ -3656,7 +3664,7 @@ Disallow:
               <motion.div key="mockup-generator" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-sky-400 uppercase">Media &amp; Image</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Mockup &amp; Device Frame Studio</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">Mockup &amp; Device Frame Studio</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Embed your responsive designs or screenshots into beautiful 3D device frames, laptop screens, or mobile outlines for presentations.</p>
                 </div>
                 <Suspense fallback={<div className="text-white font-mono text-xs">Loading Mockup Generator...</div>}>
@@ -3669,7 +3677,7 @@ Disallow:
               <motion.div key="pdf-converter" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-red-400 uppercase">Document &amp; PDF</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">PDF ⇄ Word/Excel Converter</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">PDF ⇄ Word/Excel Converter</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Convert text vectors from PDF documents into editable Word files or tabular Excel spreadsheets safely on the client-side.</p>
                 </div>
                 <Suspense fallback={<div className="text-white font-mono text-xs">Loading PDF Converter...</div>}>
@@ -3682,7 +3690,7 @@ Disallow:
               <motion.div key="pdf-form-filler" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-teal-400 uppercase">Document &amp; PDF</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">PDF Form Filler &amp; Field Editor</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">PDF Form Filler &amp; Field Editor</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Load standard interactive PDFs and input text directly into fillable fields, checkboxes, and form grids locally in your browser.</p>
                 </div>
                 <Suspense fallback={<div className="text-white font-mono text-xs">Loading PDF Form Filler...</div>}>
@@ -3695,7 +3703,7 @@ Disallow:
               <motion.div key="pdf-signer" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-emerald-400 uppercase">Document &amp; PDF</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">PDF E-Signature &amp; Secure Sealer</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">PDF E-Signature &amp; Secure Sealer</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Apply hand-drawn signatures, official typographic names, or custom seal graphics securely onto PDF document pages.</p>
                 </div>
                 <Suspense fallback={<div className="text-white font-mono text-xs">Loading PDF Signer...</div>}>
@@ -3708,7 +3716,7 @@ Disallow:
               <motion.div key="uuid-generator" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-indigo-400 uppercase">Developer Utilities</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">UUID &amp; GUID Batch Generator</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">UUID &amp; GUID Batch Generator</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Instantly generate high-entropy v4 UUIDs or Microsoft GUIDs in custom formats with custom dividers and casing.</p>
                 </div>
                 <Suspense fallback={<div className="text-white font-mono text-xs">Loading UUID Generator...</div>}>
@@ -3721,7 +3729,7 @@ Disallow:
               <motion.div key="cron-builder" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-rose-400 uppercase">Developer Utilities</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Cron Expression Scheduler</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">Cron Expression Scheduler</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Synthesize custom crontab schedule parameters using visual selectors and preview scheduled timelines.</p>
                 </div>
                 <Suspense fallback={<div className="text-white font-mono text-xs">Loading Cron Builder...</div>}>
@@ -3734,7 +3742,7 @@ Disallow:
               <motion.div key="jwt-decoder" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-emerald-400 uppercase">Developer Utilities</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">JWT Decoder &amp; Inspector</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">JWT Decoder &amp; Inspector</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Analyze JSON Web Token (JWT) headers and payloads natively inside your browser. Verify token lifespans and expired claims.</p>
                 </div>
                 <Suspense fallback={<div className="text-white font-mono text-xs">Loading JWT Decoder...</div>}>
@@ -3747,7 +3755,7 @@ Disallow:
               <motion.div key="favicon-generator" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-amber-400 uppercase">Design &amp; Layout</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Favicon Generator &amp; Studio</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">Favicon Generator &amp; Studio</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Form custom favicons from emojis, symbols, or images. Export multi-format size packages including Apple Touch Icons.</p>
                 </div>
                 <Suspense fallback={<div className="text-white font-mono text-xs">Loading Favicon Generator...</div>}>
@@ -3760,7 +3768,7 @@ Disallow:
               <motion.div key="alt-text-generator" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-indigo-400 uppercase">SEO &amp; Optimization</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">AI Image Alt-Text Generator</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">AI Image Alt-Text Generator</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Audit and deconstruct image assets to generate descriptive, keyword-enriched, and screen-reader optimized alt text attributes.</p>
                 </div>
                 <Suspense fallback={<div className="text-white font-mono text-xs">Loading Alt-Text Generator...</div>}>
@@ -3773,7 +3781,7 @@ Disallow:
               <motion.div key="keyword-difficulty" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-indigo-400 uppercase">SEO &amp; Optimization</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">SEO Keyword Difficulty Checker</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">SEO Keyword Difficulty Checker</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Calculate organic search difficulty score, analyze intent classification, map interest trends, and audit SERP competitors.</p>
                 </div>
                 <Suspense fallback={<div className="text-white font-mono text-xs">Loading Keyword Difficulty Checker...</div>}>
@@ -3786,7 +3794,7 @@ Disallow:
               <motion.div key="url-slugifier" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-indigo-400 uppercase">SEO &amp; Optimization</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">URL Slugifier &amp; SEO Link Architect</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">URL Slugifier &amp; SEO Link Architect</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Convert raw post titles into clean, keyword-focused, search-optimized URL slugs in real-time or with neural AI enhancement.</p>
                 </div>
                 <Suspense fallback={<div className="text-white font-mono text-xs">Loading URL Slugifier...</div>}>
@@ -3799,7 +3807,7 @@ Disallow:
               <motion.div key="meta-tag-auditor" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-indigo-400 uppercase">SEO &amp; Social Analytics</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Meta Tag Auditor &amp; Visual Card Architect</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">Meta Tag Auditor &amp; Visual Card Architect</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Scan raw URL web properties or paste HTML code blocks to audit OpenGraph tags, canonical links, viewport settings, and live share cards.</p>
                 </div>
                 <Suspense fallback={<div className="text-white font-mono text-xs">Loading Meta Tag Auditor...</div>}>
@@ -3812,7 +3820,7 @@ Disallow:
               <motion.div key="gradient-generator" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-fuchsia-400 uppercase">Design &amp; Layout</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Interactive Gradient Generator</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">Interactive Gradient Generator</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Design beautiful, smooth CSS linear and radial background gradients. Copy instant styles or Tailwind utility classes.</p>
                 </div>
                 <Suspense fallback={<div className="text-white font-mono text-xs">Loading Gradient Generator...</div>}>
@@ -3825,7 +3833,7 @@ Disallow:
               <motion.div key="password-sharer" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-indigo-400 uppercase">Privacy &amp; Security</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Self-Destructing Password Sharer</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">Self-Destructing Password Sharer</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Transmit highly confidential passphrases or keys safely with encrypted single-read messages that delete themselves after being read.</p>
                 </div>
                 <Suspense fallback={<div className="text-white font-mono text-xs">Loading Password Sharer...</div>}>
@@ -3838,7 +3846,7 @@ Disallow:
               <motion.div key="data-breach" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-rose-400 uppercase">Privacy &amp; Security</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Secured Data Breach Checker</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">Secured Data Breach Checker</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Verify if your personal email or developer accounts have been compromised in historical threat list registry leaks.</p>
                 </div>
                 <Suspense fallback={<div className="text-white font-mono text-xs">Loading Data Breach Checker...</div>}>
@@ -3851,7 +3859,7 @@ Disallow:
               <motion.div key="checksum-verifier" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-emerald-400 uppercase">Privacy &amp; Security</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">File Checksum Hash Verifier</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">File Checksum Hash Verifier</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Calculate high-entropy SHA-256 and SHA-1 cryptographic file integrity signatures locally inside the browser.</p>
                 </div>
                 <Suspense fallback={<div className="text-white font-mono text-xs">Loading Checksum Verifier...</div>}>
@@ -3864,7 +3872,7 @@ Disallow:
               <motion.div key="age-calculator" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-sky-400 uppercase">Everyday Calculators</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Chronological Age Calculator</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">Chronological Age Calculator</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Compute precise chronological age milestones down to years, months, weeks, days, and hours with birthdays countdown.</p>
                 </div>
                 <Suspense fallback={<div className="text-white font-mono text-xs">Loading Age Calculator...</div>}>
@@ -3877,7 +3885,7 @@ Disallow:
               <motion.div key="loan-calculator" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-rose-400 uppercase">Everyday Calculators</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">EMI &amp; Loan Amortization Calculator</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">EMI &amp; Loan Amortization Calculator</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Calculate monthly equated payments, life of loan interest charges, and review dynamic principal schedules.</p>
                 </div>
                 <Suspense fallback={<div className="text-white font-mono text-xs">Loading Loan Calculator...</div>}>
@@ -3890,7 +3898,7 @@ Disallow:
               <motion.div key="bmi-calculator" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-indigo-400 uppercase">Everyday Calculators</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">BMI &amp; Calorie Burn Calculator</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">BMI &amp; Calorie Burn Calculator</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Map body mass indexes, Basal Metabolic Rates, and customize calorie intake metrics based on activity levels.</p>
                 </div>
                 <Suspense fallback={<div className="text-white font-mono text-xs">Loading BMI Calculator...</div>}>
@@ -3903,7 +3911,7 @@ Disallow:
               <motion.div key="date-calculator" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf1544] uppercase">Calculators</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Dynamic Date Calculator &amp; Interval Engine</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">Dynamic Date Calculator &amp; Interval Engine</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Determine elapsed time between dates, compute business day schedules, or compound offsets.</p>
                 </div>
                 <DateCalculator />
@@ -3914,7 +3922,7 @@ Disallow:
               <motion.div key="private-sketchpad" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-emerald-400 uppercase">Design Vectors</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Isolated Client-Side Sketchpad</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">Isolated Client-Side Sketchpad</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Collaborate, draft wireframes, or compose freeform drawings entirely isolated from backends.</p>
                 </div>
                 <PrivateSketchpad />
@@ -3925,7 +3933,7 @@ Disallow:
               <motion.div key="seo-inspect" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-teal-400 uppercase">SEO Intelligence</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Google Index &amp; Crawler Simulator Audit</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">Google Index &amp; Crawler Simulator Audit</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Audit domain names, evaluate sitemaps, trace redirects, and check search engine ready parameters.</p>
                 </div>
                 <SEOInspect />
@@ -3936,7 +3944,7 @@ Disallow:
               <motion.div key="sitemap-seo" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="space-y-6">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf1544] uppercase">SEO Intelligence</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Sitemap Checker</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">Sitemap Checker</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">Inspect, analyze and validate XML sitemaps to verify crawler indexability standards.</p>
                 </div>
                 <SEOInspect />
@@ -3952,7 +3960,7 @@ Disallow:
               >
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-slate-500 uppercase">Utility Tools Suite</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight">XML Sitemap &amp; Robots Generator</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight">XML Sitemap &amp; Robots Generator</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">
                     Enter your live custom domain address to calculate and download crawler-compliant sitemap trees ready for Google Search Console index submission.
                   </p>
@@ -4527,7 +4535,7 @@ Disallow:
               >
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold tracking-widest text-rose-400 uppercase">Core Asset Optimization</span>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight">WebP Image Converter</h2>
+                  <h1 className="text-2xl font-extrabold text-white tracking-tight">WebP Image Converter</h1>
                   <p className="text-slate-400 text-xs sm:text-sm">
                     Convert high-density JPEGs, PNGs, and GIFs into speed-optimized WebP files using localized Canvas API processes.
                   </p>
@@ -4547,9 +4555,9 @@ Disallow:
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-slate-800">
                   <div className="space-y-1">
                     <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf1544] uppercase">Document &amp; Assets compliance</span>
-                    <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">
+                    <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">
                       {pdfSubTab === 'optimize' ? 'PDF Document Optimizer' : pdfSubTab === 'merge' ? 'PDF Document merger' : 'PDF Document Splitter'}
-                    </h2>
+                    </h1>
                     <p className="text-slate-400 text-xs sm:text-sm">
                       {pdfSubTab === 'optimize'
                         ? 'Clears tracking headers, compresses stream objects, and rebuilds file trees safely inside your browser thread.'
@@ -7016,7 +7024,7 @@ Disallow:
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div className="space-y-1">
                     <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf1544] uppercase">AI-Powered Search Intelligence</span>
-                    <h2 className="text-2xl font-extrabold text-white tracking-tight">AI Content Outline &amp; Search Intent Planner</h2>
+                    <h1 className="text-2xl font-extrabold text-white tracking-tight">AI Content Outline &amp; Search Intent Planner</h1>
                     <p className="text-slate-400 text-xs sm:text-sm">
                       Maximize search volumes and author high-quality compliance articles. Analyze search queries, extract semantic LSI clusters, and design structural outlines.
                     </p>
@@ -7134,7 +7142,7 @@ Disallow:
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div className="space-y-1">
                     <span className="text-[10px] font-mono font-bold tracking-widest text-rose-500 uppercase">JSON-LD Structuring Suite</span>
-                    <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">Structured Rich Schema Architect</h2>
+                    <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">Structured Rich Schema Architect</h1>
                     <p className="text-slate-400 text-xs sm:text-sm">
                       Synthesize Google Rich Snippets compliant schemas or extract structured microdata with our specialized AI parser.
                     </p>
@@ -7160,7 +7168,7 @@ Disallow:
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div className="space-y-1">
                     <span className="text-[10px] font-mono font-bold tracking-widest text-emerald-500 uppercase">On-Page Deficit Analyzer</span>
-                    <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">SEO Competitor Content-Gap Analyzer</h2>
+                    <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">SEO Competitor Content-Gap Analyzer</h1>
                     <p className="text-slate-400 text-xs sm:text-sm">
                       Compare your draft content directly against rivals to harvest LSI keywords, evaluate intent, and fill structural gap severities.
                     </p>
@@ -7186,7 +7194,7 @@ Disallow:
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div className="space-y-1">
                     <span className="text-[10px] font-mono font-bold tracking-widest text-emerald-500 uppercase">Topical Authority Pillars</span>
-                    <h2 className="text-2xl font-extrabold text-white tracking-tight font-sans">AI Keyword Cluster &amp; Semantic Mapping Tool</h2>
+                    <h1 className="text-2xl font-extrabold text-white tracking-tight font-sans">AI Keyword Cluster &amp; Semantic Mapping Tool</h1>
                     <p className="text-slate-400 text-xs sm:text-sm">
                       Cluster keywords into highly-aligned semantic hubs, analyze user search intent funnels, and auto-generate structured content blueprints.
                     </p>
@@ -7400,6 +7408,10 @@ Disallow:
             )}
 
           </AnimatePresence>
+
+          {activeTab !== 'dashboard' && activeTab !== 'guides' && activeTab !== 'about-us' && activeTab !== 'privacy-policy' && activeTab !== 'terms-of-service' && (
+            <ContextualSEOSection activeTab={activeTab} />
+          )}
         </Suspense>
       </main>
             </div>

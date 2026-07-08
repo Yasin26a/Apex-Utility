@@ -850,7 +850,7 @@ Allow: /`;
           <span>SEO Optimization Engine Active</span>
         </div>
         <h1 className="font-heading text-3xl font-black text-white tracking-tight">
-          Automated Dynamic Sitemap Generator
+          Free SEO Inspector &amp; Webpage Audit Tool
         </h1>
         <p className="font-sans text-sm text-[#94a3b8] max-w-2xl leading-relaxed">
           Technical SEO monitoring center. Preview and download pristine search-compliant crawl arrays configured to optimize sitemap indexings across Cloudflare edges instantly.

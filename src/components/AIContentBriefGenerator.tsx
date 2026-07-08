@@ -967,9 +967,9 @@ export default function AIContentBriefGenerator() {
             <BookOpen className="w-3.5 h-3.5" />
             <span>Developer Guide: Semantic SEO Content Outlines & AI Briefs</span>
           </div>
-          <h3 className="text-xl font-bold text-white tracking-tight sm:text-2xl">
+          <h1 className="text-xl font-bold text-white tracking-tight sm:text-2xl">
             Structuring Semantic Content Plans & Winning the On-Page Google AdSense Approval Workflow
-          </h3>
+          </h1>
           <p className="text-zinc-400 text-sm leading-relaxed">
             Struggling to clear Google's automated "Low Value Content" checks? Discover how constructing multi-level semantic content outlines, integrating secondary keyword lattices, and answering search intent shields your web properties from immediate AdSense application rejections.
           </p>

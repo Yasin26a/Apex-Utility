@@ -1851,9 +1851,9 @@ ${itemsJsx}
             <BookOpen className="w-3.5 h-3.5" />
             <span>Developer Guide: Tailwind CSS Grid & Layout Systems</span>
           </div>
-          <h3 className="text-xl font-bold text-white tracking-tight sm:text-2xl">
+          <h1 className="text-xl font-bold text-white tracking-tight sm:text-2xl">
             The Ultimate Guide to Modern CSS Grids & Tailwind Layout Architects
-          </h3>
+          </h1>
           <p className="text-zinc-400 text-sm leading-relaxed">
             Struggling to build pixel-perfect bento grids or complex multi-column responsive dashboard structures? Discover how Tailwind's powerful CSS Grid engine handles fraction structures, track spacings, and cell spans under standard viewports.
           </p>

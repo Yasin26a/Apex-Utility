@@ -1227,9 +1227,9 @@ export default function ClipPathArchitect() {
             <BookOpen className="w-3.5 h-3.5" />
             <span>Developer Guide: Custom CSS Clip-Path Polygon Vectors</span>
           </div>
-          <h3 className="text-xl font-bold text-white tracking-tight sm:text-2xl">
+          <h1 className="text-xl font-bold text-white tracking-tight sm:text-2xl">
             A Deep Dive into CSS Clip-Path & High-Performance Geometric Design
-          </h3>
+          </h1>
           <p className="text-zinc-400 text-sm leading-relaxed">
             Struggling to build premium diagonal section dividers, star ratings, or custom polygonal hero frames? Learn how the CSS <code>clip-path</code> property provides standard hardware-accelerated clipping masks natively in your browser.
           </p>

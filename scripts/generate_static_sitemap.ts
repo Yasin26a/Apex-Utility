@@ -1,15 +1,20 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { SEO_H1_MAPPING } from '../src/seo-mapping';
 import { AT_LEAST_20_ARTICLES } from '../src/data/articles';
+import { generate100ViralArticles } from '../src/data/viral100Articles';
+import { generate100Volume2Articles } from '../src/data/viral100Volume2Articles';
+import { viralArticles } from '../src/data/viralArticles';
+import { REDDIT_50_TOPICS } from '../src/data/reddit50Articles';
+import { ADDITIONAL_35_ARTICLES } from '../src/data/additional35Articles';
 
 function generateSitemap() {
   const baseUrl = 'https://apexutility.live';
   
-  const tools = [
-    'compress-pdf', 'webp-converter', 'json-beautifier', 
-    'sitemap-seo', 'sitemap-generator', 'image-to-pdf', 'join-pdf', 'ai-writer', 
-    'password-generator', 'qr-generator', 'unit-converter', 'svg-rasterizer', 'batch-processor', 'json-diff', 'secure-hash', 'color-palette', 'digital-signature', 'seo-optimizer', 'base64-converter', 'regex-tester', 'csv-json-converter', 'image-compressor', 'rich-text-stats', 'audio-trimmer', 'ai-transcriber', 'pdf-analyst', 'exif-stripper', 'video-recorder', 'image-vectorizer', 'code-snapshot', 'private-sketchpad', 'case-converter', 'lorem-generator', 'image-cropper', 'date-calculator', 'privacy-policy', 'terms-of-service', 'about-us', 'guides', 'content-planner', 'schema-generator', 'content-gap', 'keyword-cluster'
-  ].sort(); // Keep it sorted for clean diffs
+  // Dynamically extract all tools mapped in SEO_H1_MAPPING (excluding the main home 'dashboard')
+  const tools = Object.keys(SEO_H1_MAPPING)
+    .filter(key => key !== 'dashboard')
+    .sort();
 
   const today = new Date().toISOString().split('T')[0];
 
@@ -40,18 +45,61 @@ function generateSitemap() {
     xml += '  </url>\n';
   });
 
-  // 3. Add all editorial articles (200 articles!)
-  if (Array.isArray(AT_LEAST_20_ARTICLES)) {
-    AT_LEAST_20_ARTICLES.forEach(art => {
-      if (art && art.id) {
+  // 3. Add all unique editorial, viral, and dynamic articles
+  const seenArticleIds = new Set<string>();
+  
+  const addArticle = (art: any) => {
+    if (art && art.id) {
+      const cleanId = art.id.trim();
+      if (cleanId && !seenArticleIds.has(cleanId)) {
+        seenArticleIds.add(cleanId);
+        
         xml += '  <url>\n';
-        xml += `    <loc>${baseUrl}/${art.id}</loc>\n`;
+        xml += `    <loc>${baseUrl}/${cleanId}</loc>\n`;
         xml += `    <lastmod>${today}</lastmod>\n`;
         xml += '    <changefreq>weekly</changefreq>\n';
         xml += '    <priority>0.75</priority>\n';
         xml += '  </url>\n';
       }
-    });
+    }
+  };
+
+  // Process standard articles
+  if (Array.isArray(AT_LEAST_20_ARTICLES)) {
+    AT_LEAST_20_ARTICLES.forEach(addArticle);
+  }
+  
+  // Process viral articles (Volume 1)
+  if (typeof generate100ViralArticles === 'function') {
+    try {
+      generate100ViralArticles().forEach(addArticle);
+    } catch (e) {
+      console.warn('Could not load generate100ViralArticles:', e);
+    }
+  }
+
+  // Process viral articles (Volume 2)
+  if (typeof generate100Volume2Articles === 'function') {
+    try {
+      generate100Volume2Articles().forEach(addArticle);
+    } catch (e) {
+      console.warn('Could not load generate100Volume2Articles:', e);
+    }
+  }
+
+  // Process core trending viral articles
+  if (Array.isArray(viralArticles)) {
+    viralArticles.forEach(addArticle);
+  }
+
+  // Process Reddit authority topics
+  if (Array.isArray(REDDIT_50_TOPICS)) {
+    REDDIT_50_TOPICS.forEach(addArticle);
+  }
+
+  // Process additional educational articles
+  if (Array.isArray(ADDITIONAL_35_ARTICLES)) {
+    ADDITIONAL_35_ARTICLES.forEach(addArticle);
   }
 
   // 4. Add Apex Subdomains for indexing
@@ -109,7 +157,7 @@ function generateSitemap() {
   fs.writeFileSync(outputPath, xml, 'utf8');
   
   const urlCount = (xml.match(/<url>/g) || []).length;
-  console.log(`Successfully compiled physical sitemap with ${urlCount} URLs to "${outputPath}"!`);
+  console.log(`Successfully compiled dynamic high-visibility sitemap with ${urlCount} URLs to "${outputPath}"!`);
 }
 
 generateSitemap();

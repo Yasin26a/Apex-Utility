@@ -1174,9 +1174,9 @@ export default function RESTPlaypen() {
             <BookOpen className="w-3.5 h-3.5" />
             <span>Developer Guide: Client-Side HTTP & API Testing</span>
           </div>
-          <h3 className="text-xl font-bold text-white tracking-tight sm:text-2xl">
+          <h1 className="text-xl font-bold text-white tracking-tight sm:text-2xl">
             A Complete Guide to Sandbox REST API Client Testing & CORS Proxies
-          </h3>
+          </h1>
           <p className="text-zinc-400 text-sm leading-relaxed max-w-3xl">
             Are you looking to inspect headers, send POST payloads, or debug JSON responses without downloading resource-heavy desktop apps? Our browser-based REST Playpen is designed to let you dispatch standard HTTP requests directly inside your sandboxed web browser, featuring advanced CORS configuration settings.
           </p>

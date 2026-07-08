@@ -3190,9 +3190,9 @@ export default function SERPPreviewer() {
             <BookOpen className="w-3.5 h-3.5" />
             <span>SEO Best Practices: Click-Through Rate (CTR) & Search Layouts</span>
           </div>
-          <h3 className="text-xl font-bold text-white tracking-tight sm:text-2xl">
+          <h1 className="text-xl font-bold text-white tracking-tight sm:text-2xl">
             Maximizing Organic Click-Through Rates (CTR) & Optimizing Search Snippets (SERP)
-          </h3>
+          </h1>
           <p className="text-zinc-400 text-sm leading-relaxed">
             Writing meta titles and descriptions isn't just about packing keywords. It's about psychology, pixel counts, and rich schema indicators. Learn how configuring compliant meta snippets helps you achieve Google AdSense approval and rank in top spots.
           </p>

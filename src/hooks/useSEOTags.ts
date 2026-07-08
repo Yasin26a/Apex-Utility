@@ -1582,17 +1582,39 @@ export default function useSEOTags(activeTab: ActiveTab, readingArticle?: Articl
       ogTitle = title;
       ogDescription = description;
 
-      // Custom schema for Scholarly/TechArticle
+      // Custom schema for Scholarly/TechArticle & NewsArticle with structured tags to boost search visibility
+      const art = readingArticle as any;
+      const articleTitle = art.title;
+      const articleSummary = art.summary || art.excerpt || description;
+      const authorName = art.author || 'Apex Processing Labs Staff';
+      const authorRole = art.role || 'SEO & Technical Specialist';
+      const articleDate = art.publishDate || art.date || '2026-07-08';
+      const articleCategory = art.category || art.topic || 'Web Technology';
+      
+      const parseToISODate = (dateStr?: string) => {
+        if (!dateStr) return "2026-07-08T00:00:00Z";
+        try {
+          const parsed = Date.parse(dateStr);
+          if (!isNaN(parsed)) {
+            return new Date(parsed).toISOString();
+          }
+        } catch (e) {}
+        return "2026-07-08T00:00:00Z";
+      };
+      const publishDateIso = parseToISODate(articleDate);
+
       schemaMarkup = {
         "@context": "https://schema.org",
-        "@type": "TechArticle",
-        "headline": readingArticle.title,
-        "description": readingArticle.summary,
-        "category": readingArticle.category,
+        "@type": "NewsArticle",
+        "headline": articleTitle,
+        "description": articleSummary,
+        "datePublished": publishDateIso,
+        "dateModified": publishDateIso,
         "inLanguage": "en-US",
         "author": {
-          "@type": "Organization",
-          "name": "Apex Processing Labs"
+          "@type": "Person",
+          "name": authorName,
+          "jobTitle": authorRole
         },
         "publisher": {
           "@type": "Organization",
@@ -1604,8 +1626,11 @@ export default function useSEOTags(activeTab: ActiveTab, readingArticle?: Articl
         },
         "mainEntityOfPage": {
           "@type": "WebPage",
-          "@id": `https://apexutility.live/${readingArticle.id}`
-        }
+          "@id": window.location.href || `https://apexutility.live/${art.id}`
+        },
+        "image": art.image || "https://apexutility.live/assets/logo.png",
+        "keywords": keywords,
+        "articleSection": articleCategory
       };
     }
 

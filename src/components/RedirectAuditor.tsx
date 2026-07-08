@@ -1562,9 +1562,9 @@ https://httpbin.org/status/503`
             <BookOpen className="w-3.5 h-3.5" />
             <span>SEO & Optimization Guide: Broken Links & Redirect Chains</span>
           </div>
-          <h3 className="text-xl font-bold text-white tracking-tight sm:text-2xl">
+          <h1 className="text-xl font-bold text-white tracking-tight sm:text-2xl">
             A Comprehensive Guide to Broken Link Audits & Permanent 301 Redirect Chains
-          </h3>
+          </h1>
           <p className="text-zinc-400 text-sm leading-relaxed">
             Protect your website's crawl budget, preserve PageRank link equity, and deliver flawless user experiences. Learn how auditing redirect chains and patching 404 broken links ensures absolute Google AdSense compliance and ranks you higher.
           </p>

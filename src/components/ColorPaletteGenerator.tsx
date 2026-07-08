@@ -1821,9 +1821,9 @@ export default function ColorPaletteGenerator() {
             <BookOpen className="w-3.5 h-3.5" />
             <span>Design Standards Guide: WCAG Contrast & Color Harmony</span>
           </div>
-          <h3 className="text-xl font-bold text-white tracking-tight sm:text-2xl">
+          <h1 className="text-xl font-bold text-white tracking-tight sm:text-2xl">
             A Complete Guide to WCAG Color Contrast & Accessibility Standards
-          </h3>
+          </h1>
           <p className="text-zinc-400 text-sm leading-relaxed">
             Ensure your digital designs are fully accessible and visually striking. Learn how calculating foreground-to-background relative luminance contrast ratios keeps your websites compliant with the Web Content Accessibility Guidelines (WCAG).
           </p>

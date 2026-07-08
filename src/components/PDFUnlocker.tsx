@@ -566,9 +566,9 @@ export default function PDFUnlocker() {
             <BookOpen className="w-3.5 h-3.5" />
             <span>Deep Dive: PDF Security & Permission Decryption</span>
           </div>
-          <h3 className="text-xl font-bold text-white tracking-tight sm:text-2xl">
+          <h1 className="text-xl font-bold text-white tracking-tight sm:text-2xl">
             Ultimate Guide to Unlocking Owner-Password-Restricted PDFs Safely
-          </h3>
+          </h1>
           <p className="text-zinc-400 text-sm leading-relaxed max-w-3xl">
             Stuck with a document that refuses to let you copy its text, edit its paragraphs, or print its pages? Learn the exact mechanics behind PDF security dictionary structures, how owner-password restrictions are applied, and why local client-side decryption is the absolute gold standard for privacy and speed.
           </p>

@@ -943,7 +943,7 @@ export default function WebPConverter() {
             <BookOpen className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-slate-100 uppercase tracking-wider font-mono">WebP Image Converter: Technical manual &amp; Optimization Blueprint</h3>
+            <h1 className="text-sm font-bold text-slate-100 uppercase tracking-wider font-mono">WebP Image Converter: Technical manual &amp; Optimization Blueprint</h1>
             <p className="text-xs text-slate-500">Comprehensive educational guide on how next-generation image codecs improve loading times, page scores, and SEO authority</p>
           </div>
         </div>
