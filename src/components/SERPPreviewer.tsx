@@ -6,6 +6,17 @@ import {
   HelpCircle, ChevronDown, ChevronUp, Link, Globe, Trash2,
   Target, Filter, TrendingUp, DollarSign, Plus, ArrowUpRight, BookOpen
 } from 'lucide-react';
+import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ReferenceLine
+} from 'recharts';
 
 interface RichSnippetOptions {
   showStars: boolean;
@@ -1838,6 +1849,8 @@ export default function SERPPreviewer() {
   const [keywords, setKeywords] = useState('seo tools');
   const [device, setDevice] = useState<'desktop' | 'mobile'>('desktop');
   const [copiedText, setCopiedText] = useState<string | null>(null);
+  const [serpPosition, setSerpPosition] = useState<number>(1);
+  const [monthlyVolume, setMonthlyVolume] = useState<number>(10000);
 
   // AI CTR Optimizer States
   const [tone, setTone] = useState<string>('balanced');
@@ -2045,6 +2058,55 @@ export default function SERPPreviewer() {
 
   const isTitleOver = titlePixels > TITLE_PIXEL_LIMIT || title.length > 60;
   const isDescOver = descPixels > DESC_PIXEL_LIMIT || description.length > 160;
+
+  // SERP Position & CTR Analytics Math Engine
+  const ctrAnalytics = useMemo(() => {
+    const baseRates = [39.6, 18.4, 10.1, 7.2, 4.8, 3.1, 2.2, 1.6, 1.2, 1.0];
+    
+    // Active boosts list
+    const activeBoosts = [];
+    if (richSnippets.showStars) activeBoosts.push({ name: 'Review Stars Rating', value: 3.1 });
+    if (richSnippets.showSitelinks) activeBoosts.push({ name: 'Sitelinks Assets', value: 4.2 });
+    if (richSnippets.showFaq) activeBoosts.push({ name: 'FAQ Schema Snippet', value: 1.8 });
+    if (richSnippets.showDate) activeBoosts.push({ name: 'Freshness Date Tag', value: 0.5 });
+    if (!isTitleOver && !isDescOver && title.length > 30 && description.length > 80) {
+      activeBoosts.push({ name: 'Perfect Tag Lengths', value: 1.2 });
+    }
+    
+    const totalBoost = activeBoosts.reduce((acc, b) => acc + b.value, 0);
+    
+    // Generate data for Recharts
+    const chartData = baseRates.map((base, idx) => {
+      const pos = idx + 1;
+      const opt = Math.min(95, parseFloat((base + totalBoost).toFixed(1)));
+      return {
+        position: `Pos ${pos}`,
+        posNum: pos,
+        'Base CTR %': base,
+        'Snippet Projected %': opt,
+      };
+    });
+    
+    const selectedBase = baseRates[serpPosition - 1] || 1.0;
+    const selectedProjected = Math.min(95, parseFloat((selectedBase + totalBoost).toFixed(1)));
+    
+    const baseClicks = Math.round((monthlyVolume * selectedBase) / 100);
+    const projectedClicks = Math.round((monthlyVolume * selectedProjected) / 100);
+    const trafficLiftPercent = selectedBase > 0 ? Math.round(((selectedProjected - selectedBase) / selectedBase) * 100) : 0;
+    const clickLift = projectedClicks - baseClicks;
+    
+    return {
+      chartData,
+      activeBoosts,
+      totalBoost,
+      selectedBase,
+      selectedProjected,
+      baseClicks,
+      projectedClicks,
+      trafficLiftPercent,
+      clickLift
+    };
+  }, [richSnippets, title, description, isTitleOver, isDescOver, serpPosition, monthlyVolume]);
 
   // Render text with highlight keywords
   const renderHighlightedText = (text: string, keywordStr: string, truncateLimit: number) => {
@@ -2612,6 +2674,328 @@ export default function SERPPreviewer() {
                 </div>
               )}
 
+            </div>
+          </div>
+
+          {/* SERP Position & CTR Analytics Panel */}
+          <div className="bg-zinc-950/80 border border-zinc-900 rounded-2xl p-5 sm:p-6 shadow-xl backdrop-blur-sm space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-zinc-900 pb-3">
+              <div className="space-y-1">
+                <span className="text-[10px] font-mono font-bold tracking-widest text-emerald-500 uppercase flex items-center gap-1">
+                  <TrendingUp className="w-3.5 h-3.5" />
+                  CTR Forecasting
+                </span>
+                <h3 className="text-lg font-extrabold text-white tracking-tight font-sans">
+                  SERP Position & CTR Analytics
+                </h3>
+              </div>
+              <span className="text-[10px] font-mono text-zinc-500 bg-zinc-900 px-2 py-1 rounded-md self-start sm:self-center">
+                Interactive Forecasting
+              </span>
+            </div>
+
+            <p className="text-zinc-400 text-xs leading-relaxed">
+              Google's organic Click-Through Rate drops exponentially as your search listing moves down the results page. Optimize your rich snippet elements and tags to capture a massive CTR boost.
+            </p>
+
+            {/* Interactive Simulation Controls */}
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
+              {/* Position selector */}
+              <div className="md:col-span-7 space-y-2.5">
+                <label className="text-xs font-semibold text-zinc-400 block">
+                  Simulate Google Ranking Position
+                </label>
+                <div className="grid grid-cols-5 gap-1.5">
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((pos) => {
+                    const isActive = serpPosition === pos;
+                    return (
+                      <button
+                        key={pos}
+                        onClick={() => setSerpPosition(pos)}
+                        className={`py-2 rounded-xl text-xs font-mono font-bold transition-all border cursor-pointer ${
+                          isActive
+                            ? 'bg-emerald-500 border-emerald-400 text-black shadow-lg shadow-emerald-500/20'
+                            : 'bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:border-zinc-700 hover:bg-zinc-800/80 hover:text-white'
+                        }`}
+                      >
+                        #{pos}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Volume selector */}
+              <div className="md:col-span-5 space-y-2.5">
+                <label className="text-xs font-semibold text-zinc-400 block">
+                  Target Keyword Monthly Volume
+                </label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    min="10"
+                    max="10000000"
+                    step="500"
+                    value={monthlyVolume}
+                    onChange={(e) => setMonthlyVolume(Math.max(1, parseInt(e.target.value) || 0))}
+                    className="w-full bg-zinc-900 border border-zinc-800 focus:border-emerald-600 rounded-xl pl-3 pr-10 py-2 text-sm text-white focus:outline-none transition-all font-mono"
+                  />
+                  <span className="absolute right-3 top-2.5 text-[10px] font-mono text-zinc-500">
+                    S/Mo
+                  </span>
+                </div>
+                <div className="flex gap-1.5 justify-between">
+                  {[1000, 5000, 10000, 50000].map((v) => (
+                    <button
+                      key={v}
+                      onClick={() => setMonthlyVolume(v)}
+                      className={`text-[10px] font-mono px-2 py-0.5 rounded transition-all border cursor-pointer ${
+                        monthlyVolume === v
+                          ? 'bg-zinc-800 border-zinc-700 text-white'
+                          : 'bg-zinc-950 border-zinc-900 text-zinc-500 hover:text-zinc-300'
+                      }`}
+                    >
+                      {v.toLocaleString()}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Metric Cards Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {/* Card 1: CTR */}
+              <div className="bg-zinc-900/40 border border-zinc-800/60 rounded-xl p-4 space-y-1.5 text-left">
+                <span className="text-[10px] font-mono text-zinc-500 uppercase block">Projected CTR</span>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-2xl font-extrabold text-white font-mono">
+                    {ctrAnalytics.selectedProjected}%
+                  </span>
+                  <span className="text-xs text-zinc-500 line-through font-mono">
+                    {ctrAnalytics.selectedBase}%
+                  </span>
+                </div>
+                <p className="text-[10px] text-emerald-400 flex items-center gap-1 font-mono">
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                  +{ctrAnalytics.totalBoost.toFixed(1)}% Rich Snippet Lift
+                </p>
+              </div>
+
+              {/* Card 2: Estimated Monthly Clicks */}
+              <div className="bg-zinc-900/40 border border-zinc-800/60 rounded-xl p-4 space-y-1.5 text-left">
+                <span className="text-[10px] font-mono text-zinc-500 uppercase block">Expected Clicks</span>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-2xl font-extrabold text-white font-mono">
+                    {ctrAnalytics.projectedClicks.toLocaleString()}
+                  </span>
+                  <span className="text-xs text-zinc-500 line-through font-mono">
+                    {ctrAnalytics.baseClicks.toLocaleString()}
+                  </span>
+                </div>
+                <p className="text-[10px] text-zinc-400 font-mono">
+                  Monthly visits from Position #{serpPosition}
+                </p>
+              </div>
+
+              {/* Card 3: Traffic Lift */}
+              <div className="bg-zinc-900/40 border border-zinc-800/60 rounded-xl p-4 space-y-1.5 text-left">
+                <span className="text-[10px] font-mono text-zinc-500 uppercase block">Traffic Increase</span>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-2xl font-extrabold text-emerald-400 font-mono">
+                    +{ctrAnalytics.trafficLiftPercent}%
+                  </span>
+                  <span className="text-xs text-zinc-400 font-mono">
+                    (+{ctrAnalytics.clickLift.toLocaleString()}/mo)
+                  </span>
+                </div>
+                <p className="text-[10px] text-zinc-400 font-mono">
+                  Snippet optimization value
+                </p>
+              </div>
+            </div>
+
+            {/* Recharts Chart */}
+            <div className="bg-zinc-950 border border-zinc-900 rounded-xl p-4 space-y-2">
+              <span className="text-[10px] font-mono text-zinc-500 uppercase block mb-1 text-left">
+                Organic Click-Through Rate Curve (SERP Position 1-10)
+              </span>
+              <div className="w-full h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart
+                    data={ctrAnalytics.chartData}
+                    margin={{ top: 10, right: 10, left: -25, bottom: 0 }}
+                  >
+                    <defs>
+                      <linearGradient id="optColor" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.25}/>
+                        <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                      </linearGradient>
+                      <linearGradient id="baseColor" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#64748b" stopOpacity={0.15}/>
+                        <stop offset="95%" stopColor="#64748b" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid stroke="#1e293b" strokeDasharray="3 3" vertical={false} />
+                    <XAxis
+                      dataKey="position"
+                      stroke="#64748b"
+                      fontSize={11}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      stroke="#64748b"
+                      fontSize={11}
+                      tickLine={false}
+                      unit="%"
+                    />
+                    <Tooltip
+                      content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          const item = payload[0].payload;
+                          const isCurrent = item.posNum === serpPosition;
+                          return (
+                            <div className="bg-zinc-950/95 border border-zinc-800 p-3 rounded-lg shadow-xl text-xs space-y-1.5 font-sans text-left">
+                              <p className="font-bold text-white flex items-center justify-between gap-4">
+                                <span>Google Position #{item.posNum}</span>
+                                {isCurrent && (
+                                  <span className="text-[9px] font-mono px-1.5 py-0.5 bg-emerald-500/10 text-emerald-400 rounded-md border border-emerald-500/20">
+                                    Simulating
+                                  </span>
+                                )}
+                              </p>
+                              <div className="space-y-1 font-mono text-[11px] text-zinc-400">
+                                <p className="flex justify-between gap-6">
+                                  <span>Baseline CTR:</span>
+                                  <span className="text-zinc-300 font-bold">{item['Base CTR %']}%</span>
+                                </p>
+                                <p className="flex justify-between gap-6 text-emerald-400">
+                                  <span>Your Snippet CTR:</span>
+                                  <span className="font-bold">{item['Snippet Projected %']}%</span>
+                                </p>
+                                <p className="flex justify-between gap-6 text-zinc-500 text-[10px] border-t border-zinc-900 pt-1">
+                                  <span>Proj. Clicks:</span>
+                                  <span>{Math.round((monthlyVolume * item['Snippet Projected %']) / 100).toLocaleString()}</span>
+                                </p>
+                              </div>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
+                    <Legend
+                      verticalAlign="top"
+                      height={36}
+                      iconType="circle"
+                      iconSize={8}
+                      wrapperStyle={{ fontSize: '11px', color: '#94a3b8' }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="Snippet Projected %"
+                      stroke="#10b981"
+                      strokeWidth={2.5}
+                      fillOpacity={1}
+                      fill="url(#optColor)"
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="Base CTR %"
+                      stroke="#64748b"
+                      strokeWidth={1.5}
+                      fillOpacity={1}
+                      fill="url(#baseColor)"
+                    />
+                    <ReferenceLine
+                      x={`Pos ${serpPosition}`}
+                      stroke="#10b981"
+                      strokeDasharray="4 4"
+                      strokeWidth={1.5}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Rich Snippets CTR Boosters Checklist */}
+            <div className="space-y-3">
+              <span className="text-[10px] font-mono text-zinc-500 uppercase block text-left">
+                Snippet Feature CTR Boosters Inventory
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {[
+                  {
+                    name: 'Review Stars Rating',
+                    value: '+3.1% CTR',
+                    desc: 'Enhance visibility with schema reviews.',
+                    active: richSnippets.showStars,
+                    icon: Star,
+                    color: 'text-amber-400'
+                  },
+                  {
+                    name: 'Sitelinks Assets',
+                    value: '+4.2% CTR',
+                    desc: 'Expand snippet with internal direct links.',
+                    active: richSnippets.showSitelinks,
+                    icon: Link,
+                    color: 'text-blue-400'
+                  },
+                  {
+                    name: 'FAQ Schema Snippet',
+                    value: '+1.8% CTR',
+                    desc: 'Dominate more vertical SERP screen area.',
+                    active: richSnippets.showFaq,
+                    icon: HelpCircle,
+                    color: 'text-purple-400'
+                  },
+                  {
+                    name: 'Freshness Date Tag',
+                    value: '+0.5% CTR',
+                    desc: 'Indicate recently updated dynamic content.',
+                    active: richSnippets.showDate,
+                    icon: Info,
+                    color: 'text-rose-400'
+                  },
+                  {
+                    name: 'Perfect Title & Desc Lengths',
+                    value: '+1.2% CTR',
+                    desc: 'Avoid search snippet truncations in results.',
+                    active: !isTitleOver && !isDescOver && title.length > 30 && description.length > 80,
+                    icon: CheckCircle2,
+                    color: 'text-emerald-400'
+                  }
+                ].map((booster, idx) => {
+                  const IconComp = booster.icon;
+                  return (
+                    <div
+                      key={idx}
+                      className={`p-3 rounded-xl border flex gap-3 transition-all ${
+                        booster.active
+                          ? 'bg-emerald-950/15 border-emerald-500/20 text-white'
+                          : 'bg-zinc-900/20 border-zinc-800/40 text-zinc-500'
+                      }`}
+                    >
+                      <IconComp className={`w-4 h-4 shrink-0 mt-0.5 ${booster.active ? booster.color : 'text-zinc-600'}`} />
+                      <div className="space-y-0.5 text-left min-w-0 flex-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className={`text-xs font-bold leading-none truncate ${booster.active ? 'text-zinc-200' : 'text-zinc-500'}`}>
+                            {booster.name}
+                          </p>
+                          <span className={`text-[10px] font-mono font-bold shrink-0 ${booster.active ? 'text-emerald-400' : 'text-zinc-600'}`}>
+                            {booster.value}
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-zinc-500 leading-tight truncate">
+                          {booster.desc}
+                        </p>
+                        <span className={`inline-block text-[9px] font-mono font-semibold uppercase ${booster.active ? 'text-emerald-500' : 'text-zinc-600'}`}>
+                          {booster.active ? 'Active Boost' : 'Disabled'}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
