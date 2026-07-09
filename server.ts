@@ -85,7 +85,7 @@ async function createServer() {
     // Allow local development and native AI Studio environments to preview
     const host = req.headers.host || '';
     const referer = req.headers.referer || '';
-    const isPlatformFrame = referer.includes('studio.google') || referer.includes('ai.studio') || host.includes('run.app') || host.includes('localhost');
+    const isPlatformFrame = referer.includes('studio.google') || referer.includes('ai.studio') || referer.includes('tagassistant.google.com') || host.includes('run.app') || host.includes('localhost');
     
     if (process.env.NODE_ENV === 'production' && !isPlatformFrame) {
       res.setHeader('X-Frame-Options', 'SAMEORIGIN');
