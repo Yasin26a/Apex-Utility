@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { ActiveTab } from '../types';
 import { getLandingPageConfig } from '../utils/seoLandingPages';
-import { TOOL_DEEP_DIVES } from '../utils/toolDescriptions';
+import { getToolDeepDive } from '../utils/toolDescriptions';
+import { AdUnit } from './AdUnit';
 import { HelpCircle, ChevronRight, BookOpen, Layers, Sparkles, ExternalLink, Terminal } from 'lucide-react';
 
 interface ToolLandingIslandProps {
@@ -11,10 +12,7 @@ interface ToolLandingIslandProps {
 
 export default function ToolLandingIsland({ toolId, onTabChange }: ToolLandingIslandProps) {
   const config = getLandingPageConfig(toolId);
-  const deepDive = TOOL_DEEP_DIVES[toolId] || {
-    subtitle: 'High-Performance Client-Side Utility Matrix',
-    paragraphs: [config.introParagraph]
-  };
+  const deepDive = getToolDeepDive(toolId, config);
   const [openFaqs, setOpenFaqs] = useState<Record<number, boolean>>({ 0: true });
 
   const toggleFaq = (index: number) => {
@@ -125,6 +123,16 @@ export default function ToolLandingIsland({ toolId, onTabChange }: ToolLandingIs
             </li>
           ))}
         </ol>
+      </div>
+
+      {/* Strategic AdSense Responsive Content Placement */}
+      <div className="my-6">
+        <AdUnit
+          slot="3493943620"
+          format="auto"
+          responsive="true"
+          className="rounded-xl border border-zinc-900/60 bg-zinc-950/40 p-1"
+        />
       </div>
 
       {/* Structured microdata Schema.org Compliant FAQ Section (Accents Rich Listings) */}

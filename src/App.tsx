@@ -76,6 +76,7 @@ import {
 import { BrandingLogo } from './components/BrandingLogo';
 import { DEFAULT_CARDS } from './components/Dashboard';
 import { ContextualSEOSection } from './components/ContextualSEOSection';
+import ToolLandingIsland from './components/ToolLandingIsland';
 import { SEOHeader } from './components/SEOHeader';
 const WebPConverter = lazy(() => import('./components/WebPConverter'));
 const PDFJoiner = lazy(() => import('./components/PDFJoiner'));
@@ -7410,7 +7411,10 @@ Disallow:
           </AnimatePresence>
 
           {activeTab !== 'dashboard' && activeTab !== 'guides' && activeTab !== 'about-us' && activeTab !== 'privacy-policy' && activeTab !== 'terms-of-service' && (
-            <ContextualSEOSection activeTab={activeTab} />
+            <>
+              <ToolLandingIsland toolId={activeTab} onTabChange={handleTabChange} />
+              <ContextualSEOSection activeTab={activeTab} />
+            </>
           )}
         </Suspense>
       </main>

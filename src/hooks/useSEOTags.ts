@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { ActiveTab } from '../types';
 import { Article } from '../data/articles';
 import { SEO_H1_MAPPING, SEO_DESC_MAPPING } from '../seo-mapping';
+import { getLandingPageConfig } from '../utils/seoLandingPages';
 
 interface SEOHeaderContent {
   title: string;
@@ -1663,6 +1664,67 @@ export default function useSEOTags(activeTab: ActiveTab, readingArticle?: Articl
         "image": art.image || "https://apexutility.live/assets/logo.png",
         "keywords": keywords,
         "articleSection": articleCategory
+      };
+    } else if (activeTab !== 'dashboard' && activeTab !== 'about-us' && activeTab !== 'privacy-policy' && activeTab !== 'terms-of-service' && activeTab !== 'guides') {
+      const landingConfig = getLandingPageConfig(activeTab);
+      const faqList = landingConfig.faqs || [];
+      
+      const faqSchema = faqList.length > 0 ? {
+        "@type": "FAQPage",
+        "mainEntity": faqList.map(faq => ({
+          "@type": "Question",
+          "name": faq.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": faq.answer
+          }
+        }))
+      } : null;
+
+      const breadcrumbSchema = {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://apexutility.live"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": landingConfig.title,
+            "item": `https://apexutility.live/${activeTab}`
+          }
+        ]
+      };
+
+      const appSchema = {
+        "@type": "SoftwareApplication",
+        "name": landingConfig.title,
+        "description": description,
+        "applicationCategory": "UtilityApplication",
+        "operatingSystem": "All Platforms",
+        "browserRequirements": "Requires HTML5, WebAssembly, JavaScript",
+        "offers": {
+          "@type": "Offer",
+          "price": "0.00",
+          "priceCurrency": "USD"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "Apex Processing Labs",
+          "url": "https://apexutility.live"
+        }
+      };
+
+      schemaMarkup = {
+        "@context": "https://schema.org",
+        "@graph": [
+          appSchema,
+          breadcrumbSchema,
+          ...(faqSchema ? [faqSchema] : [])
+        ]
       };
     }
 
