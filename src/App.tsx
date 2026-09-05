@@ -82,6 +82,11 @@ const WebPConverter = lazy(() => import('./components/WebPConverter'));
 const PDFJoiner = lazy(() => import('./components/PDFJoiner'));
 const VisualPDFOrganizer = lazy(() => import('./components/VisualPDFOrganizer'));
 const PDFUnlocker = lazy(() => import('./components/PDFUnlocker'));
+const PDFRedactor = lazy(() => import('./components/PDFRedactor'));
+const FreelanceRateEstimator = lazy(() => import('./components/FreelanceRateEstimator'));
+const MortgageRefinanceVisualizer = lazy(() => import('./components/MortgageRefinanceVisualizer'));
+const SVGPatternArchitect = lazy(() => import('./components/SVGPatternArchitect'));
+const SchemaRichSnippetBuilder = lazy(() => import('./components/SchemaRichSnippetBuilder'));
 const PDFSplitter = lazy(() => import('./components/PDFSplitter'));
 const ContentPlanner = lazy(() => import('./components/ContentPlanner'));
 const AIContentBriefGenerator = lazy(() => import('./components/AIContentBriefGenerator'));
@@ -7387,6 +7392,56 @@ Disallow:
                 className="space-y-6"
               >
                 <MetaTagsOptimizer />
+              </motion.div>
+            )}
+
+            {activeTab === 'pdf-redactor' && (
+              <motion.div
+                key="pdf-redactor"
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                className="space-y-6"
+              >
+                <PDFRedactor />
+              </motion.div>
+            )}
+
+            {activeTab === 'freelance-rate-estimator' && (
+              <motion.div
+                key="freelance-rate-estimator"
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                className="space-y-6"
+              >
+                <FreelanceRateEstimator />
+              </motion.div>
+            )}
+
+            {activeTab === 'mortgage-refinance-visualizer' && (
+              <motion.div
+                key="mortgage-refinance-visualizer"
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                className="space-y-6"
+              >
+                <MortgageRefinanceVisualizer />
+              </motion.div>
+            )}
+
+            {activeTab === 'svg-pattern-architect' && (
+              <motion.div
+                key="svg-pattern-architect"
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                className="space-y-6"
+              >
+                <SVGPatternArchitect />
+              </motion.div>
+            )}
+
+            {activeTab === 'schema-rich-snippet-builder' && (
+              <motion.div
+                key="schema-rich-snippet-builder"
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                className="space-y-6"
+              >
+                <SchemaRichSnippetBuilder />
               </motion.div>
             )}
 

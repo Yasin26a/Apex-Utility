@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutGrid, FileText, Image as ImageIcon, FileImage, Braces, Globe, Terminal, ShieldCheck, Settings, Search, Layers, Monitor, Trash2, Plus, Check, X, Sparkles, Download, Upload, QrCode, Scale, FileCode, Sliders, GitPullRequest, Hash, Palette, Gauge, Binary, Regex, ArrowLeftRight, Shrink, Database, Volume2, Mic, Eye, Video, PenTool, VolumeX, Music, Type, AlignLeft, Crop, Calendar, Scissors, Maximize, Camera, RotateCw, Film, Network, Unlock } from 'lucide-react';
+import { LayoutGrid, FileText, Image as ImageIcon, FileImage, Braces, Globe, Terminal, ShieldCheck, Settings, Search, Layers, Monitor, Trash2, Plus, Check, X, Sparkles, Download, Upload, QrCode, Scale, FileCode, Sliders, GitPullRequest, Hash, Palette, Gauge, Binary, Regex, ArrowLeftRight, Shrink, Database, Volume2, Mic, Eye, Video, PenTool, VolumeX, Music, Type, AlignLeft, Crop, Calendar, Scissors, Maximize, Camera, RotateCw, Film, Network, Unlock, Calculator, Landmark, Waves, Code2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ActiveTab } from '../types';
 import { useLanguage } from '../context/LanguageContext';
@@ -252,6 +252,11 @@ export default function NavigationSidebar({ activeTab, onTabChange, isMobileOpen
     { id: 'join-pdf' as ActiveTab, label: t.navigation.joinPdf, icon: Layers, description: t.navigation.joinPdfDesc },
     { id: 'visual-pdf-organizer' as ActiveTab, label: 'Visual PDF Organizer', icon: Layers, description: 'Reorder, rotate, and prune pages from any PDF visually' },
     { id: 'pdf-unlocker' as ActiveTab, label: 'PDF Unlocker', icon: Unlock, description: 'Decrypt and remove owner-password-restricted PDF limits' },
+    { id: 'pdf-redactor' as ActiveTab, label: 'PDF PII Redactor', icon: ShieldCheck, description: 'Automatically detect and blackout sensitive PII data in PDFs offline' },
+    { id: 'freelance-rate-estimator' as ActiveTab, label: 'Freelance Rate & Tax Estimator', icon: Calculator, description: 'Calculate billable hourly rates, expenses, profit margin & Tier-1 tax retention' },
+    { id: 'mortgage-refinance-visualizer' as ActiveTab, label: 'Mortgage Refinance & Amortization', icon: Landmark, description: 'Compare loan refinancing savings, P&I schedules, tax deductions & break-even timeline' },
+    { id: 'svg-pattern-architect' as ActiveTab, label: 'SVG Pattern & Wave Architect', icon: Waves, description: 'Design multi-layer SVG waves, mesh gradients & tileable geometric UI patterns' },
+    { id: 'schema-rich-snippet-builder' as ActiveTab, label: 'Schema.org Rich Snippet Builder', icon: Code2, description: 'Visual Schema.org JSON-LD generator for FAQ, Article, Product & Local Business with SERP preview' },
     { id: 'image-to-pdf' as ActiveTab, label: t.navigation.imageToPdf, icon: FileImage, description: t.navigation.imageToPdfDesc },
     { id: 'webp-converter' as ActiveTab, label: t.navigation.webpConverter, icon: ImageIcon, description: t.navigation.webpConverterDesc },
     { id: 'json-beautifier' as ActiveTab, label: t.navigation.jsonBeautifier, icon: Braces, description: t.navigation.jsonBeautifierDesc },

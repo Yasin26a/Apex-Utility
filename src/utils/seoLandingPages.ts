@@ -27,6 +27,167 @@ const COMMON_RELATED = [
 
 // High-fidelity configuration containing granular answers targeting long-tail queries
 const CUSTOM_LANDING_LOGIC: Record<string, Partial<LandingPageConfig>> = {
+  'schema-rich-snippet-builder': {
+    title: 'Schema.org Structured Data & Rich Snippet Builder Online Free',
+    headline: 'Visual Schema.org JSON-LD Generator & Live Google Rich Results Validator',
+    subheadline: 'Craft valid Schema.org structured data for FAQ, Article, Product, HowTo, Local Business, Organization, Recipe, and Event with real-time Google search snippet previews.',
+    introParagraph: 'Structured data markup powers rich search results in Google, Bing, and major search engines, displaying star ratings, FAQ accordions, pricing, author info, and recipe cooking times directly on SERPs. The APEX Schema.org Rich Snippet Builder empowers technical SEOs and developers to visually generate, lint, and validate Google-compliant JSON-LD markup with zero syntax errors. Preview how your pages render in Google mobile and desktop search results with real-time schema validation rules.',
+    benefits: [
+      'Comprehensive Schema Type Coverage: Visual builders for FAQPage, Article, Product, HowTo, LocalBusiness, Organization, Recipe, Event, VideoObject, and BreadcrumbList.',
+      'Live Google Search Rich Snippet Simulator: Preview live SERP cards with stars, pricing badges, author tags, FAQ expandable toggles, and breadcrumb trails.',
+      'Google Structured Data Linter & Validator: Real-time checks for required and recommended properties, date ISO formats, image dimensions, and currency codes.',
+      'Instant Export & Direct Google Validation: Copy 1-click JSON-LD scripts, download .jsonld files, or launch Google’s official Rich Results Test directly.'
+    ],
+    howToSteps: [
+      'Select your Schema.org type (FAQ, Article, Product, HowTo, Local Business, Organization, Recipe, or Event).',
+      'Fill in the structured fields or choose a quick-start industry template to autofill sample data.',
+      'Review the live Google Search Rich Result simulator on the right to see how your snippet appears in SERP listings.',
+      'Check the automated validation panel for missing required or recommended properties according to Google guidelines.',
+      'Click Copy JSON-LD, download the file, or test directly in Google Rich Results Test tool.'
+    ],
+    faqs: [
+      {
+        question: 'Why is JSON-LD preferred by Google over Microdata or RDFa?',
+        answer: 'Google explicitly recommends JSON-LD (JavaScript Object Notation for Linked Data) because it is placed cleanly inside a script tag in the page head or body without interfering with HTML markup or visible page styling, making it easier to maintain and less prone to breaking during template updates.'
+      },
+      {
+        question: 'How do FAQPage and Product schemas impact organic search click-through rates (CTR)?',
+        answer: 'Rich results like FAQ accordions and Product review stars expand the visual footprint of your organic search listing on Google, building instant trust and driving significant CTR improvements—often increasing organic traffic by 15% to 35%.'
+      },
+      {
+        question: 'Can I test my generated JSON-LD directly with Google’s official testing tools?',
+        answer: 'Yes! Our tool includes a direct link button to open the Google Rich Results Test suite where you can test code snippets directly with Google’s crawler verification service.'
+      }
+    ]
+  },
+  'svg-pattern-architect': {
+    title: 'SVG Pattern & Wave Architect Generator Online Free - Custom UI Backgrounds',
+    headline: 'Architect Custom Multi-Layer SVG Waves, Mesh Gradients & Geometric UI Patterns',
+    subheadline: 'Generate production-ready vector graphics, fluid wave dividers, organic mesh gradients, and tileable geometric patterns with instant CSS, Tailwind CSS, SVG, and PNG exports.',
+    introParagraph: 'Designing modern digital interfaces requires high-performance vector visuals that scale crisply across all display densities without bloating asset bundles. The APEX SVG Pattern & Wave Architect provides web designers and frontend engineers with an all-in-one studio to craft multi-layered fluid waves, organic mesh gradient textures, isometric grids, dot matrices, and seamless geometric background patterns. Export clean inline SVG code, CSS background URLs, Tailwind utility snippets, or high-res PNG renders in seconds.',
+    benefits: [
+      'Fluid Multi-Layer Wave Generator: Customize wave frequency, amplitude, opacity curves, cubic gradients, and organic peak randomness.',
+      'Mesh Gradient Studio: Position dynamic radial and linear control points, apply grain noise textures, and adjust blur radius for modern aura effects.',
+      'Geometric Pattern Matrix: Generate tileable isometric grids, dot matrices, concentric circles, crosshatch, and hexagonal mesh patterns.',
+      'Production Export Engine: Copy clean raw SVG strings, CSS data URI background rules, Tailwind CSS class definitions, or download high-resolution PNGs.'
+    ],
+    howToSteps: [
+      'Choose your preferred generator mode: Multi-Layer SVG Waves, Mesh Gradient Canvas, or Geometric Tileable Patterns.',
+      'Adjust control parameters: colors, gradient stops, stroke weights, opacity, frequency, rotation, and peak variance.',
+      'Preview your design on light, dark, device frame, or full-viewport canvas backgrounds with live zoom controls.',
+      'Export your asset as raw SVG code, CSS background data URI, Tailwind class string, or high-resolution PNG image.'
+    ],
+    faqs: [
+      {
+        question: 'Why choose inline SVG waves and background patterns over raster images?',
+        answer: 'SVG vectors are resolution-independent, remaining sharp on high-DPI Retina displays while having tiny file sizes (typically <2 KB) compared to multi-megabyte PNG or WebP images, leading to faster page load speeds and superior Lighthouse performance scores.'
+      },
+      {
+        question: 'Can I use generated SVG patterns directly in Tailwind CSS projects?',
+        answer: 'Yes! Our tool provides direct Tailwind CSS code snippets using arbitrary background-image values or inline SVG elements ready to drop into React, Vue, Svelte, or HTML templates.'
+      },
+      {
+        question: 'Are generated SVG assets royalty-free for commercial use?',
+        answer: 'Absolutely. All SVG graphics, mesh gradients, and geometric patterns generated with this tool are 100% free and open for personal, commercial, and client projects with zero attribution required.'
+      }
+    ]
+  },
+  'mortgage-refinance-visualizer': {
+    title: 'Mortgage Refinance & Amortization Schedule Visualizer Online Free',
+    headline: 'Visualize Mortgage Refinance Savings & Complete Amortization Schedules',
+    subheadline: 'Compare current vs. new loan terms, analyze principal vs. interest payoff curves, calculate mortgage interest tax savings, and determine your exact break-even month.',
+    introParagraph: 'Refinancing your home mortgage can yield significant long-term wealth accumulation or lower monthly cash outflow, but evaluating closing costs, interest rate differentials, remaining loan tenure, and tax deduction implications can be complex. The APEX Mortgage Refinance & Amortization Visualizer provides instant interactive breakdowns of monthly payment changes, total lifetime interest paid, cumulative tax savings from mortgage interest deductions, and year-by-year or month-by-month amortization schedules with CSV export.',
+    benefits: [
+      'Current vs. Refinanced Side-by-Side Comparison: Compare monthly P&I, total interest, points, closing costs, and lifetime savings instantly.',
+      'Interactive Amortization Curve: Visualize principal reduction vs. interest decay over time with dynamic Recharts area and bar charts.',
+      'Mortgage Interest Tax Savings Estimator: Factor in marginal federal/state tax brackets to calculate net effective interest after tax deductions.',
+      'Refinance Break-Even Timeline: Know exactly how many months it will take to recoup closing costs and start generating net positive financial savings.'
+    ],
+    howToSteps: [
+      'Enter your current loan balance, remaining term (years), original interest rate, and current monthly payment.',
+      'Configure proposed refinance terms: new loan amount, new interest rate, loan duration (e.g. 15, 20, 30 years), closing costs, and points.',
+      'Adjust your federal and state tax brackets to model mortgage interest tax deduction savings.',
+      'Review the side-by-side comparison cards, interactive amortization payoff chart, break-even month indicator, and download full CSV schedules.'
+    ],
+    faqs: [
+      {
+        question: 'How is the mortgage refinance break-even point calculated?',
+        answer: 'The break-even point is the number of months required for your cumulative monthly payment savings to equal the total upfront closing costs and origination fees incurred during refinancing. For example, if closing costs are $4,000 and your monthly payment drops by $200, your break-even point is 20 months.'
+      },
+      {
+        question: 'Does refinancing a mortgage reset the amortization schedule?',
+        answer: 'Yes. When you refinance into a new 30-year or 15-year loan, your amortization schedule resets to Month 1. In the early years of a mortgage, a larger portion of each payment goes toward interest rather than principal. Our visualizer highlights whether refinancing into a shorter term (e.g., 15 years) or keeping a similar term saves more lifetime interest.'
+      },
+      {
+        question: 'How do tax savings impact mortgage refinancing decisions?',
+        answer: 'Homeowners who itemize deductions can deduct mortgage interest paid from their taxable income. Lowering your interest rate reduces total interest paid, which may slightly reduce your itemized tax deduction. Our calculator factors in your marginal tax bracket to show net after-tax savings.'
+      }
+    ]
+  },
+  'freelance-rate-estimator': {
+    title: 'Freelance Rate & Tax Retention Estimator Online Free - Calculate Hourly Rates & Taxes',
+    headline: 'Determine Your True Billable Hourly Rate & Self-Employment Tax Retention',
+    subheadline: 'Calculate minimum & target hourly rates based on business expenses, desired profit margin, billable capacity, and Tier-1 self-employment tax obligations.',
+    introParagraph: 'Transitioning to freelancing or independent consulting requires understanding that your hourly rate must cover far more than your personal take-home salary. Independent professionals are responsible for 100% of business overhead, non-billable administrative hours, paid leave, and Tier-1 self-employment taxes (SECA 15.3% Social Security & Medicare). The APEX Freelance Rate & Tax Retention Estimator models your exact financial reality, breaking down annual expenses, profit margins, federal/state tax liabilities, quarterly tax reserve estimates, and recommended hourly, daily, and monthly retainer pricing.',
+    benefits: [
+      'Comprehensive Overhead & Salary Modeling: Factor in software, equipment, healthcare, retirement savings, and PTO to determine real gross revenue needs.',
+      'Realized Utilization Ratio: Account for unbillable admin, marketing, and client acquisition hours to set accurate hourly rates.',
+      'Tier-1 Tax Structure Calculation: Compute 15.3% SECA self-employment taxes and estimated federal/state income tax retention percentages.',
+      'Quarterly Tax Breakdown & Pricing Tiers: Get instant quarterly estimated tax payment vouchers along with minimum break-even, target, and value-based rates.'
+    ],
+    howToSteps: [
+      'Input your desired annual take-home salary, tax filing status, and estimated state/local income tax rate.',
+      'Add recurring business overhead expenses (SaaS, equipment, insurance, marketing, accounting).',
+      'Configure your annual capacity: target weeks worked per year and average billable hours per week.',
+      'Review your calculated minimum break-even rate, recommended target rate, tax retention reserve percentage, and quarterly tax vouchers.'
+    ],
+    faqs: [
+      {
+        question: 'Why is my calculated freelance hourly rate so much higher than my previous employee salary rate?',
+        answer: 'When you work as an employee, your employer covers 7.65% of your FICA taxes, health insurance, equipment, software licenses, paid time off, and non-billable office hours. As a freelancer, your billable hours must cover all business overhead, 100% of self-employment taxes (15.3%), and unbillable administrative time.'
+      },
+      {
+        question: 'How much should I set aside for self-employment and income taxes on each invoice?',
+        answer: 'As a rule of thumb, freelancers should reserve 25% to 35% of every incoming client payment in a dedicated tax savings account. Our estimator computes your precise combined retention rate based on SECA taxes (15.3%) and your federal and state tax brackets.'
+      },
+      {
+        question: 'What is the billable utilization rate and why does it matter?',
+        answer: 'The billable utilization rate is the percentage of your total working hours that generate direct client revenue. Most full-time freelancers can realistically bill 25-30 hours out of a 40-hour workweek (62%-75% utilization), as the remaining hours are consumed by invoicing, sales, admin, and professional development.'
+      }
+    ]
+  },
+  'pdf-redactor': {
+    title: 'Client-Side PDF PII Redactor & Masker Online Free - Blackout Sensitive PDF Data',
+    headline: 'Automatically Detect & Blackout Sensitive PII Data in PDF Documents',
+    subheadline: 'Redact SSNs, credit cards, emails, phone numbers, and custom keywords 100% in-browser with zero server uploads.',
+    introParagraph: 'Sharing legal, medical, or financial PDFs without redacting sensitive Personally Identifiable Information (PII) exposes individuals and organizations to severe privacy risks and compliance penalties. APEX PDF Redactor operates entirely inside your browser sandbox using pdfjs-dist and pdf-lib. It scans document text vectors, detects SSNs, payment cards, email addresses, and phone numbers, and permanently burns blackout rectangles or flattens pages into high-security raster PDFs so hidden data can never be copied or extracted.',
+    benefits: [
+      '100% Client-Side Privacy: Your PDF files are processed exclusively in local memory; zero bytes leave your device.',
+      'Automated PII Detection: Instant regular expression engine detects SSNs, credit card numbers, email addresses, and phone numbers across all pages.',
+      'Manual Box Drag & Masking: Interactively draw custom redaction boxes over signatures, account numbers, photos, or confidential text blocks.',
+      'Permanent Burn & Flattening: Offers high-security raster flattening that destroys underlying vector text layers, preventing copy-paste extraction hacks.'
+    ],
+    howToSteps: [
+      'Upload any PDF document into the browser sandbox via drag-and-drop or file picker.',
+      'Run the automatic PII scanner or toggle specific sensitive data categories (SSNs, Credit Cards, Emails, Phones, Custom Terms).',
+      'Use the interactive canvas to review auto-detected boxes or click and drag to add custom manual redaction rectangles.',
+      'Click "Export Redacted PDF" to generate and download a sanitized, permanent redacted PDF document.'
+    ],
+    faqs: [
+      {
+        question: 'Can someone un-redact or copy text from behind the blackout rectangles?',
+        answer: 'When using our recommended High-Security Flattened Export mode, the PDF pages are converted into flattened high-DPI raster images with the black boxes permanently painted into the pixel data. The underlying text stream is completely destroyed, making text extraction mathematically impossible.'
+      },
+      {
+        question: 'Are my confidential financial or legal PDFs uploaded to any remote server?',
+        answer: 'No! All text extraction, canvas rendering, pattern matching, and PDF file generation happen 100% locally within your browser using JavaScript and WebAssembly. No files or data are ever transmitted to any external server.'
+      },
+      {
+        question: 'Can I redact custom keywords or specific names not covered by standard patterns?',
+        answer: 'Yes! Simply type any custom terms, names, or numbers into the Custom Keywords input field, and our scanner will locate every occurrence across all pages for instant one-click blackout.'
+      }
+    ]
+  },
   'compress-pdf': {
     title: 'Compress PDF to 2MB for Job Applications Online Free - Secure & Private',
     headline: 'Securely Shrink Resumes and Portfolios to Under 2MB Free',

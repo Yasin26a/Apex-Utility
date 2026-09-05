@@ -119,6 +119,11 @@ export const SEO_H1_MAPPING: Record<ActiveTab, string> = {
   'visual-pdf-organizer': 'Free Visual PDF Page Organizer - Reorder, Rotate & Delete Pages',
   'pdf-unlocker': 'Unlock Locked PDFs Instantly - 100% Free PDF Password Remover & Decryptor',
   'ai-content-brief': 'Free AI SEO Content Brief & Heading Outline Generator',
+  'pdf-redactor': 'Free Client-Side PDF PII Redactor & Masker - Blackout Sensitive PDF Data',
+  'freelance-rate-estimator': 'Free Freelance Billable Rate & Tax Retention Estimator - Calculate Rates & Self-Employment Taxes',
+  'mortgage-refinance-visualizer': 'Free Mortgage Refinance & Amortization Schedule Visualizer - Principal vs. Interest & Tax Savings',
+  'svg-pattern-architect': 'Free SVG Pattern & Wave Architect - Custom SVG Waves, Mesh Gradients & Geometric UI Backgrounds',
+  'schema-rich-snippet-builder': 'Free Schema.org Structured Data & Google Rich Snippet Builder - FAQ, Article, Product & Local Business JSON-LD',
 };
 
 export const SEO_DESC_MAPPING: Partial<Record<ActiveTab, string>> = {
@@ -240,4 +245,9 @@ export const SEO_DESC_MAPPING: Partial<Record<ActiveTab, string>> = {
   'visual-pdf-organizer': 'Organize PDF pages visually with an interactive thumbnail grid. Enjoy secure document conversions inside a local sandbox with zero server uploads or data leaks.',
   'pdf-unlocker': 'Stuck with a locked PDF that won’t let you print, edit, or copy text? Unlock your PDF instantly and 100% free with our offline browser tool. Zero and secure.',
   'ai-content-brief': 'Generate highly structured, search-optimized editorial brief outlines, target search intents precisely, configure required headers, and draft and secure.',
+  'pdf-redactor': 'Automatically detect and blackout sensitive PII data like SSNs, credit cards, emails, and phone numbers in PDFs 100% client-side with zero server uploads.',
+  'freelance-rate-estimator': 'Calculate target billable hourly rates, day rates, and retainers based on annual expenses, desired profit margins, and Tier-1 self-employment tax structures with quarterly tax retention estimates.',
+  'mortgage-refinance-visualizer': 'Calculate mortgage refinancing savings, compare current vs new loan terms, analyze full monthly amortization schedules, principal vs interest breakdowns, tax deduction savings, and break-even timelines.',
+  'svg-pattern-architect': 'Generate customizable multi-layered SVG waves, vibrant mesh gradients, isometric grids, dot matrices, and seamless geometric UI background patterns with CSS, Tailwind, SVG, and PNG exports.',
+  'schema-rich-snippet-builder': 'Build Google-compliant Schema.org structured data JSON-LD and Microdata for FAQ, Article, Product, HowTo, Local Business, Organization, Recipe, and Event with real-time visual SERP previews and Google Rich Results validation.',
 };

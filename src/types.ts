@@ -117,7 +117,12 @@ export type ActiveTab =
   | 'markdown-compiler'
   | 'visual-pdf-organizer'
   | 'pdf-unlocker'
-  | 'ai-content-brief';
+  | 'ai-content-brief'
+  | 'pdf-redactor'
+  | 'freelance-rate-estimator'
+  | 'mortgage-refinance-visualizer'
+  | 'svg-pattern-architect'
+  | 'schema-rich-snippet-builder';
 
 export interface JSONBeautifierState {
   rawInput: string;
