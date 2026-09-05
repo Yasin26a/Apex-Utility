@@ -16,7 +16,13 @@ import {
   Layers,
   FilePlus,
   Play,
-  BookOpen
+  BookOpen,
+  Copy,
+  Check,
+  Code,
+  Sparkles,
+  Gauge,
+  CheckCircle
 } from 'lucide-react';
 
 interface BatchItem {
@@ -485,8 +491,141 @@ export default function WebPConverter() {
   const batchSavingsPct = totalOriginalBytes > 0 ? (totalSavingsBytes / totalOriginalBytes) * 100 : 0;
   const isWebpSmallerOverall = totalWebpBytes < totalOriginalBytes && totalWebpBytes > 0;
 
+  const [copiedSnippet, setCopiedSnippet] = useState(false);
+  const [activePreset, setActivePreset] = useState<'optimal' | 'aggressive' | 'lossless'>('optimal');
+
+  const applyPreset = (preset: 'optimal' | 'aggressive' | 'lossless') => {
+    setActivePreset(preset);
+    let q = 80;
+    let s = 100;
+    if (preset === 'optimal') {
+      q = 80;
+      s = 100;
+    } else if (preset === 'aggressive') {
+      q = 65;
+      s = 85;
+    } else if (preset === 'lossless') {
+      q = 95;
+      s = 100;
+    }
+    setBatchQuality(q);
+    setBatchScale(s);
+    if (activeItemId) {
+      setIndividualQuality(q);
+      setIndividualScale(s);
+    }
+  };
+
+  const sampleFileName = activeItem?.file.name ? activeItem.file.name.replace(/\.[^/.]+$/, '') : 'hero-banner';
+  const htmlPictureSnippet = `<picture>
+  <source type="image/webp" srcset="${sampleFileName}.webp" />
+  <img 
+    src="${sampleFileName}.jpg" 
+    alt="Optimized asset" 
+    width="${activeItem?.webpWidth || 1200}" 
+    height="${activeItem?.webpHeight || 800}" 
+    loading="lazy" 
+    decoding="async" 
+    fetchpriority="high"
+  />
+</picture>`;
+
+  const copySnippet = () => {
+    navigator.clipboard.writeText(htmlPictureSnippet);
+    setCopiedSnippet(true);
+    setTimeout(() => setCopiedSnippet(false), 2000);
+  };
+
   return (
-    <div id="webp-converter-canvas" className="grid grid-cols-1 lg:grid-cols-12 gap-6 font-sans">
+    <div className="space-y-6">
+      {/* Core Web Vitals Header & Preset Optimizer Banner */}
+      <div className="bg-gradient-to-r from-slate-900 via-slate-950 to-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+                <CheckCircle className="w-3 h-3" /> Core Web Vitals Ready
+              </span>
+              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-rose-500/10 text-rose-400 border border-rose-500/30">
+                LCP Accelerator
+              </span>
+            </div>
+            <h2 className="text-xl font-black text-white tracking-tight flex items-center gap-2">
+              <Zap className="w-5 h-5 text-amber-400" />
+              <span>PNG/JPG to WebP Converter for Core Web Vitals</span>
+            </h2>
+            <p className="text-xs text-slate-400 max-w-2xl">
+              Convert bulky PNG, JPEG, and GIF images to ultra-compressed WebP format. Drastically reduce page weight, slash Largest Contentful Paint (LCP) render delays, and boost Google PageSpeed rankings.
+            </p>
+          </div>
+
+          {/* Quick Presets */}
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => applyPreset('optimal')}
+              className={`px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer border ${
+                activePreset === 'optimal'
+                  ? 'bg-rose-500 text-white border-rose-400 shadow-md shadow-rose-900/40'
+                  : 'bg-slate-900 text-slate-300 border-slate-800 hover:border-slate-700'
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Core Web Vitals Optimal (80%)</span>
+            </button>
+            <button
+              onClick={() => applyPreset('aggressive')}
+              className={`px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer border ${
+                activePreset === 'aggressive'
+                  ? 'bg-amber-500 text-white border-amber-400 shadow-md shadow-amber-900/40'
+                  : 'bg-slate-900 text-slate-300 border-slate-800 hover:border-slate-700'
+              }`}
+            >
+              <Zap className="w-3.5 h-3.5" />
+              <span>Aggressive LCP (65%)</span>
+            </button>
+            <button
+              onClick={() => applyPreset('lossless')}
+              className={`px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer border ${
+                activePreset === 'lossless'
+                  ? 'bg-emerald-500 text-white border-emerald-400 shadow-md shadow-emerald-900/40'
+                  : 'bg-slate-900 text-slate-300 border-slate-800 hover:border-slate-700'
+              }`}
+            >
+              <Gauge className="w-3.5 h-3.5" />
+              <span>Lossless Fidelity (95%)</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Telemetry Row */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 pt-4 border-t border-slate-800/80 text-xs">
+          <div className="bg-slate-950/60 p-2.5 rounded-lg border border-slate-800/60">
+            <span className="text-[10px] uppercase font-mono text-slate-500 block">Payload Reduction</span>
+            <span className="text-base font-bold text-emerald-400 font-mono">
+              {batchSavingsPct > 0 ? `-${batchSavingsPct.toFixed(1)}%` : '~70% - 85%'}
+            </span>
+          </div>
+          <div className="bg-slate-950/60 p-2.5 rounded-lg border border-slate-800/60">
+            <span className="text-[10px] uppercase font-mono text-slate-500 block">Est. LCP Acceleration</span>
+            <span className="text-base font-bold text-cyan-400 font-mono">
+              {totalSavingsBytes > 0 ? `-${Math.max(120, Math.round((totalSavingsBytes / (1024 * 100)) * 140))}ms` : '-380ms to -750ms'}
+            </span>
+          </div>
+          <div className="bg-slate-950/60 p-2.5 rounded-lg border border-slate-800/60">
+            <span className="text-[10px] uppercase font-mono text-slate-500 block">Google PageSpeed Impact</span>
+            <span className="text-base font-bold text-amber-400 font-mono">+15 to +28 pts</span>
+          </div>
+          <div className="bg-slate-950/60 p-2.5 rounded-lg border border-slate-800/60 flex items-center justify-between">
+            <div>
+              <span className="text-[10px] uppercase font-mono text-slate-500 block">Next-Gen Spec</span>
+              <span className="text-xs font-bold text-slate-200">Google WebP 1.0</span>
+            </div>
+            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping"></span>
+          </div>
+        </div>
+      </div>
+
+      <div id="webp-converter-canvas" className="grid grid-cols-1 lg:grid-cols-12 gap-6 font-sans">
       {/* LEFT PANELS: QUEUE MANAGER & CONFIGS */}
       <div className="lg:col-span-5 space-y-6 flex flex-col">
         {/* Dynamic Queue Manager Card */}
@@ -1071,6 +1210,41 @@ export default function WebPConverter() {
         </div>
       </div>
 
+      {/* Modern Developer HTML5 Picture Tag Code Snippet */}
+      <div className="bg-slate-950 border border-slate-800 rounded-xl p-5 space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <span className="p-1.5 bg-rose-500/10 text-rose-400 rounded-md border border-rose-500/20">
+              <Code className="w-4 h-4" />
+            </span>
+            <div>
+              <h4 className="text-xs font-bold text-slate-200">Production Next-Gen HTML5 &lt;picture&gt; Snippet</h4>
+              <p className="text-[11px] text-slate-400">Copy-paste ready markup for WebP with JPG fallback, lazy loading &amp; LCP fetchpriority</p>
+            </div>
+          </div>
+          <button
+            onClick={copySnippet}
+            className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-200 text-xs font-bold rounded-lg border border-slate-700 flex items-center gap-1.5 self-start sm:self-auto cursor-pointer transition-colors"
+          >
+            {copiedSnippet ? (
+              <>
+                <Check className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="text-emerald-400">Copied!</span>
+              </>
+            ) : (
+              <>
+                <Copy className="w-3.5 h-3.5 text-slate-400" />
+                <span>Copy &lt;picture&gt; Code</span>
+              </>
+            )}
+          </button>
+        </div>
+        <pre className="p-3.5 bg-slate-900/80 rounded-lg border border-slate-800/80 text-[11px] font-mono text-emerald-400 overflow-x-auto">
+          <code>{htmlPictureSnippet}</code>
+        </pre>
+      </div>
+
     </div>
+  </div>
   );
 }

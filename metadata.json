@@ -1,6 +1,6 @@
 {
   "name": "APEX UTILITY",
-  "description": "Ultra-premium client-side search utility suite featuring a Google SERP Snippet Previewer & SEO Meta Tag Simulator, search index visibility optimizer, local formatting terminals, and secure offline tools.",
+  "description": "Ultra-premium client-side utility suite featuring PNG/JPG to WebP Core Web Vitals optimization, international biometric passport photo cropping, screen & audio clip recording, Google SERP & Schema.org builders, and 100% private offline tools.",
   "requestFramePermissions": ["camera", "microphone"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

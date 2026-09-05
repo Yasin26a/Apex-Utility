@@ -172,14 +172,14 @@ export const DEFAULT_CARDS: DashboardCard[] = [
   },
   {
     id: 'webp-converter',
-    title: 'WebP Image Converter & PNG Converter',
-    desc: 'Free online image converter and PNG converter. Convert WebP to JPG instantly without registration, convert PNG/JPG to WebP, or resize images fully offline.',
-    tagline: '"free image converter, webp converter, png converter free online, image converter tool online"',
+    title: 'PNG/JPG to WebP Converter (Core Web Vitals)',
+    desc: 'Convert PNG and JPG images to high-compression WebP format to slash Largest Contentful Paint (LCP) delays and optimize Core Web Vitals with ready-to-use HTML picture snippets.',
+    tagline: '"convert png to webp, jpg to webp, core web vitals image optimizer, batch webp compressor"',
     category: 'Media Lab',
     categoryIcon: 'Image',
-    cardIcon: 'Image',
-    textClass: 'text-orange-400',
-    buttonLabel: 'Engage Canvas Engine',
+    cardIcon: 'Zap',
+    textClass: 'text-amber-400 font-bold',
+    buttonLabel: 'Optimize WebP for LCP',
     colSpan: 1,
     heightLevel: 2
   },
@@ -1679,7 +1679,8 @@ const iconMap: Record<string, React.ComponentType<any>> = {
   TrendingUp: TrendingUp,
   Heart: Heart,
   Network: Network,
-  Layout: Layout
+  Layout: Layout,
+  Zap: Zap
 };
 
 const recentToolsLabels = {
