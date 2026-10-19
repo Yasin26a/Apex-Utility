@@ -298,6 +298,8 @@ export default function PDFCompressor() {
 
   const [isSecureActive, setIsSecureActive] = useState(false);
   const [batchPassword, setBatchPassword] = useState('');
+  const [isGlobalOcrActive, setIsGlobalOcrActive] = useState(false);
+  const [globalOcrLanguage, setGlobalOcrLanguage] = useState<'eng' | 'spa' | 'fra' | 'deu'>('eng');
   const [isDragging, setIsDragging] = useState(false);
   const isSecureActiveRef = useRef(false);
   const batchPasswordRef = useRef('');
@@ -1575,7 +1577,104 @@ export default function PDFCompressor() {
                   </div>
                 </motion.div>
 
-                {/* Batch Security Controls Widget */}
+                {/* Dedicated Global Tesseract OCR Switch Widget */}
+                <motion.div 
+                  variants={{
+                    hidden: { opacity: 0, y: 15 },
+                    show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 260, damping: 22 } }
+                  }}
+                  className={`beveled-panel p-4 rounded-lg space-y-3 transition-all ${
+                    isGlobalOcrActive 
+                      ? 'border-emerald-500/40 bg-emerald-950/20 ring-1 ring-emerald-500/20' 
+                      : 'border-zinc-900 bg-zinc-950/80'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center border transition-colors ${
+                        isGlobalOcrActive ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400' : 'bg-zinc-900 border-zinc-800 text-zinc-500'
+                      }`}>
+                        <Sparkles className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <span className="font-heading text-xs font-bold text-white flex items-center gap-2">
+                          Tesseract OCR Engine
+                          {isGlobalOcrActive && (
+                            <span className="text-[9px] font-mono font-normal text-emerald-400 bg-emerald-950/80 border border-emerald-500/30 px-1.5 py-0.2 rounded-full animate-pulse">
+                              Active Globally
+                            </span>
+                          )}
+                        </span>
+                        <p className="font-sans text-[10px] text-zinc-400">
+                          Toggle Tesseract OCR globally for all {files.length} uploaded document payloads to inject searchable text layers.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 shrink-0">
+                      <span className={`text-[10px] font-mono font-bold uppercase tracking-wider ${
+                        isGlobalOcrActive ? 'text-emerald-400' : 'text-zinc-500'
+                      }`}>
+                        {isGlobalOcrActive ? 'OCR Active' : 'OCR Off'}
+                      </span>
+                      <button
+                        type="button"
+                        role="switch"
+                        aria-checked={isGlobalOcrActive}
+                        onClick={() => setIsGlobalOcrActive(!isGlobalOcrActive)}
+                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-emerald-500/40 ${
+                          isGlobalOcrActive
+                            ? 'bg-emerald-500 border-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.3)]'
+                            : 'bg-zinc-900 border-zinc-750'
+                        }`}
+                        title="Toggle Tesseract OCR functionality globally for all uploaded documents"
+                      >
+                        <span className="sr-only">Toggle Tesseract OCR Globally</span>
+                        <span
+                          className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out mt-0.5 ${
+                            isGlobalOcrActive ? 'translate-x-5' : 'translate-x-1 bg-zinc-400'
+                          }`}
+                        />
+                      </button>
+                    </div>
+                  </div>
+
+                  <AnimatePresence>
+                    {isGlobalOcrActive && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="overflow-hidden space-y-2 pt-2 border-t border-emerald-500/20"
+                      >
+                        <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-mono uppercase text-emerald-300 font-semibold">OCR Recognition Language:</span>
+                            <div className="flex gap-1.5">
+                              {(['eng', 'spa', 'fra', 'deu'] as const).map(lang => (
+                                <button
+                                  key={lang}
+                                  type="button"
+                                  onClick={() => setGlobalOcrLanguage(lang)}
+                                  className={`px-2 py-0.5 rounded text-[10px] font-mono uppercase border transition-all ${
+                                    globalOcrLanguage === lang
+                                      ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400 font-bold'
+                                      : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200'
+                                  }`}
+                                >
+                                  {lang}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                          <span className="text-[9px] font-mono text-zinc-500 bg-zinc-900 px-2 py-0.5 rounded">
+                            Client-Side Neural Recognition
+                          </span>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
                 <motion.div 
                   variants={{
                     hidden: { opacity: 0, y: 15 },

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, useMotionValue, useTransform, useMotionTemplate, AnimatePresence } from 'motion/react';
 import { FileDown, Image, Sparkles, Braces, ArrowRight, ShieldCheck, Zap, Globe, Cpu, Clock, Download, CheckCircle, FileText, FileImage, Trash2, Camera, Loader2, Search, Copy, Check, Info, Activity, AlertCircle, Layers, ChevronLeft, ChevronRight, GripVertical, Minus, Plus, RotateCcw, Settings, ArrowLeft, Upload, Database, QrCode, Scale, FileCode, Sliders, GitPullRequest, LayoutGrid, List, Hash, Palette, Gauge, Binary, Regex, ArrowLeftRight, Shrink, Pin, Volume2, Mic, Eye, Video, PenTool, History, Type, Lock, ShieldAlert, TrendingUp, Heart, Network, Layout } from 'lucide-react';
 import { ActiveTab } from '../types';
-import { AlignLeft, Crop, Calendar, HelpCircle, ChevronDown, ChevronUp, X } from 'lucide-react';
+import { AlignLeft, Crop, Calendar, HelpCircle, ChevronDown, ChevronUp, X, Scissors } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { getRecentOperations, getSessionDownloadUrl, RecentOperation } from '../utils/recentOperations';
 import DashboardCaptureModal from './DashboardCaptureModal';
@@ -157,6 +157,20 @@ export interface DashboardCard {
 }
 
 export const DEFAULT_CARDS: DashboardCard[] = [
+  {
+    id: 'whop-video-clipping-tool',
+    title: 'Free Whop Video Clipping Tool',
+    desc: 'Cut streams, podcasts, and videos into short vertical 9:16 clips for Whop Content Rewards campaigns, TikTok, Shorts, and Reels with auto-crop, captions, and zero watermark.',
+    tagline: '"free whop video clipping, whop clipping tool, whop video clipper, vertical video converter 9:16"',
+    category: 'Media Lab',
+    categoryIcon: 'Video',
+    cardIcon: 'Scissors',
+    textClass: 'text-red-400 font-bold',
+    buttonLabel: 'Launch Whop Clipper',
+    colSpan: 1,
+    heightLevel: 2,
+    pinned: true
+  },
   {
     id: 'css-generator',
     title: 'CSS Glass & Shadow Generator',

@@ -27,6 +27,73 @@ const COMMON_RELATED = [
 
 // High-fidelity configuration containing granular answers targeting long-tail queries
 const CUSTOM_LANDING_LOGIC: Record<string, Partial<LandingPageConfig>> = {
+  'whop-video-clipping-tool': {
+    title: 'Free Whop Video Clipping Tool – Clip Videos Online (No Watermark)',
+    headline: 'Free Whop Video Clipping Tool for Content Rewards & Viral Shorts',
+    subheadline: 'Trim long streams, podcasts, and YouTube videos into high-converting 9:16 vertical clips for TikTok, YouTube Shorts, and Reels with auto-crop, captions, and zero watermark.',
+    introParagraph: 'Earn more from Whop Content Rewards clipping campaigns with our free online video clipper. Designed specifically for community clippers and video editors, this tool cuts long Twitch streams, Kick broadcasts, and YouTube podcasts into viral vertical clips with auto-crop, draggable focus positioning, punchy social media captions, and watermark-free 1080p MP4 exports processed 100% locally in your browser memory.',
+    benefits: [
+      '100% Private & In-Browser: Your video files are processed locally via HTML5 Canvas and MediaStream APIs with zero server uploads.',
+      'Smart 9:16 Vertical Auto-Crop: Draggable horizontal focus slider centers the speaker or gaming action for full-screen phone viewing.',
+      'Viral Caption & Subtitle Engine: Add high-contrast Impact or Montserrat captions in yellow, white, or cyan with bold black outlines.',
+      'Watermark-Free HD MP4 Export: Export clean 720p or 1080p video files ready to submit directly to Whop Content Rewards campaigns.',
+      'Whop Clipping Checklist: Built-in rule checklist and one-click Whop hashtag copier to ensure maximum view approvals.'
+    ],
+    howToSteps: [
+      'Upload any long-form video file (MP4, MOV, or WebM) from your computer or phone.',
+      'Use the timeline handles and 15s/30s/60s presets to isolate high-retention viral moments.',
+      'Switch to 9:16 vertical aspect ratio and adjust the draggable subject focus position.',
+      'Customize your viral hook captions with bold fonts and high-contrast colors.',
+      'Click Export MP4 to render and download your watermark-free clip in seconds.'
+    ],
+    faqs: [
+      {
+        question: 'What is Whop video clipping?',
+        answer: 'Whop video clipping is the practice of cutting long-form videos—such as Twitch streams, Kick broadcasts, podcasts, and YouTube interviews—into short, engaging vertical clips (under 60 seconds) for platforms like TikTok, YouTube Shorts, and Instagram Reels. Creators and communities on Whop launch "Content Rewards" campaigns that pay clippers based on total views generated or prize-pool rankings.'
+      },
+      {
+        question: 'Is this whop clipping tool really free?',
+        answer: 'Yes, completely free. There are no hidden fees, no subscription walls, and zero watermarks stamped onto your exported MP4 clips. You retain 100% ownership of your rendered files and can upload them directly to TikTok, Shorts, and Reels to claim your campaign rewards.'
+      },
+      {
+        question: 'How do I make money from Whop clipping campaigns?',
+        answer: 'To make money clipping: 1) Join a creator’s Whop community that has active "Content Rewards" or clipping bounties. 2) Download their authorized stream or podcast recordings. 3) Use our tool to find viral hooks, crop them to 9:16 vertical, and add captions. 4) Post the clips on TikTok, YouTube Shorts, and Reels with the creator’s required hashtags and affiliate link. 5) Submit your published video links on Whop to collect your payout based on verified views.'
+      },
+      {
+        question: 'What is the best clip length for TikTok and Shorts?',
+        answer: 'The sweet spot for high completion rate and algorithmic virality is between 15 and 35 seconds. While YouTube Shorts allows up to 60 seconds and TikTok up to 10 minutes, short clips with a hook in the first 3 seconds achieve higher retention rates and trigger algorithmic loops, resulting in more views for your Whop rewards tally.'
+      },
+      {
+        question: 'Does the clipper add a watermark?',
+        answer: 'No. Our tool exports completely watermark-free video in your choice of 720p or 1080p Full HD. Because everything processes locally in your browser, the original bitrate and color fidelity are preserved without server re-encoding artifacts.'
+      },
+      {
+        question: 'Can I use this on mobile?',
+        answer: 'Yes! The responsive layout is designed for both smartphones and desktop computers. You can upload video files directly from your mobile camera roll or files app, select timeline in/out handles, adjust vertical framing, and download the finished MP4 straight to your device.'
+      },
+      {
+        question: 'Is my video uploaded to your server?',
+        answer: 'Never. All video rendering, frame cutting, cropping, and caption burning are performed 100% client-side inside your browser sandbox using HTML5 Canvas and the MediaStream Recording API. Your video files never transit over the internet or touch an external server, guaranteeing total privacy and instant processing.'
+      },
+      {
+        question: 'How does auto-crop to 9:16 vertical work?',
+        answer: 'Most long-form streams are filmed in 16:9 widescreen. Our tool converts them into vertical 9:16 format with a draggable focus slider. You can slide the focus area left, center, or right so the active speaker or gaming action stays perfectly centered inside the phone frame without unsightly black bars.'
+      },
+      {
+        question: 'How do I get paid through Whop Content Rewards?',
+        answer: 'Whop creators typically pay via Stripe, PayPal, or crypto (USDC) directly through the Whop dashboard. Once your clip reaches the campaign view threshold (e.g., 10,000 views) or wins a weekly leaderboard prize, the creator verifies the analytics and releases the bounty to your connected Whop balance for instant withdrawal.'
+      }
+    ],
+    relatedTools: [
+      { label: 'Video Cutter & Trimmer', tab: 'video-cutter' as const },
+      { label: 'Video Compressor', tab: 'video-compressor' as const },
+      { label: 'Audio Trimmer', tab: 'audio-trimmer' as const },
+      { label: 'AI Audio Transcriber', tab: 'ai-transcriber' as const },
+      { label: 'Video Resizer', tab: 'video-resizer' as const },
+      { label: 'Screen & Video Studio', tab: 'video-recorder' as const },
+      { label: 'Social Media Hooks', tab: 'social-hooks' as const }
+    ]
+  },
   'schema-rich-snippet-builder': {
     title: 'Schema.org Structured Data & Rich Snippet Builder Online Free',
     headline: 'Visual Schema.org JSON-LD Generator & Live Google Rich Results Validator',

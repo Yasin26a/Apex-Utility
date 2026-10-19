@@ -30,6 +30,7 @@ Disallow: /api/
 Disallow: /debug
 Disallow: /.well-known/
 Allow: /.well-known/security.txt
+Allow: /whop-video-clipping-tool
 Allow: /
 
 Sitemap: https://apexutility.live/sitemap.xml

@@ -306,6 +306,7 @@ export default function NavigationSidebar({ activeTab, onTabChange, isMobileOpen
     { id: 'webcam-recorder' as ActiveTab, label: 'Webcam Recorder', icon: Camera, description: 'Record high-definition video from connected cameras' },
     { id: 'voice-recorder' as ActiveTab, label: 'Voice Recorder', icon: Mic, description: 'Capture lossless raw mic audio and export WAV' },
     { id: 'video-compressor' as ActiveTab, label: 'Video Compressor', icon: Shrink, description: 'Reduce video file sizes completely locally' },
+    { id: 'whop-video-clipping-tool' as ActiveTab, label: 'Whop Video Clipper', icon: Scissors, description: 'Clip long videos into 9:16 vertical shorts for Whop Content Rewards & TikTok' },
     { id: 'video-resizer' as ActiveTab, label: 'Video Resizer', icon: Maximize, description: 'Change aspect ratios to 16:9, 9:16, 1:1, 4:3' },
     { id: 'video-cutter' as ActiveTab, label: 'Video Cutter & Trimmer', icon: Scissors, description: 'Trim timeline clips and cut segments' },
     { id: 'mute-video' as ActiveTab, label: 'Mute Video', icon: VolumeX, description: 'Remove audio track from video clip' },

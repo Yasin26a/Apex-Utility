@@ -3405,6 +3405,12 @@ function getToolMetadata(toolId: string) {
       desc: 'Discover expert guides on XML sitemaps, browser performance optimization, security, and AdSense compliance.',
       tagline: 'authoritative technical education library',
       category: 'Information'
+    },
+    'whop-video-clipping-tool': {
+      title: 'Free Whop Video Clipping Tool – Clip Videos Online (No Watermark)',
+      desc: 'Free Whop video clipping tool. Cut videos into vertical 9:16 shorts for TikTok & Reels with auto-crop & captions. Export free with zero watermark now.',
+      tagline: 'free client-side video clipper for whop content rewards',
+      category: 'Media Lab'
     }
   };
 

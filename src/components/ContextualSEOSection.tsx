@@ -114,6 +114,7 @@ const TAB_TO_CATEGORY_MAP: Record<ActiveTab, string> = {
   'mortgage-refinance-visualizer': 'calc',
   'svg-pattern-architect': 'image',
   'schema-rich-snippet-builder': 'seo',
+  'whop-video-clipping-tool': 'media',
   'ai-writer': 'ai',
   'password-generator': 'dev',
   'qr-generator': 'image',

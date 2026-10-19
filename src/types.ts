@@ -122,7 +122,8 @@ export type ActiveTab =
   | 'freelance-rate-estimator'
   | 'mortgage-refinance-visualizer'
   | 'svg-pattern-architect'
-  | 'schema-rich-snippet-builder';
+  | 'schema-rich-snippet-builder'
+  | 'whop-video-clipping-tool';
 
 export interface JSONBeautifierState {
   rawInput: string;

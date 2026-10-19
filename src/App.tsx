@@ -56,7 +56,13 @@ import {
   Code,
   AlertCircle,
   Lock,
-  Unlock
+  Unlock,
+  Languages,
+  Cpu,
+  FileStack,
+  Plus,
+  Scissors,
+  Smartphone
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ActiveTab } from './types';
@@ -93,6 +99,7 @@ const AIContentBriefGenerator = lazy(() => import('./components/AIContentBriefGe
 const SocialMediaHookGenerator = lazy(() => import('./components/SocialMediaHookGenerator'));
 const AICodeExplainerTranslator = lazy(() => import('./components/AICodeExplainerTranslator'));
 const VideoRecorder = lazy(() => import('./components/VideoRecorder'));
+const WhopVideoClipper = lazy(() => import('./components/WhopVideoClipper'));
 import { Document as PDFDocumentView, Page as PDFPageView, pdfjs } from 'react-pdf';
 import * as pdfjsLib from 'pdfjs-dist';
 import Tesseract from 'tesseract.js';
@@ -616,6 +623,9 @@ export default function App() {
   // PDF Optimizer States
   const [pdfSubTab, setPdfSubTab] = useState<'optimize' | 'merge' | 'split'>('optimize');
   const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [pdfFiles, setPdfFiles] = useState<File[]>([]);
+  const [activeFileIndex, setActiveFileIndex] = useState<number>(0);
+  const [batchOptimizedResults, setBatchOptimizedResults] = useState<{ name: string; url: string; origSize: number; newSize: number }[]>([]);
   const [pdfPageCount, setPdfPageCount] = useState<number | null>(null);
   const [compressionIntensity, setCompressionIntensity] = useState<'standard' | 'balanced' | 'ultra'>('balanced');
   const [stripMetadata, setStripMetadata] = useState(true);
@@ -1819,6 +1829,8 @@ export default function App() {
       'shrinkpdf': 'compress-pdf',
       'pdf-compressor': 'compress-pdf',
       'record': 'video-recorder',
+      'whop': 'whop-video-clipping-tool',
+      'clipper': 'whop-video-clipping-tool',
       'news': 'guides',
       'blog': 'guides',
       'dashboard': 'dashboard'
@@ -1948,27 +1960,60 @@ Disallow:
     e.preventDefault();
     setIsDragging(false);
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      const file = e.dataTransfer.files[0];
-      if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
-        setPdfFile(file);
+      const incoming = Array.from(e.dataTransfer.files).filter(
+        f => f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf')
+      );
+      if (incoming.length > 0) {
+        setPdfFiles(prev => [...prev, ...incoming]);
+        if (!pdfFile) {
+          setPdfFile(incoming[0]);
+          setActiveFileIndex(0);
+        }
         setOptimizedBlobUrl(null);
+        setBatchOptimizedResults([]);
         setOptimizingLogs([]);
       } else {
-        alert("Please upload a valid PDF document file (.pdf).");
+        alert("Please upload valid PDF document files (.pdf).");
       }
     }
   };
 
   const handlePDFSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
-      if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
-        setPdfFile(file);
+      const incoming = Array.from(e.target.files).filter(
+        f => f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf')
+      );
+      if (incoming.length > 0) {
+        setPdfFiles(prev => [...prev, ...incoming]);
+        if (!pdfFile) {
+          setPdfFile(incoming[0]);
+          setActiveFileIndex(0);
+        }
         setOptimizedBlobUrl(null);
+        setBatchOptimizedResults([]);
         setOptimizingLogs([]);
       } else {
-        alert("Please upload a valid PDF document file (.pdf).");
+        alert("Please upload valid PDF document files (.pdf).");
       }
+    }
+  };
+
+  const handleRemovePdfFile = (indexToRemove: number) => {
+    const updated = pdfFiles.filter((_, i) => i !== indexToRemove);
+    setPdfFiles(updated);
+    if (updated.length === 0) {
+      handleResetOptimizer();
+    } else {
+      const nextIdx = Math.min(activeFileIndex, updated.length - 1);
+      setActiveFileIndex(nextIdx);
+      setPdfFile(updated[nextIdx]);
+    }
+  };
+
+  const handleSelectActivePdf = (indexToSelect: number) => {
+    if (indexToSelect >= 0 && indexToSelect < pdfFiles.length) {
+      setActiveFileIndex(indexToSelect);
+      setPdfFile(pdfFiles[indexToSelect]);
     }
   };
 
@@ -2430,6 +2475,9 @@ Disallow:
 
   const handleResetOptimizer = () => {
     setPdfFile(null);
+    setPdfFiles([]);
+    setActiveFileIndex(0);
+    setBatchOptimizedResults([]);
     setOptimizedBlobUrl(null);
     setOptimizingLogs([]);
     setOptimizingProgress(0);
@@ -2504,6 +2552,25 @@ Disallow:
               <span>INCOGNITO MODE ACTIVE</span>
             </div>
           )}
+
+          <button
+            onClick={() => handleTabChange('whop-video-clipping-tool')}
+            className={`inline-flex items-center gap-1 sm:gap-1.5 px-2.5 py-1 sm:px-3.5 sm:py-2 rounded-lg sm:rounded-xl text-[9px] sm:text-[11px] font-bold uppercase tracking-wider transition-all duration-300 relative overflow-hidden group cursor-pointer border ${
+              activeTab === 'whop-video-clipping-tool'
+                ? 'bg-red-600 text-white shadow-[0_0_20px_rgba(239,68,68,0.7)] border-red-400'
+                : 'bg-zinc-900/90 hover:bg-zinc-800 text-zinc-300 hover:text-white border-zinc-800 hover:border-red-500/50'
+            }`}
+            title="Free Whop Video Clipping Tool"
+          >
+            <Scissors className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-red-400 group-hover:rotate-12 transition-transform" />
+            <span>
+              <span className="inline sm:hidden">Clipper</span>
+              <span className="hidden sm:inline">Whop Clipper</span>
+            </span>
+            <span className="hidden md:inline text-[9px] font-mono px-1.5 py-0.2 rounded bg-red-950 text-red-400 border border-red-900/60 font-bold">
+              9:16
+            </span>
+          </button>
 
           <button
             onClick={() => {
@@ -3019,6 +3086,21 @@ Disallow:
                     >
                       <Video className="w-4 h-4 text-brand" />
                       <span>Screen &amp; Video Studio</span>
+                    </button>
+
+                    <button
+                      onClick={() => handleTabChange('whop-video-clipping-tool')}
+                      className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                        activeTab === 'whop-video-clipping-tool'
+                          ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold'
+                          : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Scissors className="w-4 h-4 text-brand" />
+                        <span>Whop Video Clipper</span>
+                      </div>
+                      <span className="bg-red-950 border border-red-900/40 text-[9px] text-brand px-1.5 py-0.5 rounded font-mono font-bold uppercase shrink-0">9:16</span>
                     </button>
                   </nav>
 
@@ -4611,11 +4693,209 @@ Disallow:
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   {/* Left form area */}
                   <div className="lg:col-span-2 space-y-6">
+                    {/* Dedicated Switch: Global Tesseract OCR Controller */}
+                    <div className={`p-4 sm:p-5 rounded-xl border transition-all duration-300 ${
+                      performOcr
+                        ? 'bg-gradient-to-r from-emerald-950/40 via-slate-900 to-teal-950/30 border-emerald-500/40 shadow-lg shadow-emerald-950/20 ring-1 ring-emerald-500/30'
+                        : 'bg-slate-950 border-slate-800 hover:border-slate-700'
+                    }`}>
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div className="flex items-start gap-3.5">
+                          <div className={`p-2.5 rounded-xl border transition-all shrink-0 mt-0.5 ${
+                            performOcr
+                              ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.25)]'
+                              : 'bg-slate-900 border-slate-800 text-slate-500'
+                          }`}>
+                            <Sparkles className="w-5 h-5" />
+                          </div>
+                          <div className="space-y-1">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <h3 className="text-sm sm:text-base font-bold text-white tracking-tight flex items-center gap-2">
+                                Tesseract OCR Engine
+                              </h3>
+                              <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full border transition-all ${
+                                performOcr
+                                  ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30 font-semibold'
+                                  : 'bg-slate-900 text-slate-500 border-slate-800'
+                              }`}>
+                                Global For All Documents
+                              </span>
+                              {performOcr && (
+                                <span className="flex items-center gap-1.5 text-[10px] font-mono text-emerald-400 bg-emerald-950/80 border border-emerald-500/30 px-2 py-0.5 rounded-full animate-pulse">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                                  Active Globally
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-xs text-slate-400 leading-relaxed max-w-xl">
+                              Toggle Tesseract OCR functionality globally for all uploaded documents. Automatically transcribes text from scanned pages and injects a transparent, copyable text layer behind images for full text searchability and ATS parsing.
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Dedicated Switch Component */}
+                        <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-800/80 shrink-0">
+                          <div className="flex items-center gap-3">
+                            <span className={`text-xs font-mono font-bold uppercase tracking-wider transition-colors ${
+                              performOcr ? 'text-emerald-400 font-extrabold' : 'text-slate-500'
+                            }`}>
+                              {performOcr ? 'OCR Active' : 'OCR Disabled'}
+                            </span>
+                            <button
+                              type="button"
+                              role="switch"
+                              aria-checked={performOcr}
+                              onClick={() => setPerformOcr(!performOcr)}
+                              className={`relative inline-flex h-7 w-13 shrink-0 cursor-pointer rounded-full border-2 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-emerald-500/50 ${
+                                performOcr
+                                  ? 'bg-emerald-500 border-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.35)]'
+                                  : 'bg-slate-900 border-slate-700'
+                              }`}
+                              title="Toggle Tesseract OCR globally for all uploaded documents"
+                            >
+                              <span className="sr-only">Toggle Tesseract OCR Globally</span>
+                              <span
+                                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out mt-0.5 ${
+                                  performOcr ? 'translate-x-6 bg-white' : 'translate-x-1 bg-slate-400'
+                                }`}
+                              />
+                            </button>
+                          </div>
+                          <span className="text-[10px] font-mono text-slate-500">
+                            {pdfFiles.length > 0
+                              ? `Applies to all ${pdfFiles.length} uploaded ${pdfFiles.length === 1 ? 'document' : 'documents'}`
+                              : 'Applies to all uploaded documents'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Language and Telemetry Details when OCR is active */}
+                      {performOcr && (
+                        <div className="mt-3.5 pt-3 border-t border-emerald-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-fadeIn">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="text-[11px] font-mono text-emerald-300 font-semibold flex items-center gap-1.5">
+                              <Languages className="w-3.5 h-3.5" />
+                              Global Recognition Language:
+                            </span>
+                            <div className="flex gap-1.5">
+                              {([
+                                { code: 'eng', label: 'English' },
+                                { code: 'spa', label: 'Español' },
+                                { code: 'fra', label: 'Français' },
+                                { code: 'deu', label: 'Deutsch' },
+                              ] as const).map(({ code, label }) => (
+                                <button
+                                  key={code}
+                                  type="button"
+                                  onClick={() => setOcrLanguage(code)}
+                                  className={`px-2.5 py-1 rounded-md text-[11px] font-mono transition-all border ${
+                                    ocrLanguage === code
+                                      ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300 font-bold shadow-sm'
+                                      : 'bg-slate-900/80 border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'
+                                  }`}
+                                >
+                                  {code.toUpperCase()} • {label}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 text-[10px] font-mono text-slate-400 bg-slate-900/60 px-2.5 py-1 rounded-md border border-slate-800">
+                            <Cpu className="w-3 h-3 text-emerald-400" />
+                            <span>100% Client-Side WASM • Zero Data Leaves Browser</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Uploaded Documents Queue (if documents are uploaded) */}
+                    {pdfFiles.length > 0 && (
+                      <div className="bg-slate-950 p-4 sm:p-5 rounded-xl border border-slate-800 space-y-3">
+                        <div className="flex items-center justify-between pb-2 border-b border-slate-800/80">
+                          <div className="flex items-center gap-2">
+                            <FileStack className="w-4 h-4 text-rose-400" />
+                            <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-200">
+                              Uploaded Documents Queue ({pdfFiles.length})
+                            </h4>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => document.getElementById('pdf-file-selector')?.click()}
+                              className="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-750 text-slate-300 hover:text-white rounded-md text-[11px] font-mono flex items-center gap-1 transition-colors cursor-pointer"
+                            >
+                              <Plus className="w-3 h-3 text-rose-400" />
+                              <span>Add Documents</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={handleResetOptimizer}
+                              className="px-2.5 py-1 bg-slate-900 hover:bg-rose-950/40 border border-slate-800 hover:border-rose-800/40 text-slate-400 hover:text-rose-400 rounded-md text-[11px] font-mono transition-colors cursor-pointer"
+                            >
+                              Clear All
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                          {pdfFiles.map((f, idx) => {
+                            const isCurrent = (activeFileIndex === idx);
+                            return (
+                              <div
+                                key={`${f.name}-${idx}`}
+                                onClick={() => handleSelectActivePdf(idx)}
+                                className={`p-2.5 rounded-lg border flex items-center justify-between gap-3 cursor-pointer transition-all ${
+                                  isCurrent
+                                    ? 'bg-slate-900/90 border-rose-500/50 shadow-sm'
+                                    : 'bg-slate-950/60 border-slate-850 hover:border-slate-750 hover:bg-slate-900/40'
+                                }`}
+                              >
+                                <div className="flex items-center gap-2.5 min-w-0">
+                                  <FileText className={`w-4 h-4 shrink-0 ${isCurrent ? 'text-rose-400' : 'text-slate-500'}`} />
+                                  <div className="min-w-0">
+                                    <p className={`text-xs font-semibold truncate ${isCurrent ? 'text-white' : 'text-slate-300'}`}>
+                                      {f.name}
+                                    </p>
+                                    <p className="text-[10px] font-mono text-slate-500">
+                                      {(f.size / 1024).toFixed(1)} KB
+                                    </p>
+                                  </div>
+                                </div>
+
+                                <div className="flex items-center gap-2 shrink-0">
+                                  {performOcr ? (
+                                    <span className="text-[9px] font-mono bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full flex items-center gap-1">
+                                      <Sparkles className="w-2.5 h-2.5 text-emerald-400" />
+                                      Tesseract OCR ({ocrLanguage.toUpperCase()})
+                                    </span>
+                                  ) : (
+                                    <span className="text-[9px] font-mono bg-slate-900 text-slate-500 border border-slate-800 px-2 py-0.5 rounded-full">
+                                      Stream Compression
+                                    </span>
+                                  )}
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleRemovePdfFile(idx);
+                                    }}
+                                    className="p-1 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded transition-colors"
+                                    title="Remove this document"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
                     {/* Drag-n-drop Dropzone */}
                     <div className="bg-slate-950 p-6 rounded-xl border border-slate-800 space-y-4">
                       <h3 className="font-bold text-slate-100 text-base flex items-center gap-2">
                         <Upload className="w-4 h-4 text-rose-400" />
-                        Upload PDF Document
+                        {pdfFiles.length > 0 ? 'Upload Additional Documents' : 'Upload PDF Document'}
                       </h3>
 
                       {!pdfFile ? (
@@ -4635,14 +4915,15 @@ Disallow:
                             id="pdf-file-selector"
                             className="hidden"
                             accept="application/pdf"
+                            multiple
                             onChange={handlePDFSelect}
                           />
                           <div className="p-4 bg-slate-900 rounded-full border border-slate-800 group-hover:scale-110 transition-transform">
                             <Upload className="w-6 h-6 text-slate-400" />
                           </div>
                           <div>
-                            <p className="font-semibold text-sm text-slate-200">Drag &amp; drop your PDF here, or <span className="text-rose-400 hover:underline">browse files</span></p>
-                            <p className="text-[11px] text-slate-500 mt-1">Accepts document structures up to 100MB • Completed completely offline</p>
+                            <p className="font-semibold text-sm text-slate-200">Drag &amp; drop PDF documents here, or <span className="text-rose-400 hover:underline">browse files</span></p>
+                            <p className="text-[11px] text-slate-500 mt-1">Accepts single or multiple document structures up to 100MB • Completed completely offline</p>
                           </div>
                         </div>
                       ) : (
@@ -4780,22 +5061,24 @@ Disallow:
                                 </label>
                               </div>
 
-                              {/* Perform OCR on Scanned Pages */}
-                              <div className="p-3 bg-slate-900/60 rounded-lg border border-slate-800 flex flex-col gap-2.5 sm:col-span-2">
+                              {/* Perform OCR on Scanned Pages (Synchronized with Global Switch) */}
+                              <div className={`p-3 rounded-lg border flex flex-col gap-2.5 sm:col-span-2 transition-all ${
+                                performOcr ? 'bg-emerald-950/20 border-emerald-500/30' : 'bg-slate-900/60 border-slate-800'
+                              }`}>
                                 <div className="flex items-start gap-2.5">
                                   <input
                                     type="checkbox"
                                     id="perform-ocr-cb"
                                     checked={performOcr}
                                     onChange={(e) => setPerformOcr(e.target.checked)}
-                                    className="mt-0.5 rounded border-slate-700 text-rose-500 focus:ring-rose-500 bg-slate-950"
+                                    className="mt-0.5 rounded border-slate-700 text-emerald-500 focus:ring-emerald-500 bg-slate-950 cursor-pointer"
                                   />
                                   <label htmlFor="perform-ocr-cb" className="cursor-pointer flex-1">
                                     <div className="flex items-center gap-1.5">
-                                      <p className="text-xs font-semibold text-slate-200">Perform OCR on Scanned Pages</p>
+                                      <p className="text-xs font-semibold text-slate-200">Perform OCR on Scanned Pages (Global Switch)</p>
                                       <span className="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1 rounded font-mono">Tesseract AI</span>
                                     </div>
-                                    <p className="text-[10px] text-slate-500 leading-normal mt-0.5">Scans pages to detect text and injects a transparent copyable text layer behind your images for searchability.</p>
+                                    <p className="text-[10px] text-slate-500 leading-normal mt-0.5">Scans pages to detect text and injects a transparent copyable text layer behind your images for searchability. Synchronized with the global switch at the top.</p>
                                   </label>
                                 </div>
                                 
@@ -5176,10 +5459,15 @@ Disallow:
                           <button
                             type="button"
                             onClick={handleOptimizePDF}
-                            className="w-full mt-2 bg-gradient-to-r from-rose-500 to-indigo-600 hover:from-rose-600 hover:to-indigo-700 text-white font-semibold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:shadow-indigo-500/10"
+                            className="w-full mt-2 bg-gradient-to-r from-rose-500 via-pink-600 to-indigo-600 hover:from-rose-600 hover:to-indigo-700 text-white font-semibold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:shadow-indigo-500/20 cursor-pointer"
                           >
                             <Sparkles className="w-4 h-4" />
-                            Optimize PDF Document
+                            <span>
+                              {pdfFiles.length > 1
+                                ? `Optimize All ${pdfFiles.length} Documents`
+                                : 'Optimize PDF Document'}
+                              {performOcr ? ' (Tesseract OCR Active)' : ''}
+                            </span>
                           </button>
                         </div>
                       )}
@@ -5242,10 +5530,20 @@ Disallow:
                                 <span className="bg-emerald-500/20 text-emerald-400 text-[10px] font-mono font-bold tracking-wider uppercase px-2 py-0.5 rounded-md border border-emerald-500/20">
                                   Optimization Successful
                                 </span>
+                                {performOcr && (
+                                  <span className="bg-teal-500/20 text-teal-300 text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-md border border-teal-500/20 flex items-center gap-1">
+                                    <Sparkles className="w-3 h-3 text-teal-300" />
+                                    Tesseract OCR Layer Synthesized
+                                  </span>
+                                )}
                               </div>
-                              <h4 className="font-extrabold text-slate-100 text-base">Your document footprint is reduced!</h4>
+                              <h4 className="font-extrabold text-slate-100 text-base">
+                                {batchOptimizedResults.length > 1
+                                  ? `All ${batchOptimizedResults.length} documents optimized successfully!`
+                                  : 'Your document footprint is reduced!'}
+                              </h4>
                               <p className="text-xs text-slate-400">
-                                Strip operations executed successfully. The output complies fully with sitemap distribution layouts.
+                                Strip and compression operations executed successfully in browser thread. Full text searchability enabled.
                               </p>
                             </div>
                             <div className="py-2.5 px-4 bg-emerald-500/20 rounded-xl border border-emerald-500/30 text-center shrink-0">
@@ -5258,29 +5556,80 @@ Disallow:
 
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="p-4 bg-slate-900 rounded-lg border border-slate-800">
-                              <p className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Original Size</p>
+                              <p className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Original Total Payload</p>
                               <p className="text-lg font-bold text-slate-300 mt-1 font-mono">{(originalSize / 1024).toFixed(1)} KB</p>
                             </div>
                             <div className="p-4 bg-slate-900 rounded-lg border border-slate-800">
-                              <p className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Optimized Output</p>
+                              <p className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Optimized Output Payload</p>
                               <p className="text-lg font-bold text-emerald-400 mt-1 font-mono">{(optimizedSize / 1024).toFixed(1)} KB</p>
                             </div>
                           </div>
+
+                          {/* Multi-document result queue list if multiple files */}
+                          {batchOptimizedResults.length > 1 && (
+                            <div className="space-y-2 bg-slate-950 p-4 rounded-xl border border-slate-800">
+                              <p className="text-[11px] font-mono uppercase font-bold text-slate-400 mb-2">
+                                Optimized Document Downloads ({batchOptimizedResults.length})
+                              </p>
+                              <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                                {batchOptimizedResults.map((item, i) => (
+                                  <div key={i} className="flex items-center justify-between p-2.5 bg-slate-900 rounded-lg border border-slate-800 text-xs">
+                                    <div className="min-w-0 pr-3">
+                                      <p className="font-semibold text-slate-200 truncate">{item.name}</p>
+                                      <p className="text-[10px] font-mono text-slate-400">
+                                        {(item.origSize / 1024).toFixed(1)} KB &rarr; {(item.newSize / 1024).toFixed(1)} KB (-{(((item.origSize - item.newSize) / item.origSize) * 100).toFixed(0)}%)
+                                      </p>
+                                    </div>
+                                    <a
+                                      href={item.url}
+                                      download={`optimized_${item.name}`}
+                                      className="px-3 py-1.5 bg-rose-500 hover:bg-rose-600 text-white font-semibold rounded-md text-[11px] flex items-center gap-1.5 shrink-0 transition-colors cursor-pointer"
+                                    >
+                                      <FileDown className="w-3.5 h-3.5" />
+                                      <span>Download</span>
+                                    </a>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
 
                           <div className="flex flex-col sm:flex-row gap-3">
                             <a
                               href={optimizedBlobUrl}
                               download={`optimized_${pdfFile?.name || 'document.pdf'}`}
-                              className="flex-1 bg-rose-500 hover:bg-rose-600 text-white font-semibold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all hover:shadow-lg shadow-rose-500/15 animate-pulse"
+                              className="flex-1 bg-rose-500 hover:bg-rose-600 text-white font-semibold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all hover:shadow-lg shadow-rose-500/15 animate-pulse cursor-pointer"
                             >
                               <Upload className="w-4 h-4 rotate-180" />
-                              Download Optimized PDF
+                              {batchOptimizedResults.length > 1
+                                ? `Download Active Optimized PDF (${pdfFile?.name || 'document'})`
+                                : 'Download Optimized PDF'}
                             </a>
+                            {batchOptimizedResults.length > 1 && (
+                              <button
+                                onClick={() => {
+                                  batchOptimizedResults.forEach((res, idx) => {
+                                    setTimeout(() => {
+                                      const a = document.createElement('a');
+                                      a.href = res.url;
+                                      a.download = `optimized_${res.name}`;
+                                      document.body.appendChild(a);
+                                      a.click();
+                                      document.body.removeChild(a);
+                                    }, idx * 250);
+                                  });
+                                }}
+                                className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-5 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-emerald-600/20"
+                              >
+                                <FileDown className="w-4 h-4" />
+                                <span>Download All ({batchOptimizedResults.length})</span>
+                              </button>
+                            )}
                             <button
                               onClick={handleResetOptimizer}
-                              className="bg-slate-900 hover:bg-slate-850 text-slate-200 border border-slate-800 hover:border-slate-700 font-semibold py-3 px-5 rounded-xl transition-all"
+                              className="bg-slate-900 hover:bg-slate-850 text-slate-200 border border-slate-800 hover:border-slate-700 font-semibold py-3 px-5 rounded-xl transition-all cursor-pointer"
                             >
-                              Compress Another File
+                              Compress Another Batch
                             </button>
                           </div>
                         </div>
@@ -7268,6 +7617,27 @@ Disallow:
               </motion.div>
             )}
 
+            {/* Tab: Free Whop Video Clipping Tool */}
+            {activeTab === 'whop-video-clipping-tool' && (
+              <motion.div
+                key="whop-video-clipping-tool"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+                className="w-full"
+              >
+                <Suspense fallback={
+                  <div className="min-h-[400px] flex items-center justify-center text-zinc-400 font-mono text-sm">
+                    <Loader2 className="w-6 h-6 text-red-500 animate-spin mr-2" />
+                    Loading Whop Video Clipper Studio...
+                  </div>
+                }>
+                  <WhopVideoClipper onTabChange={handleTabChange} />
+                </Suspense>
+              </motion.div>
+            )}
+
             {([
               'video-compressor',
               'video-resizer',
@@ -7785,6 +8155,27 @@ Disallow:
                         <button onClick={() => handleTabChange('microphone-tester')} className="hover:text-amber-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">microphone test website</button>
                       </div>
                     </div>
+
+                    {/* Category 10: Whop Video Clipping & Short-Form Content Rewards */}
+                    <div className="bg-zinc-950/40 p-4 rounded-xl border border-zinc-900/80">
+                      <h4 className="text-zinc-200 font-bold mb-2 text-[11px] uppercase tracking-wider border-b border-red-950 pb-1.5 flex items-center justify-between">
+                        <span>Whop Clipping Studio</span>
+                        <span className="text-[9px] text-red-400 font-mono">9:16 Shorts &amp; Reels</span>
+                      </h4>
+                      <p className="text-[11px] text-zinc-500 mb-2 leading-relaxed">
+                        Free online video clipper for Whop Content Rewards campaigns. Cut streams, auto-crop 9:16, add captions, and export watermark-free MP4s.
+                      </p>
+                      <div className="flex flex-wrap gap-1.5 text-[9px] font-mono">
+                        <button onClick={() => handleTabChange('whop-video-clipping-tool')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer text-red-400 font-semibold">whop video clipping tool</button>
+                        <button onClick={() => handleTabChange('whop-video-clipping-tool')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">free whop video clipping</button>
+                        <button onClick={() => handleTabChange('whop-video-clipping-tool')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">whop video clipper</button>
+                        <button onClick={() => handleTabChange('whop-video-clipping-tool')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">whop content rewards clipping</button>
+                        <button onClick={() => handleTabChange('whop-video-clipping-tool')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">free video clipper for whop</button>
+                        <button onClick={() => handleTabChange('whop-video-clipping-tool')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">how to clip videos for whop</button>
+                        <button onClick={() => handleTabChange('whop-video-clipping-tool')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">vertical video converter 9:16</button>
+                        <button onClick={() => handleTabChange('whop-video-clipping-tool')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">clip long videos into shorts</button>
+                      </div>
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -7799,6 +8190,11 @@ Disallow:
               </div>
               
               <div className="flex flex-wrap gap-4 text-xs font-medium justify-center items-center">
+                <button onClick={() => handleTabChange('whop-video-clipping-tool')} className="hover:text-red-400 text-red-400 font-semibold transition-colors cursor-pointer flex items-center gap-1">
+                  <Scissors className="w-3 h-3" />
+                  <span>Whop Clipper</span>
+                </button>
+                <span className="text-slate-800">|</span>
                 <button onClick={() => handleTabChange('about-us')} className="hover:text-slate-300 transition-colors cursor-pointer">Documentation</button>
                 <span className="text-slate-800">|</span>
                 <button onClick={() => handleTabChange('privacy-policy')} className="hover:text-slate-300 transition-colors cursor-pointer">Privacy Policy</button>

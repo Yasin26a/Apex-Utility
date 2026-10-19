@@ -14,6 +14,26 @@ interface SEOHeaderContent {
 }
 
 const SEO_METADATA: Record<string, SEOHeaderContent> = {
+  'whop-video-clipping-tool': {
+    title: "Free Whop Video Clipping Tool – Clip Videos Online (No Watermark)",
+    description: "Free Whop video clipping tool. Cut videos into vertical 9:16 shorts for TikTok & Reels with auto-crop & captions. Export free with zero watermark now.",
+    keywords: "free whop video clipping, whop clipping tool, whop video clipper, whop content rewards clipping, free video clipper for whop, how to clip videos for whop, whop clipping campaigns, make money clipping videos, video clipping for TikTok and YouTube Shorts, free online video cutter, video trimmer online, vertical video converter 9:16, add captions to clips, clip long videos into shorts, whop clipper tools free, content rewards clipping, free clipping software no watermark, whop clipping for beginners",
+    ogTitle: "Free Whop Video Clipping Tool – Clip Videos Online (No Watermark)",
+    ogDescription: "Free Whop video clipping tool. Cut videos into vertical 9:16 shorts for TikTok & Reels with auto-crop & captions. Export free with zero watermark now.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Free Whop Video Clipping Tool",
+      "description": "Cut long streams and podcasts into short vertical clips for TikTok, YouTube Shorts, and Reels with auto-crop, captions, and watermark-free export for Whop Content Rewards.",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    }
+  },
   dashboard: {
     title: "Apex Processing Labs | Free PDF Converter, PDF Size Reducer & Online Editor",
     description: "Free online PDF editor, converter, merger, and compressor. Streamline your daily workflows with 100% private, client-side productivity tools with zero tracking.",

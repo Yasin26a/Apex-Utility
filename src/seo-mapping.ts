@@ -124,6 +124,7 @@ export const SEO_H1_MAPPING: Record<ActiveTab, string> = {
   'mortgage-refinance-visualizer': 'Free Mortgage Refinance & Amortization Schedule Visualizer - Principal vs. Interest & Tax Savings',
   'svg-pattern-architect': 'Free SVG Pattern & Wave Architect - Custom SVG Waves, Mesh Gradients & Geometric UI Backgrounds',
   'schema-rich-snippet-builder': 'Free Schema.org Structured Data & Google Rich Snippet Builder - FAQ, Article, Product & Local Business JSON-LD',
+  'whop-video-clipping-tool': 'Free Whop Video Clipping Tool – Clip Videos Online (No Watermark)',
 };
 
 export const SEO_DESC_MAPPING: Partial<Record<ActiveTab, string>> = {
@@ -250,4 +251,5 @@ export const SEO_DESC_MAPPING: Partial<Record<ActiveTab, string>> = {
   'mortgage-refinance-visualizer': 'Calculate mortgage refinancing savings, compare current vs new loan terms, analyze full monthly amortization schedules, principal vs interest breakdowns, tax deduction savings, and break-even timelines.',
   'svg-pattern-architect': 'Generate customizable multi-layered SVG waves, vibrant mesh gradients, isometric grids, dot matrices, and seamless geometric UI background patterns with CSS, Tailwind, SVG, and PNG exports.',
   'schema-rich-snippet-builder': 'Build Google-compliant Schema.org structured data JSON-LD and Microdata for FAQ, Article, Product, HowTo, Local Business, Organization, Recipe, and Event with real-time visual SERP previews and Google Rich Results validation.',
+  'whop-video-clipping-tool': 'Free Whop video clipping tool. Cut videos into vertical 9:16 shorts for TikTok & Reels with auto-crop & captions. Export free with zero watermark now.',
 };
