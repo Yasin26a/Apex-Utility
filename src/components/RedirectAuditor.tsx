@@ -8,6 +8,7 @@ import {
   Trash2, FileCode, CheckCircle, BarChart2, PieChart as PieIcon, Globe, MoveRight, BookOpen
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import SitemapRedirectHealer from './SitemapRedirectHealer';
 import { 
   ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend 
 } from 'recharts';
@@ -59,7 +60,7 @@ export default function RedirectAuditor() {
   const { t } = useLanguage();
   
   // --- Tab State ---
-  const [activeTab, setActiveTab] = useState<'bulk' | 'single'>('bulk');
+  const [activeTab, setActiveTab] = useState<'sitemap-healer' | 'bulk' | 'single'>('sitemap-healer');
 
   // =========================================================================
   // STATE & REFS FOR SINGLE REDIRECT TRACE (PRESERVED PREVIOUS BEHAVIOR)
@@ -614,7 +615,18 @@ https://httpbin.org/status/503`
         </div>
 
         {/* Sliding Tab Selector */}
-        <div className="flex bg-zinc-900/60 p-1 rounded-xl border border-zinc-800/80 self-start md:self-center">
+        <div className="flex flex-wrap bg-zinc-900/60 p-1 rounded-xl border border-zinc-800/80 self-start md:self-center gap-1">
+          <button
+            onClick={() => setActiveTab('sitemap-healer')}
+            className={`px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
+              activeTab === 'sitemap-healer'
+                ? 'bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-md'
+                : 'text-zinc-400 hover:text-white'
+            }`}
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <span>Sitemap 301 Auto-Healer</span>
+          </button>
           <button
             onClick={() => setActiveTab('bulk')}
             className={`px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
@@ -641,7 +653,14 @@ https://httpbin.org/status/503`
       </div>
 
       {/* =========================================================================
-          TAB 1: BULK LINK SCANNER & SITEMAP AUDITOR
+          TAB 1: SITEMAP REDIRECT HEALER & CRAWL BUDGET SHIELD (NEW FEATURE)
+          ========================================================================= */}
+      {activeTab === 'sitemap-healer' && (
+        <SitemapRedirectHealer />
+      )}
+
+      {/* =========================================================================
+          TAB 2: BULK LINK SCANNER & SITEMAP AUDITOR
           ========================================================================= */}
       {activeTab === 'bulk' && (
         <div className="space-y-6">

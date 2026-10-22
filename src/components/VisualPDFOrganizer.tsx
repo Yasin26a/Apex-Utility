@@ -374,7 +374,7 @@ export default function VisualPDFOrganizer() {
       // 5. Serialize bytes and output object URL
       addLog(`Serializing compiled PDF stream array...`);
       const outputBytes = await organizedPdf.save();
-      const outputBlob = new Blob([outputBytes], { type: 'application/pdf' });
+      const outputBlob = new Blob([outputBytes as any], { type: 'application/pdf' });
       const finalUrl = URL.createObjectURL(outputBlob);
 
       setCompiledBlobUrl(finalUrl);

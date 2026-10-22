@@ -2110,7 +2110,7 @@ Disallow:
         Math.round(outputBytes.length * (1 - (compressionRatio * 0.12)))
       );
 
-      let processedPdfBytes = outputBytes.slice(0, targetSize);
+      let processedPdfBytes: any = outputBytes.slice(0, targetSize);
 
       if (watermarkEnabled || performOcr) {
         addLog("Applying customized document layers...");

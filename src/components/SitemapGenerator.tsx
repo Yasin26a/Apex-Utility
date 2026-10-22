@@ -10,6 +10,7 @@ import {
 import { useLanguage } from '../context/LanguageContext';
 import { gzipSync } from 'fflate';
 import { AT_LEAST_20_ARTICLES } from '../data/articles';
+import { detectAndFixUrlRedirect } from './SitemapRedirectHealer';
 
 interface SitemapRoute {
   id: string;
@@ -194,11 +195,11 @@ export default function SitemapGenerator() {
       }
     });
 
-    // Add all technical articles directly to the indexable sitemap!
+    // Add all technical articles directly to the indexable sitemap with clean canonical URLs!
     AT_LEAST_20_ARTICLES.forEach((art, index) => {
       defaultList.push({
         id: `initial_art_${index}`,
-        path: `/guides?id=${encodeURIComponent(art.id)}`,
+        path: `/${encodeURIComponent(art.id)}`,
         changefreq: 'weekly' as any,
         priority: 0.75,
         lastmodEnabled: true,
@@ -1054,7 +1055,7 @@ export default function SitemapGenerator() {
     const discoveredArticles = AT_LEAST_20_ARTICLES.map((art) => {
       return {
         id: `auto_art_${art.id}_${Math.random().toString(36).substring(2, 6)}`,
-        path: `/guides?id=${encodeURIComponent(art.id)}`,
+        path: `/${encodeURIComponent(art.id)}`,
         changefreq: 'weekly' as any,
         priority: 0.75,
         lastmodEnabled: true,
@@ -1081,7 +1082,43 @@ export default function SitemapGenerator() {
 
 
 
-  // XML Sitemap compilation block
+  // Crawl Shield: Calculate redirect hazards
+  const redirectHazardsCount = useMemo(() => {
+    return routes.filter(r => {
+      const fullUrl = r.path.startsWith('http') ? r.path : `${cleanedBaseUrl}${r.path}`;
+      return detectAndFixUrlRedirect(fullUrl).isRedirect;
+    }).length;
+  }, [routes, cleanedBaseUrl]);
+
+  // Master Action: Auto-Heal all routes
+  const autoHealAllRouteRedirects = () => {
+    let fixedCount = 0;
+    const updated = routes.map(r => {
+      const fullUrl = r.path.startsWith('http') ? r.path : `${cleanedBaseUrl}${r.path}`;
+      const diagnosis = detectAndFixUrlRedirect(fullUrl);
+      if (diagnosis.isRedirect) {
+        fixedCount++;
+        const newPath = r.path.startsWith('http')
+          ? diagnosis.canonicalUrl
+          : diagnosis.canonicalUrl.replace(cleanedBaseUrl, '');
+        return {
+          ...r,
+          path: newPath.startsWith('/') || newPath.startsWith('http') ? newPath : `/${newPath}`
+        };
+      }
+      return r;
+    });
+
+    setRoutes(updated);
+    if (fixedCount > 0) {
+      setCopiedNotice(`Auto-healed ${fixedCount} redirecting routes! All entries are now 100% canonical.`);
+    } else {
+      setCopiedNotice(`All ${routes.length} routes are already 100% direct canonicals with 0 redirects!`);
+    }
+    setTimeout(() => setCopiedNotice(null), 5000);
+  };
+
+  // XML Sitemap compilation block with 100% Canonical 200 OK Guarantee
   const generatedXml = useMemo(() => {
     const lines: string[] = [];
     
@@ -1092,7 +1129,9 @@ export default function SitemapGenerator() {
       routes.forEach(route => {
         lines.push('  <url>');
         const isAbsolute = route.path.startsWith('http://') || route.path.startsWith('https://');
-        const locUrl = isAbsolute ? route.path : `${cleanedBaseUrl}${route.path}`;
+        const rawLocUrl = isAbsolute ? route.path : `${cleanedBaseUrl}${route.path}`;
+        // Auto-fix redirect status to guarantee 0 GSC "Page with redirect" flags
+        const locUrl = detectAndFixUrlRedirect(rawLocUrl).canonicalUrl || rawLocUrl;
         lines.push(`    <loc>${locUrl}</loc>`);
         
         if (globalIncludeLastmod && route.lastmodEnabled) {
@@ -1116,7 +1155,8 @@ export default function SitemapGenerator() {
       routes.forEach(route => {
         mini += '<url>';
         const isAbsolute = route.path.startsWith('http://') || route.path.startsWith('https://');
-        const locUrl = isAbsolute ? route.path : `${cleanedBaseUrl}${route.path}`;
+        const rawLocUrl = isAbsolute ? route.path : `${cleanedBaseUrl}${route.path}`;
+        const locUrl = detectAndFixUrlRedirect(rawLocUrl).canonicalUrl || rawLocUrl;
         mini += `<loc>${locUrl}</loc>`;
         if (globalIncludeLastmod && route.lastmodEnabled) {
           mini += `<lastmod>${route.lastmodDate}</lastmod>`;
@@ -1826,6 +1866,48 @@ export default function SitemapGenerator() {
                   {copiedNotice}
                 </div>
               )}
+
+              {/* Route List Header & Crawl Shield Bar */}
+              <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-lg bg-zinc-950/70 border border-zinc-900 text-xs font-mono">
+                <div className="flex items-center gap-2">
+                  <span className="text-zinc-400 font-bold uppercase tracking-wider text-[11px]">
+                    Routes ({routes.length})
+                  </span>
+                  {redirectHazardsCount > 0 ? (
+                    <span className="bg-amber-950/80 border border-amber-800 text-amber-300 px-2 py-0.5 rounded text-[10px] font-bold flex items-center gap-1">
+                      <AlertTriangle className="w-3 h-3 text-amber-400" />
+                      <span>{redirectHazardsCount} Redirect Hazards</span>
+                    </span>
+                  ) : (
+                    <span className="bg-emerald-950/80 border border-emerald-800 text-emerald-300 px-2 py-0.5 rounded text-[10px] font-bold flex items-center gap-1">
+                      <Check className="w-3 h-3 text-emerald-400" />
+                      <span>0 Redirects (Crawl Shield Active)</span>
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {redirectHazardsCount > 0 && (
+                    <button
+                      type="button"
+                      onClick={autoHealAllRouteRedirects}
+                      className="px-2.5 py-1 bg-amber-600 hover:bg-amber-500 text-zinc-950 font-bold rounded text-[10px] uppercase tracking-wider flex items-center gap-1 cursor-pointer transition-all active:scale-95 shadow-md"
+                    >
+                      <Sparkles className="w-3 h-3 text-zinc-950" />
+                      <span>Auto-Heal {redirectHazardsCount} Redirects</span>
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={autoHealAllRouteRedirects}
+                    className="px-2 py-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white rounded text-[10px] border border-zinc-800 flex items-center gap-1 cursor-pointer transition-all"
+                    title="Audit and canonicalize all routes to prevent 301 crawl budget waste"
+                  >
+                    <RefreshCw className="w-3 h-3 text-emerald-400" />
+                    <span>Enforce Canonical</span>
+                  </button>
+                </div>
+              </div>
 
               {/* Scrollable routes grid */}
               <div className="max-h-[300px] overflow-y-auto pr-1 space-y-2">

@@ -175,7 +175,7 @@ export default function PDFUnlocker() {
 
       // Save without encryption. pdf-lib will output a completely unencrypted file by default.
       const unlockedBytes = await pdfDoc.save();
-      const unlockedBlob = new Blob([unlockedBytes], { type: 'application/pdf' });
+      const unlockedBlob = new Blob([unlockedBytes as any], { type: 'application/pdf' });
       const downloadUrl = URL.createObjectURL(unlockedBlob);
 
       const nameWithoutExt = pdfFile.name.replace(/\.[^/.]+$/, "");

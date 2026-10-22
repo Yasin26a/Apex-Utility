@@ -223,7 +223,7 @@ export default function PDFSigner() {
       }
 
       const modifiedBytes = await pdfDoc.save();
-      const blob = new Blob([modifiedBytes], { type: 'application/pdf' });
+      const blob = new Blob([modifiedBytes as any], { type: 'application/pdf' });
       const link = document.createElement('a');
       link.download = pdfFile ? pdfFile.name.replace(/\.[^/.]+$/, "") + "_signed.pdf" : "document_signed.pdf";
       link.href = URL.createObjectURL(blob);

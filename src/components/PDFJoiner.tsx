@@ -597,7 +597,7 @@ export default function PDFJoiner() {
       // 5. Build final arrayBuffer
       addLog(`Compressing and saving bytes stream arrays...`);
       const mergedPdfBytes = await mergedPdf.save();
-      const outputBlob = new Blob([mergedPdfBytes], { type: 'application/pdf' });
+      const outputBlob = new Blob([mergedPdfBytes as any], { type: 'application/pdf' });
       const blobUrl = URL.createObjectURL(outputBlob);
 
       const downloadName = `${meta.outputName.replace(/\.pdf$/i, '') || 'Apex_Joined'}.pdf`;

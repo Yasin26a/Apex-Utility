@@ -94,6 +94,44 @@ async function createServer() {
     next();
   });
 
+  // 301 Permanent Redirect legacy query parameter URLs and /tools/* paths to clean canonical URLs
+  // Resolves Google Search Console "Page with redirect" and passes 100% crawl equity to canonical pages
+  app.use((req, res, next) => {
+    try {
+      const parsed = new URL(req.originalUrl || req.url, 'http://localhost');
+      const pathname = parsed.pathname;
+
+      // 1. Handle legacy /guides?id=..., /guides?art=..., /guides?article=...
+      if (pathname === '/guides' || pathname === '/guides/') {
+        const targetId = parsed.searchParams.get('id') || parsed.searchParams.get('art') || parsed.searchParams.get('article') || (req.query && (req.query.id || req.query.art || req.query.article) as string);
+        if (targetId && typeof targetId === 'string') {
+          const cleanId = targetId.trim().toLowerCase();
+          const matchedArt = Array.isArray(AT_LEAST_20_ARTICLES) 
+            ? AT_LEAST_20_ARTICLES.find(art => art && art.id && art.id.toLowerCase() === cleanId)
+            : null;
+          if (matchedArt) {
+            return res.redirect(301, `/${matchedArt.id}`);
+          } else if (cleanId) {
+            return res.redirect(301, `/${encodeURIComponent(cleanId)}`);
+          }
+        }
+      }
+
+      // 2. Handle phantom /tools/$ and legacy /tools/:slug paths
+      if (pathname.startsWith('/tools')) {
+        const subPath = pathname.replace(/^\/tools\/?/, '').trim();
+        if (!subPath || subPath === '$' || subPath === '%24') {
+          return res.redirect(301, '/');
+        }
+        return res.redirect(301, `/${subPath}`);
+      }
+    } catch (e) {
+      // Fall through on malformed URIs
+    }
+
+    next();
+  });
+
   // Limit JSON and URL-encoded payload sizes to protect from Memory Exhaustion Attacks (DoS)
   // Generous limit of 25mb configures large PDF manipulation tasks safety
   app.use(express.json({ limit: '25mb' }));
@@ -2947,7 +2985,7 @@ Draft guidelines:
   if (!isProd) {
     const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: { middlewareMode: true, hmr: false },
       appType: 'spa',
     });
     app.use(vite.middlewares);
@@ -3155,9 +3193,25 @@ Draft guidelines:
     });
   }
 
-  app.listen(port, '0.0.0.0', () => {
+  const server = app.listen(port, '0.0.0.0', () => {
     console.log(`Server starting on port ${port} (mode: ${isProd ? 'production' : 'development'})`);
   });
+
+  server.on('error', (err: any) => {
+    if (err.code === 'EADDRINUSE') {
+      console.warn(`[Server] Port ${port} is currently in use. Another instance is already bound to 0.0.0.0:${port}.`);
+    } else {
+      console.error('[Server] Fatal server error:', err);
+    }
+  });
+
+  const shutdown = () => {
+    server.close(() => {
+      process.exit(0);
+    });
+  };
+  process.on('SIGTERM', shutdown);
+  process.on('SIGINT', shutdown);
 }
 
 // -----------------------------------------------------------------
