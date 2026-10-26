@@ -2263,6 +2263,21 @@ Tone Guidelines:
           }
         }
 
+        let canonicalTag: string | null = null;
+        if (responseStream.headers['link']) {
+          const rawLink = Array.isArray(responseStream.headers['link']) 
+            ? responseStream.headers['link'].join(', ') 
+            : responseStream.headers['link'];
+          const linkMatch = rawLink.match(/<([^>]+)>\s*;\s*rel=["']?canonical["']?/i);
+          if (linkMatch && linkMatch[1]) {
+            try {
+              canonicalTag = new URL(linkMatch[1].trim(), parsedUrl.href).href;
+            } catch (e) {
+              canonicalTag = linkMatch[1].trim();
+            }
+          }
+        }
+
         // Consume response stream immediately to close connection cleanly without downloading full body
         responseStream.resume();
         requestObj.destroy();
@@ -2273,6 +2288,7 @@ Tone Guidelines:
           statusText,
           responseTimeMs,
           redirectUrl,
+          canonicalTag,
           contentType,
           error: null
         });
@@ -2642,6 +2658,33 @@ Draft guidelines:
                 }
               }
 
+              // Extract Canonical link tag from HTTP Link header or HTML body
+              let canonicalUrl: string | null = null;
+              if (headers['link']) {
+                const linkMatch = headers['link'].match(/<([^>]+)>\s*;\s*rel=["']?canonical["']?/i);
+                if (linkMatch && linkMatch[1]) {
+                  try {
+                    canonicalUrl = new URL(linkMatch[1].trim(), parsedUrl.href).href;
+                  } catch (e) {
+                    canonicalUrl = linkMatch[1].trim();
+                  }
+                }
+              }
+
+              if (!canonicalUrl && bodyText) {
+                const canonRegex1 = /<link\s+[^>]*rel=["']canonical["'][^>]*href=["']([^"']+)["']/i;
+                const canonRegex2 = /<link\s+[^>]*href=["']([^"']+)["'][^>]*rel=["']canonical["']/i;
+                const canonMatch = bodyText.match(canonRegex1) || bodyText.match(canonRegex2);
+                if (canonMatch && canonMatch[1]) {
+                  const rawCanon = canonMatch[1].trim();
+                  try {
+                    canonicalUrl = new URL(rawCanon, parsedUrl.href).href;
+                  } catch (e) {
+                    canonicalUrl = rawCanon;
+                  }
+                }
+              }
+
               const securityHeaders = {
                 hsts: headers['strict-transport-security'] || null,
                 csp: headers['content-security-policy'] || null,
@@ -2657,6 +2700,7 @@ Draft guidelines:
                 statusText,
                 redirectUrl,
                 redirectType: redirectType || (redirectUrl ? 'HTTP Header' : null),
+                canonicalUrl,
                 responseTimeMs,
                 headers,
                 securityHeaders,
@@ -2687,10 +2731,29 @@ Draft guidelines:
         }
       }
 
+      const finalHop = chain.length > 0 ? chain[chain.length - 1] : null;
+      const finalUrl = finalHop ? finalHop.url : url;
+      const finalCanonicalTag = finalHop ? finalHop.canonicalUrl || null : null;
+
+      let isCanonicalMatch: boolean | null = null;
+      let canonicalMismatchReason: string | null = null;
+
+      if (finalCanonicalTag) {
+        const normFinal = finalUrl.replace(/\/+$/, '').toLowerCase();
+        const normCanon = finalCanonicalTag.replace(/\/+$/, '').toLowerCase();
+        isCanonicalMatch = normFinal === normCanon;
+        if (!isCanonicalMatch) {
+          canonicalMismatchReason = `Canonical tag declares "${finalCanonicalTag}", but final destination URL is "${finalUrl}".`;
+        }
+      }
+
       res.json({
         targetUrl: url,
         redirectChain: chain,
-        finalUrl: chain.length > 0 ? chain[chain.length - 1].url : url,
+        finalUrl,
+        finalCanonicalTag,
+        isCanonicalMatch,
+        canonicalMismatchReason,
         totalRedirects: Math.max(0, chain.filter(hop => hop.redirectUrl).length),
         error: errorOccurred,
         success: chain.length > 0

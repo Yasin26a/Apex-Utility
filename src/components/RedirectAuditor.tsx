@@ -1,14 +1,16 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   ArrowRight, ChevronDown, ChevronUp, Shield, ShieldAlert, ShieldCheck, 
   Clock, ExternalLink, AlertTriangle, CheckCircle2, XCircle, Link2, 
   HelpCircle, Info, Sparkles, RefreshCw, Copy, Check, Lock, Unlock, 
   FileText, Play, Square, Settings, Database, Filter, Search, Download, 
-  Trash2, FileCode, CheckCircle, BarChart2, PieChart as PieIcon, Globe, MoveRight, BookOpen
+  Trash2, FileCode, CheckCircle, BarChart2, PieChart as PieIcon, Globe, MoveRight, BookOpen,
+  Zap
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
-import SitemapRedirectHealer from './SitemapRedirectHealer';
+import SitemapRedirectHealer, { detectAndFixUrlRedirect } from './SitemapRedirectHealer';
+import RedirectQuickFixModal, { QuickFixItem } from './RedirectQuickFixModal';
 import { 
   ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend 
 } from 'recharts';
@@ -30,6 +32,7 @@ interface RedirectHop {
   redirectUrl: string | null;
   redirectType: string | null;
   responseTimeMs: number;
+  canonicalUrl?: string | null;
   headers: Record<string, string>;
   securityHeaders: HopSecurityHeaders;
 }
@@ -39,6 +42,9 @@ interface AuditResult {
   redirectChain: RedirectHop[];
   finalUrl: string;
   totalRedirects: number;
+  finalCanonicalTag?: string | null;
+  isCanonicalMatch?: boolean | null;
+  canonicalMismatchReason?: string | null;
   error: string | null;
   success: boolean;
 }
@@ -52,6 +58,8 @@ interface LinkItem {
   statusText: string | null;
   responseTimeMs: number | null;
   redirectUrl: string | null;
+  canonicalTag?: string | null;
+  isCanonicalMatch?: boolean | null;
   contentType: string | null;
   error: string | null;
 }
@@ -61,6 +69,7 @@ export default function RedirectAuditor() {
   
   // --- Tab State ---
   const [activeTab, setActiveTab] = useState<'sitemap-healer' | 'bulk' | 'single'>('sitemap-healer');
+  const [quickFixModalOpen, setQuickFixModalOpen] = useState(false);
 
   // =========================================================================
   // STATE & REFS FOR SINGLE REDIRECT TRACE (PRESERVED PREVIOUS BEHAVIOR)
@@ -73,6 +82,8 @@ export default function RedirectAuditor() {
   const [copiedText, setCopiedText] = useState<string | null>(null);
 
   const quickPresets = [
+    { name: '⚡ Audit Current Page', url: typeof window !== 'undefined' ? window.location.href : 'https://apexutility.live/' },
+    { name: '🗺️ Audit /sitemap.xml', url: typeof window !== 'undefined' ? `${window.location.origin}/sitemap.xml` : 'https://apexutility.live/sitemap.xml' },
     { name: 'HTTP to HTTPS', url: 'http://github.com' },
     { name: 'Triple Chain', url: 'http://httpbin.org/redirect-to?url=https%3A%2F%2Fhttpbin.org%2Frelative-redirect%2F1&status_code=301' },
     { name: 'Secure Final', url: 'https://google.com' }
@@ -134,9 +145,34 @@ export default function RedirectAuditor() {
     return 'text-red-400 bg-red-950/45 border-red-800/40';
   };
 
-  const getAuditInsights = (chain: RedirectHop[]) => {
+  const getAuditInsights = (chain: RedirectHop[], result?: AuditResult | null) => {
     const insights: { type: 'success' | 'warning' | 'danger'; title: string; desc: string }[] = [];
     if (chain.length === 0) return insights;
+
+    // Canonical link tag vs final destination verification check
+    if (result) {
+      if (result.finalCanonicalTag) {
+        if (result.isCanonicalMatch) {
+          insights.push({
+            type: 'success',
+            title: 'Canonical Tag 100% Matches Final Destination',
+            desc: `The destination page declares an authoritative self-referencing canonical tag (${result.finalCanonicalTag}). Prevents duplicate content penalties, consolidates PageRank, and guarantees optimal Google Search Console indexing.`
+          });
+        } else {
+          insights.push({
+            type: 'danger',
+            title: 'Canonical Link Tag Mismatch Detected (SEO Hazard)',
+            desc: result.canonicalMismatchReason || `The final destination page declares canonical "${result.finalCanonicalTag}", but resolves to "${result.finalUrl}". This mismatch triggers Google Search Console "Page with redirect" or "Alternate page with proper canonical tag" de-indexing warnings and drops search visibility.`
+          });
+        }
+      } else {
+        insights.push({
+          type: 'warning',
+          title: 'Missing Canonical Link Tag on Destination',
+          desc: 'No <link rel="canonical"> tag was detected on the final destination page. Adding a self-referencing canonical tag is recommended by Google to prevent duplicate indexing across URL parameters or protocol variants.'
+        });
+      }
+    }
 
     const firstHop = chain[0];
     const lastHop = chain[chain.length - 1];
@@ -284,10 +320,60 @@ https://httpbin.org/status/503`
     }
   ];
 
-  // Extracts URLs and context from raw input block
-  const parseLinks = () => {
-    setBulkError(null);
+  const [isLoadingSitemap, setIsLoadingSitemap] = useState(false);
+  const [sitemapValidationNotice, setSitemapValidationNotice] = useState<string | null>(null);
+
+  // Real-time Sitemap XML validation for bulk input
+  const bulkSitemapValidation = useMemo(() => {
     const input = bulkInput.trim();
+    if (!input.includes('<urlset') && !input.includes('<sitemap') && !input.includes('<?xml')) {
+      return null;
+    }
+
+    const hasXmlDecl = input.includes('<?xml');
+    const hasUrlsetOpen = /<urlset[\s>]/i.test(input);
+    const hasUrlsetClose = /<\/urlset>/i.test(input);
+    const hasNamespace = /xmlns=["']http:\/\/www\.sitemaps\.org\/schemas\/sitemap\/0\.9["']/i.test(input);
+    const locMatches = input.match(/<loc>\s*(https?:\/\/[^<]+)\s*<\/loc>/gi) || [];
+
+    const checks = [
+      {
+        name: 'XML Header',
+        passed: hasXmlDecl,
+        desc: hasXmlDecl ? 'UTF-8 declaration present' : 'Missing <?xml declaration'
+      },
+      {
+        name: 'Sitemaps.org Schema',
+        passed: hasNamespace,
+        desc: hasNamespace ? 'Standard sitemaps.org 0.9 schema' : 'Non-standard schema or missing namespace'
+      },
+      {
+        name: 'Root Elements',
+        passed: hasUrlsetOpen && hasUrlsetClose,
+        desc: hasUrlsetOpen && hasUrlsetClose ? 'Valid <urlset> root tag' : 'Malformed or unclosed <urlset>'
+      },
+      {
+        name: 'URL Locations (<loc>)',
+        passed: locMatches.length > 0,
+        desc: `${locMatches.length} <loc> entries discovered`
+      }
+    ];
+
+    const passedChecks = checks.filter(c => c.passed).length;
+    const isXmlValid = hasXmlDecl && hasUrlsetOpen && hasUrlsetClose && locMatches.length > 0;
+
+    return {
+      isXmlValid,
+      checks,
+      passedChecks,
+      totalChecks: checks.length,
+      locCount: locMatches.length
+    };
+  }, [bulkInput]);
+
+  const extractLinksFromText = (rawText: string) => {
+    setBulkError(null);
+    const input = rawText.trim();
     if (!input) {
       setBulkError('Please enter some text, sitemap HTML, or a list of URLs.');
       return;
@@ -366,6 +452,29 @@ https://httpbin.org/status/503`
     setLinks(mapped);
   };
 
+  // Extracts URLs and context from raw input block
+  const parseLinks = () => {
+    extractLinksFromText(bulkInput);
+  };
+
+  const fetchLiveSitemapAndValidate = async () => {
+    setIsLoadingSitemap(true);
+    setBulkError(null);
+    try {
+      const res = await fetch('/sitemap.xml');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const xml = await res.text();
+      setBulkInput(xml);
+      extractLinksFromText(xml);
+      setSitemapValidationNotice('Successfully loaded & validated site /sitemap.xml! Ready to audit.');
+      setTimeout(() => setSitemapValidationNotice(null), 5000);
+    } catch (e: any) {
+      setBulkError(`Failed to fetch /sitemap.xml: ${e.message}`);
+    } finally {
+      setIsLoadingSitemap(false);
+    }
+  };
+
   // Start concurrent bulk scan
   const startBulkScan = async () => {
     if (links.length === 0) {
@@ -405,6 +514,18 @@ https://httpbin.org/status/503`
 
         const data = await res.json();
         
+        const finalDest = data.redirectUrl || link.url;
+        let isCanonMatch: boolean | null = null;
+        if (data.canonicalTag) {
+          try {
+            const destNorm = new URL(finalDest).href.replace(/\/$/, '').toLowerCase();
+            const tagNorm = new URL(data.canonicalTag, finalDest).href.replace(/\/$/, '').toLowerCase();
+            isCanonMatch = destNorm === tagNorm;
+          } catch {
+            isCanonMatch = false;
+          }
+        }
+
         setLinks(prev => prev.map(l => {
           if (l.id === link.id) {
             return {
@@ -414,6 +535,8 @@ https://httpbin.org/status/503`
               statusText: data.statusText || (data.statusCode === 200 ? 'OK' : ''),
               responseTimeMs: data.responseTimeMs,
               redirectUrl: data.redirectUrl,
+              canonicalTag: data.canonicalTag || null,
+              isCanonicalMatch: isCanonMatch,
               contentType: data.contentType,
               error: data.error
             };
@@ -542,6 +665,42 @@ https://httpbin.org/status/503`
     return matchesSearch;
   });
 
+  // Detected 301/302 Redirect Items for Quick-Fix Generator
+  const quickFixItems: QuickFixItem[] = useMemo(() => {
+    return links
+      .filter(l => (l.statusCode !== null && l.statusCode >= 300 && l.statusCode < 400) || !!l.redirectUrl)
+      .map((l, idx) => {
+        const canonical = l.redirectUrl || detectAndFixUrlRedirect(l.url).canonicalUrl || l.url;
+        return {
+          id: `qf_${l.id || idx}`,
+          sourceUrl: l.url,
+          canonicalUrl: canonical,
+          statusCode: l.statusCode || 301,
+          reason: l.statusCode === 301 
+            ? '301 Moved Permanently' 
+            : l.statusCode === 302 
+              ? '302 Found (Temporary Redirect)' 
+              : (l.statusText || 'Redirect Hop Detected')
+        };
+      });
+  }, [links]);
+
+  const handleApplyQuickFix = (fixedItems: QuickFixItem[]) => {
+    const fixedMap = new Map(fixedItems.map(i => [i.sourceUrl, i.canonicalUrl]));
+    setLinks(prev => prev.map(l => {
+      if (fixedMap.has(l.url)) {
+        return {
+          ...l,
+          url: fixedMap.get(l.url)!,
+          statusCode: 200,
+          statusText: 'OK (Canonical Healed)',
+          redirectUrl: null
+        };
+      }
+      return l;
+    }));
+  };
+
   // --- Export Data ---
   const exportToCSV = () => {
     if (links.length === 0) return;
@@ -581,6 +740,45 @@ https://httpbin.org/status/503`
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     document.body.removeChild(downloadAnchor);
+  };
+
+  // One-click Download Sanitized Sitemap containing ONLY verified 200 OK status URLs
+  const downloadSanitized200Sitemap = () => {
+    // Select all links with verified 200 OK status (2xx)
+    const valid200Links = links.filter(l => l.status === 'completed' && l.statusCode !== null && l.statusCode >= 200 && l.statusCode < 300);
+
+    if (valid200Links.length === 0) {
+      setBulkError('No verified 200 OK URLs found in the scan results yet. Run the audit scan first or verify your links.');
+      return;
+    }
+
+    const xmlLines = [
+      '<?xml version="1.0" encoding="UTF-8"?>',
+      '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+    ];
+
+    valid200Links.forEach(link => {
+      // Use canonical tag if verified matching, or redirectUrl if healed, else link.url
+      const targetUrl = (link.isCanonicalMatch && link.canonicalTag) ? link.canonicalTag : (link.redirectUrl || link.url);
+      xmlLines.push('  <url>');
+      xmlLines.push(`    <loc>${targetUrl}</loc>`);
+      xmlLines.push(`    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>`);
+      xmlLines.push('    <changefreq>weekly</changefreq>');
+      xmlLines.push('    <priority>0.80</priority>');
+      xmlLines.push('  </url>');
+    });
+
+    xmlLines.push('</urlset>');
+    const xml = xmlLines.join('\n');
+    const blob = new Blob([xml], { type: 'application/xml' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `sitemap-200-ok-sanitized-${Date.now()}.xml`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   // --- Charts Data Preparation ---
@@ -625,7 +823,7 @@ https://httpbin.org/status/503`
             }`}
           >
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            <span>Sitemap 301 Auto-Healer</span>
+            <span>Sitemap 301 Healer &amp; Validator</span>
           </button>
           <button
             onClick={() => setActiveTab('bulk')}
@@ -636,7 +834,7 @@ https://httpbin.org/status/503`
             }`}
           >
             <Database className="w-3.5 h-3.5" />
-            <span>Bulk Link Scanner</span>
+            <span>Bulk Link &amp; Sitemap Auditor</span>
           </button>
           <button
             onClick={() => setActiveTab('single')}
@@ -672,7 +870,16 @@ https://httpbin.org/status/503`
                 <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider">
                   Source Text, XML Sitemap, or URL List
                 </label>
-                <div className="flex gap-1.5">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <button
+                    onClick={fetchLiveSitemapAndValidate}
+                    disabled={isLoadingSitemap}
+                    className="bg-emerald-950/40 hover:bg-emerald-900/50 border border-emerald-800/80 text-emerald-300 px-2.5 py-1 rounded-md text-[10px] font-mono transition-all flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                    title="Load live sitemap.xml directly from server and run validation"
+                  >
+                    <RefreshCw className={`w-3 h-3 text-emerald-400 ${isLoadingSitemap ? 'animate-spin' : ''}`} />
+                    <span>⚡ Auto-Validate /sitemap.xml</span>
+                  </button>
                   {bulkSamples.map(sample => (
                     <button
                       key={sample.name}
@@ -688,12 +895,50 @@ https://httpbin.org/status/503`
                 </div>
               </div>
 
+              {sitemapValidationNotice && (
+                <div className="p-2.5 bg-emerald-950/40 border border-emerald-800/80 text-emerald-300 rounded-xl text-xs font-mono flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>{sitemapValidationNotice}</span>
+                </div>
+              )}
+
               <textarea
                 value={bulkInput}
                 onChange={(e) => setBulkInput(e.target.value)}
                 placeholder="Paste an XML Sitemap, HTML content with anchor links, Markdown documents, or list of URLs (one per line) to audit..."
                 className="w-full h-44 bg-zinc-900 border border-zinc-800 focus:border-red-600 rounded-xl p-4 text-xs font-mono text-white placeholder-zinc-600 focus:outline-none transition-all resize-none"
               />
+
+              {/* Live Sitemap.xml Structure Validation Banner */}
+              {bulkSitemapValidation && (
+                <div className="p-3 bg-zinc-900/40 border border-zinc-800/80 rounded-xl space-y-2">
+                  <div className="flex items-center justify-between text-xs font-mono flex-wrap gap-2">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-2 h-2 rounded-full ${bulkSitemapValidation.isXmlValid ? 'bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-amber-400'}`} />
+                      <span className="font-bold text-white uppercase text-[11px]">Sitemap.xml Protocol Validation:</span>
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded ${bulkSitemapValidation.isXmlValid ? 'bg-emerald-950/40 text-emerald-300 border border-emerald-800/50' : 'bg-amber-950/40 text-amber-300 border border-amber-800/50'}`}>
+                        {bulkSitemapValidation.isXmlValid ? '✓ Valid Sitemaps 0.9 XML' : '⚠️ Malformed / Non-standard XML'}
+                      </span>
+                    </div>
+                    <span className="text-[10px] text-zinc-400 font-mono">
+                      {bulkSitemapValidation.locCount} URLs declared
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10px] font-mono">
+                    {bulkSitemapValidation.checks.map(chk => (
+                      <div key={chk.name} className="flex items-center gap-1.5 bg-zinc-950/40 p-1.5 rounded-lg border border-zinc-900">
+                        {chk.passed ? (
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                        ) : (
+                          <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                        )}
+                        <span className="text-zinc-300 truncate">{chk.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
                 <div className="flex items-center gap-4">
@@ -971,7 +1216,31 @@ https://httpbin.org/status/503`
                     />
                   </div>
 
-                  <div className="flex gap-2 self-end sm:self-auto">
+                  <div className="flex flex-wrap gap-2 self-end sm:self-auto">
+                    {redirectCount > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setQuickFixModalOpen(true)}
+                        className="bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 cursor-pointer transition-all shadow-md shadow-red-950/20"
+                        title="Auto-generate suggested XML with canonical tags for 301 redirects"
+                      >
+                        <Zap className="w-3.5 h-3.5 text-amber-300" />
+                        <span>Quick-Fix 301s ({redirectCount})</span>
+                      </button>
+                    )}
+                    {cleanCount > 0 && (
+                      <button
+                        onClick={downloadSanitized200Sitemap}
+                        className="bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-950/40 border border-emerald-500/40 px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 cursor-pointer transition-all active:scale-95"
+                        title="One-click download sanitized sitemap.xml with ONLY verified 200 OK URLs"
+                      >
+                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-200" />
+                        <span>Sanitized 200 OK Sitemap</span>
+                        <span className="font-mono text-[10px] bg-black/30 px-1.5 py-0.5 rounded-full text-emerald-100">
+                          {cleanCount}
+                        </span>
+                      </button>
+                    )}
                     <button
                       onClick={exportToCSV}
                       className="bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1 cursor-pointer transition-colors"
@@ -1085,6 +1354,29 @@ https://httpbin.org/status/503`
                                     </div>
                                   )}
 
+                                  {/* Canonical Tag Info */}
+                                  {link.canonicalTag && (
+                                    <div className={`flex items-center gap-1.5 text-[10px] font-mono ${
+                                      link.isCanonicalMatch === true 
+                                        ? 'text-emerald-400/90' 
+                                        : link.isCanonicalMatch === false 
+                                        ? 'text-rose-400 font-semibold' 
+                                        : 'text-zinc-400'
+                                    }`}>
+                                      <Link2 className="w-3 h-3 shrink-0" />
+                                      <span className="uppercase text-[9px]">
+                                        {link.isCanonicalMatch === true ? 'Canonical Match:' : link.isCanonicalMatch === false ? 'Canonical Mismatch:' : 'Canonical:'}
+                                      </span>
+                                      <span className="truncate max-w-sm">{link.canonicalTag}</span>
+                                      {link.isCanonicalMatch === true && (
+                                        <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" />
+                                      )}
+                                      {link.isCanonicalMatch === false && (
+                                        <AlertTriangle className="w-3 h-3 text-rose-400 shrink-0" />
+                                      )}
+                                    </div>
+                                  )}
+
                                   {/* Error Subtext */}
                                   {link.error && (
                                     <p className="text-[10px] text-red-400 font-mono flex items-center gap-1">
@@ -1150,6 +1442,15 @@ https://httpbin.org/status/503`
                                       title="Trace Redirect Chain"
                                     >
                                       <Shield className="w-3.5 h-3.5" />
+                                    </button>
+                                  )}
+                                  {(link.redirectUrl || (link.statusCode && link.statusCode >= 300 && link.statusCode < 400)) && (
+                                    <button
+                                      onClick={() => setQuickFixModalOpen(true)}
+                                      className="p-1 text-amber-400 hover:text-amber-200 hover:bg-amber-950/40 rounded transition-colors"
+                                      title="Quick-Fix 301 Canonical XML"
+                                    >
+                                      <Zap className="w-3.5 h-3.5" />
                                     </button>
                                   )}
                                 </div>
@@ -1315,6 +1616,148 @@ https://httpbin.org/status/503`
                   </div>
                 </div>
 
+                {/* Canonical Link Tag vs Final Destination Verification Card */}
+                <div className={`p-5 rounded-2xl border transition-all ${
+                  singleResult.isCanonicalMatch === true
+                    ? 'bg-emerald-950/20 border-emerald-500/40 shadow-[0_0_20px_rgba(16,185,129,0.06)]'
+                    : singleResult.isCanonicalMatch === false
+                    ? 'bg-rose-950/25 border-rose-500/50 shadow-[0_0_25px_rgba(244,63,94,0.1)]'
+                    : 'bg-zinc-900/40 border-zinc-800'
+                }`}>
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-zinc-800/80">
+                    <div className="flex items-start gap-3">
+                      <div className={`p-2.5 rounded-xl shrink-0 mt-0.5 ${
+                        singleResult.isCanonicalMatch === true
+                          ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
+                          : singleResult.isCanonicalMatch === false
+                          ? 'bg-rose-500/10 text-rose-400 border border-rose-500/30'
+                          : 'bg-zinc-800/50 text-zinc-400 border border-zinc-700/50'
+                      }`}>
+                        {singleResult.isCanonicalMatch === true ? (
+                          <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                        ) : singleResult.isCanonicalMatch === false ? (
+                          <AlertTriangle className="w-5 h-5 text-rose-400" />
+                        ) : (
+                          <Link2 className="w-5 h-5 text-zinc-400" />
+                        )}
+                      </div>
+                      <div className="space-y-0.5">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h4 className="font-heading font-black text-sm text-white tracking-wide">
+                            Canonical Link Tag Audit
+                          </h4>
+                          {singleResult.isCanonicalMatch === true ? (
+                            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                              ✓ 100% SEO Compliant Match
+                            </span>
+                          ) : singleResult.isCanonicalMatch === false ? (
+                            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40 animate-pulse">
+                              ⚠️ Canonical Link Tag Mismatch
+                            </span>
+                          ) : (
+                            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-400 border border-zinc-700">
+                              ℹ️ No Canonical Tag Declared
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-zinc-400">
+                          {singleResult.isCanonicalMatch === true
+                            ? 'The final destination page declares a self-referencing canonical tag matching the resolved URL. Googlebot will index this URL without canonical penalties.'
+                            : singleResult.isCanonicalMatch === false
+                            ? 'The final destination page canonical tag points to a different URL than the redirect terminus, causing Google Search Console index exclusion.'
+                            : 'No canonical tag was detected in HTML <head> or HTTP Link headers for this destination.'}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Copy Correct Canonical Snippet */}
+                    <button
+                      onClick={() => {
+                        const tag = `<link rel="canonical" href="${singleResult.finalUrl}" />`;
+                        copyToClipboard(tag, 'canonical-fix-tag');
+                      }}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono font-semibold bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-700 hover:border-zinc-500 transition-all shrink-0 self-start md:self-center"
+                      title="Copy standard canonical tag snippet for this URL"
+                    >
+                      {copiedText === 'canonical-fix-tag' ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 text-emerald-400" />
+                          <span className="text-emerald-400">Tag Copied!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3.5 h-3.5 text-zinc-400" />
+                          <span>Copy Canonical Tag</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  {/* Side-by-Side Comparison */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+                    <div className="p-3 bg-zinc-950/70 border border-zinc-900/90 rounded-xl space-y-1.5">
+                      <div className="flex items-center justify-between text-[11px] font-mono text-zinc-400">
+                        <span className="uppercase tracking-wider font-semibold flex items-center gap-1">
+                          <ExternalLink className="w-3 h-3 text-brand" /> Final Destination (Terminus)
+                        </span>
+                        <span className="text-zinc-500">HTTP {singleResult.redirectChain[singleResult.redirectChain.length - 1]?.statusCode || 200}</span>
+                      </div>
+                      <div className="font-mono text-xs text-zinc-200 bg-zinc-900/50 p-2 rounded-lg border border-zinc-800 break-all select-all">
+                        {singleResult.finalUrl}
+                      </div>
+                    </div>
+
+                    <div className={`p-3 bg-zinc-950/70 rounded-xl space-y-1.5 border ${
+                      singleResult.isCanonicalMatch === true
+                        ? 'border-emerald-500/30'
+                        : singleResult.isCanonicalMatch === false
+                        ? 'border-rose-500/40 bg-rose-950/10'
+                        : 'border-zinc-900/90'
+                    }`}>
+                      <div className="flex items-center justify-between text-[11px] font-mono">
+                        <span className={`uppercase tracking-wider font-semibold flex items-center gap-1 ${
+                          singleResult.isCanonicalMatch === true ? 'text-emerald-400' : singleResult.isCanonicalMatch === false ? 'text-rose-400' : 'text-zinc-400'
+                        }`}>
+                          <Link2 className="w-3 h-3" /> Declared Canonical Tag
+                        </span>
+                        <span className="text-zinc-500 font-mono text-[10px]">
+                          {singleResult.finalCanonicalTag ? '<link rel="canonical">' : 'None'}
+                        </span>
+                      </div>
+                      <div className={`font-mono text-xs p-2 rounded-lg border break-all select-all ${
+                        singleResult.finalCanonicalTag
+                          ? singleResult.isCanonicalMatch === true
+                            ? 'text-emerald-300 bg-emerald-950/30 border-emerald-800/40'
+                            : 'text-rose-300 bg-rose-950/30 border-rose-800/50 font-bold'
+                          : 'text-zinc-500 bg-zinc-900/50 border-zinc-800 italic'
+                      }`}>
+                        {singleResult.finalCanonicalTag || 'No canonical tag detected on destination page'}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Warning / Remediation note when mismatched */}
+                  {singleResult.isCanonicalMatch === false && (
+                    <div className="mt-3.5 p-3 rounded-xl bg-rose-950/20 border border-rose-500/30 text-rose-200 text-xs flex gap-2.5 items-start">
+                      <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                      <div className="space-y-1">
+                        <p className="font-semibold text-rose-300">
+                          Critical SEO Indexing Hazard:
+                        </p>
+                        <p className="text-rose-200/90 leading-relaxed font-sans">
+                          {singleResult.canonicalMismatchReason || 'Search engines index only the canonical URL. Because the final destination specifies a different URL as canonical, Google may flag this page as "Duplicate without user-selected canonical" or "Alternate page with proper canonical tag", dropping this page from search results.'}
+                        </p>
+                        <div className="mt-2 flex items-center gap-2 pt-1 flex-wrap">
+                          <span className="font-mono text-[11px] text-zinc-400">Suggested Fix: Update the &lt;head&gt; canonical tag to:</span>
+                          <code className="text-brand font-mono text-[11px] bg-black/60 px-2 py-0.5 rounded border border-zinc-800 select-all">
+                            {`<link rel="canonical" href="${singleResult.finalUrl}" />`}
+                          </code>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 {/* Main content grid: Timeline on Left, Expert audit findings on right */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
                   {/* Vertical redirection timeline (Left 2/3) */}
@@ -1390,6 +1833,14 @@ https://httpbin.org/status/503`
                                     <ArrowRight className="w-3.5 h-3.5 text-brand shrink-0" />
                                     <span className="text-zinc-500 uppercase shrink-0">Redirects to:</span>
                                     <span className="text-zinc-400 break-all">{hop.redirectUrl}</span>
+                                  </div>
+                                )}
+
+                                {hop.canonicalUrl && (
+                                  <div className="flex items-center gap-2 text-[10px] text-zinc-500 font-mono py-1 border-t border-zinc-900/60 mt-1">
+                                    <Link2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                                    <span className="text-zinc-500 uppercase shrink-0">Declared Canonical:</span>
+                                    <span className="text-emerald-300/90 break-all select-all">{hop.canonicalUrl}</span>
                                   </div>
                                 )}
                               </div>
@@ -1520,7 +1971,7 @@ https://httpbin.org/status/503`
                       <hr className="border-zinc-900" />
 
                       <div className="space-y-4">
-                        {singleResult.redirectChain.length > 0 && getAuditInsights(singleResult.redirectChain).map((insight, idx) => (
+                        {singleResult.redirectChain.length > 0 && getAuditInsights(singleResult.redirectChain, singleResult).map((insight, idx) => (
                           <div 
                             key={idx} 
                             className={`p-3.5 rounded-xl border flex gap-3 items-start ${
@@ -1711,6 +2162,13 @@ https://httpbin.org/status/503`
 
       </div>
 
+      {/* Quick-Fix Suggested Canonical XML Generator Modal */}
+      <RedirectQuickFixModal
+        isOpen={quickFixModalOpen}
+        onClose={() => setQuickFixModalOpen(false)}
+        items={quickFixItems}
+        onApplyFix={handleApplyQuickFix}
+      />
     </div>
   );
 }

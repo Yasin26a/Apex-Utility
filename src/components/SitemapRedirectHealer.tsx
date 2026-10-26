@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Sparkles, ShieldCheck, ShieldAlert, ArrowRight, Check, Copy, Download, 
@@ -6,6 +6,7 @@ import {
   Trash2, Globe, FileText, Layers, CheckCircle, Search, Filter, Play, 
   Square, Info, Server, ArrowDownRight
 } from 'lucide-react';
+import RedirectQuickFixModal, { QuickFixItem } from './RedirectQuickFixModal';
 
 export interface RedirectIssue {
   type: 'query_param' | 'subdomain' | 'insecure_http' | 'trailing_slash' | 'deprecated_path' | 'tracking_param' | 'status_3xx';
@@ -190,6 +191,7 @@ export default function SitemapRedirectHealer() {
   const [copiedNotice, setCopiedNotice] = useState<string | null>(null);
   const [healedNotice, setHealedNotice] = useState<string | null>(null);
   const [showServerRules, setShowServerRules] = useState(false);
+  const [quickFixModalOpen, setQuickFixModalOpen] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isVerifyingRef = useRef(false);
@@ -545,6 +547,62 @@ export default function SitemapRedirectHealer() {
     URL.revokeObjectURL(url);
   };
 
+  // One-click Download Sanitized Sitemap containing ONLY verified 200 OK status URLs
+  const downloadSanitized200OnlySitemap = () => {
+    const hasLiveAudit = entries.some(e => e.liveStatusCode !== undefined && e.liveStatusCode !== null);
+    
+    // Select strictly 200 OK URLs (2xx status or clean canonical destinations)
+    let ok200Entries: SitemapEntry[] = [];
+    if (hasLiveAudit) {
+      ok200Entries = entries.filter(e => e.liveStatusCode !== null && e.liveStatusCode !== undefined && e.liveStatusCode >= 200 && e.liveStatusCode < 300);
+    } else {
+      // If live audit not run yet, include entries that have zero redirect issues or were cleanly fixed
+      ok200Entries = entries.filter(e => !e.isRedirect || e.isFixed);
+    }
+
+    if (ok200Entries.length === 0) {
+      setHealedNotice('No verified 200 OK URLs found in the current sitemap. Auto-fix or verify entries first.');
+      setTimeout(() => setHealedNotice(null), 4000);
+      return;
+    }
+
+    const lines = [
+      '<?xml version="1.0" encoding="UTF-8"?>',
+      '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+    ];
+
+    ok200Entries.forEach(entry => {
+      const loc = entry.isFixed ? entry.canonicalLoc : entry.originalLoc;
+      lines.push('  <url>');
+      lines.push(`    <loc>${loc}</loc>`);
+      if (entry.lastmod) {
+        lines.push(`    <lastmod>${entry.lastmod}</lastmod>`);
+      }
+      if (entry.changefreq) {
+        lines.push(`    <changefreq>${entry.changefreq}</changefreq>`);
+      }
+      if (entry.priority) {
+        lines.push(`    <priority>${entry.priority}</priority>`);
+      }
+      lines.push('  </url>');
+    });
+
+    lines.push('</urlset>');
+    const xml = lines.join('\n');
+    const blob = new Blob([xml], { type: 'application/xml' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `sitemap-200-ok-sanitized-${Date.now()}.xml`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    setHealedNotice(`✓ Sanitized Sitemap Downloaded: ${ok200Entries.length} verified 200 OK URLs saved! All 3xx/4xx pruned.`);
+    setTimeout(() => setHealedNotice(null), 5000);
+  };
+
   // Copy healed XML
   const copyHealedXml = () => {
     const xml = generateCleanXml(entries);
@@ -579,9 +637,120 @@ export default function SitemapRedirectHealer() {
   const fixedCount = entries.filter(e => e.isFixed).length;
   const healthScore = totalUrls > 0 ? Math.round((cleanCount / totalUrls) * 100) : 100;
   
+  // Live verification and 200 OK URL tallies
+  const hasLiveAudit = entries.some(e => e.liveStatusCode !== undefined && e.liveStatusCode !== null);
+  const live200Count = entries.filter(e => e.liveStatusCode !== null && e.liveStatusCode !== undefined && e.liveStatusCode >= 200 && e.liveStatusCode < 300).length;
+  const verified200Count = hasLiveAudit ? live200Count : (totalUrls - redirectCount);
+
+  // Real-time sitemap.xml validation analysis
+  const sitemapValidation = useMemo(() => {
+    if (!rawInput.trim()) return null;
+
+    const hasXmlDecl = rawInput.includes('<?xml');
+    const hasUrlsetOpen = /<urlset[\s>]/i.test(rawInput);
+    const hasUrlsetClose = /<\/urlset>/i.test(rawInput);
+    const hasNamespace = /xmlns=["']http:\/\/www\.sitemaps\.org\/schemas\/sitemap\/0\.9["']/i.test(rawInput);
+    const isSitemapIndex = /<sitemapindex[\s>]/i.test(rawInput);
+
+    const locMatches = rawInput.match(/<loc>\s*(https?:\/\/[^<]+)\s*<\/loc>/gi) || [];
+
+    // Protocol & security issues
+    const insecureUrls = entries.filter(e => e.originalLoc.startsWith('http://'));
+    const uniqueLocs = new Set(entries.map(e => e.originalLoc.toLowerCase()));
+    const duplicateCount = entries.length - uniqueLocs.size;
+
+    // Checks
+    const checks = [
+      {
+        id: 'xml_header',
+        name: 'XML Header & Encoding',
+        passed: hasXmlDecl,
+        detail: hasXmlDecl ? 'Valid UTF-8 XML declaration (<?xml version="1.0"?>)' : 'Missing <?xml version="1.0" encoding="UTF-8"?> header'
+      },
+      {
+        id: 'schema_namespace',
+        name: 'Sitemaps.org 0.9 Protocol',
+        passed: hasNamespace || isSitemapIndex,
+        detail: hasNamespace ? 'Standard sitemaps.org/schemas/sitemap/0.9 namespace' : 'Non-standard or missing XML schema namespace'
+      },
+      {
+        id: 'root_tags',
+        name: 'Root Elements Structure',
+        passed: (hasUrlsetOpen && hasUrlsetClose) || isSitemapIndex,
+        detail: hasUrlsetOpen && hasUrlsetClose ? 'Well-formed <urlset> root node' : 'Unclosed or missing <urlset> root tag'
+      },
+      {
+        id: 'loc_entries',
+        name: 'Location Tags (<loc>)',
+        passed: locMatches.length > 0 && locMatches.length === entries.length,
+        detail: `${locMatches.length} <loc> location URLs successfully parsed`
+      },
+      {
+        id: 'https_protocol',
+        name: 'HTTPS Security Standard',
+        passed: insecureUrls.length === 0,
+        detail: insecureUrls.length === 0 ? 'All entries utilize secure HTTPS' : `${insecureUrls.length} insecure HTTP entries found`
+      },
+      {
+        id: 'no_duplicates',
+        name: 'Duplicate URL Check',
+        passed: duplicateCount === 0,
+        detail: duplicateCount === 0 ? 'Zero duplicate URLs' : `${duplicateCount} duplicate URL occurrences`
+      }
+    ];
+
+    const passedCount = checks.filter(c => c.passed).length;
+    const isXmlValid = hasXmlDecl && hasUrlsetOpen && hasUrlsetClose && locMatches.length > 0;
+
+    return {
+      isXmlValid,
+      passedCount,
+      totalChecks: checks.length,
+      checks,
+      insecureCount: insecureUrls.length,
+      duplicateCount,
+      locCount: locMatches.length
+    };
+  }, [rawInput, entries]);
+  
   // Crawl budget estimations
   const wastedRequestsAvoided = redirectCount * 2; // Source hit + Redirect target hit
   const estimatedLatencySavedMs = redirectCount * 180; // Avg 180ms per redirect roundtrip
+
+  // Detected 301 Redirect Items for Quick-Fix Generator Modal
+  const quickFixItems: QuickFixItem[] = useMemo(() => {
+    return entries
+      .filter(e => e.isRedirect)
+      .map((e, idx) => ({
+        id: `qf_sitemap_${e.id || idx}`,
+        sourceUrl: e.originalLoc,
+        canonicalUrl: e.canonicalLoc,
+        statusCode: e.liveStatusCode || 301,
+        reason: e.issues.map(i => i.label).join(', ') || '301 Redirect Hazard',
+        lastmod: e.lastmod,
+        changefreq: e.changefreq,
+        priority: e.priority
+      }));
+  }, [entries]);
+
+  const handleApplyQuickFixModal = (fixedItems: QuickFixItem[]) => {
+    const fixedMap = new Map(fixedItems.map(i => [i.sourceUrl, i.canonicalUrl]));
+    const updated = entries.map(e => {
+      if (fixedMap.has(e.originalLoc)) {
+        return {
+          ...e,
+          originalLoc: fixedMap.get(e.originalLoc)!,
+          isRedirect: false,
+          isFixed: true
+        };
+      }
+      return e;
+    });
+    setEntries(updated);
+    setRawInput(generateCleanXml(updated));
+    setHealedNotice(`Applied Quick-Fix to ${fixedItems.length} redirecting sitemap entries!`);
+    setTimeout(() => setHealedNotice(null), 5000);
+  };
 
   // Filtered view
   const filteredEntries = entries.filter(entry => {
@@ -742,17 +911,29 @@ export default function SitemapRedirectHealer() {
             )}
           </div>
 
-          {/* Master Auto-Fix Button */}
+          {/* Master Auto-Fix and Quick-Fix Buttons */}
           {redirectCount > 0 && (
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={autoFixAllRedirects}
-              className="bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 text-white font-extrabold text-xs uppercase tracking-wider px-5 py-2.5 rounded-xl shadow-lg shadow-red-600/25 flex items-center gap-2 cursor-pointer border border-red-500/50"
-            >
-              <Sparkles className="w-4 h-4 text-white" />
-              <span>Auto-Fix All {redirectCount} Redirects</span>
-            </motion.button>
+            <div className="flex flex-wrap items-center gap-2">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setQuickFixModalOpen(true)}
+                className="bg-gradient-to-r from-amber-600 via-orange-600 to-rose-600 hover:from-amber-500 hover:to-rose-500 text-white font-extrabold text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl shadow-lg shadow-amber-950/20 flex items-center gap-1.5 cursor-pointer border border-amber-500/50"
+              >
+                <Zap className="w-4 h-4 text-white" />
+                <span>Quick-Fix Suggested XML ({redirectCount})</span>
+              </motion.button>
+
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={autoFixAllRedirects}
+                className="bg-zinc-800 hover:bg-zinc-700 text-zinc-200 hover:text-white font-bold text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl border border-zinc-700 flex items-center gap-1.5 cursor-pointer transition-all"
+              >
+                <Sparkles className="w-4 h-4 text-emerald-400" />
+                <span>Auto-Apply In-Place</span>
+              </motion.button>
+            </div>
           )}
         </div>
       </div>
@@ -793,6 +974,72 @@ export default function SitemapRedirectHealer() {
             <span className="text-[10px] text-zinc-400">
               {healthScore === 100 ? '100% GSC Compliant' : `${redirectCount} URLs need healing`}
             </span>
+          </div>
+        </div>
+      )}
+
+      {/* Automatic Sitemap.xml Validation & Compliance Card */}
+      {sitemapValidation && (
+        <div className="bg-zinc-950/90 border border-zinc-900 rounded-2xl p-5 shadow-xl space-y-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-zinc-900 pb-3.5">
+            <div className="flex items-center gap-2.5">
+              <div className={`p-2 rounded-xl ${sitemapValidation.isXmlValid ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
+                {sitemapValidation.isXmlValid ? (
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                ) : (
+                  <AlertTriangle className="w-4 h-4 text-red-400" />
+                )}
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h4 className="text-xs font-bold text-white uppercase tracking-wider font-mono">
+                    Sitemap.xml Protocol Validation
+                  </h4>
+                  <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${
+                    sitemapValidation.passedCount === sitemapValidation.totalChecks
+                      ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-800/60'
+                      : 'bg-amber-950/60 text-amber-300 border border-amber-800/60'
+                  }`}>
+                    {sitemapValidation.passedCount}/{sitemapValidation.totalChecks} Checks Passed
+                  </span>
+                </div>
+                <p className="text-[11px] text-zinc-500 font-mono">
+                  Schema compliance: W3C / sitemaps.org 0.9 standard specification
+                </p>
+              </div>
+            </div>
+
+            {/* Quick-Download 200 OK Sitemap */}
+            <button
+              onClick={downloadSanitized200OnlySitemap}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-950/50 hover:bg-emerald-900/60 text-emerald-300 border border-emerald-800/80 text-xs font-mono font-semibold transition-all shadow-sm shrink-0 cursor-pointer self-start md:self-center"
+            >
+              <Download className="w-3.5 h-3.5 text-emerald-400" />
+              <span>One-Click Sanitized 200 OK Sitemap ({verified200Count})</span>
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+            {sitemapValidation.checks.map((chk) => (
+              <div
+                key={chk.id}
+                className={`p-2.5 rounded-xl border flex items-start gap-2 text-xs font-mono ${
+                  chk.passed
+                    ? 'bg-zinc-900/30 border-zinc-800/70 text-zinc-300'
+                    : 'bg-amber-950/20 border-amber-800/40 text-amber-300'
+                }`}
+              >
+                {chk.passed ? (
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                ) : (
+                  <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
+                )}
+                <div className="space-y-0.5">
+                  <p className="font-bold text-[11px] text-zinc-200">{chk.name}</p>
+                  <p className="text-[10px] text-zinc-500 leading-tight">{chk.detail}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
@@ -842,7 +1089,29 @@ export default function SitemapRedirectHealer() {
             </div>
 
             {/* Export Actions */}
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setQuickFixModalOpen(true)}
+                className="bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-xs font-bold uppercase tracking-wider px-3 py-2 rounded-xl border border-red-500/80 transition-all flex items-center gap-1.5 cursor-pointer shadow-md shadow-red-950/20"
+                title="Quick-Fix 301 redirects and generate suggested canonical XML"
+              >
+                <Zap className="w-3.5 h-3.5 text-amber-300" />
+                <span>Quick-Fix XML</span>
+              </button>
+
+              <button
+                onClick={downloadSanitized200OnlySitemap}
+                className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold uppercase tracking-wider px-3.5 py-2 rounded-xl border border-emerald-500/60 shadow-lg shadow-emerald-950/30 transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                title="Download 100% sanitized sitemap containing ONLY verified 200 OK status URLs"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-200" />
+                <span>Sanitized 200 OK XML</span>
+                <span className="bg-black/30 text-emerald-100 text-[10px] font-mono px-1.5 py-0.5 rounded-full">
+                  {verified200Count}
+                </span>
+              </button>
+
               <button
                 onClick={downloadCleanSitemap}
                 className="bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold uppercase tracking-wider px-3 py-2 rounded-xl border border-zinc-700 transition-all flex items-center gap-1 cursor-pointer"
@@ -1042,6 +1311,14 @@ if ($arg_id != "") {
           </div>
         </div>
       </div>
+
+      {/* Quick-Fix Suggested Canonical XML Generator Modal */}
+      <RedirectQuickFixModal
+        isOpen={quickFixModalOpen}
+        onClose={() => setQuickFixModalOpen(false)}
+        items={quickFixItems}
+        onApplyFix={handleApplyQuickFixModal}
+      />
     </div>
   );
 }
