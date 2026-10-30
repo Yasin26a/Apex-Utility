@@ -62,7 +62,8 @@ import {
   FileStack,
   Plus,
   Scissors,
-  Smartphone
+  Smartphone,
+  Gauge
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ActiveTab } from './types';
@@ -100,6 +101,13 @@ const SocialMediaHookGenerator = lazy(() => import('./components/SocialMediaHook
 const AICodeExplainerTranslator = lazy(() => import('./components/AICodeExplainerTranslator'));
 const VideoRecorder = lazy(() => import('./components/VideoRecorder'));
 const WhopVideoClipper = lazy(() => import('./components/WhopVideoClipper'));
+const PingTestTool = lazy(() => import('./components/network/PingTestTool').then(m => ({ default: m.PingTestTool })));
+const WhatIsMyIpTool = lazy(() => import('./components/network/WhatIsMyIpTool').then(m => ({ default: m.WhatIsMyIpTool })));
+const DnsTestTool = lazy(() => import('./components/network/DnsTestTool').then(m => ({ default: m.DnsTestTool })));
+const IpLocationTool = lazy(() => import('./components/network/IpLocationTool').then(m => ({ default: m.IpLocationTool })));
+const NetworkToolsHub = lazy(() => import('./components/network/NetworkToolsHub').then(m => ({ default: m.NetworkToolsHub })));
+const InternetSpeedTest = lazy(() => import('./components/InternetSpeedTest'));
+const ContactPage = lazy(() => import('./components/ContactPage').then(m => ({ default: m.ContactPage })));
 import { Document as PDFDocumentView, Page as PDFPageView, pdfjs } from 'react-pdf';
 import * as pdfjsLib from 'pdfjs-dist';
 import Tesseract from 'tesseract.js';
@@ -1831,6 +1839,9 @@ export default function App() {
       'record': 'video-recorder',
       'whop': 'whop-video-clipping-tool',
       'clipper': 'whop-video-clipping-tool',
+      'speedtest': 'internet-speed-test',
+      'speed-test': 'internet-speed-test',
+      'free-internet-speed-test': 'internet-speed-test',
       'news': 'guides',
       'blog': 'guides',
       'dashboard': 'dashboard'
@@ -2553,24 +2564,6 @@ Disallow:
             </div>
           )}
 
-          <button
-            onClick={() => handleTabChange('whop-video-clipping-tool')}
-            className={`inline-flex items-center gap-1 sm:gap-1.5 px-2.5 py-1 sm:px-3.5 sm:py-2 rounded-lg sm:rounded-xl text-[9px] sm:text-[11px] font-bold uppercase tracking-wider transition-all duration-300 relative overflow-hidden group cursor-pointer border ${
-              activeTab === 'whop-video-clipping-tool'
-                ? 'bg-red-600 text-white shadow-[0_0_20px_rgba(239,68,68,0.7)] border-red-400'
-                : 'bg-zinc-900/90 hover:bg-zinc-800 text-zinc-300 hover:text-white border-zinc-800 hover:border-red-500/50'
-            }`}
-            title="Free Whop Video Clipping Tool"
-          >
-            <Scissors className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-red-400 group-hover:rotate-12 transition-transform" />
-            <span>
-              <span className="inline sm:hidden">Clipper</span>
-              <span className="hidden sm:inline">Whop Clipper</span>
-            </span>
-            <span className="hidden md:inline text-[9px] font-mono px-1.5 py-0.2 rounded bg-red-950 text-red-400 border border-red-900/60 font-bold">
-              9:16
-            </span>
-          </button>
 
           <button
             onClick={() => {
@@ -2600,6 +2593,19 @@ Disallow:
                 <span className="hidden sm:inline">Viral News &amp; Articles</span>
               </span>
             </span>
+          </button>
+
+          <button
+            onClick={() => handleTabChange('contact')}
+            className={`inline-flex items-center gap-1 sm:gap-1.5 px-2.5 py-1 sm:px-3 sm:py-2 rounded-lg sm:rounded-xl text-[9px] sm:text-[11px] font-bold uppercase tracking-wider transition-all duration-300 relative overflow-hidden group cursor-pointer border ${
+              activeTab === 'contact'
+                ? 'bg-rose-600 text-white shadow-[0_0_20px_rgba(239,68,68,0.7)] border-rose-400'
+                : 'bg-zinc-900/90 hover:bg-zinc-800 text-zinc-300 hover:text-white border-zinc-800 hover:border-rose-500/50'
+            }`}
+            title="Contact Support & Publisher Team"
+          >
+            <Mail className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-zinc-400 group-hover:text-white transition-colors" />
+            <span>Contact</span>
           </button>
 
           {/* Status Indicator Bar Removed */}
@@ -2724,6 +2730,21 @@ Disallow:
                     <span>Redirect Auditor</span>
                   </div>
                   <span className="bg-red-950/60 border border-red-900/40 text-[9px] text-brand px-1.5 py-0.5 rounded font-mono font-bold uppercase shrink-0">SEC</span>
+                </button>
+
+                <button
+                  onClick={() => handleTabChange('internet-speed-test')}
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                    activeTab === 'internet-speed-test'
+                      ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold shadow-[0_0_15px_rgba(239,68,68,0.25)]'
+                      : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Gauge className="w-4 h-4 text-brand animate-pulse" />
+                    <span>Internet Speed Test</span>
+                  </div>
+                  <span className="bg-emerald-950/60 border border-emerald-900/40 text-[9px] text-emerald-400 px-1.5 py-0.5 rounded font-mono font-bold uppercase shrink-0">NEW</span>
                 </button>
 
                 <button
@@ -2859,6 +2880,18 @@ Disallow:
                 >
                   <FileText className="w-4 h-4" />
                   <span>Terms of Service</span>
+                </button>
+
+                <button
+                  onClick={() => handleTabChange('contact')}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                    activeTab === 'contact'
+                      ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold'
+                      : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
+                  }`}
+                >
+                  <Mail className="w-4 h-4" />
+                  <span>Contact Us</span>
                 </button>
               </nav>
             </div>
@@ -3017,6 +3050,78 @@ Disallow:
                     </button>
 
                     <button
+                      onClick={() => handleTabChange('network-tools')}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                        activeTab === 'network-tools'
+                          ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold'
+                          : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
+                      }`}
+                    >
+                      <Activity className="w-4 h-4 text-emerald-400" />
+                      <span>Network Tools Hub</span>
+                    </button>
+
+                    <button
+                      onClick={() => handleTabChange('internet-speed-test')}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                        activeTab === 'internet-speed-test'
+                          ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold'
+                          : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
+                      }`}
+                    >
+                      <Gauge className="w-4 h-4 text-emerald-400" />
+                      <span>Internet Speed Test</span>
+                    </button>
+
+                    <button
+                      onClick={() => handleTabChange('ping-test')}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                        activeTab === 'ping-test'
+                          ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold'
+                          : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
+                      }`}
+                    >
+                      <Activity className="w-4 h-4 text-sky-400" />
+                      <span>Ping Latency Test</span>
+                    </button>
+
+                    <button
+                      onClick={() => handleTabChange('what-is-my-ip')}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                        activeTab === 'what-is-my-ip'
+                          ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold'
+                          : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
+                      }`}
+                    >
+                      <Globe className="w-4 h-4 text-purple-400" />
+                      <span>What Is My IP</span>
+                    </button>
+
+                    <button
+                      onClick={() => handleTabChange('dns-test')}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                        activeTab === 'dns-test'
+                          ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold'
+                          : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
+                      }`}
+                    >
+                      <Layers className="w-4 h-4 text-amber-400" />
+                      <span>DNS Test & Benchmark</span>
+                    </button>
+
+                    <button
+                      onClick={() => handleTabChange('ip-location')}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                        activeTab === 'ip-location'
+                          ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold'
+                          : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
+                      }`}
+                    >
+                      <Compass className="w-4 h-4 text-rose-400" />
+                      <span>IP Location Lookup</span>
+                    </button>
+
+                    <button
                       onClick={() => handleTabChange('google-serp')}
                       className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                         activeTab === 'google-serp'
@@ -3142,6 +3247,18 @@ Disallow:
                       <FileText className="w-4 h-4" />
                       <span>Terms of Service</span>
                     </button>
+
+                    <button
+                      onClick={() => handleTabChange('contact')}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                        activeTab === 'contact'
+                          ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold'
+                          : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
+                      }`}
+                    >
+                      <Mail className="w-4 h-4" />
+                      <span>Contact Us</span>
+                    </button>
                   </nav>
                 </div>
 
@@ -3209,6 +3326,16 @@ Disallow:
                 className="w-full"
               >
                 <RedirectAuditor />
+              </motion.div>
+            )}
+
+            {activeTab === 'internet-speed-test' && (
+              <motion.div
+                key="internet-speed-test"
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                className="w-full"
+              >
+                <InternetSpeedTest />
               </motion.div>
             )}
 
@@ -7428,64 +7555,6 @@ Disallow:
               </motion.div>
             )}
 
-            {/* Tab: Favicon Generator */}
-            {activeTab === 'favicon-generator' && (
-              <motion.div
-                key="favicon-generator"
-                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                className="space-y-6"
-              >
-                <FaviconGenerator />
-              </motion.div>
-            )}
-
-            {/* Tab: AI Image Alt-Text Generator */}
-            {activeTab === 'alt-text-generator' && (
-              <motion.div
-                key="alt-text-generator"
-                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                className="space-y-6"
-              >
-                <AIImageAltTextGenerator />
-              </motion.div>
-            )}
-
-            {/* Tab: SEO Keyword Difficulty Checker */}
-            {activeTab === 'keyword-difficulty' && (
-              <motion.div
-                key="keyword-difficulty"
-                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                className="space-y-6"
-              >
-                <SEOKeywordDifficulty />
-              </motion.div>
-            )}
-
-            {/* Tab: URL Slugifier */}
-            {activeTab === 'url-slugifier' && (
-              <motion.div
-                key="url-slugifier"
-                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                className="space-y-6"
-              >
-                <Suspense fallback={<div className="text-white font-mono text-xs">Loading URL Slugifier...</div>}>
-                  <SEOURLSlugifier />
-                </Suspense>
-              </motion.div>
-            )}
-
-            {/* Tab: Meta Tag Auditor */}
-            {activeTab === 'meta-tag-auditor' && (
-              <motion.div
-                key="meta-tag-auditor"
-                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                className="space-y-6"
-              >
-                <Suspense fallback={<div className="text-white font-mono text-xs">Loading Meta Tag Auditor...</div>}>
-                  <MetaTagAuditor />
-                </Suspense>
-              </motion.div>
-            )}
 
             {/* Tab: Schema Generator */}
             {activeTab === 'schema-generator' && (
@@ -7833,9 +7902,72 @@ Disallow:
               </motion.div>
             )}
 
+            {/* Network Tools Suite */}
+            {activeTab === 'network-tools' && (
+              <motion.div
+                key="network-tools"
+                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}
+                className="w-full"
+              >
+                <NetworkToolsHub />
+              </motion.div>
+            )}
+
+
+            {activeTab === 'ping-test' && (
+              <motion.div
+                key="ping-test"
+                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}
+                className="w-full"
+              >
+                <PingTestTool />
+              </motion.div>
+            )}
+
+            {activeTab === 'what-is-my-ip' && (
+              <motion.div
+                key="what-is-my-ip"
+                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}
+                className="w-full"
+              >
+                <WhatIsMyIpTool />
+              </motion.div>
+            )}
+
+            {activeTab === 'dns-test' && (
+              <motion.div
+                key="dns-test"
+                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}
+                className="w-full"
+              >
+                <DnsTestTool />
+              </motion.div>
+            )}
+
+            {activeTab === 'ip-location' && (
+              <motion.div
+                key="ip-location"
+                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}
+                className="w-full"
+              >
+                <IpLocationTool />
+              </motion.div>
+            )}
+
+            {/* Tab: Contact Us */}
+            {activeTab === 'contact' && (
+              <motion.div
+                key="contact"
+                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}
+                className="w-full"
+              >
+                <ContactPage onNavigateTab={(t: any) => handleTabChange(t)} />
+              </motion.div>
+            )}
+
           </AnimatePresence>
 
-          {activeTab !== 'dashboard' && activeTab !== 'guides' && activeTab !== 'about-us' && activeTab !== 'privacy-policy' && activeTab !== 'terms-of-service' && (
+          {activeTab !== 'dashboard' && activeTab !== 'guides' && activeTab !== 'about-us' && activeTab !== 'contact' && activeTab !== 'privacy-policy' && activeTab !== 'terms-of-service' && !['network-tools', 'internet-speed-test', 'ping-test', 'what-is-my-ip', 'dns-test', 'ip-location'].includes(activeTab) && (
             <>
               <ToolLandingIsland toolId={activeTab} onTabChange={handleTabChange} />
               <ContextualSEOSection activeTab={activeTab} />
@@ -7910,20 +8042,20 @@ Disallow:
                         <span className="text-[9px] text-red-400 font-mono">100KB - 200KB</span>
                       </h4>
                       <p className="text-[11px] text-zinc-500 mb-2 leading-relaxed">
-                        High-efficiency offline tools to reduce PDF size online for free with premium iLovePDF equivalent speed.
+                        High-efficiency offline tools to reduce PDF size online for free with high performance processing speed.
                       </p>
                       <div className="flex flex-wrap gap-1.5 text-[9px] font-mono">
                         <button onClick={() => handleTabChange('compress-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">compress pdf</button>
-                        <button onClick={() => handleTabChange('compress-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">ilovepdf compress</button>
+                        <button onClick={() => handleTabChange('compress-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">compress pdf tool</button>
                         <button onClick={() => handleTabChange('compress-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">pdf size reducer</button>
                         <button onClick={() => handleTabChange('compress-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">compress pdf to 100kb</button>
                         <button onClick={() => handleTabChange('compress-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">pengecil file pdf</button>
                         <button onClick={() => handleTabChange('compress-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">ngecilin size pdf</button>
                         <button onClick={() => handleTabChange('compress-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">reduce pdf size</button>
                         <button onClick={() => handleTabChange('compress-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">compress pdf online gratis</button>
-                        <button onClick={() => handleTabChange('compress-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">smallpdf compress pdf</button>
-                        <button onClick={() => handleTabChange('compress-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">smallpdf compressor</button>
-                        <button onClick={() => handleTabChange('compress-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">pdf small compress</button>
+                        <button onClick={() => handleTabChange('compress-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">shrink pdf online</button>
+                        <button onClick={() => handleTabChange('compress-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">high ratio pdf compressor</button>
+                        <button onClick={() => handleTabChange('compress-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">compress pdf fast</button>
                         <button onClick={() => handleTabChange('compress-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">very small pdf compressor</button>
                         <button onClick={() => handleTabChange('compress-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">compress cv</button>
                         <button onClick={() => handleTabChange('compress-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">cv size reducer</button>
@@ -7942,14 +8074,14 @@ Disallow:
                       <div className="flex flex-wrap gap-1.5 text-[9px] font-mono">
                         <button onClick={() => handleTabChange('join-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">merge pdf online</button>
                         <button onClick={() => handleTabChange('join-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">combine pdf files</button>
-                        <button onClick={() => handleTabChange('join-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">i love pdf merge</button>
+                        <button onClick={() => handleTabChange('join-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">fast pdf merge</button>
                         <button onClick={() => handleTabChange('join-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">pdf merger compressor</button>
                         <button onClick={() => handleTabChange('join-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">2 pdf merge</button>
                         <button onClick={() => handleTabChange('join-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">pdf joiner</button>
                         <button onClick={() => handleTabChange('join-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">combine word and pdf</button>
                         <button onClick={() => handleTabChange('join-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">merge pdf online gratis</button>
-                        <button onClick={() => handleTabChange('join-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">smallpdf merge pdf</button>
-                        <button onClick={() => handleTabChange('join-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">smallpdf combine</button>
+                        <button onClick={() => handleTabChange('join-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">document combiner</button>
+                        <button onClick={() => handleTabChange('join-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">combine pages</button>
                         <button onClick={() => handleTabChange('join-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">merge 2 pdf files free online</button>
                         <button onClick={() => handleTabChange('join-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">merge 2 pdfs online free</button>
                         <button onClick={() => handleTabChange('join-pdf')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">pdf merge documents free</button>
@@ -7992,17 +8124,17 @@ Disallow:
                         Draw, style, and download digital e-signatures securely and sign PDF files with absolute privacy.
                       </p>
                       <div className="flex flex-wrap gap-1.5 text-[9px] font-mono">
-                        <button onClick={() => handleTabChange('digital-signature')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">ilovepdf signature</button>
-                        <button onClick={() => handleTabChange('digital-signature')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">ilovepdf sign pdf</button>
+                        <button onClick={() => handleTabChange('digital-signature')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">secure pdf signature</button>
+                        <button onClick={() => handleTabChange('digital-signature')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">sign pdf document</button>
                         <button onClick={() => handleTabChange('digital-signature')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">sign pdf online</button>
                         <button onClick={() => handleTabChange('digital-signature')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">ttd di pdf</button>
                         <button onClick={() => handleTabChange('digital-signature')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">ttd online di pdf</button>
                         <button onClick={() => handleTabChange('digital-signature')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">pdf ttd</button>
-                        <button onClick={() => handleTabChange('digital-signature')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">smallpdf esign</button>
-                        <button onClick={() => handleTabChange('digital-signature')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">smallpdf sign</button>
+                        <button onClick={() => handleTabChange('digital-signature')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">electronic signature tool</button>
+                        <button onClick={() => handleTabChange('digital-signature')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">browser esign</button>
                         <button onClick={() => handleTabChange('digital-signature')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">firma pdf online free</button>
                         <button onClick={() => handleTabChange('digital-signature')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">ttd online di pdf</button>
-                        <button onClick={() => handleTabChange('digital-signature')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">small pdf electronic signature</button>
+                        <button onClick={() => handleTabChange('digital-signature')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">client side esign</button>
                       </div>
                     </div>
 
@@ -8024,8 +8156,8 @@ Disallow:
                         <button onClick={() => handleTabChange('pdf-analyst')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">pdf to ppt converter free</button>
                         <button onClick={() => handleTabChange('pdf-analyst')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">convert pdf to editable pdf free</button>
                         <button onClick={() => handleTabChange('pdf-analyst')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">best pdf converter</button>
-                        <button onClick={() => handleTabChange('pdf-analyst')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">smallpdf editor</button>
-                        <button onClick={() => handleTabChange('pdf-analyst')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">smallpdf to word</button>
+                        <button onClick={() => handleTabChange('pdf-analyst')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">web pdf editor</button>
+                        <button onClick={() => handleTabChange('pdf-analyst')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">pdf to document converter</button>
                         <button onClick={() => handleTabChange('ai-writer')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">convert word doc to pdf free</button>
                         <button onClick={() => handleTabChange('pdf-analyst')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">google doc to pdf converter</button>
                         <button onClick={() => handleTabChange('pdf-analyst')} className="hover:text-red-400 transition-colors bg-zinc-900/40 hover:bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/40 cursor-pointer">best free pdf converter</button>
@@ -8189,13 +8321,32 @@ Disallow:
                 </p>
               </div>
               
-              <div className="flex flex-wrap gap-4 text-xs font-medium justify-center items-center">
+              <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs font-medium justify-center items-center">
+                <button onClick={() => handleTabChange('network-tools')} className="hover:text-emerald-400 text-emerald-400 font-semibold transition-colors cursor-pointer flex items-center gap-1">
+                  <Activity className="w-3 h-3" />
+                  <span>Network Tools</span>
+                </button>
+                <span className="text-slate-800">|</span>
+                <button onClick={() => handleTabChange('internet-speed-test')} className="hover:text-slate-300 transition-colors cursor-pointer">Speed Test</button>
+                <span className="text-slate-800">|</span>
+                <button onClick={() => handleTabChange('ping-test')} className="hover:text-slate-300 transition-colors cursor-pointer">Ping Test</button>
+                <span className="text-slate-800">|</span>
+                <button onClick={() => handleTabChange('what-is-my-ip')} className="hover:text-slate-300 transition-colors cursor-pointer">What Is My IP</button>
+                <span className="text-slate-800">|</span>
+                <button onClick={() => handleTabChange('dns-test')} className="hover:text-slate-300 transition-colors cursor-pointer">DNS Test</button>
+                <span className="text-slate-800">|</span>
+                <button onClick={() => handleTabChange('ip-location')} className="hover:text-slate-300 transition-colors cursor-pointer">IP Location</button>
+                <span className="text-slate-800">|</span>
                 <button onClick={() => handleTabChange('whop-video-clipping-tool')} className="hover:text-red-400 text-red-400 font-semibold transition-colors cursor-pointer flex items-center gap-1">
                   <Scissors className="w-3 h-3" />
                   <span>Whop Clipper</span>
                 </button>
                 <span className="text-slate-800">|</span>
-                <button onClick={() => handleTabChange('about-us')} className="hover:text-slate-300 transition-colors cursor-pointer">Documentation</button>
+                <button onClick={() => handleTabChange('about-us')} className="hover:text-slate-300 transition-colors cursor-pointer">About Us</button>
+                <span className="text-slate-800">|</span>
+                <button onClick={() => handleTabChange('contact')} className="hover:text-rose-400 text-rose-300 font-semibold transition-colors cursor-pointer">Contact Us</button>
+                <span className="text-slate-800">|</span>
+                <button onClick={() => handleTabChange('guides')} className="hover:text-slate-300 transition-colors cursor-pointer">Guides &amp; Tutorials</button>
                 <span className="text-slate-800">|</span>
                 <button onClick={() => handleTabChange('privacy-policy')} className="hover:text-slate-300 transition-colors cursor-pointer">Privacy Policy</button>
                 <span className="text-slate-800">|</span>

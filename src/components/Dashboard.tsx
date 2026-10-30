@@ -158,6 +158,20 @@ export interface DashboardCard {
 
 export const DEFAULT_CARDS: DashboardCard[] = [
   {
+    id: 'internet-speed-test',
+    title: 'Free Internet Speed Test',
+    desc: 'Measure real-time gigabit download, upload, ping latency, and jitter directly inside your browser. Zero telemetry, zero plugins, 100% private.',
+    tagline: '"free internet speed test, check download speed, wifi speed test, ping and jitter meter"',
+    category: 'Network & Signals',
+    categoryIcon: 'Network',
+    cardIcon: 'Gauge',
+    textClass: 'text-emerald-400 font-bold',
+    buttonLabel: 'Test Internet Speed',
+    colSpan: 1,
+    heightLevel: 2,
+    pinned: true
+  },
+  {
     id: 'whop-video-clipping-tool',
     title: 'Free Whop Video Clipping Tool',
     desc: 'Cut streams, podcasts, and videos into short vertical 9:16 clips for Whop Content Rewards campaigns, TikTok, Shorts, and Reels with auto-crop, captions, and zero watermark.',

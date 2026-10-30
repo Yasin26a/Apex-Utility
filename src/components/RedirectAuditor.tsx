@@ -6,10 +6,12 @@ import {
   HelpCircle, Info, Sparkles, RefreshCw, Copy, Check, Lock, Unlock, 
   FileText, Play, Square, Settings, Database, Filter, Search, Download, 
   Trash2, FileCode, CheckCircle, BarChart2, PieChart as PieIcon, Globe, MoveRight, BookOpen,
-  Zap
+  Zap, Bot
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import SitemapRedirectHealer, { detectAndFixUrlRedirect } from './SitemapRedirectHealer';
+import VisualSitemapValidator from './VisualSitemapValidator';
+import SEOCrawlSimulator from './SEOCrawlSimulator';
 import RedirectQuickFixModal, { QuickFixItem } from './RedirectQuickFixModal';
 import { 
   ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend 
@@ -68,7 +70,7 @@ export default function RedirectAuditor() {
   const { t } = useLanguage();
   
   // --- Tab State ---
-  const [activeTab, setActiveTab] = useState<'sitemap-healer' | 'bulk' | 'single'>('sitemap-healer');
+  const [activeTab, setActiveTab] = useState<'crawl-simulation' | 'visual-validator' | 'sitemap-healer' | 'bulk' | 'single'>('crawl-simulation');
   const [quickFixModalOpen, setQuickFixModalOpen] = useState(false);
 
   // =========================================================================
@@ -815,6 +817,28 @@ https://httpbin.org/status/503`
         {/* Sliding Tab Selector */}
         <div className="flex flex-wrap bg-zinc-900/60 p-1 rounded-xl border border-zinc-800/80 self-start md:self-center gap-1">
           <button
+            onClick={() => setActiveTab('crawl-simulation')}
+            className={`px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
+              activeTab === 'crawl-simulation'
+                ? 'bg-gradient-to-r from-red-600 via-rose-600 to-indigo-600 text-white shadow-md'
+                : 'text-zinc-400 hover:text-white'
+            }`}
+          >
+            <Bot className="w-3.5 h-3.5 text-red-400" />
+            <span>SEO Crawl Simulation</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('visual-validator')}
+            className={`px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
+              activeTab === 'visual-validator'
+                ? 'bg-gradient-to-r from-red-600 via-rose-600 to-indigo-600 text-white shadow-md'
+                : 'text-zinc-400 hover:text-white'
+            }`}
+          >
+            <Globe className="w-3.5 h-3.5 text-cyan-300" />
+            <span>Visual Sitemap Validator</span>
+          </button>
+          <button
             onClick={() => setActiveTab('sitemap-healer')}
             className={`px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
               activeTab === 'sitemap-healer'
@@ -823,7 +847,7 @@ https://httpbin.org/status/503`
             }`}
           >
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            <span>Sitemap 301 Healer &amp; Validator</span>
+            <span>Sitemap 301 Healer</span>
           </button>
           <button
             onClick={() => setActiveTab('bulk')}
@@ -834,7 +858,7 @@ https://httpbin.org/status/503`
             }`}
           >
             <Database className="w-3.5 h-3.5" />
-            <span>Bulk Link &amp; Sitemap Auditor</span>
+            <span>Bulk Link Scanner</span>
           </button>
           <button
             onClick={() => setActiveTab('single')}
@@ -849,6 +873,20 @@ https://httpbin.org/status/503`
           </button>
         </div>
       </div>
+
+      {/* =========================================================================
+          TAB: SEO CRAWL SIMULATION (VISUAL BOT TRAVERSAL & CANONICAL AUDIT)
+          ========================================================================= */}
+      {activeTab === 'crawl-simulation' && (
+        <SEOCrawlSimulator onApplyFixesToParent={handleApplyQuickFix} />
+      )}
+
+      {/* =========================================================================
+          TAB 0: VISUAL SITEMAP VALIDATOR (FLAG 404s, REDIRECT LOOPS, NON-CANONICAL)
+          ========================================================================= */}
+      {activeTab === 'visual-validator' && (
+        <VisualSitemapValidator />
+      )}
 
       {/* =========================================================================
           TAB 1: SITEMAP REDIRECT HEALER & CRAWL BUDGET SHIELD (NEW FEATURE)

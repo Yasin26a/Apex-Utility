@@ -41,6 +41,7 @@ export const SEO_H1_MAPPING: Record<ActiveTab, string> = {
   'privacy-policy': 'Privacy Policy - 100% Offline and Private Security',
   'terms-of-service': 'Terms of Service - Open-Source Web Utility Sandbox',
   'about-us': 'About Apex Utility Labs - Premium Secure Tools Suite',
+  'contact': 'Contact Apex Utility Labs - Support, Inquiries & Partnerships',
   guides: 'Developer & Creator Guides - Online Productivity Tutorials',
   'content-planner': 'Free Content Planner & Editorial Calendar Tool',
   'schema-generator': 'Free Schema Markup Generator - Structured Data Creator',
@@ -125,6 +126,12 @@ export const SEO_H1_MAPPING: Record<ActiveTab, string> = {
   'svg-pattern-architect': 'Free SVG Pattern & Wave Architect - Custom SVG Waves, Mesh Gradients & Geometric UI Backgrounds',
   'schema-rich-snippet-builder': 'Free Schema.org Structured Data & Google Rich Snippet Builder - FAQ, Article, Product & Local Business JSON-LD',
   'whop-video-clipping-tool': 'Free Whop Video Clipping Tool – Clip Videos Online (No Watermark)',
+  'internet-speed-test': 'Free Internet Speed Test - Download, Upload & Ping',
+  'network-tools': 'Free Network Tools Online - Speed, Ping, IP & DNS',
+  'ping-test': 'Free Ping Test Online - Check Latency & Jitter',
+  'what-is-my-ip': 'What Is My IP Address? - IPv4, IPv6 & Location',
+  'dns-test': 'Free DNS Test & Benchmark - Lookup & Server Speed',
+  'ip-location': 'Free IP Location Lookup - Trace Any IP Address',
 };
 
 export const SEO_DESC_MAPPING: Partial<Record<ActiveTab, string>> = {
@@ -168,6 +175,7 @@ export const SEO_DESC_MAPPING: Partial<Record<ActiveTab, string>> = {
   'privacy-policy': 'Use our free, professional Privacy Policy - 100% Offline and Private Security tool. Fast, secure, and ad-free offline-first tools with zero data collection.',
   'terms-of-service': 'Read our legally binding client-side software terms, user responsibilities, and absolute disclaimers of liability. 100% private, browser-native offline utility.',
   'about-us': 'Inspect our absolute offline-first developer mission, and safely transmit message queries to the APEX UTILITY support team. Fast, secure, and offline.',
+  'contact': 'Contact Apex Utility Labs support and operations. Reach out for technical support, feature suggestions, corporate licensing, and privacy compliance inquiries.',
   'guides': 'Read step-by-step developer documentation on WASM PDF compression, WebP rasterization, secure encryption entropy, and SEO sitemap indexing blueprints. and .',
   'content-planner': 'Maximize organic traffic and audit user search intent. Elevate search visibility, optimize web vitals, and audit schema layouts with professional tools.',
   'schema-generator': 'Use our free, professional Schema Markup Generator - Structured Data Creator tool. Fast, secure, and ad-free offline-first tools with zero data collection.',
@@ -252,4 +260,10 @@ export const SEO_DESC_MAPPING: Partial<Record<ActiveTab, string>> = {
   'svg-pattern-architect': 'Generate customizable multi-layered SVG waves, vibrant mesh gradients, isometric grids, dot matrices, and seamless geometric UI background patterns with CSS, Tailwind, SVG, and PNG exports.',
   'schema-rich-snippet-builder': 'Build Google-compliant Schema.org structured data JSON-LD and Microdata for FAQ, Article, Product, HowTo, Local Business, Organization, Recipe, and Event with real-time visual SERP previews and Google Rich Results validation.',
   'whop-video-clipping-tool': 'Free Whop video clipping tool. Cut videos into vertical 9:16 shorts for TikTok & Reels with auto-crop & captions. Export free with zero watermark now.',
+  'internet-speed-test': 'Test your internet speed in seconds. Accurate download and upload speeds, idle and loaded latency (ping), jitter and AIM score. Free, private and ad-free.',
+  'network-tools': 'Fast, private network diagnostics in your browser. Free internet speed test, ping test, what is my IP, DNS lookup and benchmark, and IP geolocation. No logs.',
+  'ping-test': 'Measure your network latency (ping) and jitter to global edge servers. Fast, live HTTPS round-trip test with min, avg, max and packet loss tracking.',
+  'what-is-my-ip': 'Instantly check your public IPv4 and IPv6 address, ISP, location, ASN and browser info. Clean, private and fast. No logs, no tracking.',
+  'dns-test': 'Free online DNS lookup and DNS-over-HTTPS speed benchmark. Query A, AAAA, MX, NS, TXT and SOA records, compare Cloudflare vs Google DNS, and test resolver speed.',
+  'ip-location': 'Look up any public IP address or website to find its approximate country, city, ISP, ASN and coordinates. Includes an interactive map. Private and free.',
 };

@@ -40,6 +40,7 @@ export type ActiveTab =
   | 'privacy-policy'
   | 'terms-of-service'
   | 'about-us'
+  | 'contact'
   | 'guides'
   | 'content-planner'
   | 'schema-generator'
@@ -123,7 +124,13 @@ export type ActiveTab =
   | 'mortgage-refinance-visualizer'
   | 'svg-pattern-architect'
   | 'schema-rich-snippet-builder'
-  | 'whop-video-clipping-tool';
+  | 'whop-video-clipping-tool'
+  | 'internet-speed-test'
+  | 'network-tools'
+  | 'ping-test'
+  | 'what-is-my-ip'
+  | 'dns-test'
+  | 'ip-location';
 
 export interface JSONBeautifierState {
   rawInput: string;

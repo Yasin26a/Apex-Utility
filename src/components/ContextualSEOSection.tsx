@@ -115,6 +115,7 @@ const TAB_TO_CATEGORY_MAP: Record<ActiveTab, string> = {
   'svg-pattern-architect': 'image',
   'schema-rich-snippet-builder': 'seo',
   'whop-video-clipping-tool': 'media',
+  'internet-speed-test': 'dev',
   'ai-writer': 'ai',
   'password-generator': 'dev',
   'qr-generator': 'image',
@@ -147,6 +148,7 @@ const TAB_TO_CATEGORY_MAP: Record<ActiveTab, string> = {
   'privacy-policy': 'dev',
   'terms-of-service': 'dev',
   'about-us': 'dev',
+  'contact': 'dev',
   guides: 'seo',
   'content-planner': 'seo',
   'schema-generator': 'seo',
@@ -224,7 +226,12 @@ const TAB_TO_CATEGORY_MAP: Record<ActiveTab, string> = {
   'markdown-compiler': 'dev',
   'visual-pdf-organizer': 'pdf',
   'pdf-unlocker': 'pdf',
-  'ai-content-brief': 'ai'
+  'ai-content-brief': 'ai',
+  'network-tools': 'dev',
+  'ping-test': 'dev',
+  'what-is-my-ip': 'dev',
+  'dns-test': 'dev',
+  'ip-location': 'dev'
 };
 
 export const ContextualSEOSection: React.FC<ContextualSEOSectionProps> = ({ activeTab }) => {
