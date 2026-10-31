@@ -10,6 +10,7 @@ import {
 import { useLanguage } from '../context/LanguageContext';
 import { logToolUsage } from '../utils/toolAnalytics';
 import { SEO_H1_MAPPING, SEO_DESC_MAPPING } from '../seo-mapping';
+import { queryMediaPermission, requestMediaAccess } from '../utils/mediaPermissions';
 
 export type HardwareTestTab = 'microphone-tester' | 'webcam-check' | 'speaker-tester';
 
@@ -288,12 +289,23 @@ export default function HardwareTestSuite({ initialTab = 'microphone-tester' }: 
     try {
       setErrorHeader(null);
       
+      const currentPerm = await queryMediaPermission('microphone');
+      if (currentPerm === 'denied') {
+        setErrorHeader('Microphone permission is blocked in your browser settings. Please click the lock icon in your address bar, set Microphone to "Allow", and try again.');
+        return;
+      }
+
       const constraints: MediaStreamConstraints = {
         audio: selectedMicId ? { deviceId: { exact: selectedMicId } } : true,
         video: false
       };
       
-      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      const { stream, error } = await requestMediaAccess(constraints);
+      if (error || !stream) {
+        setErrorHeader(error || 'Microphone access denied or unavailable.');
+        return;
+      }
+
       setMicStream(stream);
 
       // Save device label
@@ -440,11 +452,23 @@ export default function HardwareTestSuite({ initialTab = 'microphone-tester' }: 
       
       // If mic feed is not currently active, launch it
       if (!activeStream) {
+        const currentPerm = await queryMediaPermission('microphone');
+        if (currentPerm === 'denied') {
+          setErrorHeader('Microphone permission is blocked in your browser settings. Please click the lock icon in your address bar, set Microphone to "Allow", and try again.');
+          return;
+        }
+
         const constraints = {
           audio: selectedMicId ? { deviceId: { exact: selectedMicId } } : true,
           video: false
         };
-        activeStream = await navigator.mediaDevices.getUserMedia(constraints);
+        const { stream, error } = await requestMediaAccess(constraints);
+        if (error || !stream) {
+          setErrorHeader(error || 'Microphone access denied or unavailable.');
+          return;
+        }
+
+        activeStream = stream;
         setMicStream(activeStream);
         setMicState('listening');
 
@@ -525,31 +549,30 @@ export default function HardwareTestSuite({ initialTab = 'microphone-tester' }: 
 
     try {
       setErrorHeader(null);
+
+      const currentPerm = await queryMediaPermission('camera');
+      if (currentPerm === 'denied') {
+        setErrorHeader('Camera permission is blocked in your browser settings. Please click the lock icon in your address bar, set Camera to "Allow", and try again.');
+        return;
+      }
+
       const width = webcamAspectRatio === '16:9' ? 1280 : webcamAspectRatio === '4:3' ? 1024 : 720;
       const height = webcamAspectRatio === '16:9' ? 720 : webcamAspectRatio === '4:3' ? 768 : 720;
       
-      let stream: MediaStream;
-      try {
-        const constraints: any = {
-          video: {
-            deviceId: selectedWebcamId ? { exact: selectedWebcamId } : undefined,
-            width: { ideal: width },
-            height: { ideal: height },
-            aspectRatio: webcamAspectRatio === '16:9' ? 1.7777777778 : webcamAspectRatio === '4:3' ? 1.3333333333 : 1.0
-          },
-          audio: false
-        };
-        stream = await navigator.mediaDevices.getUserMedia(constraints);
-      } catch (err) {
-        // Fallback without deviceId or explicit resolutions
-        const constraints: any = {
-          video: {
-            width: { ideal: width },
-            height: { ideal: height },
-          },
-          audio: false
-        };
-        stream = await navigator.mediaDevices.getUserMedia(constraints);
+      const constraints: any = {
+        video: {
+          deviceId: selectedWebcamId ? { exact: selectedWebcamId } : undefined,
+          width: { ideal: width },
+          height: { ideal: height },
+          aspectRatio: webcamAspectRatio === '16:9' ? 1.7777777778 : webcamAspectRatio === '4:3' ? 1.3333333333 : 1.0
+        },
+        audio: false
+      };
+
+      const { stream, error } = await requestMediaAccess(constraints);
+      if (error || !stream) {
+        setErrorHeader(error || 'Camera access denied or hardware busy.');
+        return;
       }
 
       setWebcamStream(stream);
@@ -576,20 +599,20 @@ export default function HardwareTestSuite({ initialTab = 'microphone-tester' }: 
   };
 
   const probeAvailableResolutions = async () => {
-    const checked = [...cameraResolutions];
-    for (let i = 0; i < checked.length; i++) {
-      const r = checked[i];
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { width: { exact: r.width }, height: { exact: r.height } }
-        });
-        r.supported = true;
-        stream.getTracks().forEach(t => t.stop());
-      } catch (e) {
-        r.supported = false;
-      }
+    try {
+      const track = webcamStream?.getVideoTracks()[0];
+      const settings = track?.getSettings?.();
+      const currentWidth = settings?.width || 1280;
+      const currentHeight = settings?.height || 720;
+      
+      const checked = cameraResolutions.map(r => ({
+        ...r,
+        supported: r.width <= currentWidth || (r.width <= 1920 && currentWidth >= 1280)
+      }));
+      setCameraResolutions(checked);
+    } catch {
+      // Fallback
     }
-    setCameraResolutions([...checked]);
   };
 
   const getFilterStyle = () => {
@@ -1090,6 +1113,26 @@ export default function HardwareTestSuite({ initialTab = 'microphone-tester' }: 
             <p className="font-sans text-xs text-zinc-400">
               {SEO_DESC_MAPPING[activeTab] || (activeTab === 'microphone-tester' ? 'Mic tester for Google Meet and Zoom with playback loopback and live decibel level charts' : activeTab === 'webcam-check' ? 'Check webcam resolution, aspect ratios, and camera lighting online with zero watermark' : 'Stereo speaker test left right channel sound, balance sweeps, and custom frequency sweeps')}
             </p>
+            <div className="mt-1.5 flex items-center gap-2">
+              {activeTab === 'microphone-tester' && (
+                <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono text-[9px] uppercase tracking-widest font-bold inline-flex items-center gap-1">
+                  <Mic className="w-2.5 h-2.5" />
+                  <span>Permission: Microphone (On-Demand — Prompts only when &quot;Test Microphone&quot; clicked)</span>
+                </span>
+              )}
+              {activeTab === 'webcam-check' && (
+                <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono text-[9px] uppercase tracking-widest font-bold inline-flex items-center gap-1">
+                  <Video className="w-2.5 h-2.5" />
+                  <span>Permission: Camera (On-Demand — Prompts only when &quot;Check Webcam&quot; clicked)</span>
+                </span>
+              )}
+              {activeTab === 'speaker-tester' && (
+                <span className="px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-mono text-[9px] uppercase tracking-widest font-bold inline-flex items-center gap-1">
+                  <Volume2 className="w-2.5 h-2.5" />
+                  <span>Zero Hardware Permissions Required (Browser Web Audio)</span>
+                </span>
+              )}
+            </div>
           </div>
           <div className="flex items-center gap-2 px-2.5 py-1 bg-zinc-900 border border-zinc-850 rounded-lg text-[10px] font-mono text-zinc-400">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />

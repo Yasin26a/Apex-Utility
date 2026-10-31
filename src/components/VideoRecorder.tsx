@@ -10,6 +10,7 @@ import {
 import { GIFEncoder, quantize, applyPalette } from 'gifenc';
 import { useLanguage } from '../context/LanguageContext';
 import { logToolUsage } from '../utils/toolAnalytics';
+import { queryMediaPermission, requestMediaAccess } from '../utils/mediaPermissions';
 
 interface DeviceOption {
   deviceId: string;
@@ -38,8 +39,8 @@ export default function VideoRecorder({ mode = 'all' }: { mode?: 'all' | 'screen
 
   // Preference switches
   const [recordScreen, setRecordScreen] = useState(mode !== 'webcam');
-  const [recordCam, setRecordCam] = useState(mode === 'webcam' || mode === 'all');
-  const [recordMic, setRecordMic] = useState(mode === 'webcam' || mode === 'all');
+  const [recordCam, setRecordCam] = useState<boolean>(false);
+  const [recordMic, setRecordMic] = useState<boolean>(false);
   const [camShape, setCamShape] = useState<'circle' | 'square'>('circle');
   const [camSize, setCamSize] = useState<'sm' | 'md' | 'lg'>('md');
   const [camPosition, setCamPosition] = useState<'bottom-left' | 'bottom-right' | 'top-right' | 'top-left'>('bottom-left');
@@ -91,34 +92,25 @@ export default function VideoRecorder({ mode = 'all' }: { mode?: 'all' | 'screen
   const recordedChunksRef = useRef<Blob[]>([]);
   const animationFrameRef = useRef<number | null>(null);
   const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const isInitialMount = useRef(true);
 
   // Search query for video recorder FAQs
   const [recorderFaqSearchQuery, setRecorderFaqSearchQuery] = useState('');
 
-  // Enumerating media capture nodes
+  // Enumerating media capture nodes safely without invoking getUserMedia
   useEffect(() => {
-    enumerateInputs(false);
+    enumerateInputs();
     return () => {
       terminateAllSTreams();
       if (audioVolumeTimerRef.current) cancelAnimationFrame(audioVolumeTimerRef.current);
     };
   }, []);
 
-  const enumerateInputs = async (askPermission: boolean = false) => {
+  const enumerateInputs = async () => {
     try {
       if (!navigator || !navigator.mediaDevices) {
         console.warn("Media devices API is undefined in this context/sandbox.");
         return;
-      }
-      
-      if (askPermission) {
-        // Trigger prompt permission to discover labels cleanly
-        await navigator.mediaDevices.getUserMedia({ audio: true, video: true }).then((s) => {
-          // Stop discovery stream instantly
-          s.getTracks().forEach(t => t.stop());
-        }).catch(() => {
-          // Fallback gracefully if hardware is busy or absent
-        });
       }
 
       const devices = await navigator.mediaDevices.enumerateDevices();
@@ -193,18 +185,44 @@ export default function VideoRecorder({ mode = 'all' }: { mode?: 'all' | 'screen
     }
   };
 
-  // Turn Webcam Camera feed preview ON
+  // Turn Webcam Camera feed preview ON strictly when user triggers it
   const activateWebcam = async () => {
     if (cameraStream) {
       cameraStream.getTracks().forEach(t => t.stop());
     }
+
+    setErrorHeader(null);
+
+    // Passive permission verification check prior to prompting
+    const camPerm = await queryMediaPermission('camera');
+    if (camPerm === 'denied') {
+      setErrorHeader('Camera permission is blocked in your browser settings. Please click the lock icon in your address bar, set Camera to "Allow", and try again.');
+      setRecordCam(false);
+      return;
+    }
+
+    if (recordMic) {
+      const micPerm = await queryMediaPermission('microphone');
+      if (micPerm === 'denied') {
+        setErrorHeader('Microphone permission is blocked in your browser settings. Please click the lock icon in your address bar, set Microphone to "Allow", and try again.');
+        setRecordCam(false);
+        return;
+      }
+    }
+
     try {
-      setErrorHeader(null);
       const constraints: MediaStreamConstraints = {
         video: selectedCam ? { deviceId: { exact: selectedCam } } : true,
         audio: recordMic ? (selectedMic ? { deviceId: { exact: selectedMic } } : true) : false
       };
-      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+
+      const { stream, error } = await requestMediaAccess(constraints);
+      if (error || !stream) {
+        setErrorHeader(error || 'Failed to connect to webcam video device.');
+        setRecordCam(false);
+        return;
+      }
+
       setCameraStream(stream);
 
       if (camVideoRef.current) {
@@ -219,7 +237,7 @@ export default function VideoRecorder({ mode = 'all' }: { mode?: 'all' | 'screen
       }
 
       // Refresh devices list silently to populate friendly name labels now that permission is approved
-      enumerateInputs(false);
+      enumerateInputs();
     } catch (err: any) {
       setErrorHeader(`Webcam / Mic access denied or unavailable: ${err.message}`);
       setRecordCam(false);
@@ -235,11 +253,15 @@ export default function VideoRecorder({ mode = 'all' }: { mode?: 'all' | 'screen
       setRecordCam(false);
     } else {
       setRecordCam(true);
-      activateWebcam();
     }
   };
 
+  // Strictly deferred: NEVER prompt permissions on initial mount
   useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
     if (recordCam) {
       activateWebcam();
     } else {
@@ -286,6 +308,9 @@ export default function VideoRecorder({ mode = 'all' }: { mode?: 'all' | 'screen
     }
 
     try {
+      if (recordCam && !cameraStream) {
+        await activateWebcam();
+      }
       let captureScreenStream: MediaStream | null = null;
       if (recordScreen) {
         // Start Display capturing
@@ -705,9 +730,13 @@ export default function VideoRecorder({ mode = 'all' }: { mode?: 'all' | 'screen
       {/* Visual Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-900 pb-5">
         <div className="space-y-1.5">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <span className="px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-mono text-[9px] uppercase tracking-widest font-bold">
               Media Lab v2.5
+            </span>
+            <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono text-[9px] uppercase tracking-widest font-bold flex items-center gap-1">
+              <Camera className="w-2.5 h-2.5" />
+              <span>Permission: Camera &amp; Mic (On-Demand Only)</span>
             </span>
             <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
           </div>
@@ -1036,16 +1065,24 @@ export default function VideoRecorder({ mode = 'all' }: { mode?: 'all' | 'screen
                     </div>
                   </div>
                 ) : (
-                  <div className="space-y-3">
-                    <div className="w-12 h-12 rounded-full bg-zinc-900/50 border border-zinc-800 flex items-center justify-center mx-auto text-zinc-500">
-                      <VideoOff className="w-5 h-5" />
+                  <div className="space-y-4 max-w-sm mx-auto py-5">
+                    <div className="w-12 h-12 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center mx-auto text-zinc-500">
+                      <VideoOff className="w-5 h-5 text-zinc-400" />
                     </div>
-                    <div className="space-y-1.5 max-w-md">
-                      <h4 className="text-xs font-semibold text-zinc-200 uppercase tracking-wider">webcam streaming disabled</h4>
-                      <p className="text-[11px] text-zinc-500 max-w-xs mx-auto">
-                        Toggle on &quot;Record Webcam Camera&quot; in the left control panel to enable live bubble picture overlaps.
+                    <div className="space-y-1">
+                      <h4 className="text-xs font-semibold text-zinc-200 uppercase tracking-wider">Webcam Preview Inactive</h4>
+                      <p className="text-[11px] text-zinc-400 leading-relaxed">
+                        Camera &amp; microphone permissions are strictly on-demand. Click below to activate webcam preview when ready.
                       </p>
                     </div>
+                    <button
+                      type="button"
+                      onClick={toggleCamFeed}
+                      className="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded font-mono text-xs font-bold transition-all cursor-pointer shadow-md flex items-center gap-2 mx-auto active:scale-98"
+                    >
+                      <Video className="w-3.5 h-3.5" />
+                      <span>TURN ON CAMERA PREVIEW</span>
+                    </button>
                   </div>
                 )}
 

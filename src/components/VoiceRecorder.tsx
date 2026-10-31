@@ -8,6 +8,7 @@ import {
 import { useLanguage } from '../context/LanguageContext';
 import { logToolUsage } from '../utils/toolAnalytics';
 import { SEO_H1_MAPPING, SEO_DESC_MAPPING } from '../seo-mapping';
+import { queryMediaPermission, requestMediaAccess } from '../utils/mediaPermissions';
 
 interface DeviceOption {
   deviceId: string;
@@ -48,9 +49,9 @@ export default function VoiceRecorder() {
   // Audio Playback Refs
   const audioPlaybackRef = useRef<HTMLAudioElement | null>(null);
 
-  // Enumerate Mic Devices
+  // Enumerate Mic Devices safely without requesting permissions
   useEffect(() => {
-    enumerateMics(false);
+    enumerateMics();
     return () => {
       cleanupStream();
       if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
@@ -58,16 +59,11 @@ export default function VoiceRecorder() {
     };
   }, []);
 
-  const enumerateMics = async (askPermission: boolean = false) => {
+  const enumerateMics = async () => {
     try {
       if (!navigator || !navigator.mediaDevices) {
         setErrorMsg('Media Devices API is not supported in this browser.');
         return;
-      }
-
-      if (askPermission) {
-        const tempStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        tempStream.getTracks().forEach(t => t.stop());
       }
 
       const devices = await navigator.mediaDevices.enumerateDevices();
@@ -96,13 +92,27 @@ export default function VoiceRecorder() {
       totalSamplesRef.current = 0;
       setRecordingSeconds(0);
 
+      // Verify permission state passively before prompting
+      const currentPermission = await queryMediaPermission('microphone');
+      if (currentPermission === 'denied') {
+        setErrorMsg('Microphone access is blocked in your browser settings. Please click the lock icon in your browser address bar to allow microphone access, then try again.');
+        return;
+      }
+
       const constraints: MediaStreamConstraints = {
         audio: selectedMic ? { deviceId: { exact: selectedMic } } : true,
         video: false
       };
 
-      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      const { stream, error } = await requestMediaAccess(constraints);
+      if (error || !stream) {
+        setErrorMsg(error || 'Failed to acquire microphone audio stream.');
+        return;
+      }
+
       mediaStreamRef.current = stream;
+      // Refresh names cleanly now that permission has been granted by user action
+      enumerateMics();
 
       // Audio processing
       const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
@@ -319,12 +329,18 @@ export default function VoiceRecorder() {
             <p className="font-sans text-xs text-zinc-400">
               {SEO_DESC_MAPPING['voice-recorder']}
             </p>
+            <div className="mt-1">
+              <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono text-[9px] uppercase tracking-widest font-bold inline-flex items-center gap-1">
+                <Mic className="w-2.5 h-2.5" />
+                <span>Permission: Microphone (On-Demand Only — Prompts when recording starts)</span>
+              </span>
+            </div>
           </div>
         </div>
 
         <button 
-          onClick={() => enumerateMics(true)}
-          className="p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white transition-all text-xs flex items-center gap-1.5"
+          onClick={() => enumerateMics()}
+          className="p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white transition-all text-xs flex items-center gap-1.5 cursor-pointer"
           title="Refresh Microphone hardware inputs"
         >
           <RefreshCw className="w-3.5 h-3.5" />

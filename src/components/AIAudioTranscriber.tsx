@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { logToolUsage } from '../utils/toolAnalytics';
+import { queryMediaPermission, requestMediaAccess } from '../utils/mediaPermissions';
 
 interface TranscriptSegment {
   startTime: number;
@@ -95,12 +96,24 @@ export default function AIAudioTranscriber() {
       return;
     }
 
+    // Verify permission state passively before prompting
+    const currentPermission = await queryMediaPermission('microphone');
+    if (currentPermission === 'denied') {
+      setErrorHeader('Microphone permission is blocked in your browser settings. Please click the lock icon in your address bar, set Microphone to "Allow", and try again.');
+      return;
+    }
+
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const { stream, error } = await requestMediaAccess({ audio: true });
+      if (error || !stream) {
+        setErrorHeader(error || 'Could not access your microphone.');
+        return;
+      }
       
       const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
       if (!AudioContextClass) {
         setErrorHeader('Web Audio API is not supported in this browser.');
+        stream.getTracks().forEach(track => track.stop());
         return;
       }
 
@@ -602,19 +615,24 @@ export default function AIAudioTranscriber() {
 
                   <div className="flex items-center gap-3 w-full">
                     {!isRecording ? (
-                      <button
-                        type="button"
-                        onClick={startRecording}
-                        className="flex-1 flex items-center justify-center gap-2 rounded-xl py-2.5 px-4 font-medium text-xs transition duration-150 bg-red-650 hover:bg-red-700 text-white shadow-sm active:scale-[0.98]"
-                      >
-                        <Mic className="h-4 w-4 fill-white/10" />
-                        <span>Start Voice Session</span>
-                      </button>
+                      <div className="space-y-1.5 w-full">
+                        <button
+                          type="button"
+                          onClick={startRecording}
+                          className="w-full flex items-center justify-center gap-2 rounded-xl py-2.5 px-4 font-medium text-xs transition duration-150 bg-red-650 hover:bg-red-700 text-white shadow-sm active:scale-[0.98] cursor-pointer"
+                        >
+                          <Mic className="h-4 w-4 fill-white/10" />
+                          <span>Start Voice Session</span>
+                        </button>
+                        <p className="text-[10px] text-zinc-500 font-mono text-center">
+                          Microphone permission is strictly on-demand (prompts only when clicked)
+                        </p>
+                      </div>
                     ) : (
                       <button
                         type="button"
                         onClick={stopRecording}
-                        className="flex-1 flex items-center justify-center gap-2 rounded-xl py-2.5 px-4 font-semibold text-xs transition duration-155 bg-zinc-950 border border-zinc-800 hover:bg-zinc-900 text-zinc-200 hover:text-white shadow-sm active:scale-[0.98]"
+                        className="flex-1 flex items-center justify-center gap-2 rounded-xl py-2.5 px-4 font-semibold text-xs transition duration-155 bg-zinc-950 border border-zinc-800 hover:bg-zinc-900 text-zinc-200 hover:text-white shadow-sm active:scale-[0.98] cursor-pointer"
                       >
                         <span className="w-2.5 h-2.5 bg-red-500 rounded-sm animate-ping" />
                         <span>Stop & Save Track</span>
