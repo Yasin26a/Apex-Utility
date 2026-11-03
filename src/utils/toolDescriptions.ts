@@ -365,6 +365,22 @@ export const TOOL_DEEP_DIVES: Record<string, DeepDiveConfig> = {
       'By utilizing advanced text embeddings and semantic proximity classifiers, our engine groups high-volume modifiers together into logical pillar articles. This lets editorial teams build strict hub-and-spoke link plans, protecting site property structures from duplicate canonical indexing penalties or self-cannibalism.',
       'Furthermore, each generated keyword cluster maps search lifecycle funnels, marking TOFU informational, MOFU commercial, and BOFU transactional distributions. The integrated outlines architect then drafts pristine ready-to-use editorial blueprints with H2 headers, meta-descriptions, and content guidance cards for writers.'
     ]
+  },
+  'internet-speed-test': {
+    subtitle: 'Edge-Ground Multi-Chunk Bandwidth, Jitter & Latency Engine',
+    paragraphs: [
+      'Measuring real-world internet throughput requires saturating your network interface card (NIC) without artificial browser bottlenecks or deceptive ISP peering arrangements. The APEX Free Internet Speed Test utilizes parallel Web Workers and chunked binary HTTP/2 and HTTP/3 data streams against Cloudflare edge CDN endpoints. This delivers pure hardware-to-edge wire speed metrics, accurately testing gigabit fiber, cable broadband, 5G cellular, and low-earth orbit satellite links like Starlink.',
+      'Unlike legacy speed test portals that run invasive tracking pixels, third-party analytics, and aggressive interstitial banner ads, our benchmark operates 100% privately in client memory. By sampling millisecond timestamps across multi-stage download and upload cycles, the test calculates not only raw Mbps throughput but also idle ping, loaded ping, and packet jitter variance. Jitter metrics are particularly vital for remote workers and competitive gamers, as inconsistent packet delivery causes VoIP dropouts, Discord audio robotic distortion, and video conference freezing.',
+      'The engine also features bufferbloat resilience analysis. When network buffers become saturated by background uploads or file syncs, latency spikes drastically. Our diagnostic grades your connection stability from A+ to F, providing actionable recommendations for router Quality of Service (QoS), Smart Queue Management (SQM), and Ethernet versus Wi-Fi channel optimization.'
+    ]
+  },
+  'network-tools': {
+    subtitle: 'All-in-One Webmaster Network & Connectivity Telemetry Console',
+    paragraphs: [
+      'Modern web applications and distributed architectures demand continuous network validation. The APEX Network Tools Suite unites bandwidth testing, ping latency verification, DNS-over-HTTPS (DoH) lookups, and IP address geolocation into an integrated client-side telemetry dashboard. It replaces bulky command-line utilities and ad-heavy network test websites with a unified, zero-telemetry diagnostics center.',
+      'Whether diagnosing recursive DNS propagation delays after a domain migration, verifying reverse PTR records, or inspecting autonomous system numbers (ASNs) and BGP route announcements, this tool provides instant transparency. All requests are routed through verified privacy-respecting endpoints without logging IP addresses or harvesting user metadata.',
+      'For IT professionals, webmasters, and developers, the suite includes one-click diagnostic reporting. Copy structured network summaries to accelerate support ticket resolutions with ISPs, hosting providers, and cloud infrastructure teams.'
+    ]
   }
 };
 

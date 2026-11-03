@@ -96,6 +96,17 @@ const CATEGORY_META_MAPPING: Record<string, ToolCategoryMeta> = {
     commonKeywords: ['loan amortization calculator', 'date interval calculator', 'BMI calculator online', 'color palette generator', 'unit measurement converter'],
     benefitDescription: 'Experience high-precision calculations, customized decimal formatting, and visual charts. Whether calculating monthly EMI interest balances, mapping dates with holidays, or converting metric and imperial measurements, our calculators deliver exact mathematical correctness instantly without sending your private financial or health inputs across the web.',
     useCaseDescription: 'Utilized by real-estate buyers computing monthly home mortgage rates, athletes tracking daily basal metabolic rates, and web designers crafting gorgeous color palettes.'
+  },
+  network: {
+    categoryName: 'Network Telemetry & Connectivity Intelligence',
+    badgeColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+    borderColor: 'border-emerald-950/30',
+    textColor: 'text-emerald-400',
+    iconBg: 'bg-emerald-950/20',
+    techStack: ['Cloudflare Speedtest Engine', 'HTTP/2 & HTTP/3 Multi-Chunk Stream', 'PerformanceResourceTiming', 'WebSocket Ping/Pong Protocols', 'DNS-over-HTTPS (DoH)', 'WebRTC STUN/TURN'],
+    commonKeywords: ['internet speed test', 'check ping online', 'what is my ip', 'dns lookup tool', 'ip geolocation lookup', 'network latency test', 'jitter measurement', 'isp throttling check'],
+    benefitDescription: 'Our real-time network diagnostics engine measures actual gigabit download bandwidth, symmetric upload capacity, round-trip time (RTT), and packet jitter directly from edge CDN nodes without third-party tracking plugins, Flash, or invasive cookies. Run clean latency benchmarks to evaluate VoIP call quality, cloud gaming stability, and ISP throttling patterns.',
+    useCaseDescription: 'Essential for remote workers diagnosing Zoom/Teams video drops, competitive gamers auditing server ping, and network administrators verifying BGP routing, ASN allocations, and DNS propagation across global edge nodes.'
   }
 };
 
@@ -115,7 +126,7 @@ const TAB_TO_CATEGORY_MAP: Record<ActiveTab, string> = {
   'svg-pattern-architect': 'image',
   'schema-rich-snippet-builder': 'seo',
   'whop-video-clipping-tool': 'media',
-  'internet-speed-test': 'dev',
+  'internet-speed-test': 'network',
   'ai-writer': 'ai',
   'password-generator': 'dev',
   'qr-generator': 'image',
@@ -227,11 +238,11 @@ const TAB_TO_CATEGORY_MAP: Record<ActiveTab, string> = {
   'visual-pdf-organizer': 'pdf',
   'pdf-unlocker': 'pdf',
   'ai-content-brief': 'ai',
-  'network-tools': 'dev',
-  'ping-test': 'dev',
-  'what-is-my-ip': 'dev',
-  'dns-test': 'dev',
-  'ip-location': 'dev'
+  'network-tools': 'network',
+  'ping-test': 'network',
+  'what-is-my-ip': 'network',
+  'dns-test': 'network',
+  'ip-location': 'network'
 };
 
 export const ContextualSEOSection: React.FC<ContextualSEOSectionProps> = ({ activeTab }) => {

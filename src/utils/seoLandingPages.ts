@@ -462,6 +462,82 @@ const CUSTOM_LANDING_LOGIC: Record<string, Partial<LandingPageConfig>> = {
         answer: 'TOFU (Top of Funnel) is for educational content like guides; MOFU (Middle) is for comparison reviews and evaluation checklist forms; BOFU (Bottom) is conversion queries such as pricing sheets or sign-up links. A healthy topical map spreads content across all three.'
       }
     ]
+  },
+  'internet-speed-test': {
+    title: 'Free Internet Speed Test Online – Measure Gigabit Download, Upload, Ping & Jitter',
+    headline: 'High-Precision Web Worker Bandwidth Speed Test (0% Telemetry, Zero Ads)',
+    subheadline: 'Accurately benchmark real-time download Mbps, upload throughput, round-trip ping latency, and packet jitter using multi-chunk HTTP/2 and HTTP/3 streams without third-party tracking.',
+    introParagraph: 'Testing your internet connection should not expose your device to tracking beacons, popups, or bloated Flash plugins. The APEX Free Internet Speed Test provides an ultra-lightweight, 100% private in-browser benchmark engine powered by edge Cloudflare CDN test endpoints. Measure gigabit fiber, broadband, 5G mobile, and satellite Starlink connections with clinical accuracy. Discover ISP throttling, diagnose Wi-Fi interference, benchmark latency for competitive gaming, and verify bufferbloat resilience with instant, verifiable network metrics.',
+    benefits: [
+      'Edge CDN Multi-Chunk Architecture: Test downloads and uploads against low-latency edge nodes with parallel HTTP/2 streams for true line-speed saturation.',
+      'Comprehensive Telemetry Analysis: Real-time telemetry outputs for Download Mbps, Upload Mbps, Idle Ping (ms), Loaded Ping, and Packet Jitter (ms).',
+      'Zero Plugins & 100% Private: Operates entirely client-side using native browser Fetch and Performance APIs without invasive ads, Flash, or logging cookies.',
+      'Bufferbloat & Jitter Diagnostics: Evaluate connection stability under heavy load to prevent Zoom conference lag spikes, Discord audio robotic cuts, and online gaming packet loss.',
+      'Multi-Mode Stress Testing: Choose between Quick (5s), Standard (10s), and Stress Test (20s) durations to benchmark network interface card (NIC) thermal and sustained throughput performance.'
+    ],
+    howToSteps: [
+      'Close background streaming applications and active downloads for the cleanest test conditions.',
+      'Select your preferred test duration (Quick 5s, Standard 10s, or Extended Stress 20s).',
+      'Click "Start New Test" to begin multi-threaded download chunk saturation.',
+      'Observe real-time speed curves, latency fluctuations, and packet jitter calculations.',
+      'Review your final stability grade, download/upload throughput metrics, and copy the benchmark summary.'
+    ],
+    faqs: [
+      {
+        question: 'What is the difference between download speed and upload speed?',
+        answer: 'Download speed measures how quickly data transfers from the internet to your device (crucial for streaming 4K video, loading web pages, and downloading game patches). Upload speed measures how fast your device sends data outwards (essential for Zoom video calls, streaming on Twitch or YouTube, and uploading large cloud backups). Fiber connections often provide symmetric speeds, whereas cable and DSL typically feature significantly lower upload capacity.'
+      },
+      {
+        question: 'What is packet jitter and why does it cause lag?',
+        answer: 'Jitter is the variance and inconsistency in latency (ping) over time. For example, if your ping rapidly spikes between 15ms and 110ms, packets arrive out of order, causing noticeable stutter, robotic voice audio in Discord or Google Meet, and rubber-banding in online multiplayer games. A jitter rating below 5ms indicates excellent connection stability.'
+      },
+      {
+        question: 'Why is my speed test result lower than my ISP advertised plan?',
+        answer: 'Advertised ISP speeds represent theoretical maximum wire speeds under ideal conditions. Real-world speeds can be affected by Wi-Fi signal interference, router CPU limitations, distance from the wireless access point, background app updates, local neighborhood cable node congestion during peak hours, and network protocol overhead (which typically accounts for 3% to 5% of raw throughput).'
+      },
+      {
+        question: 'How does bufferbloat affect video calling and streaming?',
+        answer: 'Bufferbloat occurs when high network activity (such as someone downloading a large game update or uploading 4K video) fills unmanaged router packet buffers. This delays time-sensitive packets, causing your ping to skyrocket and dropping live video calls. Modern routers resolve this with Smart Queue Management (SQM) like CAKE or FQ-CoDel algorithms.'
+      },
+      {
+        question: 'How accurate is this in-browser speed test compared to desktop apps?',
+        answer: 'Our benchmark uses multi-stream Web Workers and the high-precision browser Performance API combined with Cloudflare edge test nodes, delivering parity with native desktop speed testing applications without requiring any installed software or admin permissions.'
+      }
+    ],
+    relatedTools: [
+      { label: 'DNS Lookup & Propagation', tab: 'dns-lookup' as const },
+      { label: 'Subnet & CIDR Calculator', tab: 'subnet-cidr' as const },
+      { label: 'Hardware Microphone Tester', tab: 'microphone-tester' as const },
+      { label: 'Webcam Hardware Tester', tab: 'webcam-check' as const }
+    ]
+  },
+  'network-tools': {
+    title: 'Network Diagnostics Suite & Webmaster Connectivity Toolkit Online',
+    headline: 'Real-Time Network Telemetry, Latency Auditing & DNS Diagnostics',
+    subheadline: 'All-in-one webmaster network diagnostic workstation to test bandwidth, evaluate server response latency, inspect DNS propagation, and verify IP routing completely private.',
+    introParagraph: 'Network administrators, web developers, and cloud engineers require fast, dependable network telemetry to isolate routing bottlenecks and diagnose connection drops. The APEX Network Diagnostics Suite unifies real-time bandwidth benchmarking, ICMP/HTTP ping simulation, DNS-over-HTTPS inspection, and IP geolocation queries into an integrated zero-telemetry control console.',
+    benefits: [
+      'Comprehensive Toolset: Combines internet bandwidth tests, latency jitter auditing, DNS resolution checks, and IP geolocation into a single workspace.',
+      'Edge-Ground Realism: Leverages globally distributed CDN points of presence for unbiased geographic connection analysis.',
+      'Zero Software Install: Completely browser-based, eliminating the need to install intrusive third-party network monitoring agents.',
+      'Instant Diagnostic Sharing: Copy formatted technical summaries and diagnostic logs in one click for IT helpdesk tickets and ISP support escalation.'
+    ],
+    howToSteps: [
+      'Select the diagnostic mode you need: Speed Test, Ping Benchmark, DNS Lookup, or IP Geolocation.',
+      'Execute the test to run real-time queries against high-speed edge CDN servers.',
+      'Review packet response curves, round-trip times, and DNS record chains.',
+      'Export or copy the telemetry report to verify ISP service level agreements (SLAs).'
+    ],
+    faqs: [
+      {
+        question: 'What network diagnostics tools are included in this suite?',
+        answer: 'The suite includes an Internet Speed Test with jitter analysis, a Ping Latency benchmark, a DNS-over-HTTPS lookup tool, and an IP Address & Geolocation inspection utility.'
+      },
+      {
+        question: 'Can this tool diagnose packet loss and ISP throttling?',
+        answer: 'Yes. By comparing multi-stream sustained throughput against quick burst latency, you can identify traffic shaping, ISP throttling on specific ports, and intermittent packet loss.'
+      }
+    ]
   }
 };
 

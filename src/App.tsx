@@ -85,6 +85,7 @@ import { DEFAULT_CARDS } from './components/Dashboard';
 import { ContextualSEOSection } from './components/ContextualSEOSection';
 import ToolLandingIsland from './components/ToolLandingIsland';
 import { SEOHeader } from './components/SEOHeader';
+const DashboardAuthoritySection = lazy(() => import('./components/DashboardAuthoritySection'));
 const WebPConverter = lazy(() => import('./components/WebPConverter'));
 const PDFJoiner = lazy(() => import('./components/PDFJoiner'));
 const VisualPDFOrganizer = lazy(() => import('./components/VisualPDFOrganizer'));
@@ -3313,9 +3314,10 @@ Disallow:
               <motion.div
                 key="dashboard"
                 initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                className="w-full"
+                className="w-full space-y-12"
               >
                 <Dashboard onTabChange={handleTabChange} />
+                <DashboardAuthoritySection onTabChange={handleTabChange} />
               </motion.div>
             )}
 
@@ -7967,7 +7969,7 @@ Disallow:
 
           </AnimatePresence>
 
-          {activeTab !== 'dashboard' && activeTab !== 'guides' && activeTab !== 'about-us' && activeTab !== 'contact' && activeTab !== 'privacy-policy' && activeTab !== 'terms-of-service' && !['network-tools', 'internet-speed-test', 'ping-test', 'what-is-my-ip', 'dns-test', 'ip-location'].includes(activeTab) && (
+          {activeTab !== 'dashboard' && activeTab !== 'guides' && activeTab !== 'about-us' && activeTab !== 'contact' && activeTab !== 'privacy-policy' && activeTab !== 'terms-of-service' && (
             <>
               <ToolLandingIsland toolId={activeTab} onTabChange={handleTabChange} />
               <ContextualSEOSection activeTab={activeTab} />
