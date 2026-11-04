@@ -1,4 +1,0 @@
-# Edge 301 Canonical Redirects for Cloudflare Pages
-https://www.apexutility.live/* https://apexutility.live/:splat 301!
-http://www.apexutility.live/* https://apexutility.live/:splat 301!
-http://apexutility.live/* https://apexutility.live/:splat 301!

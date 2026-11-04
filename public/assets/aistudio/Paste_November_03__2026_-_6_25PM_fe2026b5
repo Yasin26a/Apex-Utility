@@ -1,0 +1,430 @@
+2026-11-04T02:15:04.696Z	Initializing build environment...
+2026-11-04T02:15:06.874Z	Success: Finished initializing build environment
+2026-11-04T02:15:07.846Z	Cloning repository...
+2026-11-04T02:15:11.330Z	Restoring from dependencies cache
+2026-11-04T02:15:11.332Z	Restoring from build output cache
+2026-11-04T02:15:12.174Z	Detected the following tools from environment: nodejs@22.23.4, npm@10.9.2
+2026-11-04T02:15:12.175Z	Installing nodejs 22.23.4
+2026-11-04T02:15:19.958Z	Success: Dependencies restored from build cache.
+2026-11-04T02:15:19.960Z	Installing project dependencies: npm clean-install --progress=false
+2026-11-04T02:15:28.097Z	npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+2026-11-04T02:15:28.390Z	npm warn deprecated crypto-js@4.2.0: Active development of CryptoJS has been discontinued. This library is no longer maintained.
+2026-11-04T02:15:36.116Z	
+2026-11-04T02:15:36.116Z	added 425 packages in 15s
+2026-11-04T02:15:36.118Z	
+2026-11-04T02:15:36.119Z	50 packages are looking for funding
+2026-11-04T02:15:36.119Z	  run `npm fund` for details
+2026-11-04T02:15:36.374Z	Executing user build command: npm run build
+2026-11-04T02:15:36.869Z	
+2026-11-04T02:15:36.870Z	> apex-utility-labs@1.0.0 build
+2026-11-04T02:15:36.870Z	> vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs
+2026-11-04T02:15:36.871Z	
+2026-11-04T02:15:37.518Z	vite v6.4.5 building for production...
+2026-11-04T02:15:37.641Z	transforming...
+2026-11-04T02:16:08.442Z	✓ 3657 modules transformed.
+2026-11-04T02:16:10.374Z	rendering chunks...
+2026-11-04T02:16:12.670Z	[plugin vite:reporter] 
+2026-11-04T02:16:12.670Z	(!) /opt/buildhome/repo/src/components/Dashboard.tsx is dynamically imported by /opt/buildhome/repo/src/App.tsx but also statically imported by /opt/buildhome/repo/src/App.tsx, dynamic import will not move module into another chunk.
+2026-11-04T02:16:12.670Z	
+2026-11-04T02:16:12.848Z	computing gzip size...
+2026-11-04T02:16:14.230Z	dist/assets/KaTeX_Size3-Regular-CTq5MqoE.woff             4.42 kB
+2026-11-04T02:16:14.231Z	dist/index.html                                           4.68 kB │ gzip:   1.57 kB
+2026-11-04T02:16:14.231Z	dist/assets/KaTeX_Size4-Regular-Dl5lxZxV.woff2            4.93 kB
+2026-11-04T02:16:14.231Z	dist/assets/KaTeX_Size2-Regular-Dy4dx90m.woff2            5.21 kB
+2026-11-04T02:16:14.231Z	dist/assets/KaTeX_Size1-Regular-mCD8mA8B.woff2            5.47 kB
+2026-11-04T02:16:14.232Z	dist/assets/KaTeX_Size4-Regular-BF-4gkZK.woff             5.98 kB
+2026-11-04T02:16:14.232Z	dist/assets/KaTeX_Size2-Regular-oD1tc_U0.woff             6.19 kB
+2026-11-04T02:16:14.232Z	dist/assets/KaTeX_Size1-Regular-C195tn64.woff             6.50 kB
+2026-11-04T02:16:14.232Z	dist/assets/KaTeX_Caligraphic-Regular-Di6jR-x-.woff2      6.91 kB
+2026-11-04T02:16:14.232Z	dist/assets/KaTeX_Caligraphic-Bold-Dq_IR9rO.woff2         6.91 kB
+2026-11-04T02:16:14.232Z	dist/assets/KaTeX_Size3-Regular-DgpXs0kz.ttf              7.59 kB
+2026-11-04T02:16:14.232Z	dist/assets/KaTeX_Caligraphic-Regular-CTRA-rTL.woff       7.66 kB
+2026-11-04T02:16:14.232Z	dist/assets/KaTeX_Caligraphic-Bold-BEiXGLvX.woff          7.72 kB
+2026-11-04T02:16:14.233Z	dist/assets/KaTeX_Script-Regular-D3wIWfF6.woff2           9.64 kB
+2026-11-04T02:16:14.233Z	dist/assets/KaTeX_SansSerif-Regular-DDBCnlJ7.woff2       10.34 kB
+2026-11-04T02:16:14.233Z	dist/assets/KaTeX_Size4-Regular-DWFBv043.ttf             10.36 kB
+2026-11-04T02:16:14.233Z	dist/assets/KaTeX_Script-Regular-D5yQViql.woff           10.59 kB
+2026-11-04T02:16:14.233Z	dist/assets/KaTeX_Fraktur-Regular-CTYiF6lA.woff2         11.32 kB
+2026-11-04T02:16:14.233Z	dist/assets/KaTeX_Fraktur-Bold-CL6g_b3V.woff2            11.35 kB
+2026-11-04T02:16:14.233Z	dist/assets/KaTeX_Size2-Regular-B7gKUWhC.ttf             11.51 kB
+2026-11-04T02:16:14.233Z	dist/assets/KaTeX_SansSerif-Italic-C3H0VqGB.woff2        12.03 kB
+2026-11-04T02:16:14.233Z	dist/assets/KaTeX_SansSerif-Bold-D1sUS0GD.woff2          12.22 kB
+2026-11-04T02:16:14.233Z	dist/assets/KaTeX_Size1-Regular-Dbsnue_I.ttf             12.23 kB
+2026-11-04T02:16:14.233Z	dist/assets/KaTeX_SansSerif-Regular-CS6fqUqJ.woff        12.32 kB
+2026-11-04T02:16:14.233Z	dist/assets/KaTeX_Caligraphic-Regular-wX97UBjC.ttf       12.34 kB
+2026-11-04T02:16:14.233Z	dist/assets/KaTeX_Caligraphic-Bold-ATXxdsX0.ttf          12.37 kB
+2026-11-04T02:16:14.234Z	dist/assets/KaTeX_Fraktur-Regular-Dxdc4cR9.woff          13.21 kB
+2026-11-04T02:16:14.234Z	dist/assets/KaTeX_Fraktur-Bold-BsDP51OF.woff             13.30 kB
+2026-11-04T02:16:14.234Z	dist/assets/KaTeX_Typewriter-Regular-CO6r4hn1.woff2      13.57 kB
+2026-11-04T02:16:14.234Z	dist/assets/KaTeX_SansSerif-Italic-DN2j7dab.woff         14.11 kB
+2026-11-04T02:16:14.234Z	dist/assets/KaTeX_SansSerif-Bold-DbIhKOiC.woff           14.41 kB
+2026-11-04T02:16:14.234Z	dist/assets/KaTeX_Typewriter-Regular-C0xS9mPB.woff       16.03 kB
+2026-11-04T02:16:14.235Z	dist/assets/KaTeX_Math-BoldItalic-CZnvNsCZ.woff2         16.40 kB
+2026-11-04T02:16:14.235Z	dist/assets/KaTeX_Math-Italic-t53AETM-.woff2             16.44 kB
+2026-11-04T02:16:14.235Z	dist/assets/KaTeX_Script-Regular-C5JkGWo-.ttf            16.65 kB
+2026-11-04T02:16:14.236Z	dist/assets/KaTeX_Main-BoldItalic-DxDJ3AOS.woff2         16.78 kB
+2026-11-04T02:16:14.236Z	dist/assets/KaTeX_Main-Italic-NWA7e6Wa.woff2             16.99 kB
+2026-11-04T02:16:14.236Z	dist/assets/KaTeX_Math-BoldItalic-iY-2wyZ7.woff          18.67 kB
+2026-11-04T02:16:14.236Z	dist/assets/KaTeX_Math-Italic-DA0__PXp.woff              18.75 kB
+2026-11-04T02:16:14.236Z	dist/assets/KaTeX_Main-BoldItalic-SpSLRI95.woff          19.41 kB
+2026-11-04T02:16:14.236Z	dist/assets/KaTeX_SansSerif-Regular-BNo7hRIc.ttf         19.44 kB
+2026-11-04T02:16:14.236Z	dist/assets/KaTeX_Fraktur-Regular-CB_wures.ttf           19.57 kB
+2026-11-04T02:16:14.236Z	dist/assets/KaTeX_Fraktur-Bold-BdnERNNW.ttf              19.58 kB
+2026-11-04T02:16:14.236Z	dist/assets/KaTeX_Main-Italic-BMLOBm91.woff              19.68 kB
+2026-11-04T02:16:14.236Z	dist/assets/KaTeX_SansSerif-Italic-YYjJ1zSn.ttf          22.36 kB
+2026-11-04T02:16:14.236Z	dist/assets/KaTeX_SansSerif-Bold-CFMepnvq.ttf            24.50 kB
+2026-11-04T02:16:14.237Z	dist/assets/KaTeX_Main-Bold-Cx986IdX.woff2               25.32 kB
+2026-11-04T02:16:14.237Z	dist/assets/KaTeX_Main-Regular-B22Nviop.woff2            26.27 kB
+2026-11-04T02:16:14.237Z	dist/assets/KaTeX_Typewriter-Regular-D3Ib7_Hf.ttf        27.56 kB
+2026-11-04T02:16:14.237Z	dist/assets/KaTeX_AMS-Regular-BQhdFMY1.woff2             28.08 kB
+2026-11-04T02:16:14.237Z	dist/assets/KaTeX_Main-Bold-Jm3AIy58.woff                29.91 kB
+2026-11-04T02:16:14.237Z	dist/assets/KaTeX_Main-Regular-Dr94JaBh.woff             30.77 kB
+2026-11-04T02:16:14.237Z	dist/assets/KaTeX_Math-BoldItalic-B3XSjfu4.ttf           31.20 kB
+2026-11-04T02:16:14.237Z	dist/assets/KaTeX_Math-Italic-flOr_0UB.ttf               31.31 kB
+2026-11-04T02:16:14.237Z	dist/assets/KaTeX_Main-BoldItalic-DzxPMmG6.ttf           32.97 kB
+2026-11-04T02:16:14.237Z	dist/assets/KaTeX_AMS-Regular-DMm9YOAa.woff              33.52 kB
+2026-11-04T02:16:14.237Z	dist/assets/KaTeX_Main-Italic-3WenGoN9.ttf               33.58 kB
+2026-11-04T02:16:14.237Z	dist/assets/KaTeX_Main-Bold-waoOVXN0.ttf                 51.34 kB
+2026-11-04T02:16:14.237Z	dist/assets/KaTeX_Main-Regular-ypZvNtVU.ttf              53.58 kB
+2026-11-04T02:16:14.238Z	dist/assets/KaTeX_AMS-Regular-DRggAlZN.ttf               63.63 kB
+2026-11-04T02:16:14.238Z	dist/assets/leaflet-CIGW-MKW.css                         15.61 kB │ gzip:   6.46 kB
+2026-11-04T02:16:14.238Z	dist/assets/MarkdownEditor-Cp579UoJ.css                  29.29 kB │ gzip:   8.05 kB
+2026-11-04T02:16:14.238Z	dist/assets/index-CLactoBT.css                          441.90 kB │ gzip:  49.65 kB
+2026-11-04T02:16:14.239Z	dist/assets/chevron-up-BCDYM5kq.js                        0.30 kB │ gzip:   0.25 kB
+2026-11-04T02:16:14.239Z	dist/assets/chevron-down-CU5Dxrc6.js                      0.30 kB │ gzip:   0.25 kB
+2026-11-04T02:16:14.239Z	dist/assets/moon-ivOSa4KW.js                              0.31 kB │ gzip:   0.25 kB
+2026-11-04T02:16:14.239Z	dist/assets/arrow-down-DYQi2tuP.js                        0.33 kB │ gzip:   0.26 kB
+2026-11-04T02:16:14.239Z	dist/assets/send-B2FEJ-ug.js                              0.34 kB │ gzip:   0.27 kB
+2026-11-04T02:16:14.239Z	dist/assets/disc-MU1XUd8B.js                              0.35 kB │ gzip:   0.26 kB
+2026-11-04T02:16:14.239Z	dist/assets/message-square-pgE-zrxU.js                    0.35 kB │ gzip:   0.27 kB
+2026-11-04T02:16:14.239Z	dist/assets/code-DUFclLDc.js                              0.35 kB │ gzip:   0.27 kB
+2026-11-04T02:16:14.239Z	dist/assets/undo-C_IqLGq2.js                              0.36 kB │ gzip:   0.28 kB
+2026-11-04T02:16:14.239Z	dist/assets/redo-DB5aDRk-.js                              0.36 kB │ gzip:   0.28 kB
+2026-11-04T02:16:14.240Z	dist/assets/user-BeAz2vRk.js                              0.37 kB │ gzip:   0.29 kB
+2026-11-04T02:16:14.240Z	dist/assets/smartphone-BlfefYoA.js                        0.37 kB │ gzip:   0.29 kB
+2026-11-04T02:16:14.240Z	dist/assets/corner-down-right-CSm-Fmle.js                 0.37 kB │ gzip:   0.29 kB
+2026-11-04T02:16:14.240Z	dist/assets/rotate-cw-DtznCocN.js                         0.37 kB │ gzip:   0.29 kB
+2026-11-04T02:16:14.241Z	dist/assets/map-pin-DykUqAGe.js                           0.37 kB │ gzip:   0.30 kB
+2026-11-04T02:16:14.241Z	dist/assets/circle-x-HtBaOCup.js                          0.38 kB │ gzip:   0.28 kB
+2026-11-04T02:16:14.241Z	dist/assets/code-xml-8c9qhfAB.js                          0.38 kB │ gzip:   0.28 kB
+2026-11-04T02:16:14.241Z	dist/assets/star-COqTBEmR.js                              0.38 kB │ gzip:   0.29 kB
+2026-11-04T02:16:14.241Z	dist/assets/tablet-D28fCRAD.js                            0.38 kB │ gzip:   0.30 kB
+2026-11-04T02:16:14.241Z	dist/assets/square-check-big-X9QGSbR4.js                  0.39 kB │ gzip:   0.29 kB
+2026-11-04T02:16:14.241Z	dist/assets/dollar-sign-Dl7qQLNO.js                       0.39 kB │ gzip:   0.30 kB
+2026-11-04T02:16:14.241Z	dist/assets/laptop-CdXUGRys.js                            0.39 kB │ gzip:   0.29 kB
+2026-11-04T02:16:14.241Z	dist/assets/briefcase-eBdq0W4x.js                         0.39 kB │ gzip:   0.30 kB
+2026-11-04T02:16:14.242Z	dist/assets/target-D-iXadi7.js                            0.40 kB │ gzip:   0.27 kB
+2026-11-04T02:16:14.242Z	dist/assets/folder-Ck-uB385.js                            0.40 kB │ gzip:   0.29 kB
+2026-11-04T02:16:14.242Z	dist/assets/bar-chart-3-hQTCBiKF.js                       0.40 kB │ gzip:   0.29 kB
+2026-11-04T02:16:14.242Z	dist/assets/arrow-right-left-BGdiNsmX.js                  0.42 kB │ gzip:   0.30 kB
+2026-11-04T02:16:14.242Z	dist/assets/zoom-out-BXZHeif0.js                          0.42 kB │ gzip:   0.30 kB
+2026-11-04T02:16:14.242Z	dist/assets/bar-chart-2-CIgo0PKA.js                       0.42 kB │ gzip:   0.29 kB
+2026-11-04T02:16:14.250Z	dist/assets/settings-2-CEfdypJD.js                        0.42 kB │ gzip:   0.30 kB
+2026-11-04T02:16:14.250Z	dist/assets/link-2DEVqQGK.js                              0.43 kB │ gzip:   0.30 kB
+2026-11-04T02:16:14.250Z	dist/assets/table-uoAQTVCG.js                             0.43 kB │ gzip:   0.30 kB
+2026-11-04T02:16:14.250Z	dist/assets/monitor-Duc9csBj.js                           0.43 kB │ gzip:   0.31 kB
+2026-11-04T02:16:14.254Z	dist/assets/utensils-QEqaXqfX.js                          0.43 kB │ gzip:   0.31 kB
+2026-11-04T02:16:14.254Z	dist/assets/volume-x-CRHTnlKL.js                          0.43 kB │ gzip:   0.31 kB
+2026-11-04T02:16:14.254Z	dist/assets/key-DgZBtDvF.js                               0.43 kB │ gzip:   0.32 kB
+2026-11-04T02:16:14.254Z	dist/assets/triangle-alert-BJbcB0pO.js                    0.43 kB │ gzip:   0.31 kB
+2026-11-04T02:16:14.254Z	dist/assets/file-video-Dg43CJ5_.js                        0.44 kB │ gzip:   0.31 kB
+2026-11-04T02:16:14.254Z	dist/assets/repeat-D369xzHh.js                            0.44 kB │ gzip:   0.31 kB
+2026-11-04T02:16:14.255Z	dist/assets/shield-IbpvJuuP.js                            0.44 kB │ gzip:   0.33 kB
+2026-11-04T02:16:14.255Z	dist/assets/award-CWgHUlfD.js                             0.44 kB │ gzip:   0.33 kB
+2026-11-04T02:16:14.255Z	dist/assets/pen-line-CIt5fD5F.js                          0.45 kB │ gzip:   0.33 kB
+2026-11-04T02:16:14.255Z	dist/assets/flame-DK8nrMw-.js                             0.45 kB │ gzip:   0.33 kB
+2026-11-04T02:16:14.255Z	dist/assets/lightbulb-C7t4tvCn.js                         0.46 kB │ gzip:   0.33 kB
+2026-11-04T02:16:14.255Z	dist/assets/smile-AbPpZW98.js                             0.46 kB │ gzip:   0.32 kB
+2026-11-04T02:16:14.255Z	dist/assets/grid-3x3-UsAgYBEa.js                          0.46 kB │ gzip:   0.31 kB
+2026-11-04T02:16:14.255Z	dist/assets/zoom-in-Cu7hZpDX.js                           0.47 kB │ gzip:   0.31 kB
+2026-11-04T02:16:14.255Z	dist/assets/refresh-ccw-VgoJtJ_5.js                       0.49 kB │ gzip:   0.33 kB
+2026-11-04T02:16:14.255Z	dist/assets/bot-mdEjYw5i.js                               0.50 kB │ gzip:   0.33 kB
+2026-11-04T02:16:14.255Z	dist/assets/file-audio-2ZXuRj4l.js                        0.50 kB │ gzip:   0.33 kB
+2026-11-04T02:16:14.255Z	dist/assets/toolAnalytics-Bm9sna6W.js                     0.53 kB │ gzip:   0.37 kB
+2026-11-04T02:16:14.255Z	dist/assets/gift-B7rhbMYh.js                              0.53 kB │ gzip:   0.36 kB
+2026-11-04T02:16:14.255Z	dist/assets/sparkle-BaQYlQLH.js                           0.53 kB │ gzip:   0.34 kB
+2026-11-04T02:16:14.255Z	dist/assets/radio-Bl0vto5j.js                             0.54 kB │ gzip:   0.36 kB
+2026-11-04T02:16:14.255Z	dist/assets/file-spreadsheet-nF-ifZLW.js                  0.55 kB │ gzip:   0.33 kB
+2026-11-04T02:16:14.256Z	dist/assets/list-ordered-BFbIvtr5.js                      0.55 kB │ gzip:   0.35 kB
+2026-11-04T02:16:14.256Z	dist/assets/move-Bxd-7ppO.js                              0.57 kB │ gzip:   0.34 kB
+2026-11-04T02:16:14.256Z	dist/assets/film-hc47bQg6.js                              0.58 kB │ gzip:   0.35 kB
+2026-11-04T02:16:14.256Z	dist/assets/file-json-CrHbeMra.js                         0.58 kB │ gzip:   0.34 kB
+2026-11-04T02:16:14.256Z	dist/assets/building-2-2nIWDTcJ.js                        0.61 kB │ gzip:   0.35 kB
+2026-11-04T02:16:14.256Z	dist/assets/sun-KzX7Sim6.js                               0.64 kB │ gzip:   0.36 kB
+2026-11-04T02:16:14.256Z	dist/assets/ErrorBarContext-gD7L-u5w.js                   0.67 kB │ gzip:   0.42 kB
+2026-11-04T02:16:14.256Z	dist/assets/calculator-BYx83vAo.js                        0.70 kB │ gzip:   0.39 kB
+2026-11-04T02:16:14.256Z	dist/assets/sliders-horizontal-CiNqNDQi.js                0.75 kB │ gzip:   0.37 kB
+2026-11-04T02:16:14.256Z	dist/assets/useLocalStoragePersistence-CA2Fni5x.js        1.05 kB │ gzip:   0.50 kB
+2026-11-04T02:16:14.256Z	dist/assets/networkConfig-V1YdYqGi.js                     1.10 kB │ gzip:   0.56 kB
+2026-11-04T02:16:14.256Z	dist/assets/mediaPermissions-CVpHX3X6.js                  1.14 kB │ gzip:   0.52 kB
+2026-11-04T02:16:14.256Z	dist/assets/HTMLMarkdownConverter-CqPgBpZJ.js             4.54 kB │ gzip:   1.58 kB
+2026-11-04T02:16:14.256Z	dist/assets/LoanCalculator-DGAnRNjG.js                    6.30 kB │ gzip:   1.66 kB
+2026-11-04T02:16:14.257Z	dist/assets/JWTDecoder-wWPPV5fF.js                        6.38 kB │ gzip:   2.17 kB
+2026-11-04T02:16:14.257Z	dist/assets/MetaTagsOptimizer-BpGuBUcp.js                 6.39 kB │ gzip:   1.80 kB
+2026-11-04T02:16:14.257Z	dist/assets/AgeCalculator-M7pCYZzh.js                     6.39 kB │ gzip:   1.70 kB
+2026-11-04T02:16:14.257Z	dist/assets/ImageUpscaler-CqZ5Qmyv.js                     6.51 kB │ gzip:   2.25 kB
+2026-11-04T02:16:14.257Z	dist/assets/DataBreachChecker-Bb18GkZi.js                 6.67 kB │ gzip:   2.22 kB
+2026-11-04T02:16:14.257Z	dist/assets/PasswordSharer-CEwTGLko.js                    6.73 kB │ gzip:   1.99 kB
+2026-11-04T02:16:14.257Z	dist/assets/ChecksumVerifier-dTCnnAH1.js                  6.88 kB │ gzip:   2.21 kB
+2026-11-04T02:16:14.257Z	dist/assets/UUIDGenerator-b9fAcc6l.js                     6.94 kB │ gzip:   2.07 kB
+2026-11-04T02:16:14.257Z	dist/assets/DNSLookup-pO9FZTWl.js                         6.97 kB │ gzip:   2.34 kB
+2026-11-04T02:16:14.257Z	dist/assets/GradientGenerator-Dx5YYvgq.js                 6.97 kB │ gzip:   1.89 kB
+2026-11-04T02:16:14.257Z	dist/assets/EXIFStripper-CF3L6rOC.js                      7.04 kB │ gzip:   2.36 kB
+2026-11-04T02:16:14.257Z	dist/assets/UserAgentAnalyzer-gx-CwNfF.js                 7.27 kB │ gzip:   2.12 kB
+2026-11-04T02:16:14.257Z	dist/assets/PDFFormFiller-nXHSa_Go.js                     7.47 kB │ gzip:   2.77 kB
+2026-11-04T02:16:14.257Z	dist/assets/RobotsGenerator-B9OwpnSu.js                   7.56 kB │ gzip:   2.04 kB
+2026-11-04T02:16:14.257Z	dist/assets/AITextSummarizer-B843AWql.js                  7.70 kB │ gzip:   2.72 kB
+2026-11-04T02:16:14.257Z	dist/assets/BMICalculator-BXHTHho8.js                     7.87 kB │ gzip:   2.13 kB
+2026-11-04T02:16:14.257Z	dist/assets/AIHumanizer-Cp3Rla4X.js                       8.25 kB │ gzip:   2.96 kB
+2026-11-04T02:16:14.257Z	dist/assets/MemeGenerator-B2wMLSkV.js                     8.28 kB │ gzip:   2.57 kB
+2026-11-04T02:16:14.258Z	dist/assets/MockupGenerator-B5j018BP.js                   8.30 kB │ gzip:   2.53 kB
+2026-11-04T02:16:14.258Z	dist/assets/CronBuilder-DIa2n-OJ.js                       8.41 kB │ gzip:   2.10 kB
+2026-11-04T02:16:14.258Z	dist/assets/AIAssistantSupervisor-Cf4KxIC5.js             8.80 kB │ gzip:   3.32 kB
+2026-11-04T02:16:14.258Z	dist/assets/ToneAnalyzer-DLbpy_TH.js                      9.06 kB │ gzip:   3.11 kB
+2026-11-04T02:16:14.261Z	dist/assets/browser-eBPJuUBt.js                           9.39 kB │ gzip:   4.69 kB
+2026-11-04T02:16:14.261Z	dist/assets/AIResumeOptimizer-CyVnqEH4.js                 9.55 kB │ gzip:   3.13 kB
+2026-11-04T02:16:14.262Z	dist/assets/UnitConverter-C7Yz7dnE.js                    11.11 kB │ gzip:   3.61 kB
+2026-11-04T02:16:14.262Z	dist/assets/VoiceRecorder-BGhNvR5F.js                    11.81 kB │ gzip:   4.04 kB
+2026-11-04T02:16:14.262Z	dist/assets/PDFSigner-DBspOg0x.js                        11.94 kB │ gzip:   3.89 kB
+2026-11-04T02:16:14.262Z	dist/assets/AIHeadshotGenerator-C1j-crCb.js              12.50 kB │ gzip:   3.74 kB
+2026-11-04T02:16:14.262Z	dist/assets/NetworkToolsHub-DDdCUnr3.js                  12.84 kB │ gzip:   4.72 kB
+2026-11-04T02:16:14.262Z	dist/assets/Legend-B0FX2CRq.js                           14.99 kB │ gzip:   5.00 kB
+2026-11-04T02:16:14.262Z	dist/assets/DashboardAuthoritySection-C3yerk07.js        15.34 kB │ gzip:   5.59 kB
+2026-11-04T02:16:14.262Z	dist/assets/ContactPage-DUJGiZOj.js                      15.98 kB │ gzip:   4.41 kB
+2026-11-04T02:16:14.263Z	dist/assets/BatchProcessor-BvOXuDmV.js                   16.07 kB │ gzip:   5.12 kB
+2026-11-04T02:16:14.263Z	dist/assets/JSONDiffChecker-JmmjP7w8.js                  17.36 kB │ gzip:   4.69 kB
+2026-11-04T02:16:14.263Z	dist/assets/PieChart-CP_5_UcP.js                         18.85 kB │ gzip:   6.19 kB
+2026-11-04T02:16:14.263Z	dist/assets/PDFSplitter-BywzH9Qi.js                      18.90 kB │ gzip:   5.64 kB
+2026-11-04T02:16:14.263Z	dist/assets/AIWriter-BlC4erbv.js                         19.28 kB │ gzip:   5.72 kB
+2026-11-04T02:16:14.263Z	dist/assets/IpLocationTool-DILxAG-0.js                   19.40 kB │ gzip:   7.20 kB
+2026-11-04T02:16:14.263Z	dist/assets/CSVJSONConverter-d4kYANrq.js                 19.64 kB │ gzip:   6.08 kB
+2026-11-04T02:16:14.263Z	dist/assets/networkUtils-DyABFJCH.js                     19.82 kB │ gzip:   7.10 kB
+2026-11-04T02:16:14.263Z	dist/assets/JSONNodeMap-BALmd34x.js                      20.70 kB │ gzip:   7.35 kB
+2026-11-04T02:16:14.263Z	dist/assets/PDFConverter-BWTG4BgT.js                     21.10 kB │ gzip:   6.03 kB
+2026-11-04T02:16:14.263Z	dist/assets/WhatIsMyIpTool-CSHpfPUo.js                   21.37 kB │ gzip:   6.51 kB
+2026-11-04T02:16:14.263Z	dist/assets/SEOKeywordDifficulty-C90RxguO.js             21.60 kB │ gzip:   6.00 kB
+2026-11-04T02:16:14.263Z	dist/assets/AIImageAltTextGenerator-xAPF4zJZ.js          21.71 kB │ gzip:   5.74 kB
+2026-11-04T02:16:14.263Z	dist/assets/PassportPhotoMaker-BVTF6BHh.js               21.79 kB │ gzip:   5.62 kB
+2026-11-04T02:16:14.263Z	dist/assets/ImageCompressor-D8dzmF2P.js                  22.15 kB │ gzip:   5.79 kB
+2026-11-04T02:16:14.263Z	dist/assets/PDFRedactor-DhxZOXKX.js                      22.19 kB │ gzip:   7.22 kB
+2026-11-04T02:16:14.263Z	dist/assets/PingTestTool-46lcDz58.js                     22.37 kB │ gzip:   7.59 kB
+2026-11-04T02:16:14.264Z	dist/assets/PDFAnalyst-DfHmJVZa.js                       22.61 kB │ gzip:   7.40 kB
+2026-11-04T02:16:14.264Z	dist/assets/SEOCompetitorGapAnalyzer-B3ewCBbP.js         23.16 kB │ gzip:   6.52 kB
+2026-11-04T02:16:14.264Z	dist/assets/SubnetCalculator-DZKW98Im.js                 23.29 kB │ gzip:   5.61 kB
+2026-11-04T02:16:14.264Z	dist/assets/PatternBlobGenerator-BPgZ6sfo.js             23.69 kB │ gzip:   6.07 kB
+2026-11-04T02:16:14.264Z	dist/assets/PDFUnlocker-CE2DqWs6.js                      23.73 kB │ gzip:   7.14 kB
+2026-11-04T02:16:14.264Z	dist/assets/SVGRasterizer-MH3FC3GW.js                    23.91 kB │ gzip:   6.99 kB
+2026-11-04T02:16:14.264Z	dist/assets/SocialMediaHookGenerator-adk9iJnx.js         24.52 kB │ gzip:   6.57 kB
+2026-11-04T02:16:14.264Z	dist/assets/AICodeExplainerTranslator-C3N494aV.js        25.00 kB │ gzip:   6.83 kB
+2026-11-04T02:16:14.264Z	dist/assets/AIAudioTranscriber-CutraNqz.js               25.34 kB │ gzip:   7.42 kB
+2026-11-04T02:16:14.264Z	dist/assets/VisualPDFOrganizer-DcDOo1mj.js               26.05 kB │ gzip:   7.34 kB
+2026-11-04T02:16:14.264Z	dist/assets/QuickImageOptimizer-D7A_wGl3.js              26.08 kB │ gzip:   7.36 kB
+2026-11-04T02:16:14.264Z	dist/assets/SVGWaveGenerator-DgeSd20U.js                 26.12 kB │ gzip:   6.12 kB
+2026-11-04T02:16:14.264Z	dist/assets/Base64Converter-Dabs_6Gg.js                  26.47 kB │ gzip:   7.11 kB
+2026-11-04T02:16:14.264Z	dist/assets/RichTextStatistics-u3nQ3YNx.js               26.56 kB │ gzip:   7.79 kB
+2026-11-04T02:16:14.264Z	dist/assets/AreaChart-BQWczi9n.js                        26.81 kB │ gzip:   7.95 kB
+2026-11-04T02:16:14.264Z	dist/assets/SVGPatternArchitect-Ds2khn0-.js              27.04 kB │ gzip:   6.53 kB
+2026-11-04T02:16:14.264Z	dist/assets/CSSGlassShadowGenerator-BGrww6tj.js          27.49 kB │ gzip:   5.60 kB
+2026-11-04T02:16:14.264Z	dist/assets/PrivateSketchpad-hmLUkTj5.js                 28.04 kB │ gzip:   8.56 kB
+2026-11-04T02:16:14.264Z	dist/assets/LoremGenerator-BuX5r1aU.js                   28.39 kB │ gzip:   7.27 kB
+2026-11-04T02:16:14.265Z	dist/assets/ImageCropper-7s-RWVhX.js                     28.41 kB │ gzip:   7.88 kB
+2026-11-04T02:16:14.265Z	dist/assets/ContentPlanner-wrhwprdM.js                   28.50 kB │ gzip:   7.29 kB
+2026-11-04T02:16:14.265Z	dist/assets/DigitalSignatureGenerator-BmESV5Xp.js        28.56 kB │ gzip:   8.47 kB
+2026-11-04T02:16:14.265Z	dist/assets/SchemaGenerator-V2UUrxLB.js                  28.73 kB │ gzip:   8.51 kB
+2026-11-04T02:16:14.265Z	dist/assets/BezierSpline-D2c2tqeH.js                     28.76 kB │ gzip:   6.87 kB
+2026-11-04T02:16:14.265Z	dist/assets/CartesianChart-QhaQMbEK.js                   29.20 kB │ gzip:   8.62 kB
+2026-11-04T02:16:14.265Z	dist/assets/FreelanceRateEstimator-DYVrI-9b.js           29.25 kB │ gzip:   6.71 kB
+2026-11-04T02:16:14.265Z	dist/assets/RegexTester-CP_cB4bV.js                      29.52 kB │ gzip:   8.49 kB
+2026-11-04T02:16:14.265Z	dist/assets/VideoStudioSuite-BRfX0sPo.js                 30.11 kB │ gzip:   7.72 kB
+2026-11-04T02:16:14.265Z	dist/assets/CodeSnapshot-Da7-jN4p.js                     30.16 kB │ gzip:   9.74 kB
+2026-11-04T02:16:14.265Z	dist/assets/purify.es-CAi2OJFm.js                        30.47 kB │ gzip:  11.73 kB
+2026-11-04T02:16:14.265Z	dist/assets/GlassBrutalistGenerator-Gu-KtA0V.js          30.88 kB │ gzip:   6.09 kB
+2026-11-04T02:16:14.265Z	dist/assets/PasswordGenerator-CMoadEkZ.js                31.58 kB │ gzip:   8.51 kB
+2026-11-04T02:16:14.266Z	dist/assets/AudioTrimmer-D-tTuEkt.js                     31.99 kB │ gzip:   9.69 kB
+2026-11-04T02:16:14.266Z	dist/assets/FaviconGenerator-DAzP-gd2.js                 32.91 kB │ gzip:   6.98 kB
+2026-11-04T02:16:14.266Z	dist/assets/BoxShadowGenerator-D-P31xca.js               33.10 kB │ gzip:   7.72 kB
+2026-11-04T02:16:14.266Z	dist/assets/BentoGridComposer-CXHFqWBH.js                33.15 kB │ gzip:   7.91 kB
+2026-11-04T02:16:14.266Z	dist/assets/DnsTestTool-DoH95ktl.js                      33.38 kB │ gzip:   9.67 kB
+2026-11-04T02:16:14.266Z	dist/assets/ClipPathArchitect-B-uwnULd.js                33.68 kB │ gzip:   9.12 kB
+2026-11-04T02:16:14.266Z	dist/assets/CaseConverter-DaSXoeqo.js                    34.33 kB │ gzip:   7.00 kB
+2026-11-04T02:16:14.266Z	dist/assets/DateCalculator-DMX541O4.js                   35.16 kB │ gzip:   7.32 kB
+2026-11-04T02:16:14.266Z	dist/assets/RegexFlowchart-lUe5XXiI.js                   35.58 kB │ gzip:   9.96 kB
+2026-11-04T02:16:14.266Z	dist/assets/ImageToPDF-Agq1LQkL.js                       35.80 kB │ gzip:   9.57 kB
+2026-11-04T02:16:14.266Z	dist/assets/InternetSpeedTest-Bbb5oATB.js                36.79 kB │ gzip:  10.00 kB
+2026-11-04T02:16:14.267Z	dist/assets/MortgageRefinanceVisualizer-wpkXLDyj.js      37.95 kB │ gzip:  10.44 kB
+2026-11-04T02:16:14.267Z	dist/assets/AIContentBriefGenerator-9Py1Jnpt.js          38.36 kB │ gzip:   9.36 kB
+2026-11-04T02:16:14.267Z	dist/assets/ImageVectorizer-Dei-pIbP.js                  39.73 kB │ gzip:  10.73 kB
+2026-11-04T02:16:14.267Z	dist/assets/MetaTagAuditor-BWk1rrKw.js                   39.78 kB │ gzip:   8.46 kB
+2026-11-04T02:16:14.267Z	dist/assets/RESTPlaypen-DPCSN_BP.js                      40.44 kB │ gzip:   9.47 kB
+2026-11-04T02:16:14.267Z	dist/assets/WebPConverter-B21Gcld3.js                    41.03 kB │ gzip:  11.14 kB
+2026-11-04T02:16:14.267Z	dist/assets/PDFJoiner-B0M7NOhx.js                        44.21 kB │ gzip:  12.40 kB
+2026-11-04T02:16:14.268Z	
+2026-11-04T02:16:14.268Z	(!) Some chunks are larger than 500 kB after minification. Consider:
+2026-11-04T02:16:14.268Z	- Using dynamic import() to code-split the application
+2026-11-04T02:16:14.268Z	- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+2026-11-04T02:16:14.268Z	- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+2026-11-04T02:16:14.268Z	dist/assets/marked.esm-BTFDJzWu.js                       47.72 kB │ gzip:  14.41 kB
+2026-11-04T02:16:14.268Z	dist/assets/SchemaRichSnippetBuilder-K1LbGfN5.js         48.50 kB │ gzip:  10.92 kB
+2026-11-04T02:16:14.268Z	dist/assets/VideoRecorder-LegkhD4k.js                    49.43 kB │ gzip:  14.69 kB
+2026-11-04T02:16:14.268Z	dist/assets/SEOURLSlugifier-zudvZOHS.js                  56.22 kB │ gzip:  12.46 kB
+2026-11-04T02:16:14.268Z	dist/assets/ColorPaletteGenerator-DMw896X8.js            62.19 kB │ gzip:  15.16 kB
+2026-11-04T02:16:14.268Z	dist/assets/TailwindGridVisualizer-De8UZICQ.js           64.54 kB │ gzip:  12.90 kB
+2026-11-04T02:16:14.268Z	dist/assets/WhopVideoClipper-Dv0at_Hr.js                 64.69 kB │ gzip:  16.81 kB
+2026-11-04T02:16:14.268Z	dist/assets/SEOInspect-CaFSk3Il.js                       77.38 kB │ gzip:  17.73 kB
+2026-11-04T02:16:14.268Z	dist/assets/HardwareTestSuite-DPPJEeCA.js                79.19 kB │ gzip:  19.54 kB
+2026-11-04T02:16:14.269Z	dist/assets/SecureHashGenerator-i5EXFFth.js              96.94 kB │ gzip:  33.03 kB
+2026-11-04T02:16:14.269Z	dist/assets/SEOOptimizer-D2n6yjoY.js                     97.75 kB │ gzip:  24.01 kB
+2026-11-04T02:16:14.269Z	dist/assets/SERPPreviewer-C-_eQUiM.js                   125.52 kB │ gzip:  24.41 kB
+2026-11-04T02:16:14.269Z	dist/assets/QRCodeGenerator-LnTp0smU.js                 142.76 kB │ gzip:  36.22 kB
+2026-11-04T02:16:14.269Z	dist/assets/JSONBeautifier-QT569B0P.js                  145.74 kB │ gzip:  45.36 kB
+2026-11-04T02:16:14.269Z	dist/assets/leaflet-src-htlQvSqp.js                     150.05 kB │ gzip:  43.59 kB
+2026-11-04T02:16:14.269Z	dist/assets/vendor-GnlT1p_M.js                          152.10 kB │ gzip:  49.35 kB
+2026-11-04T02:16:14.269Z	dist/assets/ExifMetadataStripper-xEccfCix.js            157.09 kB │ gzip:  50.62 kB
+2026-11-04T02:16:14.269Z	dist/assets/index.es-C4bYzULO.js                        159.84 kB │ gzip:  53.59 kB
+2026-11-04T02:16:14.269Z	dist/assets/RedirectAuditor-BQ86Bk2x.js                 227.49 kB │ gzip:  54.52 kB
+2026-11-04T02:16:14.269Z	dist/assets/MarkdownEditor-DPdwmFSf.js                  294.71 kB │ gzip:  87.29 kB
+2026-11-04T02:16:14.269Z	dist/assets/SQLFormatter-Dv6Uen4V.js                    312.45 kB │ gzip:  82.34 kB
+2026-11-04T02:16:14.269Z	dist/assets/CategoricalChart-CTFaG7tB.js                315.23 kB │ gzip:  95.40 kB
+2026-11-04T02:16:14.269Z	dist/assets/jspdf.es.min-D-yn2qtx.js                    384.28 kB │ gzip: 125.59 kB
+2026-11-04T02:16:14.269Z	dist/assets/index-DCXjUMpx.js                           532.46 kB │ gzip: 211.81 kB
+2026-11-04T02:16:14.269Z	dist/assets/AIKeywordClusterTool-CzHLkOvI.js            824.43 kB │ gzip:  58.90 kB
+2026-11-04T02:16:14.272Z	dist/assets/index-BefEDP54.js                         2,071.74 kB │ gzip: 576.03 kB
+2026-11-04T02:16:14.272Z	✓ built in 36.68s
+2026-11-04T02:16:14.503Z	
+2026-11-04T02:16:14.503Z	  dist/server.cjs      600.2kb
+2026-11-04T02:16:14.503Z	  dist/server.cjs.map  777.6kb
+2026-11-04T02:16:14.504Z	
+2026-11-04T02:16:14.504Z	⚡ Done in 37ms
+2026-11-04T02:16:14.518Z	Success: Build command completed
+2026-11-04T02:16:14.697Z	Executing user deploy command: npx wrangler deploy
+2026-11-04T02:16:16.214Z	npm warn exec The following package was not found and will be installed: wrangler@4.157.0
+2026-11-04T02:16:25.540Z	
+2026-11-04T02:16:25.540Z	 ⛅️ wrangler 4.157.0
+2026-11-04T02:16:25.541Z	────────────────────
+2026-11-04T02:16:26.429Z	🌀 Building list of assets...
+2026-11-04T02:16:26.433Z	✨ Read 278 files from the assets directory /opt/buildhome/repo/dist
+2026-11-04T02:16:26.566Z	🌀 Starting asset upload...
+2026-11-04T02:16:28.021Z	🌀 Found 187 new or modified static assets to upload. Proceeding with upload...
+2026-11-04T02:16:28.021Z	+ /assets/chevron-down-CU5Dxrc6.js
+2026-11-04T02:16:28.021Z	+ /assets/arrow-down-DYQi2tuP.js
+2026-11-04T02:16:28.025Z	+ /assets/message-square-pgE-zrxU.js
+2026-11-04T02:16:28.025Z	+ /assets/redo-DB5aDRk-.js
+2026-11-04T02:16:28.025Z	+ /assets/smartphone-BlfefYoA.js
+2026-11-04T02:16:28.026Z	+ /assets/circle-x-HtBaOCup.js
+2026-11-04T02:16:28.027Z	+ /assets/tablet-D28fCRAD.js
+2026-11-04T02:16:28.027Z	+ /assets/square-check-big-X9QGSbR4.js
+2026-11-04T02:16:28.027Z	+ /assets/folder-Ck-uB385.js
+2026-11-04T02:16:28.027Z	+ /assets/zoom-out-BXZHeif0.js
+2026-11-04T02:16:28.027Z	+ /assets/link-2DEVqQGK.js
+2026-11-04T02:16:28.027Z	+ /assets/utensils-QEqaXqfX.js
+2026-11-04T02:16:28.027Z	+ /assets/triangle-alert-BJbcB0pO.js
+2026-11-04T02:16:28.027Z	+ /assets/shield-IbpvJuuP.js
+2026-11-04T02:16:28.027Z	+ /assets/flame-DK8nrMw-.js
+2026-11-04T02:16:28.027Z	+ /assets/grid-3x3-UsAgYBEa.js
+2026-11-04T02:16:28.027Z	+ /assets/bot-mdEjYw5i.js
+2026-11-04T02:16:28.027Z	+ /assets/sparkle-BaQYlQLH.js
+2026-11-04T02:16:28.027Z	+ /assets/list-ordered-BFbIvtr5.js
+2026-11-04T02:16:28.031Z	+ /assets/file-json-CrHbeMra.js
+2026-11-04T02:16:28.031Z	+ /assets/calculator-BYx83vAo.js
+2026-11-04T02:16:28.031Z	+ /index.html
+2026-11-04T02:16:28.031Z	+ /assets/MetaTagsOptimizer-BpGuBUcp.js
+2026-11-04T02:16:28.032Z	+ /assets/DataBreachChecker-Bb18GkZi.js
+2026-11-04T02:16:28.032Z	+ /assets/UUIDGenerator-b9fAcc6l.js
+2026-11-04T02:16:28.032Z	+ /assets/EXIFStripper-CF3L6rOC.js
+2026-11-04T02:16:28.032Z	+ /assets/RobotsGenerator-B9OwpnSu.js
+2026-11-04T02:16:28.032Z	+ /assets/AIHumanizer-Cp3Rla4X.js
+2026-11-04T02:16:28.050Z	+ /assets/CronBuilder-DIa2n-OJ.js
+2026-11-04T02:16:28.054Z	+ /assets/AIResumeOptimizer-CyVnqEH4.js
+2026-11-04T02:16:28.057Z	+ /assets/PDFSigner-DBspOg0x.js
+2026-11-04T02:16:28.057Z	+ /assets/Legend-B0FX2CRq.js
+2026-11-04T02:16:28.058Z	+ /assets/BatchProcessor-BvOXuDmV.js
+2026-11-04T02:16:28.058Z	+ /assets/PDFSplitter-BywzH9Qi.js
+2026-11-04T02:16:28.058Z	+ /assets/CSVJSONConverter-d4kYANrq.js
+2026-11-04T02:16:28.058Z	+ /assets/PDFConverter-BWTG4BgT.js
+2026-11-04T02:16:28.058Z	+ /assets/AIImageAltTextGenerator-xAPF4zJZ.js
+2026-11-04T02:16:28.058Z	+ /assets/PDFRedactor-DhxZOXKX.js
+2026-11-04T02:16:28.058Z	+ /assets/SEOCompetitorGapAnalyzer-B3ewCBbP.js
+2026-11-04T02:16:28.058Z	+ /assets/PDFUnlocker-CE2DqWs6.js
+2026-11-04T02:16:28.058Z	+ /assets/AICodeExplainerTranslator-C3N494aV.js
+2026-11-04T02:16:28.058Z	+ /assets/QuickImageOptimizer-D7A_wGl3.js
+2026-11-04T02:16:28.058Z	+ /assets/RichTextStatistics-u3nQ3YNx.js
+2026-11-04T02:16:28.059Z	+ /assets/CSSGlassShadowGenerator-BGrww6tj.js
+2026-11-04T02:16:28.059Z	+ /assets/ImageCropper-7s-RWVhX.js
+2026-11-04T02:16:28.059Z	+ /assets/SchemaGenerator-V2UUrxLB.js
+2026-11-04T02:16:28.059Z	+ /assets/FreelanceRateEstimator-DYVrI-9b.js
+2026-11-04T02:16:28.060Z	+ /assets/CodeSnapshot-Da7-jN4p.js
+2026-11-04T02:16:28.060Z	+ /assets/AudioTrimmer-D-tTuEkt.js
+2026-11-04T02:16:28.060Z	+ /assets/BentoGridComposer-CXHFqWBH.js
+2026-11-04T02:16:28.062Z	+ /assets/CaseConverter-DaSXoeqo.js
+2026-11-04T02:16:28.068Z	+ /assets/ImageToPDF-Agq1LQkL.js
+2026-11-04T02:16:28.069Z	+ /assets/AIContentBriefGenerator-9Py1Jnpt.js
+2026-11-04T02:16:28.069Z	+ /assets/RESTPlaypen-DPCSN_BP.js
+2026-11-04T02:16:28.069Z	+ /assets/SchemaRichSnippetBuilder-K1LbGfN5.js
+2026-11-04T02:16:28.071Z	+ /assets/ColorPaletteGenerator-DMw896X8.js
+2026-11-04T02:16:28.071Z	+ /assets/SEOInspect-CaFSk3Il.js
+2026-11-04T02:16:28.071Z	+ /assets/SEOOptimizer-D2n6yjoY.js
+2026-11-04T02:16:28.071Z	+ /assets/JSONBeautifier-QT569B0P.js
+2026-11-04T02:16:28.071Z	+ /sitemap.xml
+2026-11-04T02:16:28.071Z	+ /assets/SQLFormatter-Dv6Uen4V.js
+2026-11-04T02:16:28.071Z	+ /server.cjs
+2026-11-04T02:16:28.072Z	+ /assets/index-BefEDP54.js
+2026-11-04T02:16:28.072Z	+ /assets/chevron-up-BCDYM5kq.js
+2026-11-04T02:16:28.072Z	+ /assets/send-B2FEJ-ug.js
+2026-11-04T02:16:28.072Z	+ /assets/code-DUFclLDc.js
+2026-11-04T02:16:28.072Z	+ /assets/user-BeAz2vRk.js
+2026-11-04T02:16:28.072Z	+ /assets/rotate-cw-DtznCocN.js
+2026-11-04T02:16:28.072Z	+ /assets/code-xml-8c9qhfAB.js
+2026-11-04T02:16:28.072Z	+ /assets/dollar-sign-Dl7qQLNO.js
+2026-11-04T02:16:28.072Z	+ /assets/briefcase-eBdq0W4x.js
+2026-11-04T02:16:28.078Z	+ /assets/bar-chart-3-hQTCBiKF.js
+2026-11-04T02:16:28.078Z	+ /assets/bar-chart-2-CIgo0PKA.js
+2026-11-04T02:16:28.078Z	+ /assets/table-uoAQTVCG.js
+2026-11-04T02:16:28.078Z	+ /assets/volume-x-CRHTnlKL.js
+2026-11-04T02:16:28.078Z	+ /assets/file-video-Dg43CJ5_.js
+2026-11-04T02:16:28.078Z	+ /assets/award-CWgHUlfD.js
+2026-11-04T02:16:28.078Z	+ /assets/lightbulb-C7t4tvCn.js
+2026-11-04T02:16:28.078Z	+ /assets/zoom-in-Cu7hZpDX.js
+2026-11-04T02:16:28.078Z	+ /assets/file-audio-2ZXuRj4l.js
+2026-11-04T02:16:28.078Z	+ /assets/radio-Bl0vto5j.js
+2026-11-04T02:16:28.078Z	+ /assets/move-Bxd-7ppO.js
+2026-11-04T02:16:28.078Z	+ /assets/building-2-2nIWDTcJ.js
+2026-11-04T02:16:28.078Z	+ /assets/sliders-horizontal-CiNqNDQi.js
+2026-11-04T02:16:28.078Z	+ /assets/LoanCalculator-DGAnRNjG.js
+2026-11-04T02:16:28.079Z	+ /assets/AgeCalculator-M7pCYZzh.js
+2026-11-04T02:16:28.079Z	+ /assets/PasswordSharer-CEwTGLko.js
+2026-11-04T02:16:28.079Z	+ /assets/DNSLookup-pO9FZTWl.js
+2026-11-04T02:16:28.079Z	+ /assets/UserAgentAnalyzer-gx-CwNfF.js
+2026-11-04T02:16:28.079Z	+ /assets/AITextSummarizer-B843AWql.js
+2026-11-04T02:16:28.079Z	+ /assets/MemeGenerator-B2wMLSkV.js
+2026-11-04T02:16:28.079Z	+ /assets/AIAssistantSupervisor-Cf4KxIC5.js
+2026-11-04T02:16:28.079Z	+ /assets/UnitConverter-C7Yz7dnE.js
+2026-11-04T02:16:28.079Z	+ /assets/AIHeadshotGenerator-C1j-crCb.js
+2026-11-04T02:16:28.079Z	+ /assets/DashboardAuthoritySection-C3yerk07.js
+2026-11-04T02:16:28.079Z	+ /assets/JSONDiffChecker-JmmjP7w8.js
+2026-11-04T02:16:28.079Z	+ /assets/AIWriter-BlC4erbv.js
+2026-11-04T02:16:28.079Z	+ /assets/networkUtils-DyABFJCH.js
+2026-11-04T02:16:28.079Z	+ /assets/WhatIsMyIpTool-CSHpfPUo.js
+2026-11-04T02:16:28.080Z	+ /assets/PassportPhotoMaker-BVTF6BHh.js
+2026-11-04T02:16:28.080Z	   (truncating changed assets log, set `WRANGLER_LOG=debug` environment variable to see full diff)
+2026-11-04T02:16:30.910Z	Uploaded 62 of 187 assets
+2026-11-04T02:16:30.997Z	Uploaded 125 of 187 assets
+2026-11-04T02:16:31.031Z	Uploaded 187 of 187 assets
+2026-11-04T02:16:31.032Z	✨ Success! Uploaded 187 files (85 already uploaded) (2.98 sec)
+2026-11-04T02:16:31.032Z	
+2026-11-04T02:16:31.077Z	Total Upload: 0.33 KiB / gzip: 0.24 KiB
+2026-11-04T02:16:31.299Z	
+2026-11-04T02:16:31.299Z	Cloudflare collects anonymous telemetry about your usage of Wrangler. Learn more at https://github.com/cloudflare/workers-sdk/tree/main/packages/wrangler/telemetry.md
+2026-11-04T02:16:31.300Z	
+2026-11-04T02:16:31.375Z	✘ [ERROR] A request to the Cloudflare API (/accounts/b27dec2dbf2fccb60c0382ab512656e7/workers/scripts/apexutility/versions) failed.
+2026-11-04T02:16:31.375Z	
+2026-11-04T02:16:31.375Z	  Invalid _redirects configuration:
+2026-11-04T02:16:31.375Z	  Line 2: Only relative URLs are allowed.
+2026-11-04T02:16:31.375Z	  Line 3: Valid status codes are 200, 301, 302 (default), 303, 307, or 308. Got 0.
+2026-11-04T02:16:31.377Z	  Line 4: Valid status codes are 200, 301, 302 (default), 303, 307, or 308. Got 0. [code: 100324]
+2026-11-04T02:16:31.377Z	
+2026-11-04T02:16:31.377Z	  
+2026-11-04T02:16:31.378Z	  If you think this is a bug, please open an issue at: https://github.com/cloudflare/workers-sdk/issues/new/choose
+2026-11-04T02:16:31.378Z	
+2026-11-04T02:16:31.379Z	
+2026-11-04T02:16:31.396Z	🪵  Logs were written to "/opt/buildhome/.config/.wrangler/logs/wrangler-2026-11-04_02-16-24_955.log"
+2026-11-04T02:16:31.476Z	Failed: error occurred while running deploy command
