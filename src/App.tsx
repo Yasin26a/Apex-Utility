@@ -85,6 +85,7 @@ import { DEFAULT_CARDS } from './components/Dashboard';
 import { ContextualSEOSection } from './components/ContextualSEOSection';
 import ToolLandingIsland from './components/ToolLandingIsland';
 import { SEOHeader } from './components/SEOHeader';
+import { getCanonicalUrl, injectStrictCanonical, enforceCanonicalEnvironment } from './utils/canonicalUrl';
 const DashboardAuthoritySection = lazy(() => import('./components/DashboardAuthoritySection'));
 const WebPConverter = lazy(() => import('./components/WebPConverter'));
 const PDFJoiner = lazy(() => import('./components/PDFJoiner'));
@@ -877,16 +878,12 @@ export default function App() {
   // Dynamic SEO meta attributes and canonical link tag injection
   useSEOTags(activeTab, readingArticle);
 
-  // Dynamic canonical link tag injection logic inside App component targeting window.location.href to improve cross-subdomain SEO indexing
+  // Dynamic canonical link tag injection & subdomain redirection
+  // Resolves Google Search Console "Duplicate, Google chose different canonical than user"
   useEffect(() => {
-    let link: HTMLLinkElement | null = document.querySelector('link[rel="canonical"]');
-    if (!link) {
-      link = document.createElement('link');
-      link.setAttribute('rel', 'canonical');
-      document.head.appendChild(link);
-    }
-    // Set canonical link exactly to window.location.href to handle all query and subdomain variants cleanly
-    link.setAttribute('href', window.location.href);
+    enforceCanonicalEnvironment();
+    const canonicalUrl = getCanonicalUrl(location.pathname, activeTab, readingArticle?.id);
+    injectStrictCanonical(canonicalUrl);
   }, [activeTab, readingArticle, location]);
 
   // Highlights stored by article ID as an array of highlighted paragraph indices
@@ -1020,6 +1017,17 @@ export default function App() {
       if (matchedArt) {
         setActiveTab(current => current === 'guides' ? current : 'guides');
         setReadingArticle(current => current?.id === matchedArt.id ? current : matchedArt);
+
+        // Normalize URL to clean canonical path /${matchedArt.id} if accessed via query parameter
+        if (location.pathname === '/guides' || searchParams.has('id') || searchParams.has('art') || searchParams.has('article')) {
+          const cleanedSearch = new URLSearchParams(location.search);
+          cleanedSearch.delete('id');
+          cleanedSearch.delete('art');
+          cleanedSearch.delete('article');
+          const remainingQuery = cleanedSearch.toString();
+          const cleanCanonicalPath = `/${matchedArt.id}${remainingQuery ? `?${remainingQuery}` : ''}${location.hash}`;
+          window.history.replaceState(null, '', cleanCanonicalPath);
+        }
 
         if (pIndexStr) {
           const pIndices = pIndexStr.split(',').map(s => parseInt(s.trim(), 10)).filter(num => !isNaN(num));

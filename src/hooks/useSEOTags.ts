@@ -3,6 +3,7 @@ import { ActiveTab } from '../types';
 import { Article } from '../data/articles';
 import { SEO_H1_MAPPING, SEO_DESC_MAPPING } from '../seo-mapping';
 import { getLandingPageConfig } from '../utils/seoLandingPages';
+import { getCanonicalUrl, injectStrictCanonical } from '../utils/canonicalUrl';
 
 interface SEOHeaderContent {
   title: string;
@@ -1679,7 +1680,7 @@ export default function useSEOTags(activeTab: ActiveTab, readingArticle?: Articl
         },
         "mainEntityOfPage": {
           "@type": "WebPage",
-          "@id": window.location.href || `https://apexutility.live/${art.id}`
+          "@id": `https://apexutility.live/${art.id}`
         },
         "image": art.image || "https://apexutility.live/assets/logo.png",
         "keywords": keywords,
@@ -1788,10 +1789,11 @@ export default function useSEOTags(activeTab: ActiveTab, readingArticle?: Articl
     script.innerHTML = JSON.stringify(schemaMarkup, null, 2);
     document.head.appendChild(script);
 
-    // 6. Dynamic Canonical Link Tag Injection
-    // Resolves canonical issues and improves SEO indexing across all subdomains by dynamically setting the href to window.location.href
-    let canonicalUrl = window.location.href;
-    injectCanonicalLink(canonicalUrl);
+    // 6. Dynamic Strict Canonical Link Tag Injection
+    // Resolves Google Search Console "Duplicate, Google chose different canonical than user"
+    // Always maps subdomains, query parameters, and aliases to the primary canonical URL
+    const canonicalUrl = getCanonicalUrl(window.location.pathname, activeTab, readingArticle?.id);
+    injectStrictCanonical(canonicalUrl);
 
     return () => {
       // Clean up or let next render transition override

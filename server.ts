@@ -48,24 +48,43 @@ async function createServer() {
   // Disable X-Powered-By header to prevent fingerprinting/tech-profiling
   app.disable('x-powered-by');
 
-  // 301 Redirect alternative hosts and subdomains of apexutility.live to the canonical apexutility.live
+  // 301 Permanent Redirect for Subdomains, HTTP, and Dirty Query Parameters
+  // Permanently resolves Google Search Console "Duplicate, Google chose different canonical than user"
   app.use((req, res, next) => {
     const host = (req.headers.host || '').toLowerCase();
-    const hostname = host.split(':')[0]; // Exclude the port number to handle various environment headers cleanly
-    
-    // Check if the hostname ends with apexutility.live but is not exactly the canonical 'apexutility.live'
-    const isSubdomainOrAlt = hostname.endsWith('apexutility.live') && hostname !== 'apexutility.live';
-    
-    if (isSubdomainOrAlt) {
-      return res.redirect(301, `https://apexutility.live${req.originalUrl}`);
+    const hostname = host.split(':')[0];
+    const isApex = hostname === 'apexutility.live' || hostname.endsWith('.apexutility.live');
+    const proto = (req.headers['x-forwarded-proto'] || req.protocol || 'http').toString().toLowerCase();
+
+    if (isApex) {
+      // 1. Enforce HTTPS
+      if (proto === 'http') {
+        return res.redirect(301, `https://apexutility.live${req.originalUrl}`);
+      }
+
+      // 2. Enforce primary domain apexutility.live (strip www, regex, ai, png, pdf, news, etc.)
+      if (hostname !== 'apexutility.live') {
+        return res.redirect(301, `https://apexutility.live${req.originalUrl}`);
+      }
     }
+
+    // 3. Resolve dirty query parameter URLs (/guides?id=slug or /slug?id=slug) to clean canonical paths
+    const querySlug = req.query.id || req.query.art || req.query.article;
+    if (typeof querySlug === 'string' && querySlug.trim()) {
+      const cleanSlug = querySlug.trim().toLowerCase();
+      if (req.path === '/guides' || req.path === `/${cleanSlug}`) {
+        return res.redirect(301, `https://apexutility.live/${cleanSlug}`);
+      }
+    }
+
     next();
   });
 
   // Hardened Security Headers Middleware
   app.use((req, res, next) => {
     // Set 'Link: <url>; rel="canonical"' HTTP response header for robust cross-subdomain canonicalization
-    const cleanPath = req.path.endsWith('/') && req.path.length > 1 ? req.path.slice(0, -1) : req.path;
+    const rawPath = req.path.endsWith('/') && req.path.length > 1 ? req.path.slice(0, -1) : req.path;
+    const cleanPath = rawPath === '/' ? '' : rawPath;
     const canonicalHeaderUrl = `https://apexutility.live${cleanPath}`;
     res.setHeader('Link', `<${canonicalHeaderUrl}>; rel="canonical"`);
 
