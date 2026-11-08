@@ -110,6 +110,10 @@ const IpLocationTool = lazy(() => import('./components/network/IpLocationTool').
 const NetworkToolsHub = lazy(() => import('./components/network/NetworkToolsHub').then(m => ({ default: m.NetworkToolsHub })));
 const InternetSpeedTest = lazy(() => import('./components/InternetSpeedTest'));
 const ContactPage = lazy(() => import('./components/ContactPage').then(m => ({ default: m.ContactPage })));
+const CookiePolicyPage = lazy(() => import('./components/legal/CookiePolicyPage'));
+const AffiliateDisclosurePage = lazy(() => import('./components/legal/AffiliateDisclosurePage'));
+const SynthIDRemover = lazy(() => import('./components/SynthIDRemover'));
+import { useConsent } from './context/ConsentContext';
 import { Document as PDFDocumentView, Page as PDFPageView, pdfjs } from 'react-pdf';
 import * as pdfjsLib from 'pdfjs-dist';
 import Tesseract from 'tesseract.js';
@@ -413,6 +417,7 @@ export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
   const readerScrollRef = useRef<HTMLDivElement>(null);
+  const { openCookieSettings } = useConsent();
 
   // Online/Offline local connectivity state
   const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -1851,6 +1856,9 @@ export default function App() {
       'speedtest': 'internet-speed-test',
       'speed-test': 'internet-speed-test',
       'free-internet-speed-test': 'internet-speed-test',
+      'synthid': 'synthid-remover',
+      'synthid-cleaner': 'synthid-remover',
+      'ai-watermark-remover': 'synthid-remover',
       'news': 'guides',
       'blog': 'guides',
       'dashboard': 'dashboard'
@@ -2081,6 +2089,8 @@ export default function App() {
         { tab: 'about-us', priority: '0.50', freq: 'monthly' },
         { tab: 'privacy-policy', priority: '0.40', freq: 'monthly' },
         { tab: 'terms-of-service', priority: '0.40', freq: 'monthly' },
+        { tab: 'cookie-policy', priority: '0.40', freq: 'monthly' },
+        { tab: 'affiliate-disclosure', priority: '0.40', freq: 'monthly' },
         { tab: 'guides', priority: includePriority ? '0.80' : '0.50', freq: changeFreq },
         ...dynamicTools,
         ...dynamicArticles,
@@ -3375,6 +3385,21 @@ Disallow:
                         <span>Whop Video Clipper</span>
                       </div>
                       <span className="bg-red-950 border border-red-900/40 text-[9px] text-brand px-1.5 py-0.5 rounded font-mono font-bold uppercase shrink-0">9:16</span>
+                    </button>
+
+                    <button
+                      onClick={() => handleTabChange('synthid-remover')}
+                      className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                        activeTab === 'synthid-remover'
+                          ? 'bg-gradient-to-r from-brand/15 via-red-950/10 to-transparent border-l-4 border-brand text-brand font-semibold'
+                          : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <ShieldCheck className="w-4 h-4 text-brand" />
+                        <span>SynthID Remover</span>
+                      </div>
+                      <span className="bg-red-950 border border-red-900/40 text-[9px] text-brand px-1.5 py-0.5 rounded font-mono font-bold uppercase shrink-0">AI</span>
                     </button>
                   </nav>
 
@@ -4908,6 +4933,32 @@ Disallow:
                     We reserve the right, at our sole discretion, to modify or replace these Terms of Service at any time. When change operations happen, we will post notice or update the revision date at the top of this tab interface. Your continued utilization of our resources after changes are activated constitutes complete awareness and acceptances of the updated terms.
                   </p>
                 </div>
+              </motion.div>
+            )}
+
+            {/* Tab: Cookie Policy */}
+            {activeTab === 'cookie-policy' && (
+              <motion.div
+                key="cookie-policy"
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                className="w-full"
+              >
+                <Suspense fallback={<div className="min-h-[400px] flex items-center justify-center text-zinc-400">Loading Cookie Policy...</div>}>
+                  <CookiePolicyPage />
+                </Suspense>
+              </motion.div>
+            )}
+
+            {/* Tab: Affiliate Disclosure */}
+            {activeTab === 'affiliate-disclosure' && (
+              <motion.div
+                key="affiliate-disclosure"
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                className="w-full"
+              >
+                <Suspense fallback={<div className="min-h-[400px] flex items-center justify-center text-zinc-400">Loading Affiliate Disclosure...</div>}>
+                  <AffiliateDisclosurePage />
+                </Suspense>
               </motion.div>
             )}
 
@@ -7877,6 +7928,27 @@ Disallow:
               </motion.div>
             )}
 
+            {/* Tab: SynthID Remover & AI Watermark Sanitizer */}
+            {activeTab === 'synthid-remover' && (
+              <motion.div
+                key="synthid-remover"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+                className="w-full"
+              >
+                <Suspense fallback={
+                  <div className="min-h-[400px] flex items-center justify-center text-zinc-400 font-mono text-sm">
+                    <Loader2 className="w-6 h-6 text-red-500 animate-spin mr-2" />
+                    Loading SynthID Sanitizer Studio...
+                  </div>
+                }>
+                  <SynthIDRemover />
+                </Suspense>
+              </motion.div>
+            )}
+
             {([
               'video-compressor',
               'video-resizer',
@@ -8137,7 +8209,7 @@ Disallow:
 
           </AnimatePresence>
 
-          {activeTab !== 'dashboard' && activeTab !== 'guides' && activeTab !== 'about-us' && activeTab !== 'contact' && activeTab !== 'privacy-policy' && activeTab !== 'terms-of-service' && (
+          {activeTab !== 'dashboard' && activeTab !== 'guides' && activeTab !== 'about-us' && activeTab !== 'contact' && activeTab !== 'privacy-policy' && activeTab !== 'terms-of-service' && activeTab !== 'cookie-policy' && activeTab !== 'affiliate-disclosure' && (
             <>
               <ToolLandingIsland toolId={activeTab} onTabChange={handleTabChange} />
               <ContextualSEOSection activeTab={activeTab} />
@@ -8512,6 +8584,11 @@ Disallow:
                   <span>Whop Clipper</span>
                 </button>
                 <span className="text-slate-800">|</span>
+                <button onClick={() => handleTabChange('synthid-remover')} className="hover:text-red-400 text-red-400 font-semibold transition-colors cursor-pointer flex items-center gap-1">
+                  <ShieldCheck className="w-3 h-3" />
+                  <span>SynthID Remover</span>
+                </button>
+                <span className="text-slate-800">|</span>
                 <button onClick={() => handleTabChange('about-us')} className="hover:text-slate-300 transition-colors cursor-pointer">About Us</button>
                 <span className="text-slate-800">|</span>
                 <button onClick={() => handleTabChange('contact')} className="hover:text-rose-400 text-rose-300 font-semibold transition-colors cursor-pointer">Contact Us</button>
@@ -8521,6 +8598,19 @@ Disallow:
                 <button onClick={() => handleTabChange('privacy-policy')} className="hover:text-slate-300 transition-colors cursor-pointer">Privacy Policy</button>
                 <span className="text-slate-800">|</span>
                 <button onClick={() => handleTabChange('terms-of-service')} className="hover:text-slate-300 transition-colors cursor-pointer">Terms of Service</button>
+                <span className="text-slate-800">|</span>
+                <button onClick={() => handleTabChange('cookie-policy')} className="hover:text-slate-300 transition-colors cursor-pointer">Cookie Policy</button>
+                <span className="text-slate-800">|</span>
+                <button onClick={() => handleTabChange('affiliate-disclosure')} className="hover:text-slate-300 transition-colors cursor-pointer">Affiliate Disclosure</button>
+                <span className="text-slate-800">|</span>
+                <button 
+                  onClick={openCookieSettings} 
+                  className="hover:text-emerald-400 text-emerald-400 font-semibold transition-colors cursor-pointer flex items-center gap-1.5"
+                  title="Manage Cookie and Consent Preferences"
+                >
+                  <Cookie className="w-3.5 h-3.5" />
+                  <span>Cookie Settings</span>
+                </button>
               </div>
             </div>
           </footer>

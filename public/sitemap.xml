@@ -2,9 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://apexutility.live/</loc>
-    <lastmod>2026-07-08</lastmod>
+    <lastmod>2026-11-07</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.00</priority>
+  </url>
+  <url>
+    <loc>https://apexutility.live/synthid-remover</loc>
+    <lastmod>2026-11-07</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.95</priority>
   </url>
   <url>
     <loc>https://apexutility.live/about-us</loc>
@@ -422,7 +428,19 @@
   </url>
   <url>
     <loc>https://apexutility.live/privacy-policy</loc>
-    <lastmod>2026-07-08</lastmod>
+    <lastmod>2026-11-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.40</priority>
+  </url>
+  <url>
+    <loc>https://apexutility.live/cookie-policy</loc>
+    <lastmod>2026-11-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.40</priority>
+  </url>
+  <url>
+    <loc>https://apexutility.live/affiliate-disclosure</loc>
+    <lastmod>2026-11-07</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.40</priority>
   </url>

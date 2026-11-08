@@ -4,6 +4,8 @@ import {
   ChevronDown, ChevronUp, ArrowRight, Activity, Network, 
   Wifi, Globe, Search, Shield
 } from 'lucide-react';
+import { AdSlot } from '../AdSlot';
+import { AffiliateRecommendations } from '../AffiliateRecommendations';
 
 export interface FaqItem {
   question: string;
@@ -426,14 +428,15 @@ export function ToolLayout({
       )}
 
       {/* =====================================================================
-          RESERVED AD SLOT (DISABLED BY DEFAULT - NO CLS LAYOUT SHIFT)
+          MONETIZATION & COMPLIANCE LAYER: IN-CONTENT AD & AFFILIATES
+          Strictly positioned below tool results and content, zero CLS
           ===================================================================== */}
-      <aside 
-        aria-label="Advertisement Sponsor" 
-        className="hidden my-8 w-full min-h-[90px] border border-dashed border-zinc-800 rounded-xl flex items-center justify-center text-xs text-zinc-600 uppercase tracking-widest font-mono"
-      >
-        {/* Reserved 90px ad frame for future sponsorship (prevent layout shift) */}
-      </aside>
+      <AdSlot variant="in-content" />
+
+      <AffiliateRecommendations 
+        page={currentToolId} 
+        onNavigateTab={onNavigateTab} 
+      />
 
       {/* =====================================================================
           FREQUENTLY ASKED QUESTIONS (ACCORDION & SCHEMA MATCHED)

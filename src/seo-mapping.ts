@@ -40,6 +40,8 @@ export const SEO_H1_MAPPING: Record<ActiveTab, string> = {
   'seo-inspect': 'Free SEO Inspector & Webpage Audit Tool',
   'privacy-policy': 'Privacy Policy - 100% Offline and Private Security',
   'terms-of-service': 'Terms of Service - Open-Source Web Utility Sandbox',
+  'cookie-policy': 'Cookie Policy - Google Consent Mode v2 & Local Storage Standards',
+  'affiliate-disclosure': 'Affiliate Disclosure - FTC Compliance & Commercial Disclaimers',
   'about-us': 'About Apex Utility Labs - Premium Secure Tools Suite',
   'contact': 'Contact Apex Utility Labs - Support, Inquiries & Partnerships',
   guides: 'Developer & Creator Guides - Online Productivity Tutorials',
@@ -132,6 +134,7 @@ export const SEO_H1_MAPPING: Record<ActiveTab, string> = {
   'what-is-my-ip': 'What Is My IP Address? - IPv4, IPv6 & Location',
   'dns-test': 'Free DNS Test & Benchmark - Lookup & Server Speed',
   'ip-location': 'Free IP Location Lookup - Trace Any IP Address',
+  'synthid-remover': 'Free SynthID Remover & AI Watermark Sanitizer – Clean Invisible Watermarks',
 };
 
 export const SEO_DESC_MAPPING: Partial<Record<ActiveTab, string>> = {
@@ -266,4 +269,5 @@ export const SEO_DESC_MAPPING: Partial<Record<ActiveTab, string>> = {
   'what-is-my-ip': 'Instantly check your public IPv4 and IPv6 address, ISP, location, ASN and browser info. Clean, private and fast. No logs, no tracking.',
   'dns-test': 'Free online DNS lookup and DNS-over-HTTPS speed benchmark. Query A, AAAA, MX, NS, TXT and SOA records, compare Cloudflare vs Google DNS, and test resolver speed.',
   'ip-location': 'Look up any public IP address or website to find its approximate country, city, ISP, ASN and coordinates. Includes an interactive map. Private and free.',
+  'synthid-remover': 'Free client-side SynthID remover and AI watermark sanitizer. Inspect frequency spectrums, scrub C2PA/EXIF metadata, disrupt invisible steganographic watermarks, and export pristine images with zero quality loss offline.',
 };

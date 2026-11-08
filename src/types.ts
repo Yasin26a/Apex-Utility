@@ -39,6 +39,8 @@ export type ActiveTab =
   | 'seo-inspect'
   | 'privacy-policy'
   | 'terms-of-service'
+  | 'cookie-policy'
+  | 'affiliate-disclosure'
   | 'about-us'
   | 'contact'
   | 'guides'
@@ -130,7 +132,8 @@ export type ActiveTab =
   | 'ping-test'
   | 'what-is-my-ip'
   | 'dns-test'
-  | 'ip-location';
+  | 'ip-location'
+  | 'synthid-remover';
 
 export interface JSONBeautifierState {
   rawInput: string;

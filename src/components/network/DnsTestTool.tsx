@@ -28,6 +28,8 @@ import {
   calculateMinMax,
   ParsedDnsRecord
 } from '../../utils/networkUtils';
+import { useToolRunning } from '../../context/ToolRunningContext';
+import { useAnalytics } from '../../hooks/useAnalytics';
 
 type DnsTab = 'lookup' | 'speed';
 type RecordType = 'COMMON' | 'A' | 'AAAA' | 'CNAME' | 'MX' | 'NS' | 'TXT' | 'SOA' | 'CAA';
@@ -103,6 +105,18 @@ export const DnsTestTool: React.FC = () => {
       }
     };
   }, []);
+
+  const { setIsToolRunning } = useToolRunning();
+  const { trackToolStart } = useAnalytics();
+
+  // Sync active lookup or benchmark with ToolRunningContext to pause ads
+  useEffect(() => {
+    const isRunning = isLookingUp || isBenchmarking;
+    setIsToolRunning(isRunning, 'dns-test');
+    if (isRunning) {
+      trackToolStart('dns-test', 'DNS Lookup & Benchmark');
+    }
+  }, [isLookingUp, isBenchmarking, setIsToolRunning, trackToolStart]);
 
   // --- DoH Query Engine ---
   async function queryDoh(

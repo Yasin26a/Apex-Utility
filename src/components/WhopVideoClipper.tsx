@@ -38,6 +38,8 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ActiveTab } from '../types';
+import { AdSlot } from './AdSlot';
+import { AffiliateRecommendations } from './AffiliateRecommendations';
 
 interface WhopVideoClipperProps {
   onTabChange: (tab: ActiveTab) => void;
@@ -1838,6 +1840,15 @@ export default function WhopVideoClipper({ onTabChange }: WhopVideoClipperProps)
           })}
         </div>
       </section>
+
+      {/* Monetization & Affiliate Layer: Positioned below FAQ and before related tools */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <AdSlot variant="in-content" />
+        <AffiliateRecommendations 
+          page="whop-video-clipping-tool" 
+          onNavigateTab={(tab: string) => onTabChange(tab as ActiveTab)} 
+        />
+      </div>
 
       {/* SECTION 8: RELATED TOOLS / SERVICES (INTERNAL LINKS) */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto w-full border-t border-red-950/30">

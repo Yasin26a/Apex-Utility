@@ -35,6 +35,26 @@ const SEO_METADATA: Record<string, SEOHeaderContent> = {
       }
     }
   },
+  'synthid-remover': {
+    title: "SynthID Remover & AI Watermark Sanitizer Online Free | Apex Utility",
+    description: "Free client-side SynthID remover and AI watermark sanitizer. Inspect frequency spectrums, scrub C2PA/EXIF metadata, disrupt invisible steganographic watermarks, and export pristine images with zero quality loss offline.",
+    keywords: "synthid remover, remove synthid watermark, how to remove synthid, synthid watermark cleaner, google synthid removal tool, c2pa manifest stripper, ai watermark remover, remove invisible ai watermark, imagen 3 watermark remover, ai image watermark cleaner, synthid detector and remover, disrupt ai watermarks, remove dalle watermark, clean midjourney metadata, client side watermark sanitizer, invisible watermark eraser",
+    ogTitle: "Free SynthID Remover & AI Watermark Sanitizer – Clean Invisible Watermarks",
+    ogDescription: "Free client-side SynthID remover and AI watermark sanitizer. Inspect frequency spectrums, scrub C2PA/EXIF metadata, disrupt invisible steganographic watermarks, and export pristine images with zero quality loss offline.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "SynthID Remover & AI Watermark Sanitizer",
+      "description": "Inspect frequency spectrums, scrub C2PA and EXIF provenance manifests, and disrupt invisible steganographic SynthID watermarks on AI-generated images using client-side spatial diffusion and frequency re-quantization.",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "All Platforms",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    }
+  },
   dashboard: {
     title: "Apex Processing Labs | Free PDF Converter, PDF Size Reducer & Online Editor",
     description: "Free online PDF editor, converter, merger, and compressor. Streamline your daily workflows with 100% private, client-side productivity tools with zero tracking.",

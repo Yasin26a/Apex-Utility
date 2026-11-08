@@ -6,6 +6,10 @@ import {
   XCircle, Laptop, Gamepad2, Video, Globe, Shield, Zap, Sparkles, 
   ChevronDown, ChevronUp, History, Trash2, Server, Eye, EyeOff, Radio
 } from 'lucide-react';
+import { useToolRunning } from '../context/ToolRunningContext';
+import { useAnalytics } from '../hooks/useAnalytics';
+import { AdSlot } from './AdSlot';
+import { AffiliateRecommendations } from './AffiliateRecommendations';
 
 interface SpeedTestResult {
   id: string;
@@ -26,8 +30,23 @@ type TestDuration = 'quick' | 'standard' | 'stress';
 type ServerTarget = 'local-edge' | 'global-cdn';
 
 export default function InternetSpeedTest() {
+  const { setIsToolRunning } = useToolRunning();
+  const { trackToolStart, trackToolComplete } = useAnalytics();
+
   // --- Core Test State ---
   const [testPhase, setTestPhase] = useState<TestPhase>('idle');
+
+  // Sync testPhase with ToolRunningContext to strictly pause ads during speed/latency measurements
+  useEffect(() => {
+    const isRunning = testPhase === 'ping' || testPhase === 'download' || testPhase === 'upload';
+    setIsToolRunning(isRunning, 'internet-speed-test');
+    if (testPhase === 'ping') {
+      trackToolStart('internet-speed-test', 'Internet Speed Test');
+    } else if (testPhase === 'complete') {
+      trackToolComplete('internet-speed-test');
+    }
+  }, [testPhase, setIsToolRunning, trackToolStart, trackToolComplete]);
+
   const [testDuration, setTestDuration] = useState<TestDuration>('standard');
   const [serverTarget, setServerTarget] = useState<ServerTarget>('local-edge');
   
@@ -1120,6 +1139,10 @@ export default function InternetSpeedTest() {
             </div>
           </div>
         </div>
+
+        {/* Monetization & Affiliate Layer: Below interactive speed dial and technical guide */}
+        <AdSlot variant="in-content" />
+        <AffiliateRecommendations page="internet-speed-test" />
 
         {/* FAQ Accordion */}
         <div className="space-y-3 pt-4 border-t border-zinc-800">

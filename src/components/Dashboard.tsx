@@ -186,6 +186,20 @@ export const DEFAULT_CARDS: DashboardCard[] = [
     pinned: true
   },
   {
+    id: 'synthid-remover',
+    title: 'SynthID Remover & AI Watermark Sanitizer',
+    desc: 'Inspect frequency spectrums, scrub C2PA and EXIF provenance manifests, and disrupt invisible steganographic SynthID watermarks on AI-generated images with zero quality loss offline.',
+    tagline: '"synthid remover, remove synthid watermark, ai watermark cleaner, c2pa stripper, clean ai image watermark"',
+    category: 'Security Lab',
+    categoryIcon: 'ShieldCheck',
+    cardIcon: 'ShieldCheck',
+    textClass: 'text-red-400 font-bold',
+    buttonLabel: 'Launch SynthID Sanitizer',
+    colSpan: 1,
+    heightLevel: 2,
+    pinned: true
+  },
+  {
     id: 'css-generator',
     title: 'CSS Glass & Shadow Generator',
     desc: 'Design backdrop filters, interactive glass surfaces, and complex organic box-shadow layers with production-ready CSS and Tailwind exporters.',

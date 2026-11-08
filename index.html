@@ -1,16 +1,53 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QLFRSKQP91"></script>
+    <!-- Google Consent Mode v2 Defaults (MUST run before any Google tags load) -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
 
-      gtag('config', 'G-QLFRSKQP91');
+      // Default all consent parameters to 'denied' globally
+      gtag('consent', 'default', {
+        'ad_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied',
+        'analytics_storage': 'denied',
+        'wait_for_update': 500
+      });
+
+      // Redact ad data and parameters when consent is denied
+      gtag('set', 'ads_data_redaction', true);
+
+      // Rehydrate prior user consent decision from local storage if available
+      try {
+        var savedConsent = localStorage.getItem('apex_consent_mode_v2');
+        if (savedConsent) {
+          var parsed = JSON.parse(savedConsent);
+          gtag('consent', 'update', {
+            'ad_storage': parsed.ad_storage === 'granted' ? 'granted' : 'denied',
+            'ad_user_data': parsed.ad_user_data === 'granted' ? 'granted' : 'denied',
+            'ad_personalization': parsed.ad_personalization === 'granted' ? 'granted' : 'denied',
+            'analytics_storage': parsed.analytics_storage === 'granted' ? 'granted' : 'denied'
+          });
+        }
+      } catch (e) {}
     </script>
-    <!-- Google AdSense -->
+
+    <!-- Google-Certified Consent Management Platform (CMP) Slot -->
+    <!-- When deploying Google AdSense Privacy & Messaging (GDPR/CPRA), Google's automated CMP snippet or a certified TCF v2.2 CMP script is inserted below. -->
+    <!-- CMP SCRIPT INSERTION POINT:
+         Google AdSense automatically serves its certified consent banner via the AdSense script below
+         when enabled under AdSense > Privacy & messaging > GDPR / US state regulations.
+    -->
+
+    <!-- Google tag (gtag.js) - Respects Consent Mode v2 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QLFRSKQP91"></script>
+    <script>
+      gtag('js', new Date());
+      gtag('config', 'G-QLFRSKQP91', { 'anonymize_ip': true });
+    </script>
+
+    <!-- Google AdSense - Respects Consent Mode v2 -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3493943620806779"
          crossorigin="anonymous"></script>
     <!-- Polyfills / Sandbox Compatibility Fixes -->

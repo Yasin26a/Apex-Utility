@@ -4,16 +4,22 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './App.tsx';
 import { LanguageProvider } from './context/LanguageContext.tsx';
 import { PresetProvider } from './context/PresetContext.tsx';
+import { ConsentProvider } from './context/ConsentContext.tsx';
+import { ToolRunningProvider } from './context/ToolRunningContext.tsx';
 import './index.css';
 
 ReactDom.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-      <LanguageProvider>
-        <PresetProvider>
-          <App />
-        </PresetProvider>
-      </LanguageProvider>
+      <ConsentProvider>
+        <ToolRunningProvider>
+          <LanguageProvider>
+            <PresetProvider>
+              <App />
+            </PresetProvider>
+          </LanguageProvider>
+        </ToolRunningProvider>
+      </ConsentProvider>
     </BrowserRouter>
   </React.StrictMode>
 );

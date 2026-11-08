@@ -11,12 +11,17 @@ import {
   calculateJitter, 
   calculateMinMax 
 } from '../../utils/networkUtils';
+import { useToolRunning } from '../../context/ToolRunningContext';
+import { useAnalytics } from '../../hooks/useAnalytics';
 
 interface Props {
   onNavigateTab?: (path: string) => void;
 }
 
 export default function PingTestTool({ onNavigateTab }: Props) {
+  const { setIsToolRunning } = useToolRunning();
+  const { trackToolStart, trackToolComplete } = useAnalytics();
+
   // Test parameters
   const [selectedTargetId, setSelectedTargetId] = useState<string>(NETWORK_CONFIG.pingTargets[0].id);
   const [sampleCount, setSampleCount] = useState<number>(20); // 10, 20, 50
@@ -54,6 +59,14 @@ export default function PingTestTool({ onNavigateTab }: Props) {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
+
+  // Sync isRunning with global ToolRunningContext to pause ads during latency measurements
+  useEffect(() => {
+    setIsToolRunning(isRunning, 'ping-test');
+    if (isRunning) {
+      trackToolStart('ping-test', 'Online Ping Test');
+    }
+  }, [isRunning, setIsToolRunning, trackToolStart]);
 
   // Summary statistics
   const stats = useMemo(() => {
