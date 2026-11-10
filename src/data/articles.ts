@@ -3,6 +3,7 @@ import { WEB_NEWS_TECH_ARTICLES } from './webNewsArticles';
 import { generate100SEOArticles } from './seoOptimized100Articles';
 import { generateNew100Articles } from './new100Articles';
 import { REDDIT_50_TOPICS } from './reddit50Articles';
+import { viralArticles } from './viralArticles';
 
 export interface Article {
   id: string;
@@ -1902,6 +1903,21 @@ function generate50ExtraArticles(): Article[] {
   });
 }
 
+function generateNew50TopicsArticles(): Article[] {
+  return NEW_50_TOPICS.map((topic) => {
+    return {
+      id: topic.id,
+      title: topic.title,
+      category: topic.category,
+      readTime: "50 min read",
+      wordCount: 10000,
+      publishDate: topic.publishDate,
+      summary: topic.summary,
+      content: generate10kWordsForTopic(topic)
+    };
+  });
+}
+
 const TRENDING_AI_TECH_ARTICLES: Article[] = [
   {
     id: "agentic-web-automation-2026",
@@ -2361,14 +2377,64 @@ export function expandArticleTo10k(art: Article): Article {
   };
 }
 
-export const AT_LEAST_20_ARTICLES: Article[] = [
+const normalizedViralArticles: Article[] = (viralArticles || []).map(v => ({
+  id: v.id,
+  title: v.title,
+  category: 'Web Technology' as const,
+  readTime: v.readTime || '15 min read',
+  wordCount: 1500,
+  publishDate: v.date || 'June 20, 2026',
+  summary: v.excerpt || v.title,
+  content: [
+    v.excerpt || v.title,
+    '### Technical Architecture & Core System Overview',
+    `An exhaustive architectural investigation into the engineering mechanics, memory layouts, and cryptographic paradigms governing "${v.title}".`,
+    '### Benchmark Telemetry & Performance Optimization',
+    'Telemetry evaluations demonstrate notable latency reductions, enhanced data sovereignty, and resilient execution pipelines under production loads in 2026.'
+  ]
+}));
+
+const normalizedRedditArticles: Article[] = (REDDIT_50_TOPICS || []).map(r => ({
+  id: r.id,
+  title: r.title,
+  category: (r.category as any) || 'SEO & Indexing',
+  readTime: '12 min read',
+  wordCount: 1800,
+  publishDate: r.publishDate || 'October 02, 2026',
+  summary: r.summary || r.title,
+  content: [
+    r.summary || r.title,
+    '### Deconstructing Core Algorithm Mechanics & Audience Distribution',
+    `A forensic breakdown of the algorithms, scoring curves, and distribution mechanics shaping "${r.title}".`,
+    '### High-Yield Optimization Directives & Index Visibility',
+    'Actionable strategies for optimizing crawl velocity, reader retention, and search engine topical authority.'
+  ]
+}));
+
+const rawCombinedArticles: Article[] = [
   ...originalArticles,
   ...generate50ExtraArticles(),
+  ...generateNew50TopicsArticles(),
   ...TRENDING_AI_TECH_ARTICLES,
   ...CSS_GLASS_SHADOW_ARTICLES,
   ...WEB_NEWS_TECH_ARTICLES,
   ...generate100SEOArticles(),
-  ...generateNew100Articles()
-].map(expandArticleTo10k);
+  ...generateNew100Articles(),
+  ...normalizedViralArticles,
+  ...normalizedRedditArticles
+];
+
+const seenArticleKeys = new Set<string>();
+const uniqueArticles: Article[] = [];
+for (const art of rawCombinedArticles) {
+  if (!art || !art.id) continue;
+  const cleanKey = art.id.toLowerCase().trim();
+  if (!seenArticleKeys.has(cleanKey)) {
+    seenArticleKeys.add(cleanKey);
+    uniqueArticles.push(art);
+  }
+}
+
+export const AT_LEAST_20_ARTICLES: Article[] = uniqueArticles.map(expandArticleTo10k);
 
 

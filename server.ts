@@ -146,6 +146,11 @@ async function createServer() {
         }
         return res.redirect(301, `/${subPath}`);
       }
+
+      // 3. Handle legacy /about -> /about-us
+      if (pathname === '/about' || pathname === '/about/') {
+        return res.redirect(301, '/about-us');
+      }
     } catch (e) {
       // Fall through on malformed URIs
     }
