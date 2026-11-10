@@ -86,6 +86,7 @@ import { ContextualSEOSection } from './components/ContextualSEOSection';
 import ToolLandingIsland from './components/ToolLandingIsland';
 import { SEOHeader } from './components/SEOHeader';
 import { getCanonicalUrl, injectStrictCanonical, enforceCanonicalEnvironment } from './utils/canonicalUrl';
+import { generateSitemapXml, generateRobotsTxt, downloadSitemapXml, getSitemapStats } from './utils/sitemapService';
 const DashboardAuthoritySection = lazy(() => import('./components/DashboardAuthoritySection'));
 const WebPConverter = lazy(() => import('./components/WebPConverter'));
 const PDFJoiner = lazy(() => import('./components/PDFJoiner'));
@@ -1897,248 +1898,22 @@ export default function App() {
     setTimeout(() => setIsCopied(null), 2000);
   };
 
-  // Live client-side Sitemap & Rabots.txt generator calculation
+  // Live client-side Sitemap & Robots.txt generator calculation powered by sitemapService
   const generateSitemapData = () => {
     setIsGenerating(true);
     setTimeout(() => {
-      const today = new Date().toISOString().split('T')[0];
-      const parsedUrl = targetUrl.replace(/\/$/, '');
-      
-      const dynamicTools = DEFAULT_CARDS.map(card => {
-        // Dynamically compute priority based on tool categories or flags, requiring zero manual updates in future
-        let basePriority = 0.80;
-        
-        if (card.id === 'sitemap-generator') {
-          basePriority = 0.95;
-        } else if (card.pinned) {
-          basePriority = 0.90;
-        } else if (['Document Optimization', 'PDF Compilation', 'PDF Joiner', 'AI Copywriting', 'Content Operations'].includes(card.category)) {
-          basePriority = 0.90;
-        } else if (['Media Lab', 'Developer Operations'].includes(card.category)) {
-          basePriority = 0.85;
-        } else if (['Security Vault', 'Calculators'].includes(card.category) || card.id.includes('calculator')) {
-          basePriority = 0.75;
-        } else if (card.id === 'case-converter' || card.id === 'lorem-generator' || card.id === 'date-calculator') {
-          basePriority = 0.70;
-        }
-
-        return {
-          tab: card.id,
-          priority: includePriority ? basePriority.toFixed(2) : '0.80',
-          freq: changeFreq
-        };
+      const parsedUrl = targetUrl.replace(/\/$/, '') || 'https://apexutility.live';
+      const sdoc = generateSitemapXml({
+        baseUrl: parsedUrl,
+        includePriority,
+        defaultToolChangeFreq: changeFreq as any
       });
-
-      const dynamicArticles = AT_LEAST_20_ARTICLES.map(art => ({
-        tab: art.id,
-        priority: includePriority ? '0.75' : '0.50',
-        freq: 'weekly'
-      }));
-
-      // Explicit list of pages flagged as 'Duplicate, Google chose different canonical' in Google Search Console
-      const FLAGGED_CANONICAL_PAGES = [
-        'webcam-check',
-        'date-calculator',
-        'content-planner',
-        'keyword-cluster',
-        'mockup-generator',
-        'unit-converter',
-        'csv-json-converter',
-        'ai-writer',
-        'lorem-generator',
-        'mute-video',
-        'sql-formatter',
-        'color-palette',
-        'pdf-form-filler',
-        'ai-humanizer',
-        'image-cropper',
-        'video-compressor',
-        'bento-grid',
-        'private-sketchpad',
-        'voice-recorder',
-        'social-hooks',
-        'loan-calculator',
-        'join-pdf',
-        'meta-tag-auditor',
-        'exif-stripper',
-        'batch-processor',
-        'pdf-converter',
-        'pattern-blob',
-        'video-cutter',
-        'visual-pdf-organizer',
-        'gradient-generator',
-        'svg-wave',
-        'video-converter',
-        'content-gap',
-        'schema-generator',
-        'html-markdown',
-        'image-to-pdf',
-        'bmi-calculator',
-        'ai-transcriber',
-        'video-to-mp3',
-        'json-node-map',
-        'regex-tester',
-        'video-resizer',
-        'video-merger',
-        'bezier-spline',
-        'pdf-signer',
-        'image-compressor',
-        'base64-converter',
-        'clip-path',
-        'subtitle-converter',
-        'glass-brutalist',
-        'meta-tags',
-        'css-generator',
-        'json-diff',
-        'sitemap-generator',
-        'favicon-generator',
-        'video-rotator',
-        'video-recorder',
-        'tone-analyzer',
-        'audio-trimmer',
-        'redirect-auditor',
-        'tailwind-grid',
-        'microphone-tester',
-        'password-generator',
-        'video-to-gif',
-        'resume-optimizer',
-        'seo-inspect',
-        'alt-text-generator',
-        'image-upscaler',
-        'headshot-generator',
-        'cron-builder',
-        'meme-generator',
-        'keyword-difficulty',
-        'passport-photo',
-        'pdf-analyst',
-        'uuid-generator',
-        'url-slugifier',
-        'ai-content-brief',
-        'qr-generator',
-        'screen-recorder',
-        'secure-hash',
-        'case-converter',
-        'markdown-compiler',
-        'code-explainer',
-        'digital-signature',
-        'image-vectorizer',
-        'double-publisher-ad-conundrum',
-        'shared-dictionary-compression-bypassing-cold-cache-latency-in-enterprise-apps',
-        'github-actions-secure-oidc-2026',
-        'optimizing-mobile-site-navigation-paths-resolving-tough-google-index-usability-flags',
-        'quick-image-optimizer',
-        'audio-converter',
-        'controlling-dynamic-render-passes-setting-up-safe-intersection-thresholds-for-viewports',
-        'webhid-webusb-hardware-tabs',
-        'entity-graph-seo-schemas',
-        'robots-txt-crawler-decoy',
-        'secure-localstorage-pbkdf2',
-        'adsense-policy-safeguards',
-        'optimizing-large-svg-assets',
-        'server-side-gemini-ai-proxy',
-        'mastering-privacy-sandboxes',
-        'css-typed-om-compilation',
-        'schema-graph-entity-validations',
-        'adsense-core-update-survival',
-        'adsense-auto-ads-automation',
-        'crawl-path-simplification-seo',
-        'microsoft-copilot-pc-slms-2026',
-        'hardening-serverless-microservices',
-        'ai-powered-technical-seo',
-        'analyzing-ad-impression-ctr',
-        'quantum-computing-webgpu',
-        'infinite-sitemap-architectures',
-        'decentralized-key-derivation',
-        'deep-dive-css-container',
-        'weblocks-indexeddb-concurrency',
-        'multi-cdn-asset-architectures',
-        'server-sent-events-revolution',
-        'paint-holding-api-fouc',
-        'multi-view-adsense-rpm',
-        'strategic-ad-placements',
-        'css-paint-api-rendering',
-        'tamper-proof-client-states',
-        'llm-crawler-robots-optimization',
-        'core-web-vitals-inp',
-        'progressive-streaming-webcodecs',
-        'advanced-browser-shadow-dom',
-        'smart-ad-layout-cls',
-        'automated-sitemap-generation',
-        'zero-trust-frontend',
-        'media-pipeline-optimizations',
-        'audio-synthesis-worklets',
-        'securing-rest-endpoints-signature',
-        'continuous-security-sri-csp',
-        'programmatic-ad-exchange-header',
-        'ai-semantic-search-grounding',
-        'srcset-dynamic-image-engine',
-        'multi-threaded-web-apps',
-        'eliminating-layout-bloat',
-        'modern-font-loading-science',
-        'decentralized-edge-sqlite',
-        'advanced-biometric-passkeys'
-      ];
-
-      const flaggedItems = FLAGGED_CANONICAL_PAGES.map(slug => ({
-        tab: slug,
-        priority: includePriority ? '0.85' : '0.60',
-        freq: 'weekly'
-      }));
-
-      const rawItems = [
-        { tab: 'about-us', priority: '0.50', freq: 'monthly' },
-        { tab: 'privacy-policy', priority: '0.40', freq: 'monthly' },
-        { tab: 'terms-of-service', priority: '0.40', freq: 'monthly' },
-        { tab: 'cookie-policy', priority: '0.40', freq: 'monthly' },
-        { tab: 'affiliate-disclosure', priority: '0.40', freq: 'monthly' },
-        { tab: 'guides', priority: includePriority ? '0.80' : '0.50', freq: changeFreq },
-        ...dynamicTools,
-        ...dynamicArticles,
-        ...flaggedItems
-      ];
-
-      // Deduplicate by tab slug so each canonical URL is declared exactly once
-      const seenTabs = new Set<string>();
-      const items = rawItems.filter(item => {
-        const cleanTab = item.tab.toLowerCase().trim();
-        if (seenTabs.has(cleanTab)) return false;
-        seenTabs.add(cleanTab);
-        return true;
-      });
-
-      let sdoc = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <!-- Primary URL -->
-  <url>
-    <loc>${parsedUrl}/</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.00</priority>
-  </url>
-`;
-
-      items.forEach(item => {
-        sdoc += `  <url>
-    <loc>${parsedUrl}/${item.tab}</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>${item.freq}</changefreq>
-    <priority>${item.priority}</priority>
-  </url>\n`;
-      });
-
-      sdoc += `</urlset>`;
-
-      let robotDoc = `# Standard robots.txt for Search Engines
-User-agent: *
-Disallow:
-`;
-
-      robotDoc += `\nSitemap: ${parsedUrl}/sitemap.xml`;
+      const robotDoc = generateRobotsTxt(parsedUrl);
 
       setGeneratedSitemap(sdoc);
       setRobotsTxt(robotDoc);
       setIsGenerating(false);
-    }, 600);
+    }, 400);
   };
 
   // PDF Optimizer handlers
@@ -4564,22 +4339,32 @@ Disallow:
                           Mapped sitemap.xml Output
                         </h4>
                         {generatedSitemap && (
-                          <button
-                            onClick={() => copyToClipboard(generatedSitemap, 'sitemap')}
-                            className="text-xs font-mono text-slate-400 hover:text-slate-200 flex items-center gap-1.5 px-2 py-1 rounded hover:bg-slate-800"
-                          >
-                            {isCopied === 'sitemap' ? (
-                              <>
-                                <Check className="w-3.5 h-3.5 text-emerald-400" />
-                                <span className="text-emerald-400">Copied!</span>
-                              </>
-                            ) : (
-                              <>
-                                <Copy className="w-3.5 h-3.5" />
-                                <span>Copy Code</span>
-                              </>
-                            )}
-                          </button>
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => downloadSitemapXml(generatedSitemap, 'sitemap.xml')}
+                              className="text-xs font-mono text-rose-400 hover:text-rose-300 flex items-center gap-1.5 px-2 py-1 rounded hover:bg-slate-800 transition-colors"
+                              title="Download compliant sitemap.xml with lastmod dates"
+                            >
+                              <FileDown className="w-3.5 h-3.5" />
+                              <span>Download XML</span>
+                            </button>
+                            <button
+                              onClick={() => copyToClipboard(generatedSitemap, 'sitemap')}
+                              className="text-xs font-mono text-slate-400 hover:text-slate-200 flex items-center gap-1.5 px-2 py-1 rounded hover:bg-slate-800"
+                            >
+                              {isCopied === 'sitemap' ? (
+                                <>
+                                  <Check className="w-3.5 h-3.5 text-emerald-400" />
+                                  <span className="text-emerald-400">Copied!</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="w-3.5 h-3.5" />
+                                  <span>Copy Code</span>
+                                </>
+                              )}
+                            </button>
+                          </div>
                         )}
                       </div>
                       <div className="flex-1 overflow-auto bg-slate-900 p-3 rounded-lg border border-slate-800 max-h-56">

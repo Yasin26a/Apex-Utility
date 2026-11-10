@@ -4,6 +4,7 @@ import fs from 'fs';
 import { GoogleGenAI, Type } from '@google/genai';
 import { AT_LEAST_20_ARTICLES } from './src/data/articles';
 import { SEO_H1_MAPPING, SEO_DESC_MAPPING } from './src/seo-mapping';
+import { generateSitemapXml, generateRobotsTxt } from './src/utils/sitemapService';
 
 async function generateContentWithFallback(
   ai: GoogleGenAI,
@@ -2962,87 +2963,16 @@ Draft guidelines:
     }
   });
 
-  // Serve a dynamically generated, search-crawler compliant sitemap.xml
+  // Serve a dynamically generated, search-crawler compliant sitemap.xml powered by sitemapService
   app.get('/sitemap.xml', (req, res) => {
     const host = req.headers.host || 'apexutility.live';
+    const isCustomDomain = !host.includes('apexutility.live') && !host.includes('localhost') && !host.includes('run.app');
     const protocol = req.headers['x-forwarded-proto'] || 'https';
-    const baseUrl = `${protocol}://${host}`;
+    const baseUrl = isCustomDomain ? `${protocol}://${host}` : 'https://apexutility.live';
     
-    const tools = [
-      'compress-pdf', 'webp-converter', 'json-beautifier', 'sitemap-seo', 'sitemap-generator', 
-      'image-to-pdf', 'join-pdf', 'ai-writer', 'password-generator', 'qr-generator', 
-      'unit-converter', 'svg-rasterizer', 'batch-processor', 'json-diff', 'secure-hash', 
-      'color-palette', 'digital-signature', 'seo-optimizer', 'base64-converter', 'regex-tester', 
-      'csv-json-converter', 'image-compressor', 'quick-image-optimizer', 'rich-text-stats', 'audio-trimmer', 
-      'ai-transcriber', 'pdf-analyst', 'exif-stripper', 'video-recorder', 'image-vectorizer', 
-      'code-snapshot', 'private-sketchpad', 'case-converter', 'lorem-generator', 'image-cropper', 
-      'date-calculator', 'seo-inspect', 'privacy-policy', 'terms-of-service', 'about-us', 
-      'guides', 'content-planner', 'schema-generator', 'content-gap', 'keyword-cluster', 
-      'css-generator', 'robots-txt', 'dns-lookup', 'user-agent', 'html-markdown', 
-      'meta-tags', 'ai-humanizer', 'tone-analyzer', 'resume-optimizer', 'text-summarizer', 
-      'passport-photo', 'meme-generator', 'headshot-generator', 'image-upscaler', 'mockup-generator', 
-      'pdf-converter', 'pdf-form-filler', 'pdf-signer', 'uuid-generator', 'cron-builder', 
-      'jwt-decoder', 'favicon-generator', 'gradient-generator', 'password-sharer', 'data-breach', 
-      'checksum-verifier', 'age-calculator', 'loan-calculator', 'bmi-calculator', 'screen-recorder', 
-      'webcam-recorder', 'voice-recorder', 'video-compressor', 'video-resizer', 'video-cutter', 
-      'mute-video', 'video-speed', 'video-rotator', 'video-merger', 'video-converter', 
-      'video-to-gif', 'video-to-mp3', 'audio-converter', 'subtitle-converter', 'microphone-tester', 
-      'webcam-check', 'speaker-tester', 'bento-grid', 'tailwind-grid', 'clip-path', 
-      'pattern-blob', 'json-node-map', 'bezier-spline', 'glass-brutalist', 'regex-flowchart', 
-      'redirect-auditor', 'google-serp', 'sql-formatter', 'subnet-cidr', 'svg-wave', 
-      'box-shadow', 'social-hooks', 'code-explainer', 'alt-text-generator', 'keyword-difficulty', 
-      'url-slugifier', 'meta-tag-auditor', 'rest-playpen', 'markdown-compiler', 'visual-pdf-organizer', 
-      'pdf-unlocker', 'ai-content-brief', 'pdf-redactor', 'freelance-rate-estimator', 'mortgage-refinance-visualizer', 
-      'svg-pattern-architect', 'schema-rich-snippet-builder', 'whop-video-clipping-tool', 'network-tools', 'internet-speed-test', 
-      'ping-test', 'what-is-my-ip', 'dns-test', 'ip-location', 'contact'
-    ];
-
-    const today = new Date().toISOString().split('T')[0];
-
-    let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
-    xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
-    
-    // 1. Add home path
-    xml += '  <url>\n';
-    xml += `    <loc>${baseUrl}/</loc>\n`;
-    xml += `    <lastmod>${today}</lastmod>\n`;
-    xml += '    <changefreq>daily</changefreq>\n';
-    xml += '    <priority>1.00</priority>\n';
-    xml += '  </url>\n';
-
-    // 2. Add each dynamic tool route
-    tools.forEach(tool => {
-      const isLegal = ['privacy-policy', 'terms-of-service', 'about-us', 'contact'].includes(tool);
-      const isHighPriority = ['sitemap-generator', 'sitemap-seo', 'seo-optimizer', 'guides'].includes(tool);
-      
-      const prio = isLegal ? '0.50' : (isHighPriority ? '0.90' : '0.80');
-      const freq = isLegal ? 'monthly' : 'weekly';
-      
-      xml += '  <url>\n';
-      xml += `    <loc>${baseUrl}/${tool}</loc>\n`;
-      xml += `    <lastmod>${today}</lastmod>\n`;
-      xml += `    <changefreq>${freq}</changefreq>\n`;
-      xml += `    <priority>${prio}</priority>\n`;
-      xml += '  </url>\n';
-    });
-
-    // 3. Add all editorial articles (50+ structural guides)
-    if (Array.isArray(AT_LEAST_20_ARTICLES)) {
-      AT_LEAST_20_ARTICLES.forEach(art => {
-        if (art && art.id) {
-          xml += '  <url>\n';
-          xml += `    <loc>${baseUrl}/${art.id}</loc>\n`;
-          xml += `    <lastmod>${today}</lastmod>\n`;
-          xml += '    <changefreq>weekly</changefreq>\n';
-          xml += '    <priority>0.75</priority>\n';
-          xml += '  </url>\n';
-        }
-      });
-    }
-
-    xml += '</urlset>';
-
-    res.header('Content-Type', 'application/xml');
+    const xml = generateSitemapXml({ baseUrl });
+    res.header('Content-Type', 'application/xml; charset=utf-8');
+    res.header('Cache-Control', 'public, max-age=3600, s-maxage=86400');
     res.send(xml);
   });
 
